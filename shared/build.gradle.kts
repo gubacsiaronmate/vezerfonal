@@ -29,11 +29,14 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            // put your Multiplatform dependencies here
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+    }
+    sourceSets.commonMain.dependencies {
+        implementation(libs.kotlinx.coroutines.core)
     }
 }
 

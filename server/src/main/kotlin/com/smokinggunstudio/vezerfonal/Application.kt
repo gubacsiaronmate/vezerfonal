@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal
 
+import com.smokinggunstudio.vezerfonal.database.configureDatabase
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -12,6 +13,7 @@ fun main() {
 }
 
 fun Application.module() {
+    configureDatabase()
     routing {
         get("/") {
             call.respondText("Ktor: ${Greeting().greet()}")

@@ -1,0 +1,10 @@
+ktor:
+    application:
+        modules:
+            - com.smokinggunstudio.vezerfonal.
+    deployment:
+        port: 8080
+    database:
+        url: "jdbc:postgresql://localhost:5432/vezerfonal"
+        username: $DB_USERNAME
+        password: $DB_PASSWORD
