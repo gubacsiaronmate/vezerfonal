@@ -1,10 +1,12 @@
 ktor:
     application:
         modules:
-            - com.smokinggunstudio.vezerfonal.
+            - com.smokinggunstudio.vezerfonal.ApplicationKt.module
+        directories:
+            pfps: ${PFP_DIR}
     deployment:
         port: 8080
     database:
-        url: "jdbc:postgresql://localhost:5432/vezerfonal"
-        username: $DB_USERNAME
-        password: $DB_PASSWORD
+        url: ${DATABASE_URL}
+        username: ${DB_USER}
+        password: ${DB_PASSWORD}

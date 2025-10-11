@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
+    alias(libs.plugins.kotlinx.serialization)
     application
 }
 
@@ -31,6 +32,8 @@ dependencies {
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.postgresql)
+    implementation(libs.ktor.serialization.kotlinxJson)
+    implementation(libs.ktor.serverContentNegotiation)
     
     // default imports
     implementation(projects.shared)
