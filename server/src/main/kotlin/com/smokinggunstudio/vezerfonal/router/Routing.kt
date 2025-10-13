@@ -6,8 +6,9 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.routing
+import kotlin.coroutines.CoroutineContext
 
-fun Application.configureRouting(imageService: ImageService) {
+suspend fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
     install(ContentNegotiation) {
         json()
     }

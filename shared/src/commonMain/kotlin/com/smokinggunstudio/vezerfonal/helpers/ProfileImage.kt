@@ -1,9 +1,9 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 data class ProfileImage(
-    override val uri: String,
+    override val uri: String?,
     val filename: String? = null
-) : ImageHelper {
+) : Image {
     companion object {
         fun fromURL(url: String): ProfileImage = ProfileImage(
             uri = url

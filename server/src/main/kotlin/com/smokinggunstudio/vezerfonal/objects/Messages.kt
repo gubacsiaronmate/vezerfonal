@@ -5,10 +5,10 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object Message : Table("message") {
+object Messages : Table("message") {
     val id = integer("id").autoIncrement()
-    val userId = integer("user_id").references(Users.id)
-    val groupId = integer("group_id").references(Groups.id)
+    val userId = integer("user_id").references(Users.id).nullable()
+    val groupId = integer("group_id").references(Groups.id).nullable()
     
     val content = text("content")
     val isUrgent = bool("is_urgent").default(false)

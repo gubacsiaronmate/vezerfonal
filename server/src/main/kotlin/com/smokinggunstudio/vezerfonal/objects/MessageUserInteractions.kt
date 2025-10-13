@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object MessageUserInteractions : Table("message_user_interactions") {
     val id = integer("id").autoIncrement()
-    val messageId = integer("message_id").references(Message.id)
+    val messageId = integer("message_id").references(Messages.id)
     val userId = integer("user_id").references(Users.id)
     
     val type = customEnumeration(
@@ -31,6 +31,10 @@ object MessageUserInteractions : Table("message_user_interactions") {
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now())
     val deletedAt = datetime("deleted_at").nullable()
+    
+    init {
+        uniqueIndex(messageId, userId)
+    }
     
     override val primaryKey = PrimaryKey(id)
 }

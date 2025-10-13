@@ -9,5 +9,5 @@ data class Devices(
     val session: Session,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val deletedAt: LocalDateTime
+    val deletedAt: LocalDateTime?
 )

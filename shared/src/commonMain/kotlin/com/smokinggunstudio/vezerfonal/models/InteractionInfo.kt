@@ -14,5 +14,5 @@ data class InteractionInfo(
     val actor: User,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val deletedAt: LocalDateTime
+    val deletedAt: LocalDateTime?
 )

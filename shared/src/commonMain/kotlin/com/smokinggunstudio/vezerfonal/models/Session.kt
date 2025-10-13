@@ -14,5 +14,5 @@ data class Session(
     val expiresAt: LocalDateTime,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
-    val deletedAt: LocalDateTime
+    val deletedAt: LocalDateTime?
 )
