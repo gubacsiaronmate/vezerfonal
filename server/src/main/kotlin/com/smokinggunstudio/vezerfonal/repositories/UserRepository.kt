@@ -37,6 +37,11 @@ suspend fun getUserByCondition(
     condition: (User) -> Boolean
 ): User? = getAllUsers(context).firstOrNull(condition)
 
+suspend fun getUsersByCondition(
+    context: CoroutineContext,
+    condition: (User) -> Boolean
+): List<User> = getAllUsers(context).filter(condition)
+
 suspend fun getUserById(
     id: Int,
     context: CoroutineContext

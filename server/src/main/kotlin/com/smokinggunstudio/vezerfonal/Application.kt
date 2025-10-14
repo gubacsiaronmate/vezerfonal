@@ -11,8 +11,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    embeddedServer(
+        Netty,
+        port = 8080,
+        host = "0.0.0.0",
+        module = Application::module
+    ).start(wait = true)
 }
 
 fun Application.module() = runBlocking {
@@ -26,5 +30,5 @@ fun Application.module() = runBlocking {
     
     if (url != null && username != null && password != null)
         async(context) { configureDatabase(url, username, password, context) }.await()
-    configureRouting(imageService)
+    configureRouting(imageService, context)
 }

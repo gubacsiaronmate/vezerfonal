@@ -17,8 +17,8 @@ suspend fun getAllMessages(context: CoroutineContext): List<Message> = withConte
             val group = groups.firstOrNull { group -> group.id == message[Messages.groupId] }
             val author = users.first { user -> user.id == message[Messages.authorUserId] }
             
-            if (user == null && group == null)
-                throw IllegalStateException("Both user and group cannot be null at the same time.")
+            if ((user == null) == (group == null)) // one must be null at all times, but only one can be
+                throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
             
             Message(
                 id = message[Messages.id],
@@ -64,3 +64,8 @@ suspend fun getMessagesByGroupId(
     id: Int,
     context: CoroutineContext
 ): List<Message> = getMessagesByCondition(context) { message -> message.group?.id == id }
+
+suspend fun getMessagesByRecipientUserId(
+    id: Int,
+    context: CoroutineContext
+): List<Message> = getMessagesByCondition(context) { message -> message.group?.members?.any { (user, _) -> user.id == id } == true }

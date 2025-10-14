@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.models
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Devices(
     val id: Int,
     val user: User,

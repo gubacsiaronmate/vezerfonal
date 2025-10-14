@@ -7,4 +7,5 @@ object MessageTag : Table("message_tag") {
     val name = varchar("name", 255).uniqueIndex()
     
     override val primaryKey = PrimaryKey(id)
+    // TODO: gyakorisag
 }

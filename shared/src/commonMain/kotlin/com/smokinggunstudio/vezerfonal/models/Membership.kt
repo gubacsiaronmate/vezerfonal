@@ -1,11 +1,10 @@
 package com.smokinggunstudio.vezerfonal.models
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OAuth(
-    val id: Int,
+data class Membership(
     val user: User,
-    val providerName: String,
-    val providerUserId: String
+    val joinedAt: LocalDateTime
 )

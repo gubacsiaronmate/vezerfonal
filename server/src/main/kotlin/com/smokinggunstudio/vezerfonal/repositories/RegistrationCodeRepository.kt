@@ -26,6 +26,11 @@ suspend fun getCodeByCondition(
     condition: (RegistrationCode) -> Boolean
 ): RegistrationCode? = getAllCodes(context).firstOrNull(condition)
 
+suspend fun getCodesByCondition(
+    context: CoroutineContext,
+    condition: (RegistrationCode) -> Boolean
+): List<RegistrationCode> = getAllCodes(context).filter(condition)
+
 suspend fun getCodeById(
     id: Int,
     context: CoroutineContext

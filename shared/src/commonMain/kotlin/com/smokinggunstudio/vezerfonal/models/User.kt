@@ -3,7 +3,9 @@ package com.smokinggunstudio.vezerfonal.models
 import com.smokinggunstudio.vezerfonal.helpers.Image
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Required
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class User(
     val id: Int,
     val registrationCode: RegistrationCode,

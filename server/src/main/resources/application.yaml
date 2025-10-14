@@ -4,8 +4,6 @@ ktor:
             - com.smokinggunstudio.vezerfonal.ApplicationKt.module
         directories:
             pfps: ${PFP_DIR}
-    deployment:
-        port: 8080
     database:
         url: ${DATABASE_URL}
         username: ${DB_USER}
