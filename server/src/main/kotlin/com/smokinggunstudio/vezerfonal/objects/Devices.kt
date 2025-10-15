@@ -9,7 +9,7 @@ object Devices : Table("devices") {
     val id = integer("id").autoIncrement()
     val userId = integer("user_id").references(Users.id)
     val pushToken = varchar("push_token", 255).uniqueIndex()
-    val sessionId = integer("session_id").references(Session.id).nullable()
+    val sessionId = integer("session_id").references(Sessions.id).nullable()
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now())
     val deletedAt = datetime("deleted_at").nullable()

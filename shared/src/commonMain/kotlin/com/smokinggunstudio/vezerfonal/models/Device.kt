@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Devices(
+data class Device(
     val id: Int,
     val user: User,
     val pushToken: String,

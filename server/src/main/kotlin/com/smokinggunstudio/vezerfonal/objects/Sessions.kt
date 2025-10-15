@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
-object Session : Table("session") {
+object Sessions : Table("session") {
     val id = integer("id").autoIncrement()
     val userId = integer("user_id").references(Users.id)
     val jti = varchar("jti", 255).uniqueIndex()

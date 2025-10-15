@@ -10,6 +10,7 @@ object Messages : Table("message") {
     val userId = integer("user_id").references(Users.id).nullable()
     val groupId = integer("group_id").references(Groups.id).nullable()
     
+    val title = varchar("title", 255)
     val content = text("content")
     val isUrgent = bool("is_urgent").default(false)
     val authorUserId = integer("author_user_id").references(Users.id)

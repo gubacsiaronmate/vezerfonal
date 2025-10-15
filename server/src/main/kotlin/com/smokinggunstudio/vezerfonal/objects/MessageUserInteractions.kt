@@ -18,13 +18,13 @@ object MessageUserInteractions : Table("message_user_interactions") {
         sql = "interaction_type",
         fromDb = { value -> InteractionType.valueOf(value as String) },
         toDb = { PGEnum("interaction_type", it) }
-    )
+    ).nullable()
     val status = customEnumeration(
         name = "status",
         sql = "message_status",
         fromDb = { value -> MessageStatus.valueOf(value as String) },
         toDb = { PGEnum("message_status", it) }
-    )
+    ).nullable()
     val reaction = varchar("reaction", 255).nullable()
     val actorUserId = integer("actor_user_id").references(Users.id).nullable()
     

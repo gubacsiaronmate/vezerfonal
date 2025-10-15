@@ -10,12 +10,14 @@ import kotlin.coroutines.CoroutineContext
 suspend fun getAllMessages(context: CoroutineContext): List<Message> = withContext(context) {
     val users = getAllUsers(context)
     val groups = getAllGroups(context)
+    val tags = getAllTags(context)
     return@withContext transaction { 
         val messages = Messages.selectAll()
         return@transaction messages.map { message ->
             val user = users.firstOrNull { user -> user.id == message[Messages.userId] }
             val group = groups.firstOrNull { group -> group.id == message[Messages.groupId] }
             val author = users.first { user -> user.id == message[Messages.authorUserId] }
+            val selectedTags = tags.filter { tag -> tag.messageIds.any { it == message[Messages.id] } }
             
             if ((user == null) == (group == null)) // one must be null at all times, but only one can be
                 throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
@@ -24,9 +26,11 @@ suspend fun getAllMessages(context: CoroutineContext): List<Message> = withConte
                 id = message[Messages.id],
                 user = user,
                 group = group,
+                title = message[Messages.title],
                 content = message[Messages.content],
                 isUrgent = message[Messages.isUrgent],
                 author = author,
+                tags = selectedTags,
                 createdAt = message[Messages.createdAt],
                 updatedAt = message[Messages.updatedAt],
                 deletedAt = message[Messages.deletedAt]
@@ -68,4 +72,13 @@ suspend fun getMessagesByGroupId(
 suspend fun getMessagesByRecipientUserId(
     id: Int,
     context: CoroutineContext
-): List<Message> = getMessagesByCondition(context) { message -> message.group?.members?.any { (user, _) -> user.id == id } == true }
+): List<Message> = getMessagesByCondition(context) { message ->
+    message.group?.members?.any { membership ->
+        membership.user.id == id
+    } == true
+}
+
+suspend fun getMessagesByTagId(
+    id: Int,
+    context: CoroutineContext
+): List<Message> = getMessagesByCondition(context) { message -> message.tags.any { tag -> tag.id == id } }

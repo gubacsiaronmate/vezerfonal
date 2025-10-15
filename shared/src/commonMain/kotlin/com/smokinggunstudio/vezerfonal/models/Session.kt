@@ -9,7 +9,7 @@ data class Session(
     val user: User,
     val jti: String,
     val refreshToken: String,
-    val ipAddress: String,
+    val ipAddress: String?,
     val revoked: Boolean,
     val deviceInfo: String,
     val lastUsedAt: LocalDateTime,

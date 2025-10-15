@@ -10,10 +10,10 @@ data class InteractionInfo(
     val id: Int,
     val message: Message,
     val user: User,
-    val type: InteractionType,
-    val status: MessageStatus,
+    val type: InteractionType?,
+    val status: MessageStatus?,
     val reaction: String?,
-    val actor: User,
+    val actor: User?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val deletedAt: LocalDateTime?
