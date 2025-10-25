@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 kotlin {
@@ -30,6 +31,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.bcrypt)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -37,6 +40,12 @@ kotlin {
     }
     sourceSets.commonMain.dependencies {
         implementation(libs.kotlinx.coroutines.core)
+    }
+    
+    jvmToolchain(21)
+    
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xcontext-parameters"))
     }
 }
 

@@ -4,19 +4,12 @@ import com.smokinggunstudio.vezerfonal.database.configureDatabase
 import com.smokinggunstudio.vezerfonal.helpers.ImageService
 import com.smokinggunstudio.vezerfonal.router.configureRouting
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 
-fun main() {
-    embeddedServer(
-        Netty,
-        port = 8080,
-        host = "0.0.0.0",
-        module = Application::module
-    ).start(wait = true)
+fun main(args: Array<String>) {
+    io.ktor.server.netty.EngineMain.main(args)
 }
 
 fun Application.module() = runBlocking {

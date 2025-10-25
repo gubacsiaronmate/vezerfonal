@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import com.smokinggunstudio.vezerfonal.util.unaryPlus
 import io.ktor.http.ContentType
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
@@ -12,7 +13,6 @@ import kotlin.coroutines.CoroutineContext
 class ImageService(
     private val pfpDir: String
 ) {
-    operator fun String.unaryPlus(): StringBuilder = StringBuilder().append(this)
     
     /**
      * Saves an uploaded image file and returns the filename
@@ -25,34 +25,29 @@ class ImageService(
         userId: Int,
         context: CoroutineContext
     ): String = withContext(context) {
-        lateinit var savedFileName: String
+        var savedFileName = "nofile"
         
         multipart.forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> {
-                    val fileBytes = part.provider().readBuffer().readByteArray()
-                    val extension = part.originalFileName?.substringAfterLast(".", "jpg")
-                    savedFileName = buildString {
-                        + "user_${userId}_"
-                        + UUID.randomUUID().toString()
-                        + ".$extension"
-                    }
-                    val file = File(pfpDir, savedFileName)
-                    file.writeBytes(fileBytes)
-                }
-                else -> {}
+            if (part !is PartData.FileItem) error("Part is not FileItem type.")
+            val fileBytes = part.provider().readBuffer().readByteArray()
+            val extension = part.originalFileName?.substringAfterLast(".", "jpg")
+            savedFileName = buildString {
+                + "user_${userId}_"
+                + UUID.randomUUID().toString()
+                + ".$extension"
             }
+            val file = File("$pfpDir/$savedFileName")
+            file.writeBytes(fileBytes)
             part.dispose()
         }
-        
-        savedFileName
+        "$pfpDir/$savedFileName"
     }
     
     /**
      * Saves a raw byte array as an image
      * @param bytes The image bytes
      * @param extension File extension (default: jpg)
-     * @param userId The user ID for organizing files (optional)
+     * @param userId The user ID for organizing files
      * @return The saved filename
      */
     suspend fun saveImageBytes(
@@ -67,9 +62,9 @@ class ImageService(
             + ".$extension"
         }
         
-        val file = File(pfpDir, savedFileName)
+        val file = File("$pfpDir/$savedFileName")
         file.writeBytes(bytes)
-        savedFileName
+        "$pfpDir/$savedFileName"
     }
     
     fun getImage(filename: String): File? =
@@ -81,7 +76,7 @@ class ImageService(
             ImageResponse(
                 file = file,
                 fileType = when (file.name.substringAfterLast(".", "").lowercase()) {
-                    "jpg, jpeg" -> ContentType.Image.JPEG
+                    "jpg", "jpeg" -> ContentType.Image.JPEG
                     "png" -> ContentType.Image.PNG
                     "gif" -> ContentType.Image.GIF
                     "webp" -> ContentType.Image.WEBP

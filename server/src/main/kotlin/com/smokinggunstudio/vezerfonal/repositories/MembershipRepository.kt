@@ -1,6 +1,5 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
-import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.ResultRow

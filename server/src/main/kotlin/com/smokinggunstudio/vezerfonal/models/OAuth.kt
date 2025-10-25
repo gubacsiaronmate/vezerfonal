@@ -1,10 +1,9 @@
 package com.smokinggunstudio.vezerfonal.models
 
-import kotlinx.serialization.Serializable
 
-@Serializable
+
 data class OAuth(
-    val id: Int,
+    val id: Int?,
     val user: User,
     val providerName: String,
     val providerUserId: String
