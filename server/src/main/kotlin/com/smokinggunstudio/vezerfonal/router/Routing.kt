@@ -13,7 +13,6 @@ import com.smokinggunstudio.vezerfonal.repositories.modifyUser
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -24,11 +23,11 @@ import kotlin.coroutines.CoroutineContext
 fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
     install(ContentNegotiation) { json() }
     
-    authentication {
+    /*authentication {
         oauth {
         
         }
-    }
+    }*/
     
     routing {
         get("/") {

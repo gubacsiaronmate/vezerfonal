@@ -13,16 +13,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
+import androidx.navigation.compose.rememberNavController
+import com.smokinggunstudio.vezerfonal.ui.theme.VezerfonalTheme
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.compose_multiplatform
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    VezerfonalTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
@@ -44,6 +47,19 @@ fun App() {
                     Text("Compose: $greeting")
                 }
             }
+        }
+    }
+}
+
+@Composable fun Navigator() {
+    val navigator = rememberNavController()
+    
+    NavHost(navController = navigator, startDestination = "home") {
+        composable("register") {
+        
+        }
+        composable("home") {
+        
         }
     }
 }

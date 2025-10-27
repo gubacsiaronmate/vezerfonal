@@ -20,10 +20,12 @@ logback = "1.5.19"
 #my imports
 exposed = "0.61.0"
 kotlinx-datetime = "0.6.1"
+navigationCompose = "2.9.4"
 postgresql = "42.7.8"
 kotlinx-serialization = "1.9.0"
 
 [libraries]
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

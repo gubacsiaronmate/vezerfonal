@@ -48,36 +48,8 @@ tasks.withType<JavaCompile> {
     options.release.set(21)
 }
 
-tasks.register("deploy") {
-    doLast {
-        val home = System.getProperty("user.home")
-            ?: throw GradleException("user.home property is not set")
-        
-        val pb = ProcessBuilder("bash", "$home/mover.sh")
-        
-        val sshSock = System.getenv("SSH_AUTH_SOCK") ?: run {
-            print("Enter SSH_AUTH_SOCK: ")
-            System.`in`.bufferedReader().readLine().also {
-                if (it.isBlank()) throw GradleException("SSH_AUTH_SOCK not provided")
-            }
-        }
-        pb.environment()["SSH_AUTH_SOCK"] = sshSock
-        
-        pb.inheritIO()
-        
-        println(home)
-        println(pb)
-        println(sshSock)
-        
-        val process = pb.start()
-        
-        Thread { process.inputStream.copyTo(System.out) }.start()
-        Thread { process.errorStream.copyTo(System.err) }.start()
-        System.`in`?.let { Thread { it.copyTo(process.outputStream) }.start() }
-            ?: println("stdin is null")
-        
-        process.waitFor()
-    }
+tasks.register<Exec>("deploy") {
+    commandLine("bash", "-c", $$"scp $JAR_PATH deployment:$DEPLOY_PATH && rm -f $JAR_PATH")
 }
 
 tasks.named<ShadowJar>("shadowJar") {
