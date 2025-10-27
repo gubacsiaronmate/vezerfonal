@@ -6,9 +6,33 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-val darkColorScheme = darkColorScheme()
+val darkColorScheme = darkColorScheme(
+    primary = MediumAquamarine,
+    onPrimary = White,
+    secondary = DodgerBlue,
+    onSecondary = White,
+    tertiary = Keppel,
+    onTertiary = RichBlack,
+    background = EerieBlack,
+    onBackground = AliceBlueGray,
+    surface = RaisinBlack,
+    onSurface = Cultured,
+    surfaceVariant = CharcoalGray,
+)
 
-val lightColorScheme = lightColorScheme()
+val lightColorScheme = lightColorScheme(
+    primary = CaribbeanGreen,
+    onPrimary = White,
+    secondary = AzureRadiance,
+    onSecondary = White,
+    tertiary = DarkGreen,
+    onTertiary = White,
+    background = GhostWhite,
+    onBackground = OxfordBlue,
+    surface = White,
+    onSurface = Gunmetal,
+    surfaceVariant = CharcoalGray,
+)
 
 @Composable fun VezerfonalTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
