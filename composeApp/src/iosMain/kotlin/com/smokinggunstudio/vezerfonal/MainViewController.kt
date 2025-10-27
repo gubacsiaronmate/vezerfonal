@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName", "FunctionName")
+
 package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.ui.window.ComposeUIViewController

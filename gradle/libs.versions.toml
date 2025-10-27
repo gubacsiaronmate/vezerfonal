@@ -20,12 +20,12 @@ logback = "1.5.19"
 #my imports
 exposed = "0.61.0"
 kotlinx-datetime = "0.6.1"
-navigationCompose = "2.9.4"
+materialIconsExtended = "1.7.0"
 postgresql = "42.7.8"
 kotlinx-serialization = "1.9.0"
+precompose = "1.6.2"
 
 [libraries]
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -51,8 +51,10 @@ exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "e
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 
 
 [plugins]

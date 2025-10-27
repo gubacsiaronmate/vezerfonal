@@ -1,65 +1,79 @@
 package com.smokinggunstudio.vezerfonal
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.helpers.NavTree
+import com.smokinggunstudio.vezerfonal.helpers.goTo
+import com.smokinggunstudio.vezerfonal.ui.screens.FirstRegisterScreen
+import com.smokinggunstudio.vezerfonal.ui.screens.ProfileCreationScreen
+import com.smokinggunstudio.vezerfonal.ui.screens.SecondRegisterScreen
+import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import com.smokinggunstudio.vezerfonal.ui.theme.VezerfonalTheme
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.compose_multiplatform
+import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.navigation.NavHost
+import moe.tlaster.precompose.navigation.rememberNavigator
 
-@Composable
-@Preview
-fun App() {
+@Composable fun App() {
     VezerfonalTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+        PreComposeApp {
+            Navigator()
         }
     }
 }
 
+
 @Composable fun Navigator() {
-    val navigator = rememberNavController()
+    val navigator = rememberNavigator()
+    val registerState = mutableStateOf<RegisterState?>(null)
     
-    NavHost(navController = navigator, startDestination = "home") {
-        composable("register") {
+    NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
+        scene(NavTree.Landing.route) { navigator.goTo(NavTree.Register1) }
         
+        scene(NavTree.Home.route) { navigator.goTo(NavTree.Register1) }
+        
+        scene(NavTree.Register1.route) {
+            fun handleOnClickCallback(regState: RegisterState?) {
+                registerState.value = regState
+                when (registerState.value) {
+                    is NonAdminRegisterState -> navigator.goTo(NavTree.Register2)
+                    is AdminRegisterState -> navigator.goTo(NavTree.CreateOrg)
+                    null -> error("goToCorrectNav: registerState.value cannot be null")
+                    else -> error(
+                        "goToCorrectNav: registerState.value has a weird type: { ${registerState.value!!::class.simpleName} } or value: { ${registerState.value} }"
+                    )
+                }
+            }
+            
+            FirstRegisterScreen(
+                onClickCallbackNonAdmin = ::handleOnClickCallback,
+                onClickCallbackAdmin = ::handleOnClickCallback
+            )
         }
-        composable("home") {
         
+        scene(NavTree.CreateOrg.route) {
+            if (registerState.value == null)
+                error("Register2.route: RegisterState cannot be null.")
+            
+            // TODO: Organisation creation screen
+        }
+        
+        scene(NavTree.Register2.route) {
+            if (registerState.value == null)
+                error("Register2.route: RegisterState cannot be null.")
+            
+            SecondRegisterScreen(registerState.value!!) { navigator.goTo(NavTree.Register3) }
+        }
+        
+        scene(NavTree.Register3.route) {
+            if (registerState.value == null)
+                error("Register2.route: RegisterState cannot be null.")
+            
+            ProfileCreationScreen(registerState.value!!) {
+                
+                navigator.goTo(NavTree.Home)
+            }
         }
     }
 }
