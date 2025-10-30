@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
+import com.smokinggunstudio.vezerfonal.data.UserData
 
 class NonAdminRegisterState : RegisterState {
     private val _regCode = mutableStateOf("")
@@ -37,6 +38,17 @@ class NonAdminRegisterState : RegisterState {
     
     override fun updateIdentifier(newIdentifier: String) {
         _identifier.value = newIdentifier
+    }
+    
+    fun toUserData(): UserData {
+        return UserData(
+            registrationCode = regCode,
+            email = email,
+            password = password,
+            name = name,
+            identifier = identifier,
+            isSuperAdmin = false
+        )
     }
     
     companion object {

@@ -31,21 +31,21 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
             .padding(horizontal = 8.dp),
     ) {
         val confirmPassword = mutableStateOf("")
-        val isPasswConfirmed by remember { mutableStateOf(registerState.password == confirmPassword.value) }
+        val isPasswConfirmed by remember { mutableStateOf(registerState.password == confirmPassword.value && !confirmPassword.value.isBlank()) }
         
         RegisterText()
         
         Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = registerState.email,
-                onValueChange = { registerState.updateEmail(it) },
+                onValueChange = registerState::updateEmail,
                 label = { Text("Email") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = registerState.password,
-                onValueChange = { registerState.updatePassword(it) },
+                onValueChange = registerState::updatePassword,
                 label = { Text("Password") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)

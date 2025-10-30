@@ -19,8 +19,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 
 @Composable fun FirstRegisterScreen(
-    onClickCallbackNonAdmin: CallbackClickEvent<RegisterState>,
-    onClickCallbackAdmin: CallbackClickEvent<RegisterState>
+    onClickCallback: CallbackClickEvent<RegisterState>,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -41,7 +40,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
         ) {
             OutlinedTextField(
                 value = nonAdminRegisterState.regCode,
-                onValueChange = { nonAdminRegisterState.updateRegCode(it) },
+                onValueChange = nonAdminRegisterState::updateRegCode,
                 label = { Text("Registration Code") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
@@ -55,7 +54,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
             ) {
                 Button(
                     onClick = {
-                        onClickCallbackNonAdmin(nonAdminRegisterState)
+                        onClickCallback(nonAdminRegisterState)
                     },
                     modifier = Modifier.fillMaxWidth().padding(8.dp)
                 ) { Text("Continue") }
@@ -64,7 +63,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                 
                 Button(
                     onClick = {
-                        onClickCallbackAdmin(AdminRegisterState())
+                        onClickCallback(AdminRegisterState())
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) { Text("Create Organisation") }

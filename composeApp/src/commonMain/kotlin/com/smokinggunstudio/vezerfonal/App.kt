@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.smokinggunstudio.vezerfonal.helpers.NavTree
 import com.smokinggunstudio.vezerfonal.helpers.goTo
 import com.smokinggunstudio.vezerfonal.ui.screens.FirstRegisterScreen
@@ -26,7 +28,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 
 @Composable fun Navigator() {
     val navigator = rememberNavigator()
-    val registerState = mutableStateOf<RegisterState?>(null)
+    var registerState by mutableStateOf<RegisterState?>(null)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         scene(NavTree.Landing.route) { navigator.goTo(NavTree.Register1) }
@@ -34,43 +36,39 @@ import moe.tlaster.precompose.navigation.rememberNavigator
         scene(NavTree.Home.route) { navigator.goTo(NavTree.Register1) }
         
         scene(NavTree.Register1.route) {
-            fun handleOnClickCallback(regState: RegisterState?) {
-                registerState.value = regState
-                when (registerState.value) {
+            fun handleOnClickCallback(regState: RegisterState) {
+                registerState = regState
+                when (registerState) {
                     is NonAdminRegisterState -> navigator.goTo(NavTree.Register2)
                     is AdminRegisterState -> navigator.goTo(NavTree.CreateOrg)
-                    null -> error("goToCorrectNav: registerState.value cannot be null")
                     else -> error(
-                        "goToCorrectNav: registerState.value has a weird type: { ${registerState.value!!::class.simpleName} } or value: { ${registerState.value} }"
+                        "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { ${registerState} }"
                     )
                 }
             }
             
-            FirstRegisterScreen(
-                onClickCallbackNonAdmin = ::handleOnClickCallback,
-                onClickCallbackAdmin = ::handleOnClickCallback
-            )
+            FirstRegisterScreen(::handleOnClickCallback)
         }
         
         scene(NavTree.CreateOrg.route) {
-            if (registerState.value == null)
+            if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
             // TODO: Organisation creation screen
         }
         
         scene(NavTree.Register2.route) {
-            if (registerState.value == null)
+            if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            SecondRegisterScreen(registerState.value!!) { navigator.goTo(NavTree.Register3) }
+            SecondRegisterScreen(registerState!!) { navigator.goTo(NavTree.Register3) }
         }
         
         scene(NavTree.Register3.route) {
-            if (registerState.value == null)
+            if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            ProfileCreationScreen(registerState.value!!) {
+            ProfileCreationScreen(registerState!!) {
                 
                 navigator.goTo(NavTree.Home)
             }
