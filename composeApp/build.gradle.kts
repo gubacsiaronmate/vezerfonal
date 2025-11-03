@@ -34,18 +34,17 @@ kotlin {
         binaries.executable()
     }
     
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
-    
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
+        
         commonMain.dependencies {
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinxJson)
             implementation(libs.material.icons.extended)
             implementation(compose.components.resources)
             implementation(libs.precompose)
@@ -59,13 +58,25 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.shared)
         }
+        
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+        
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+        
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
+        }
+        
         jvmMain.dependencies {
+            implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
+        
     }
 }
 
@@ -97,6 +108,7 @@ android {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-logging:3.3.1")
     debugImplementation(compose.uiTooling)
 }
 

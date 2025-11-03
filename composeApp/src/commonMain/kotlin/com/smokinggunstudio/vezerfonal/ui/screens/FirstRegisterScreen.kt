@@ -11,7 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState

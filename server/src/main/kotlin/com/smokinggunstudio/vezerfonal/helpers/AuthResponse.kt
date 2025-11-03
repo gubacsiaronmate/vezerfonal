@@ -1,3 +1,3 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-typealias ClickEvent = () -> Unit
+data class AuthResponse(val userId: Int?)

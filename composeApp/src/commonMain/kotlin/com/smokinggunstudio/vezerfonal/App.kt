@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.smokinggunstudio.vezerfonal.helpers.NavTree
-import com.smokinggunstudio.vezerfonal.helpers.goTo
+import com.smokinggunstudio.vezerfonal.ui.helpers.NavTree
+import com.smokinggunstudio.vezerfonal.ui.helpers.go
+import com.smokinggunstudio.vezerfonal.ui.helpers.route
+import com.smokinggunstudio.vezerfonal.ui.helpers.screen
 import com.smokinggunstudio.vezerfonal.ui.screens.FirstRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.ProfileCreationScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.SecondRegisterScreen
@@ -31,16 +33,20 @@ import moe.tlaster.precompose.navigation.rememberNavigator
     var registerState by mutableStateOf<RegisterState?>(null)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
-        scene(NavTree.Landing.route) { navigator.goTo(NavTree.Register1) }
+        screen(NavTree.Test("asd")) {
         
-        scene(NavTree.Home.route) { navigator.goTo(NavTree.Register1) }
+        }
         
-        scene(NavTree.Register1.route) {
+        screen(NavTree.Landing) { navigator.go(NavTree.Register1) }
+        
+        screen(NavTree.Home) { navigator.go(NavTree.Register1) }
+        
+        screen(NavTree.Register1) {
             fun handleOnClickCallback(regState: RegisterState) {
                 registerState = regState
                 when (registerState) {
-                    is NonAdminRegisterState -> navigator.goTo(NavTree.Register2)
-                    is AdminRegisterState -> navigator.goTo(NavTree.CreateOrg)
+                    is NonAdminRegisterState -> navigator.go(NavTree.Register2)
+                    is AdminRegisterState -> navigator.go(NavTree.CreateOrg)
                     else -> error(
                         "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { ${registerState} }"
                     )
@@ -50,27 +56,27 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             FirstRegisterScreen(::handleOnClickCallback)
         }
         
-        scene(NavTree.CreateOrg.route) {
+        screen(NavTree.CreateOrg) {
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
             // TODO: Organisation creation screen
         }
         
-        scene(NavTree.Register2.route) {
+        screen(NavTree.Register2) {
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            SecondRegisterScreen(registerState!!) { navigator.goTo(NavTree.Register3) }
+            SecondRegisterScreen(registerState!!) { navigator.go(NavTree.Register3) }
         }
         
-        scene(NavTree.Register3.route) {
+        screen(NavTree.Register3) {
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
             ProfileCreationScreen(registerState!!) {
                 
-                navigator.goTo(NavTree.Home)
+                navigator.go(NavTree.Home)
             }
         }
     }

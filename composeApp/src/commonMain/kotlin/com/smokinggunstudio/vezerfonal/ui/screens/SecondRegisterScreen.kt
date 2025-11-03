@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
