@@ -3,6 +3,11 @@ package com.smokinggunstudio.vezerfonal.helpers
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingContext
+import org.jetbrains.exposed.sql.FieldSet
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.Query
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import java.time.LocalDateTime
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
@@ -33,3 +38,7 @@ suspend inline fun <T> RoutingContext.tryOutgoing(
     statusCode = HttpStatusCode.InternalServerError,
     action = action
 )
+
+inline fun FieldSet.select(where: SqlExpressionBuilder.() -> Op<Boolean>): Query = selectWhere(SqlExpressionBuilder.where())
+
+fun FieldSet.selectWhere(where: Op<Boolean>): Query = Query(this, where)

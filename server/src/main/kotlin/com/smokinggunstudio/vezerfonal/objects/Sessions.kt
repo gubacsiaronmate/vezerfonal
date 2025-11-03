@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 object Sessions : Table("session") {
     val id = integer("id").autoIncrement()
     val userId = integer("user_id").references(Users.id)
-    val jti = varchar("jti", 255).uniqueIndex()
+    val jti = char("jti", 36).uniqueIndex().references(JWTs.id)
     val refreshTokenHash = varchar("refresh_token_hash", 255).uniqueIndex()
     val ipAddress = varchar("ip_address", 255).nullable()
     val revoked = bool("revoked")

@@ -1,10 +1,15 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.RegistrationCode
 import com.smokinggunstudio.vezerfonal.objects.RegistrationCodes
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
@@ -24,23 +29,41 @@ suspend fun getAllCodes(context: CoroutineContext): List<RegistrationCode> = wit
 
 suspend fun getCodeByCondition(
     context: CoroutineContext,
-    condition: (RegistrationCode) -> Boolean
-): RegistrationCode? = getAllCodes(context).firstOrNull(condition)
+    condition: SqlExpressionBuilder.() -> Op<Boolean>
+): RegistrationCode? = withContext(context) {
+    RegistrationCodes.select(condition).firstOrNull()?.let {
+        RegistrationCode(
+            id = it[RegistrationCodes.id],
+            code = it[RegistrationCodes.code],
+            totalUses = it[RegistrationCodes.totalUses],
+            remainingUses = it[RegistrationCodes.remainingUses]
+        )
+    }
+}
 
 suspend fun getCodesByCondition(
     context: CoroutineContext,
-    condition: (RegistrationCode) -> Boolean
-): List<RegistrationCode> = getAllCodes(context).filter(condition)
+    condition: SqlExpressionBuilder.() -> Op<Boolean>
+): List<RegistrationCode> = withContext(context) {
+    RegistrationCodes.select(condition).map {
+        RegistrationCode(
+            id = it[RegistrationCodes.id],
+            code = it[RegistrationCodes.code],
+            totalUses = it[RegistrationCodes.totalUses],
+            remainingUses = it[RegistrationCodes.remainingUses]
+        )
+    }
+}
 
 suspend fun getCodeById(
     id: Int,
     context: CoroutineContext
-): RegistrationCode? = getCodeByCondition(context) { code -> code.id == id }
+): RegistrationCode? = newSuspendedTransaction { getCodeByCondition(context) { RegistrationCodes.id eq id } }
 
 suspend fun getCodeByCode(
     code: String,
     context: CoroutineContext
-): RegistrationCode? = getCodeByCondition(context) { registrationCode -> registrationCode.code == code }
+): RegistrationCode? = newSuspendedTransaction { getCodeByCondition(context) { RegistrationCodes.code eq code } }
 
 suspend fun insertCode(
     registrationCode: RegistrationCode,

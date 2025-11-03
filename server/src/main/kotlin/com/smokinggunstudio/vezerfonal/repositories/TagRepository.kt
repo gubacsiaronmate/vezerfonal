@@ -9,10 +9,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 suspend fun getAllTags(context: CoroutineContext): List<Tag> = withContext(context) {
-    return@withContext transaction { 
+    transaction {
         val tags = MessageTag.selectAll()
         val connections = MessageTagConnection.selectAll().toList()
-        return@transaction tags.map { tag -> Tag(
+        tags.map { tag -> Tag(
             id = tag[MessageTag.id],
             tagName = tag[MessageTag.name],
             messageIds = connections

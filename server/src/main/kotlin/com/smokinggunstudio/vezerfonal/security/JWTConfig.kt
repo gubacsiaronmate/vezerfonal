@@ -3,7 +3,12 @@ package com.smokinggunstudio.vezerfonal.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.smokinggunstudio.vezerfonal.models.JWTModel
+import com.smokinggunstudio.vezerfonal.repositories.insertJWT
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toKotlinInstant
+import kotlinx.datetime.toLocalDateTime
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -20,16 +25,27 @@ object JWTConfig {
         .withAudience(AUDIENCE)
         .build()
     
-    suspend fun generateToken(userId: String, context: CoroutineContext): String = withContext(context) {
+    suspend fun generateToken(userId: Int, context: CoroutineContext, isRefresh: Boolean = false): String = withContext(context) {
         val tokenId = UUID.randomUUID().toString()
+        val expiresAt = Date(System.currentTimeMillis() + VALIDITY_IN_MS)
         
-        JWT.create()
+        val jwt = JWT.create()
             .withSubject("Authentication")
             .withIssuer(ISSUER)
             .withAudience(AUDIENCE)
             .withClaim("userId", userId)
             .withClaim("tokenId", tokenId)
-            .withExpiresAt(Date(System.currentTimeMillis() + VALIDITY_IN_MS))
+            .withExpiresAt(expiresAt)
             .sign(algorithm)
+        
+        val success = insertJWT(context, JWTModel(
+            id = tokenId,
+            tokenHash = hashLongString(jwt),
+            isRefresh = isRefresh,
+            revoked = false,
+            expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
+        ))
+        
+        return@withContext if (success) jwt else throw IllegalArgumentException("Unable to insert token into database.")
     }
 }

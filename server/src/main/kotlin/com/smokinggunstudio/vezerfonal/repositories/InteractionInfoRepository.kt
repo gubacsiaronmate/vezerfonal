@@ -1,9 +1,14 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
@@ -36,25 +41,71 @@ suspend fun getAllInteractionInfo(context: CoroutineContext): List<InteractionIn
 
 suspend fun getInteractionInfoByCondition(
     context: CoroutineContext,
-    condition: (InteractionInfo) -> Boolean
-): InteractionInfo? = getAllInteractionInfo(context).firstOrNull(condition)
+    condition: SqlExpressionBuilder.() -> Op<Boolean>
+): InteractionInfo? = withContext(context) {
+    val messages = getAllMessages(context)
+    val users = getAllUsers(context)
+    MessageUserInteractions.select(condition).firstOrNull()?.let { info ->
+        val message = messages.first { message -> message.id == info[MessageUserInteractions.messageId] }
+        val user = users.first { user -> user.id == info[MessageUserInteractions.userId] }
+        val actor = users.firstOrNull { user -> user.id == info[MessageUserInteractions.actorUserId] }
+        InteractionInfo(
+            id = info[MessageUserInteractions.id],
+            message = message,
+            user = user,
+            type = info[MessageUserInteractions.type],
+            status = info[MessageUserInteractions.status],
+            reaction = info[MessageUserInteractions.reaction],
+            actor = actor,
+            createdAt = info[MessageUserInteractions.createdAt],
+            updatedAt = info[MessageUserInteractions.updatedAt],
+            deletedAt = info[MessageUserInteractions.deletedAt]
+        )
+    }
+}
 
 suspend fun getInteractionInfosByCondition(
     context: CoroutineContext,
-    condition: (InteractionInfo) -> Boolean
-): List<InteractionInfo> = getAllInteractionInfo(context).filter(condition)
+    condition: SqlExpressionBuilder.() -> Op<Boolean>
+): List<InteractionInfo> = withContext(context) {
+    val messages = getAllMessages(context)
+    val users = getAllUsers(context)
+    MessageUserInteractions.select(condition).map { info ->
+        val message = messages.first { message -> message.id == info[MessageUserInteractions.messageId] }
+        val user = users.first { user -> user.id == info[MessageUserInteractions.userId] }
+        val actor = users.firstOrNull { user -> user.id == info[MessageUserInteractions.actorUserId] }
+        InteractionInfo(
+            id = info[MessageUserInteractions.id],
+            message = message,
+            user = user,
+            type = info[MessageUserInteractions.type],
+            status = info[MessageUserInteractions.status],
+            reaction = info[MessageUserInteractions.reaction],
+            actor = actor,
+            createdAt = info[MessageUserInteractions.createdAt],
+            updatedAt = info[MessageUserInteractions.updatedAt],
+            deletedAt = info[MessageUserInteractions.deletedAt]
+        )
+    }
+}
 
 suspend fun getInteractionInfoById(
     id: Int,
     context: CoroutineContext
-): InteractionInfo? = getInteractionInfoByCondition(context) { info -> info.id == id }
+): InteractionInfo? = newSuspendedTransaction {
+    getInteractionInfoByCondition(context) { MessageUserInteractions.id eq id }
+}
 
 suspend fun getInteractionInfosByMessageId(
     id: Int,
     context: CoroutineContext
-): List<InteractionInfo> = getInteractionInfosByCondition(context) { info -> info.message.id == id }
+): List<InteractionInfo> = newSuspendedTransaction {
+    getInteractionInfosByCondition(context) { MessageUserInteractions.messageId eq id }
+}
 
 suspend fun getInteractionInfosByUserId(
     id: Int,
     context: CoroutineContext
-): List<InteractionInfo> = getInteractionInfosByCondition(context) { info -> info.user.id == id }
+): List<InteractionInfo> = newSuspendedTransaction {
+    getInteractionInfosByCondition(context) { MessageUserInteractions.userId eq id }
+}

@@ -8,9 +8,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 suspend fun getOrganisation(context: CoroutineContext): Organisation = withContext(context) {
-    return@withContext transaction { 
+    transaction {
         val org = Organisations.selectAll().first()
-        return@transaction Organisation(
+        Organisation(
             name = org[Organisations.name],
             createdAt = org[Organisations.createdAt]
         )

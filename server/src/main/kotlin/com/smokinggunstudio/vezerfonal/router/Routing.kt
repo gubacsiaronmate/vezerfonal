@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.objects.Users
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.insertUser
 import com.smokinggunstudio.vezerfonal.repositories.modifyUser
+import com.smokinggunstudio.vezerfonal.security.JWTConfig
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
 import io.ktor.http.*
@@ -68,11 +69,15 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     context = context
                 ) } ?: return@post
                 
-                if (updateSuccess) call.respondText("Registered.")
-                else call.respondText(
+                if (!updateSuccess) call.respondText(
                     "Failed to save picture to database.",
                     status = HttpStatusCode.InternalServerError
                 )
+                
+                val jwt = tryOutgoing("Cannot generate jwt.")
+                { JWTConfig.generateToken(userId, context) } ?: return@post
+                
+                call.respond(mapOf("token" to jwt))
             }
             
             route("/oauth") {
@@ -90,9 +95,9 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 }
             } }
             
-            authenticate("oauth") { route("/oauth") {
-                print("asd")
-            } }
+//            authenticate("oauth") { route("/oauth") {
+//                print("asd")
+//            } }
         }
     } }
 }
