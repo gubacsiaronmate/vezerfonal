@@ -33,22 +33,18 @@ import moe.tlaster.precompose.navigation.rememberNavigator
     var registerState by mutableStateOf<RegisterState?>(null)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
-        screen(NavTree.Test("asd")) {
+        screen(NavTree.Landing) { navigator.go(NavTree.Register(1)) }
         
-        }
+        screen(NavTree.Home) { navigator.go(NavTree.Register(1)) }
         
-        screen(NavTree.Landing) { navigator.go(NavTree.Register1) }
-        
-        screen(NavTree.Home) { navigator.go(NavTree.Register1) }
-        
-        screen(NavTree.Register1) {
+        screen(NavTree.Register(1)) {
             fun handleOnClickCallback(regState: RegisterState) {
                 registerState = regState
                 when (registerState) {
-                    is NonAdminRegisterState -> navigator.go(NavTree.Register2)
+                    is NonAdminRegisterState -> navigator.go(NavTree.Register(2))
                     is AdminRegisterState -> navigator.go(NavTree.CreateOrg)
                     else -> error(
-                        "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { ${registerState} }"
+                        "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { $registerState }"
                     )
                 }
             }
@@ -63,14 +59,14 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             // TODO: Organisation creation screen
         }
         
-        screen(NavTree.Register2) {
+        screen(NavTree.Register(2)) {
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            SecondRegisterScreen(registerState!!) { navigator.go(NavTree.Register3) }
+            SecondRegisterScreen(registerState!!) { navigator.go(NavTree.Register(3)) }
         }
         
-        screen(NavTree.Register3) {
+        screen(NavTree.Register(3)) {
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
