@@ -7,8 +7,8 @@ fun Navigator.go(node: NavTree) = navigate(node.route)
 
 val NavTree.route: String
     get() = when (hasParameters) {
-        true -> "/${this::class.simpleName!!.lowercase()}"
-        false -> "/${this::class.simpleName!!.lowercase()}/${getParameter()}"
+        false -> "/${this::class.simpleName!!.lowercase()}"
+        true -> "/${this::class.simpleName!!.lowercase()}/${getParameter()}"
     }
 
 fun RouteBuilder.screen(route: NavTree, content: ComposableContent) {
