@@ -4,7 +4,7 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.doesCodeExist
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
-import com.smokinggunstudio.vezerfonal.security.Encryption
+import com.smokinggunstudio.vezerfonal.security.hashPassword
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
@@ -16,7 +16,7 @@ suspend fun UserData.toUser(context: CoroutineContext): User = withContext(conte
     User(
         registrationCode = code,
         email = email,
-        _password = Encryption.hashPassword(password!!),
+        _password = hashPassword(password!!),
         displayName = name,
         identifier = identifier,
         isSuperAdmin = isSuperAdmin,

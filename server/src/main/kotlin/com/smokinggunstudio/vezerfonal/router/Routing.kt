@@ -1,26 +1,17 @@
 package com.smokinggunstudio.vezerfonal.router
 
 import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
-import com.smokinggunstudio.vezerfonal.helpers.ImageService
-import com.smokinggunstudio.vezerfonal.helpers.toUser
-import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
-import com.smokinggunstudio.vezerfonal.helpers.tryOutgoing
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.repositories.getUserByEmail
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.insertUser
 import com.smokinggunstudio.vezerfonal.repositories.modifyUser
-import com.smokinggunstudio.vezerfonal.security.Encryption
+import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
+import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.UserIdPrincipal
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.authentication
-import io.ktor.server.auth.basic
-import io.ktor.server.auth.oauth
-import io.ktor.server.auth.principal
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -32,15 +23,8 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
     install(ContentNegotiation) { json() }
     
     authentication {
-        basic("basic") {
-            validate { credentials ->
-                val user = getUserByEmail(credentials.name, context)
-                    ?: return@validate AuthResponse(null)
-                if (Encryption.verifyPassword(credentials.password, user.password))
-                    AuthResponse(user.id)
-                else AuthResponse(null)
-            }
-        }
+        configureBasicAuth(this, context)
+        configureJWTAuth(this, context)
     }
     
     routing { route("/api") {
