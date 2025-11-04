@@ -1,5 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.helpers
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
+
 data class ShapeModifier(
     val topLeft: Int,
     val topRight: Int,
@@ -14,22 +18,33 @@ data class ShapeModifier(
     /**
      * Creates a modified version with only the top corners rounded
      */
-    fun topRounded(radius: Int = 12): ShapeModifier = copy(topLeft = radius, topRight = radius, bottomLeft = 0, bottomRight = 0)
+    fun topRounded(radius: Int = 12): ShapeModifier =
+        copy(topLeft = radius, topRight = radius, bottomLeft = 0, bottomRight = 0)
     
     /**
      * Creates a modified version with only the bottom corners rounded
      */
-    fun bottomRounded(radius: Int = 12): ShapeModifier = copy(topLeft = 0, topRight = 0, bottomLeft = radius, bottomRight = radius)
+    fun bottomRounded(radius: Int = 12): ShapeModifier =
+        copy(topLeft = 0, topRight = 0, bottomLeft = radius, bottomRight = radius)
     
     /**
      * Creates a modified version with only the left corners rounded
      */
-    fun leftRounded(radius: Int = 12): ShapeModifier = copy(topLeft = radius, topRight = 0, bottomLeft = radius, bottomRight = 0)
+    fun leftRounded(radius: Int = 12): ShapeModifier =
+        copy(topLeft = radius, topRight = 0, bottomLeft = radius, bottomRight = 0)
     
     /**
      * Creates a modified version with only the right corners rounded
      */
-    fun rightRounded(radius: Int = 12): ShapeModifier = copy(topLeft = 0, topRight = radius, bottomLeft = 0, bottomRight = radius)
+    fun rightRounded(radius: Int = 12): ShapeModifier =
+        copy(topLeft = 0, topRight = radius, bottomLeft = 0, bottomRight = radius)
+    
+    fun toShape(): Shape = RoundedCornerShape(
+        topStart = topLeft.dp,
+        topEnd = topRight.dp,
+        bottomEnd = bottomRight.dp,
+        bottomStart = bottomLeft.dp,
+    )
     
     companion object {
         /**
