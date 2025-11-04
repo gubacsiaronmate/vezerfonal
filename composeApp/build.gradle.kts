@@ -105,10 +105,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.set(listOf("-Xexpect-actual-classes"))
+        }
+    }
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-logging:3.3.1")
+    implementation(libs.ktor.client.logging)
     debugImplementation(compose.uiTooling)
 }
 

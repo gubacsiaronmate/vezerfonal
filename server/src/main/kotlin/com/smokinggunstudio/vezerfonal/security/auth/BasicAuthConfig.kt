@@ -11,10 +11,10 @@ fun configureBasicAuth(feature: AuthenticationConfig, context: CoroutineContext)
     feature.basic("basic") {
         validate { credentials ->
             val user = getUserByEmail(credentials.name, context)
-                ?: return@validate AuthResponse(null)
+                ?: return@validate null
             if (verifyPassword(credentials.password, user.password))
-                AuthResponse(user.id)
-            else AuthResponse(null)
+                AuthResponse(user.id!!)
+            else null
         }
     }
 }

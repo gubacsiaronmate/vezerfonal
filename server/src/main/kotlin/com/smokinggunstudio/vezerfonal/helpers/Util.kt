@@ -3,11 +3,15 @@ package com.smokinggunstudio.vezerfonal.helpers
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.RoutingContext
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import org.jetbrains.exposed.sql.FieldSet
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import java.time.LocalDateTime
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
@@ -30,7 +34,7 @@ suspend inline fun <T> RoutingContext.tryIncoming(
     action = action
 )
 
-suspend inline fun <T> RoutingContext.tryOutgoing(
+suspend inline fun <T> RoutingContext.tryInternal(
     onErrorMessage: String,
     action: () -> T
 ): T? = trial(
@@ -42,3 +46,7 @@ suspend inline fun <T> RoutingContext.tryOutgoing(
 inline fun FieldSet.select(where: SqlExpressionBuilder.() -> Op<Boolean>): Query = selectWhere(SqlExpressionBuilder.where())
 
 fun FieldSet.selectWhere(where: Op<Boolean>): Query = Query(this, where)
+
+fun LocalDateTime.before(instant: Instant): Boolean = toInstant(TimeZone.currentSystemDefault()) < instant
+
+fun LocalDateTime.isExpired(): Boolean = before(Clock.System.now())

@@ -34,7 +34,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val user = tryIncoming("Unable to receive user.")
                 { call.receive<UserData>().toUser(context) } ?: return@post
                 
-                val insertSuccess = tryOutgoing("Failed to insert user.")
+                val insertSuccess = tryInternal("Failed to insert user.")
                 { insertUser(user, context) } ?: return@post
                 
                 if (insertSuccess) {
@@ -58,10 +58,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val data = tryIncoming("Unable to receive image (Multipart).")
                 { call.receiveChannel().toByteArray() } ?: return@post
                 
-                val pfpURI = tryOutgoing("Failed to save image.")
+                val pfpURI = tryInternal("Failed to save image.")
                 { imageService.saveImageBytes(data, userId, context) } ?: return@post
                 
-                val updateSuccess = tryOutgoing("Failed to add picture to user.")
+                val updateSuccess = tryInternal("Failed to add picture to user.")
                 { modifyUser(
                     userId = userId,
                     property = Users.profilePicURI,
@@ -74,10 +74,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     status = HttpStatusCode.InternalServerError
                 )
                 
-                val jwt = tryOutgoing("Cannot generate jwt.")
+                val accessToken = tryInternal("Cannot generate jwt.")
                 { JWTConfig.generateToken(userId, context) } ?: return@post
                 
-                call.respond(mapOf("token" to jwt))
+                call.respond(TokenResponse(accessToken, ""))
             }
             
             route("/oauth") {
@@ -85,17 +85,44 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             }
         }
         
+        authenticate("jwt-refresh") { post("/refresh") {
+            val principal = call.principal<AuthResponse>()
+            val id = principal?.userId
+                ?: return@post call.respondText(
+                    "Unauthorized",
+                    status = HttpStatusCode.Unauthorized
+                )
+            
+            val accessToken = tryInternal("Cannot generate jwt")
+            { JWTConfig.generateToken(id, context) } ?: return@post
+            
+            val refreshToken = tryInternal("Cannot generate jwt")
+            { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
+            
+            call.respond(TokenResponse(accessToken, refreshToken))
+        } }
+        
         route("/login") {
-            authenticate("basic") { route("/basic") {
-                post {
-                    val principal = call.principal<AuthResponse>()
-                    val id: Int = principal?.userId
-                        ?: return@post call.respondText("Unauthorized", status = HttpStatusCode.Unauthorized)
-                    print(id)
-                }
+            authenticate("basic") { post("/basic") {
+                val principal = call.principal<AuthResponse>()
+                val id: Int = principal?.userId
+                    ?: return@post call.respondText(
+                        "Unauthorized",
+                        status = HttpStatusCode.Unauthorized
+                    )
+                
+                val accessToken = tryInternal("Cannot generate jwt")
+                { JWTConfig.generateToken(id, context) } ?: return@post
+                
+                val refreshToken = tryInternal("Cannot generate jwt")
+                { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
+                
+                call.respond(TokenResponse(accessToken, refreshToken))
             } }
             
-//            authenticate("oauth") { route("/oauth") {
+            
+            
+//            authenticate("oauth") { post("/oauth") {
 //                print("asd")
 //            } }
         }
