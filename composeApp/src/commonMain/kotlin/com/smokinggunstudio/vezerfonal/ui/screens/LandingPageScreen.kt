@@ -12,35 +12,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.register
-import vezerfonal.composeapp.generated.resources.scene_1
-import vezerfonal.composeapp.generated.resources.vezerfonal
+import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LandingPageScreen(
-    onRegisterClick: ClickEvent,
-    onLoginClick: ClickEvent
+    onRegisterClick: ClickEvent, onLoginClick: ClickEvent
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
-    
     ) {
         Image(
             painter = painterResource(Res.drawable.scene_1),
             contentDescription = "Landing Page Image",
-            modifier = Modifier.size(100.dp),
+            modifier = Modifier.size(350.dp),
         )
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 30.dp, bottom = 15.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 30.dp, bottom = 15.dp)
         ) {
             Text(
                 text = stringResource(Res.string.vezerfonal),
@@ -50,9 +42,25 @@ fun LandingPageScreen(
                 fontWeight = FontWeight.Bold,
             )
         }
-        Button(onClick = onRegisterClick) {
-            Text(text = stringResource(Res.string.register))
-            
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(onClick = onRegisterClick, shape = ShapeModifier.ROUNDED.toShape(), modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(Res.string.register),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            Button(onClick = onLoginClick, shape = ShapeModifier.ROUNDED.toShape(), modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(Res.string.login),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
         }
     }
 }
