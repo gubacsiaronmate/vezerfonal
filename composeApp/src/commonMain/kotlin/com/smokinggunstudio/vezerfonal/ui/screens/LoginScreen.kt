@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -47,6 +48,8 @@ fun LoginPage(
                 value = loginState.email,
                 onValueChange = loginState::updateEmail,
                 label = { Text(stringResource(Res.string.email_address)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
         }
     }
