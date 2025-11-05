@@ -29,23 +29,29 @@ fun LandingPageScreen(
         Image(
             painter = painterResource(Res.drawable.scene_1),
             contentDescription = "Landing Page Image",
-            modifier = Modifier.size(350.dp),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 30.dp, bottom = 15.dp)
+            modifier = Modifier.fillMaxWidth().padding(top = 30.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(Res.string.vezerfonal),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.displayLarge,
+                style = MaterialTheme.typography.displayMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
             )
         }
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(1/3F),
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(onClick = onRegisterClick, shape = ShapeModifier.ROUNDED.toShape(), modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = onRegisterClick,
+                shape = ShapeModifier.ROUNDED.toShape(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = stringResource(Res.string.register),
                     textAlign = TextAlign.Center,
@@ -53,7 +59,11 @@ fun LandingPageScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Button(onClick = onLoginClick, shape = ShapeModifier.ROUNDED.toShape(), modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = onLoginClick,
+                shape = ShapeModifier.ROUNDED.toShape(),
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = stringResource(Res.string.login),
                     textAlign = TextAlign.Center,
