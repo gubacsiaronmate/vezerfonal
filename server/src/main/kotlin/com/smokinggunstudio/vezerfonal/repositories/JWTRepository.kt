@@ -5,19 +5,21 @@ import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 suspend fun getAllJWTs(context: CoroutineContext): List<JWTModel> = withContext(context) {
+    val users = getAllUsers(context)
     transaction {
         val jwts = JWTs.selectAll()
         jwts.map { jwt ->
+            val user = users.first { user -> user.id == jwt[JWTs.userId] }
             JWTModel(
                 id = jwt[JWTs.id],
                 tokenHash = jwt[JWTs.tokenHash],
                 isRefresh = jwt[JWTs.isRefresh],
+                user = user,
                 revoked = jwt[JWTs.revoked],
                 createdAt = jwt[JWTs.createdAt],
                 expiresAt = jwt[JWTs.expiresAt]
@@ -30,11 +32,13 @@ suspend fun getJWTByCondition(
     context: CoroutineContext,
     condition: SqlExpressionBuilder.() -> Op<Boolean>
 ): JWTModel? = withContext(context) {
+    val users = getAllUsers(context)
     JWTs.select(condition).firstOrNull()?.let { jwt ->
         JWTModel(
             id = jwt[JWTs.id],
             tokenHash = jwt[JWTs.tokenHash],
             isRefresh = jwt[JWTs.isRefresh],
+            user = jwt[JWTs.userId].let { id -> users.first { user -> user.id == id } },
             revoked = jwt[JWTs.revoked],
             createdAt = jwt[JWTs.createdAt],
             expiresAt = jwt[JWTs.expiresAt]
@@ -56,6 +60,7 @@ suspend fun insertJWT(
             row[id] = jwt.id
             row[tokenHash] = jwt.tokenHash
             row[isRefresh] = jwt.isRefresh
+            row[userId] = jwt.user.id!!
             row[revoked] = jwt.revoked
             jwt.createdAt?.let { row[createdAt] = it }
             row[expiresAt] = jwt.expiresAt

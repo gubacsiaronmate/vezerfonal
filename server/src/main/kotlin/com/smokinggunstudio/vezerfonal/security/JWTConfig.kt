@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.smokinggunstudio.vezerfonal.models.JWTModel
+import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import com.smokinggunstudio.vezerfonal.repositories.insertJWT
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
@@ -42,6 +43,7 @@ object JWTConfig {
             id = tokenId,
             tokenHash = hashLongString(jwt),
             isRefresh = isRefresh,
+            user = getUserById(userId, context)!!,
             revoked = false,
             expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
         ))
