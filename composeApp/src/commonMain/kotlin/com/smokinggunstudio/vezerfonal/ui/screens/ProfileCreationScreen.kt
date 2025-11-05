@@ -11,6 +11,12 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.accept_terms
+import vezerfonal.composeapp.generated.resources.create_account
+import vezerfonal.composeapp.generated.resources.display_name
+import vezerfonal.composeapp.generated.resources.identifier
 
 @Composable fun ProfileCreationScreen(
     registerState: RegisterState,
@@ -32,14 +38,14 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
             OutlinedTextField(
                 value = registerState.identifier,
                 onValueChange = { registerState.updateIdentifier(it) },
-                label = { Text("Identifier") },
+                label = { Text(stringResource(Res.string.identifier)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = registerState.name,
                 onValueChange = { registerState.updateName(it) },
-                label = { Text("Display name") },
+                label = { Text(stringResource(Res.string.display_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
@@ -52,7 +58,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                     checked = areTermsAccepted,
                     onCheckedChange = { areTermsAccepted = it }
                 )
-                Text("I accept the terms and conditions.")
+                Text(stringResource(Res.string.accept_terms))
             }
             Button(
                 onClick = onClick,
@@ -60,7 +66,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-            ) { Text("Create Account") }
+            ) { Text(stringResource(Res.string.create_account)) }
         }
     }
 }

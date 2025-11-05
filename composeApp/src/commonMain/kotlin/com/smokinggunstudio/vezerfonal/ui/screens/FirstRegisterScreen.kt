@@ -17,6 +17,11 @@ import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.create_organization
+import vezerfonal.composeapp.generated.resources.proceed
+import vezerfonal.composeapp.generated.resources.registration_code
 
 @Composable fun FirstRegisterScreen(
     onClickCallback: CallbackClickEvent<RegisterState>,
@@ -41,7 +46,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
             OutlinedTextField(
                 value = nonAdminRegisterState.regCode,
                 onValueChange = nonAdminRegisterState::updateRegCode,
-                label = { Text("Registration Code") },
+                label = { Text(stringResource(Res.string.registration_code)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
             )
@@ -57,7 +62,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                         onClickCallback(nonAdminRegisterState)
                     },
                     modifier = Modifier.fillMaxWidth().padding(8.dp)
-                ) { Text("Continue") }
+                ) { Text(stringResource(Res.string.proceed)) }
                 
                 OrOptionDivider()
                 
@@ -66,7 +71,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                         onClickCallback(AdminRegisterState())
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                ) { Text("Create Organisation") }
+                ) { Text(stringResource(Res.string.create_organization)) }
             }
         }
     }

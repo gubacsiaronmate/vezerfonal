@@ -68,7 +68,7 @@
     <string name="choose_2fa_setup">How would you like to set up 2FA?</string>
     <string name="via_email">Via e-mail</string>
     <string name="via_google_authenticator">Via the Google Authenticator app</string>
-    <string name="proceed">Proceed</string>
+    <string name="proceed">Continue</string>
     <string name="password">Password</string>
     <string name="please_enter_password">Please enter your password</string>
     <string name="notification_settings">Notification settings</string>

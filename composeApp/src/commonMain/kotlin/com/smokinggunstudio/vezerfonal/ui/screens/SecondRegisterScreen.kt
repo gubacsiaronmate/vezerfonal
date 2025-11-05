@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,14 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.confirm_password
+import vezerfonal.composeapp.generated.resources.continue_apple
+import vezerfonal.composeapp.generated.resources.continue_google
+import vezerfonal.composeapp.generated.resources.email_address
+import vezerfonal.composeapp.generated.resources.password
+import vezerfonal.composeapp.generated.resources.proceed
 
 @Composable fun SecondRegisterScreen(
     registerState: RegisterState,
@@ -39,21 +48,21 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
             OutlinedTextField(
                 value = registerState.email,
                 onValueChange = registerState::updateEmail,
-                label = { Text("Email") },
+                label = { Text(stringResource(Res.string.email_address)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = registerState.password,
                 onValueChange = registerState::updatePassword,
-                label = { Text("Password") },
+                label = { Text(stringResource(Res.string.password)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = confirmPassword.value,
                 onValueChange = { confirmPassword.value = it },
-                label = { Text("Confirm password") },
+                label = { Text(stringResource(Res.string.confirm_password)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
@@ -67,7 +76,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                     onClick = onClick,
                     enabled = isPasswConfirmed,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                ) { Text("Continue") }
+                ) { Text(stringResource(Res.string.proceed)) }
                 
                 OrOptionDivider()
                 
@@ -79,7 +88,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                    ) { Text("Continue with Google") }
+                    ) { Text(stringResource(Res.string.continue_google)) }
                     Button(
                         onClick = {
                             // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
@@ -87,7 +96,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                    ) { Text("Continue with Apple") }
+                    ) { Text(stringResource(Res.string.continue_apple)) }
                 }
             }
         }
