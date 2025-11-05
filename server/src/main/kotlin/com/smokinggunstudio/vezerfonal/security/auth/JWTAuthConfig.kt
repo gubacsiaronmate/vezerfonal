@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.security.auth
 
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
+import com.smokinggunstudio.vezerfonal.helpers.compareTo
 import com.smokinggunstudio.vezerfonal.helpers.isExpired
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.repositories.getJWTById
@@ -30,6 +31,7 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 jwt == null -> return@validate null
                 jwt.revoked -> return@validate null
                 jwt.isRefresh -> return@validate null
+                !credentials.expiresAt!!.compareTo(jwt.expiresAt) -> return@validate null
                 jwt.expiresAt.isExpired() -> {
                     modifyJWT(
                         tokenId = jwt.id,
@@ -61,6 +63,7 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 jwt == null -> return@validate null
                 jwt.revoked -> return@validate null
                 !jwt.isRefresh -> return@validate null
+                !credentials.expiresAt!!.compareTo(jwt.expiresAt) -> return@validate null
                 jwt.expiresAt.isExpired() -> {
                     modifyJWT(
                         tokenId = jwt.id,

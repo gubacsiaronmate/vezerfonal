@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.data.UserData
 
 class AdminRegisterState : RegisterState {
     private val _orgName = mutableStateOf("")
@@ -17,6 +18,15 @@ class AdminRegisterState : RegisterState {
     
     private val _identifier = mutableStateOf("")
     override val identifier: String get() = _identifier.value
+    
+    override fun toUserData(): UserData = UserData(
+        registrationCode = "",
+        email = email,
+        password = password,
+        name = name,
+        identifier = identifier,
+        isSuperAdmin = true
+    )
     
     fun updateOrgName(newCode: String) {
         _orgName.value = newCode

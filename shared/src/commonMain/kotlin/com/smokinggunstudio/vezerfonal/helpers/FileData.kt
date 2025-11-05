@@ -1,9 +1,13 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class FileData(
     val name: String,
     val bytes: ByteArray,
-    val mimeType: String
+    val mimeType: String,
+    val fileType: String = name.substringAfterLast(".").lowercase()
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

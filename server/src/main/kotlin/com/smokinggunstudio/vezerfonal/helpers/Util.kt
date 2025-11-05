@@ -8,10 +8,12 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toKotlinInstant
 import org.jetbrains.exposed.sql.FieldSet
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import java.util.Date
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
@@ -50,3 +52,5 @@ fun FieldSet.selectWhere(where: Op<Boolean>): Query = Query(this, where)
 fun LocalDateTime.before(instant: Instant): Boolean = toInstant(TimeZone.currentSystemDefault()) < instant
 
 fun LocalDateTime.isExpired(): Boolean = before(Clock.System.now())
+
+fun Date.compareTo(anotherDate: LocalDateTime): Boolean = toInstant().toKotlinInstant() == anotherDate.toInstant(TimeZone.currentSystemDefault())

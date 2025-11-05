@@ -1,5 +1,5 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-expect class FilePicker {
+expect class FilePicker() {
     suspend fun pickFile(): FileData?
 }

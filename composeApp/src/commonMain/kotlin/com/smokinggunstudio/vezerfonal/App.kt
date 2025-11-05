@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.ui.helpers.NavTree
 import com.smokinggunstudio.vezerfonal.ui.helpers.go
 import com.smokinggunstudio.vezerfonal.ui.helpers.route
@@ -32,6 +33,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 @Composable fun Navigator() {
     val navigator = rememberNavigator()
     var registerState by mutableStateOf<RegisterState?>(null)
+    val client = createHttpClient()
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         screen(NavTree.Landing) {
@@ -76,10 +78,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            ProfileCreationScreen(registerState!!) {
-                
-                navigator.go(NavTree.Home)
-            }
+            ProfileCreationScreen(registerState!!, client) { navigator.go(NavTree.Home) }
         }
     }
 }

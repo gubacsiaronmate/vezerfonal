@@ -1,5 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
+import com.smokinggunstudio.vezerfonal.data.UserData
+
 interface RegisterState {
     val email: String
     val password: String
@@ -13,4 +15,6 @@ interface RegisterState {
     fun updateName(newName: String)
     
     fun updateIdentifier(newIdentifier: String)
+    
+    fun toUserData(): UserData
 }

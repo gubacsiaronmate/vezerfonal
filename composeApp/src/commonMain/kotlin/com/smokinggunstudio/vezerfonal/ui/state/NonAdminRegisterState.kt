@@ -40,16 +40,14 @@ class NonAdminRegisterState : RegisterState {
         _identifier.value = newIdentifier
     }
     
-    fun toUserData(): UserData {
-        return UserData(
-            registrationCode = regCode,
-            email = email,
-            password = password,
-            name = name,
-            identifier = identifier,
-            isSuperAdmin = false
-        )
-    }
+    override fun toUserData(): UserData = UserData(
+        registrationCode = regCode,
+        email = email,
+        password = password,
+        name = name,
+        identifier = identifier,
+        isSuperAdmin = false
+    )
     
     companion object {
         @Suppress("UNCHECKED_CAST")

@@ -14,10 +14,14 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 object JWTConfig {
-    private const val SECRET = "super-secret-key"
+    private val SECRET by lazy {
+        System.getenv("JWT_SECRET")
+            ?: throw IllegalArgumentException("JWT signing secret key is not found")
+    }
     private const val ISSUER = "https://api.vezerfonal.org"
     private const val AUDIENCE = "vezerfonal.users"
-    private const val VALIDITY_IN_MS = 1000L * 60L * 60L // 1 hour
+    private const val ACCESS_TOKEN_VALIDITY_IN_MS = 1000L * 60L * 60L // 1 hour
+    private const val REFRESH_TOKEN_VALIDITY_IN_MS = 30L * 24 * 60 * 60 * 1000 // 30 days
     
     private val algorithm = Algorithm.HMAC256(SECRET)
     
@@ -28,7 +32,10 @@ object JWTConfig {
     
     suspend fun generateToken(userId: Int, context: CoroutineContext, isRefresh: Boolean = false): String = withContext(context) {
         val tokenId = UUID.randomUUID().toString()
-        val expiresAt = Date(System.currentTimeMillis() + VALIDITY_IN_MS)
+        val expiresAt = when (isRefresh) {
+            false -> Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_IN_MS)
+            true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
+        }
         
         val jwt = JWT.create()
             .withSubject("Authentication")

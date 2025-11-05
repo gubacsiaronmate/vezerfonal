@@ -13,23 +13,39 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.FilePicker
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import kotlinx.coroutines.launch
 
 @Composable fun PfpSetter(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFilePickCallBack: CallbackClickEvent<FileData?>
 ) {
+    val filePicker = FilePicker()
+    val scope = rememberCoroutineScope()
+    
     Column(
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,
         modifier = modifier
     ) {
-        Text("Set profile picture")
+        Text(
+            text = "Set profile picture",
+            color = MaterialTheme.colorScheme.onBackground
+        )
         IconButton(
-            onClick = {},
+            onClick = {
+                var data: FileData? = null
+                scope.launch { data = filePicker.pickFile() }
+                onFilePickCallBack(data)
+            },
             modifier = Modifier
                 .height(120.dp)
                 .width(120.dp)

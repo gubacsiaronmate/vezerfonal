@@ -17,7 +17,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
@@ -55,11 +54,11 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         status = HttpStatusCode.BadRequest
                     ); return@post }
                 
-                val data = tryIncoming("Unable to receive image (Multipart).")
-                { call.receiveChannel().toByteArray() } ?: return@post
+                val data = tryIncoming("Unable to receive image.")
+                { call.receive<FileData>() } ?: return@post
                 
                 val pfpURI = tryInternal("Failed to save image.")
-                { imageService.saveImageBytes(data, userId, context) } ?: return@post
+                { imageService.saveImageBytes(data.bytes, userId, context, extension = data.fileType) } ?: return@post
                 
                 val updateSuccess = tryInternal("Failed to add picture to user.")
                 { modifyUser(
@@ -77,7 +76,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val accessToken = tryInternal("Cannot generate jwt.")
                 { JWTConfig.generateToken(userId, context) } ?: return@post
                 
-                call.respond(TokenResponse(accessToken, ""))
+                val refreshToken = tryInternal("Cannot generate jwt")
+                { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
+                
+                call.respond(TokenResponse(accessToken, refreshToken))
             }
             
             route("/oauth") {
