@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.LoginState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.email_address
@@ -20,9 +20,10 @@ import vezerfonal.composeapp.generated.resources.login
 
 @Composable
 fun LoginPage(
-    registerState: RegisterState,
     clickEvent: ClickEvent
 ) {
+    val loginState = LoginState()
+    
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -43,7 +44,9 @@ fun LoginPage(
             }
         Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
-                label = { Text(stringResource(Res.string.email_address))}
+                value = loginState.email,
+                onValueChange = loginState::updateEmail,
+                label = { Text(stringResource(Res.string.email_address)) },
             )
         }
     }
