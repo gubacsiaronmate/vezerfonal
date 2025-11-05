@@ -9,6 +9,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.go
 import com.smokinggunstudio.vezerfonal.ui.helpers.route
 import com.smokinggunstudio.vezerfonal.ui.helpers.screen
 import com.smokinggunstudio.vezerfonal.ui.screens.FirstRegisterScreen
+import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.ProfileCreationScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.SecondRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
@@ -33,7 +34,12 @@ import moe.tlaster.precompose.navigation.rememberNavigator
     var registerState by mutableStateOf<RegisterState?>(null)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
-        screen(NavTree.Landing) { navigator.go(NavTree.Register(1)) }
+        screen(NavTree.Landing) {
+            LandingPageScreen(
+                onRegisterClick = { navigator.go(NavTree.Register(1)) },
+                onLoginClick = { navigator.go(NavTree.Landing) }
+            )
+        }
         
         screen(NavTree.Home) { navigator.go(NavTree.Register(1)) }
         
