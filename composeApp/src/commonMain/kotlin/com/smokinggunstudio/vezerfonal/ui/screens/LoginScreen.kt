@@ -18,6 +18,7 @@ import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.email_address
 import vezerfonal.composeapp.generated.resources.login
+import vezerfonal.composeapp.generated.resources.password
 
 @Composable
 fun LoginPage(
@@ -48,6 +49,13 @@ fun LoginPage(
                 value = loginState.email,
                 onValueChange = loginState::updateEmail,
                 label = { Text(stringResource(Res.string.email_address)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+            )
+            OutlinedTextField(
+                value = loginState.password,
+                onValueChange = loginState::updatePassword,
+                label = { Text(stringResource(Res.string.password)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
