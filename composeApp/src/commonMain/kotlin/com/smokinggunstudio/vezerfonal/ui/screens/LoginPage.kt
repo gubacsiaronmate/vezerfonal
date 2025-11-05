@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.email_address
 import vezerfonal.composeapp.generated.resources.login
 
 @Composable
@@ -39,6 +41,10 @@ fun LoginPage(
                     maxLines = 1,
                 )
             }
-        Column(verticalArrangement = Arrangement.SpaceEvenly) {  }
+        Column(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                label = { Text(stringResource(Res.string.email_address))}
+            )
+        }
     }
 }

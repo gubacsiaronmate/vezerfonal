@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.or
 
 @Composable fun OrOptionDivider() {
     Row(
@@ -29,7 +32,7 @@ import androidx.compose.ui.unit.dp
                 .padding(horizontal = 8.dp),
         )
         Text(
-            text = "OR",
+            text = stringResource(Res.string.or),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,

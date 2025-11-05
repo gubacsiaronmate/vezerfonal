@@ -21,6 +21,9 @@ import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.FilePicker
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.set_profile_picture
 
 @Composable fun PfpSetter(
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -37,7 +40,7 @@ import kotlinx.coroutines.launch
         modifier = modifier
     ) {
         Text(
-            text = "Set profile picture",
+            text = stringResource(Res.string.set_profile_picture),
             color = MaterialTheme.colorScheme.onBackground
         )
         IconButton(

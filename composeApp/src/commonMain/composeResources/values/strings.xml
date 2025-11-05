@@ -115,4 +115,5 @@
     <string name="set_profile_picture">Profilkép beállítása</string>
     <string name="accept_terms">Elfogadom az Általános Szerződési Feltételeket.</string>
     <string name="create_account">Fiók létrehozása</string>
+    <string name="or">VAGY</string>
 </resources>
