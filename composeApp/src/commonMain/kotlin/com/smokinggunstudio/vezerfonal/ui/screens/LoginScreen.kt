@@ -1,30 +1,27 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
 import org.jetbrains.compose.resources.stringResource
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.email_address
-import vezerfonal.composeapp.generated.resources.login
-import vezerfonal.composeapp.generated.resources.password
+import vezerfonal.composeapp.generated.resources.*
 
 @Composable
-fun LoginPage(
-    clickEvent: ClickEvent
+fun LoginScreen(
+    onClick: ClickEvent
 ) {
     val loginState = LoginState()
+    var checked by remember { mutableStateOf(true) }
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -34,16 +31,16 @@ fun LoginPage(
             .padding(horizontal = 8.dp),
         
         ) {
-            Row {
-                Text(
-                    text = stringResource(Res.string.login),
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                )
-            }
+        Row {
+            Text(
+                text = stringResource(Res.string.login),
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Start,
+                maxLines = 1,
+            )
+        }
         Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = loginState.email,
@@ -59,6 +56,44 @@ fun LoginPage(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = checked,
+                    onCheckedChange = { checked = it }
+                )
+                Text(text = stringResource(Res.string.remember_me))
+            }
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                ) {
+                    Text(stringResource(Res.string.login))
+                }
+                Text(
+                    stringResource(Res.string.forgot_password),
+                    modifier = Modifier.padding(vertical = 20.dp)
+                        .clickable(onClick = onClick),
+                )
+                OrOptionDivider()
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                ) {
+                    Text(stringResource(Res.string.continue_google))
+                }
+                Button(
+                    onClick = onClick,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                ) {
+                    Text(stringResource(Res.string.continue_apple))
+                }
+            }
         }
     }
 }

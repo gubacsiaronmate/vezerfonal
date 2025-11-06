@@ -40,7 +40,12 @@ import vezerfonal.composeapp.generated.resources.proceed
             .padding(horizontal = 8.dp),
     ) {
         val confirmPassword = mutableStateOf("")
-        val isPasswConfirmed by remember { mutableStateOf(registerState.password == confirmPassword.value && !confirmPassword.value.isBlank()) }
+        val isPasswConfirmed by remember {
+            mutableStateOf(
+                registerState.password == confirmPassword.value
+                        && !confirmPassword.value.isBlank()
+            )
+        }
         
         RegisterText()
         
