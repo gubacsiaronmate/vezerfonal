@@ -1,6 +1,8 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,12 +24,19 @@ fun LandingPageScreen(
     onRegisterClick: ClickEvent, onLoginClick: ClickEvent
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(Res.drawable.scene_1),
+            painter = painterResource(
+                if (isSystemInDarkTheme())
+                    Res.drawable.scene_1
+                else Res.drawable.scene_1
+            ),
             contentDescription = "Landing Page Image",
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
         )

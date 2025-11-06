@@ -31,7 +31,7 @@ val lightColorScheme = lightColorScheme(
     onBackground = OxfordBlue,
     surface = White,
     onSurface = Gunmetal,
-    surfaceVariant = CharcoalGray,
+    surfaceVariant = LightGray,
 )
 
 @Composable fun VezerfonalTheme(

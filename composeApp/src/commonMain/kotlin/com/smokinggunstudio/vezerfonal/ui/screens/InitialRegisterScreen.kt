@@ -41,7 +41,8 @@ import vezerfonal.composeapp.generated.resources.registration_code
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(1/2F)
+                .fillMaxHeight(1/2F),
+                verticalArrangement = Arrangement.SpaceEvenly,
         ) {
             OutlinedTextField(
                 value = nonAdminRegisterState.regCode,
@@ -50,22 +51,22 @@ import vezerfonal.composeapp.generated.resources.registration_code
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
             )
+            Spacer(modifier = Modifier.height(32.dp))
             
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight((1/4F)*3)
             ) {
                 Button(
                     onClick = {
                         onClickCallback(nonAdminRegisterState)
                     },
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) { Text(stringResource(Res.string.proceed)) }
-                
+                Spacer(modifier = Modifier.height(16.dp))
                 OrOptionDivider()
-                
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
                         onClickCallback(AdminRegisterState())
