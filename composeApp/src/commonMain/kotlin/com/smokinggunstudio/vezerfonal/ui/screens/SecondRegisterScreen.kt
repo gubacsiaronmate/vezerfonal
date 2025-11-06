@@ -73,17 +73,18 @@ import vezerfonal.composeapp.generated.resources.proceed
             )
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight((1/4F)*3)
             ) {
                 Button(
                     onClick = onClick,
                     enabled = isPasswConfirmed,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 20.dp)
                 ) { Text(stringResource(Res.string.proceed)) }
                 
                 OrOptionDivider()
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Button(
@@ -92,7 +93,7 @@ import vezerfonal.composeapp.generated.resources.proceed
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 2.dp)
                     ) { Text(stringResource(Res.string.continue_google)) }
                     Button(
                         onClick = {
@@ -100,7 +101,7 @@ import vezerfonal.composeapp.generated.resources.proceed
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 2.dp)
                     ) { Text(stringResource(Res.string.continue_apple)) }
                 }
             }
