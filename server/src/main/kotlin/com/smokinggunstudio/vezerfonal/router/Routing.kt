@@ -27,7 +27,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         configureJWTAuth(this, context)
     }
     
-    routing { route("/api") {
+    routing { get("/") { call.respondText("Hello") }; route("/api") {
         route("/register") {
             post("/basic") {
                 val user = tryIncoming("Unable to receive user.")
