@@ -33,7 +33,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.bcrypt)
+//            implementation(libs.bcrypt)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

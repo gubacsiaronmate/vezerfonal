@@ -23,7 +23,7 @@ import vezerfonal.composeapp.generated.resources.create_organization
 import vezerfonal.composeapp.generated.resources.proceed
 import vezerfonal.composeapp.generated.resources.registration_code
 
-@Composable fun FirstRegisterScreen(
+@Composable fun InitialRegisterScreen(
     onClickCallback: CallbackClickEvent<RegisterState>,
 ) {
     Column(

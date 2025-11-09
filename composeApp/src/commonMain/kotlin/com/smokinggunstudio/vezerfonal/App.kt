@@ -54,7 +54,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
                 }
             }
             
-            FirstRegisterScreen(::handleOnClickCallback)
+            InitialRegisterScreen(::handleOnClickCallback)
         }
         
         screen(NavTree.CreateOrg) {
@@ -68,7 +68,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            SecondRegisterScreen(registerState!!) { navigator.go(NavTree.Register(3)) }
+            CredentialsRegisterScreen(registerState!!) { navigator.go(NavTree.Register(3)) }
         }
         
         screen(NavTree.Register(3)) {

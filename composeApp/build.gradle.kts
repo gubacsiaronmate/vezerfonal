@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -39,6 +38,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.bcrypt)
         }
         
         commonMain.dependencies {
@@ -69,9 +69,11 @@ kotlin {
         
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
+            implementation(npm("bcryptjs", "2.4.3"))
         }
         
         jvmMain.dependencies {
+            implementation(libs.bcrypt)
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)

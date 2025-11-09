@@ -20,7 +20,7 @@ import vezerfonal.composeapp.generated.resources.*
 fun LoginScreen(
     onClick: ClickEvent
 ) {
-    val loginState = LoginState()
+    val loginState by mutableStateOf(LoginState())
     var checked by remember { mutableStateOf(true) }
     
     Column(
@@ -58,8 +58,8 @@ fun LoginScreen(
             )
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
-                    checked = checked,
-                    onCheckedChange = { checked = it }
+                    checked = loginState.rememberMe,
+                    onCheckedChange = loginState::updateRememberMe
                 )
                 Text(text = stringResource(Res.string.remember_me))
             }

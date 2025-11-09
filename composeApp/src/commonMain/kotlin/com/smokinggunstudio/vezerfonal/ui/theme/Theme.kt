@@ -21,7 +21,7 @@ val darkColorScheme = darkColorScheme(
 )
 
 val lightColorScheme = lightColorScheme(
-    primary = CaribbeanGreen,
+    /*primary = CaribbeanGreen,
     onPrimary = White,
     secondary = AzureRadiance,
     onSecondary = White,
@@ -31,7 +31,7 @@ val lightColorScheme = lightColorScheme(
     onBackground = OxfordBlue,
     surface = White,
     onSurface = Gunmetal,
-    surfaceVariant = LightGray,
+    surfaceVariant = LightGray,*/
 )
 
 @Composable fun VezerfonalTheme(

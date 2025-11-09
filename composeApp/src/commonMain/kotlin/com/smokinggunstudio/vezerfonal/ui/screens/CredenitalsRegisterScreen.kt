@@ -19,7 +19,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
-@Composable fun SecondRegisterScreen(
+@Composable fun CredentialsRegisterScreen(
     registerState: RegisterState,
     onClick: ClickEvent
 ) {

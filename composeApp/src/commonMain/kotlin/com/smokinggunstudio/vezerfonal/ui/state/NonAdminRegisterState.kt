@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.ui.state
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.network.security.Bcrypt
 
 class NonAdminRegisterState : RegisterState {
     private val _regCode = mutableStateOf("")
@@ -43,7 +44,7 @@ class NonAdminRegisterState : RegisterState {
     override fun toUserData(): UserData = UserData(
         registrationCode = regCode,
         email = email,
-        password = password,
+        password = Bcrypt.hashPassword(password),
         name = name,
         identifier = identifier,
         isSuperAdmin = false

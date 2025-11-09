@@ -1,3 +1,3 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-data class AuthResponse(val userId: Int)
+data class AuthResponse(val userId: Int, val rememberMe: Boolean = true)

@@ -20,8 +20,8 @@ object JWTConfig {
     }
     private const val ISSUER = "https://api.vezerfonal.org"
     private const val AUDIENCE = "vezerfonal.users"
-    private const val ACCESS_TOKEN_VALIDITY_IN_MS = 1000L * 60L * 60L // 1 hour
-    private const val REFRESH_TOKEN_VALIDITY_IN_MS = 30L * 24 * 60 * 60 * 1000 // 30 days
+    private const val ACCESS_TOKEN_VALIDITY_IN_MS = 60 * 60 * 1000L // 1 hour
+    private const val REFRESH_TOKEN_VALIDITY_IN_MS = 30 * 24 * 60 * 60 * 1000L // 30 days
     
     private val algorithm = Algorithm.HMAC256(SECRET)
     

@@ -119,7 +119,11 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val refreshToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
                 
-                call.respond(TokenResponse(accessToken, refreshToken))
+                call.respond(TokenResponse(
+                    accessToken,
+                    if (principal.rememberMe) refreshToken
+                    else "no token for you :("
+                ))
             } }
             
             
