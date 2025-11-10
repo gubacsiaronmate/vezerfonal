@@ -2,7 +2,10 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,10 +27,14 @@ fun HomePageScreen() {
         ) {
             Text(stringResource(Res.string.vezerfonal))
         }
+        HorizontalDivider(modifier = Modifier.fillMaxWidth()
+            .height(1.dp))
         Image(
             painterResource(Res.drawable.spiralgraphic),
             contentDescription = "Home Page Image"
         )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth()
+            .height(1.dp))
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End) {
             Button(
@@ -35,6 +42,9 @@ fun HomePageScreen() {
             ) {
                 Text(stringResource(Res.string.filter))
             }
+            Image(imageVector = Icons.Filled.Filter, contentDescription = null)
         }
     }
+    HorizontalDivider(modifier = Modifier.fillMaxWidth()
+    .height(1.dp))
 }

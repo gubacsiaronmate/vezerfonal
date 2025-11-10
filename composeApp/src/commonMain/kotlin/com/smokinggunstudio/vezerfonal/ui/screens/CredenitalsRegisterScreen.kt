@@ -28,7 +28,7 @@ import vezerfonal.composeapp.generated.resources.*
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
     ) {
         val confirmPassword = remember { mutableStateOf("") }
@@ -39,21 +39,24 @@ import vezerfonal.composeapp.generated.resources.*
             OutlinedTextField(
                 value = registerState.email,
                 onValueChange = registerState::updateEmail,
-                label = { Text(stringResource(Res.string.email_address)) },
+                label = { Text(stringResource(Res.string.email_address),
+                    color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = registerState.password,
                 onValueChange = registerState::updatePassword,
-                label = { Text(stringResource(Res.string.password)) },
+                label = { Text(stringResource(Res.string.password),
+                color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = confirmPassword.value,
                 onValueChange = { confirmPassword.value = it },
-                label = { Text(stringResource(Res.string.confirm_password)) },
+                label = { Text(stringResource(Res.string.confirm_password),
+                    color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
@@ -64,12 +67,15 @@ import vezerfonal.composeapp.generated.resources.*
                     .fillMaxWidth()
             ) {
                 Button(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.primary)
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 20.dp),
                     onClick = onClick,
                     enabled = (
                         registerState.password == confirmPassword.value
                         && !confirmPassword.value.isBlank()
                     ),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 20.dp)
                 ) { Text(stringResource(Res.string.proceed)) }
                 
                 OrOptionDivider()
@@ -77,12 +83,13 @@ import vezerfonal.composeapp.generated.resources.*
                 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Button(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.primary)
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
                         onClick = {
                             // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp)
                     ) { Text(stringResource(Res.string.continue_google)) }
                     Button(
                         onClick = {
@@ -91,7 +98,8 @@ import vezerfonal.composeapp.generated.resources.*
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 2.dp)
-                    ) { Text(stringResource(Res.string.continue_apple)) }
+                            .background(MaterialTheme.colorScheme.primary)
+                    ) { Text(stringResource(Res.string.continue_apple), color = MaterialTheme.colorScheme.onPrimary) }
                 }
             }
         }

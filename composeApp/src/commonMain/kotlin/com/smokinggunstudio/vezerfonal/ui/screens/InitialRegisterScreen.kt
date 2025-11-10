@@ -31,7 +31,7 @@ import vezerfonal.composeapp.generated.resources.registration_code
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
     ) {
         val nonAdminRegisterState = rememberSaveable(saver = NonAdminRegisterState.Saver) { NonAdminRegisterState() }
@@ -47,7 +47,7 @@ import vezerfonal.composeapp.generated.resources.registration_code
             OutlinedTextField(
                 value = nonAdminRegisterState.regCode,
                 onValueChange = nonAdminRegisterState::updateRegCode,
-                label = { Text(stringResource(Res.string.registration_code)) },
+                label = { Text(stringResource(Res.string.registration_code), color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
             )
@@ -63,7 +63,8 @@ import vezerfonal.composeapp.generated.resources.registration_code
                         onClickCallback(nonAdminRegisterState)
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                ) { Text(stringResource(Res.string.proceed)) }
+                ) { Text(stringResource(Res.string.proceed),
+                    color = MaterialTheme.colorScheme.onPrimary) }
                 Spacer(modifier = Modifier.height(16.dp))
                 OrOptionDivider()
                 Spacer(modifier = Modifier.height(16.dp))
@@ -72,7 +73,9 @@ import vezerfonal.composeapp.generated.resources.registration_code
                         onClickCallback(AdminRegisterState())
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                ) { Text(stringResource(Res.string.create_organization)) }
+                        .background(color = MaterialTheme.colorScheme.primary)
+                ) { Text(stringResource(Res.string.create_organization),
+                    color = MaterialTheme.colorScheme.onPrimary) }
             }
         }
     }

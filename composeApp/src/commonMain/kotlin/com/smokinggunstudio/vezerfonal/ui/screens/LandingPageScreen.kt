@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +24,15 @@ import vezerfonal.composeapp.generated.resources.*
 fun LandingPageScreen(
     onRegisterClick: ClickEvent, onLoginClick: ClickEvent
 ) {
+    val color = ButtonDefaults.buttonColors(
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.primary
+    )
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -48,7 +54,7 @@ fun LandingPageScreen(
                 text = stringResource(Res.string.vezerfonal),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -59,7 +65,8 @@ fun LandingPageScreen(
             Button(
                 onClick = onRegisterClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                
             ) {
                 Text(
                     text = stringResource(Res.string.register),
@@ -72,6 +79,7 @@ fun LandingPageScreen(
                 onClick = onLoginClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.primary)
             ) {
                 Text(
                     text = stringResource(Res.string.login),

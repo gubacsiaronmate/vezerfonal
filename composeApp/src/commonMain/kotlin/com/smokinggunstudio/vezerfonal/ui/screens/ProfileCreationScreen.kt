@@ -39,7 +39,7 @@ import vezerfonal.composeapp.generated.resources.identifier
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
     ) {
         RegisterText()
@@ -48,14 +48,16 @@ import vezerfonal.composeapp.generated.resources.identifier
             OutlinedTextField(
                 value = registerState.identifier,
                 onValueChange = { registerState.updateIdentifier(it) },
-                label = { Text(stringResource(Res.string.identifier)) },
+                label = { Text(stringResource(Res.string.identifier),
+                    color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             OutlinedTextField(
                 value = registerState.name,
                 onValueChange = { registerState.updateName(it) },
-                label = { Text(stringResource(Res.string.display_name)) },
+                label = { Text(stringResource(Res.string.display_name),
+                    color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
@@ -71,7 +73,7 @@ import vezerfonal.composeapp.generated.resources.identifier
                 )
                 Text(
                     text = stringResource(Res.string.accept_terms),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Button(
@@ -90,7 +92,9 @@ import vezerfonal.composeapp.generated.resources.identifier
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
-            ) { Text(stringResource(Res.string.create_account)) }
+                    .background(color = MaterialTheme.colorScheme.primary)
+            ) { Text(stringResource(Res.string.create_account),
+                color = MaterialTheme.colorScheme.onPrimary) }
             IconButton({}) {
                 Image(imageVector = Icons.Filled.ArrowRight, contentDescription = null)
             }

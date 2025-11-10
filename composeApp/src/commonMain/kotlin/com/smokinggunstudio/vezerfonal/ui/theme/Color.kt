@@ -2,29 +2,32 @@ package com.smokinggunstudio.vezerfonal.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+
 val LightPrimary = Color(0xFF00322f)
-val LightOnPrimary = Color(0xFFffffff)
+val LightOnPrimary = White
 val LightSecondary = Color(0xFF00322f)
-val LightOnSecondary = Color(0xFFffffff)
+val LightOnSecondary = White
 val LightTertiary = Color(0xFF003300)
-val LightOnTertiary = Color(0xFFffffff)
+val LightOnTertiary = White
 val LightError = Color(0xFFF9FAFB)
-val LightOnError = Color(0xFFffffff)
+val LightOnError = White
 val LightPrimaryContainer = Color(0xFF00534d)
-val LightOnPrimaryContainer = Color(0xFFffffff)
+val LightOnPrimaryContainer = White
 val LightSecondaryContainer = Color(0xFF00534e)
-val LightOnSecondaryContainer = Color(0xFFffffff)
+val LightOnSecondaryContainer = White
 val LightTertiaryContainer = Color(0xFF00543f)
-val LightOnTertiaryContainer = Color(0xFFffffff)
+val LightOnTertiaryContainer = White
 val LightErrorContainer = Color(0xFF98000a)
-val LightOnErrorContainer = Color(0xFFffffff)
+val LightOnErrorContainer = White
 val LightSurfaceDim = Color(0xFFb7b9bf)
 val LightSurface = Color(0xFFf8f9ff)
 val LightSurfaceBright = Color(0xFFf8f9ff)
 val LightInverseSurface = Color(0xFF2e3135)
-val LightInverseOnSurface = Color(0xFFffffff)
+val LightInverseOnSurface = White
 val LightInversePrimary = Color(0xFF81d5cc)
-val LightSurfaceContainerLowest = Color(0xFFffffff)
+val LightSurfaceContainerLowest = White
 val LightSurfaceContainerLow = Color(0xFFeff0f7)
 val LightSurfaceContainer = Color(0xFFe1e2e8)
 val LightSurfaceContainerHigh = Color(0xFFd3d4db)
@@ -34,7 +37,6 @@ val LightOnSurfaceVariant = Color(0xFF010100)
 val LightOutline = Color(0xFF282c33)
 val LightOutlineVariant = Color(0xFF444950)
 val LightScrim = Color(0xFF010100)
-val LightShadow = Color(0xFF010100)
 
 val DarkPrimary = Color(0xFFadfff5)
 val DarkSecondary = Color(0xFFacfff6)
@@ -68,7 +70,3 @@ val DarkOnSurfaceVariant = Color(0xFFfffeff)
 val DarkOutline = Color(0xFFedf0f9)
 val DarkOutlineVariant = Color(0xFFbec2cb)
 val DarkScrim = Color(0xFF010100)
-val DarkShadow = Color(0xFF010101)
-
-val White = Color(0xFFFFFFFF)
-val Black = Color(0xFF000000)
