@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.models
 
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import kotlinx.datetime.LocalDateTime
 
 
@@ -15,4 +16,12 @@ data class Message(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val deletedAt: LocalDateTime?
-)
+) {
+    fun toDTO(): MessageData = MessageData(
+        title = title,
+        author = author.displayName,
+        content = content,
+        isUrgent = isUrgent,
+        tags = tags.map { tag -> tag.tagName }
+    )
+}
