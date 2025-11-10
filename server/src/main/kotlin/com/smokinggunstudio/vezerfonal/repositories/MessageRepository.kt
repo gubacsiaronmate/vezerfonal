@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -123,6 +124,11 @@ suspend fun getMessagesByGroupId(
     id: Int,
     context: CoroutineContext
 ): List<Message> = getMessagesByCondition(context) { Messages.groupId eq id }
+
+suspend fun getMessagesByUserId(
+    id: Int,
+    context: CoroutineContext
+): List<Message> = getMessagesByCondition(context) { Messages.userId eq id  }
 
 suspend fun getMessagesByRecipientUserId(
     id: Int,
