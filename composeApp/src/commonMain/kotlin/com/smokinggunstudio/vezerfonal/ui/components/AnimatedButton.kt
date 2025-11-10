@@ -23,7 +23,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import kotlinx.coroutines.flow.filterIsInstance
 
 @Composable fun AnimatedButton(
-    content: ComposableContent,
     onClick: ClickEvent,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -38,7 +37,8 @@ import kotlinx.coroutines.flow.filterIsInstance
         horizontal = 80.dp,
         vertical = 12.dp
     ),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: ComposableContent,
 ) {
     val isPressed by interactionSource.interactions
         .filterIsInstance<PressInteraction.Press>()

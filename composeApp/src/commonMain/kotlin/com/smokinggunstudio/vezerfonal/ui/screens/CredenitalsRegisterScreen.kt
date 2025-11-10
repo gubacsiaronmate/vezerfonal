@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -12,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
@@ -66,7 +66,7 @@ import vezerfonal.composeapp.generated.resources.*
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Button(
+                AnimatedButton(
                     modifier = Modifier
                         .background(MaterialTheme.colorScheme.primary)
                         .fillMaxWidth()
@@ -82,7 +82,7 @@ import vezerfonal.composeapp.generated.resources.*
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Button(
+                    AnimatedButton(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.primary)
                             .fillMaxWidth()
@@ -91,7 +91,7 @@ import vezerfonal.composeapp.generated.resources.*
                             // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
                         },
                     ) { Text(stringResource(Res.string.continue_google)) }
-                    Button(
+                    AnimatedButton(
                         onClick = {
                             // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
                         },

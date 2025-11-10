@@ -11,12 +11,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
+import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
 import com.smokinggunstudio.vezerfonal.ui.theme.Black
 import com.smokinggunstudio.vezerfonal.ui.theme.White
-import io.ktor.client.HttpClient
+import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -77,7 +78,7 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
+                AnimatedButton(
                     onClick = {
                         scope.launch {
                             loginBasic(loginState, client)
@@ -97,7 +98,7 @@ fun LoginScreen(
                 )
                 OrOptionDivider()
                 Spacer(modifier = Modifier.height(24.dp))
-                Button(
+                AnimatedButton(
                     onClick = onClick,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                         .background(color = White)
@@ -105,7 +106,7 @@ fun LoginScreen(
                     Text(stringResource(Res.string.continue_google),
                         color = Black)
                 }
-                Button(
+                AnimatedButton(
                     onClick = onClick,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                         .background(color = Black)

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
 import org.jetbrains.compose.resources.painterResource
@@ -62,7 +63,7 @@ fun LandingPageScreen(
             modifier = Modifier.fillMaxWidth().fillMaxHeight(1/3F),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(
+            AnimatedButton(
                 onClick = onRegisterClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth(),
@@ -75,7 +76,7 @@ fun LandingPageScreen(
                     fontWeight = FontWeight.Bold,
                 )
             }
-            Button(
+            AnimatedButton(
                 onClick = onLoginClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()

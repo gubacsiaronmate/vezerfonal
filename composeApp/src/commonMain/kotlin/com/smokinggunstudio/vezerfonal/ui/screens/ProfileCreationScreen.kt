@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
+import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
@@ -76,7 +77,7 @@ import vezerfonal.composeapp.generated.resources.identifier
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Button(
+            AnimatedButton(
                 onClick = {
                     scope.launch { 
                         if (data == null) throw NullPointerException("Profile picture cannot be null.")

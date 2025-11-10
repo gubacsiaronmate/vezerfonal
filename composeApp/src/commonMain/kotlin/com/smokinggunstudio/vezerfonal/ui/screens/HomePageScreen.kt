@@ -4,12 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Filter
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -37,7 +37,7 @@ fun HomePageScreen() {
             .height(1.dp))
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End) {
-            Button(
+            AnimatedButton(
                  onClick = {}
             ) {
                 Text(stringResource(Res.string.filter))
