@@ -9,6 +9,7 @@ import com.smokinggunstudio.vezerfonal.repositories.modifyUser
 import com.smokinggunstudio.vezerfonal.security.JWTConfig
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
+import com.smokinggunstudio.vezerfonal.security.auth.configureOAuth
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -25,9 +26,12 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
     authentication {
         configureBasicAuth(this, context)
         configureJWTAuth(this, context)
+        configureOAuth(this, context)
     }
     
-    routing { get("/") { call.respondText("Hello") }; route("/api") {
+    routing {
+        get("/") { call.respondText("Hello") }
+        
         route("/register") {
             post("/basic") {
                 val user = tryIncoming("Unable to receive user.")
@@ -132,5 +136,18 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
 //                print("asd")
 //            } }
         }
-    } }
+        
+        authenticate("jwt-access") { route("/api"){
+            get("/messages/{amount}") {
+                val principal = call.principal<AuthResponse>()
+                val id = principal?.userId
+                    ?: return@get call.respondText(
+                        "Unauthorized",
+                        status = HttpStatusCode.Unauthorized
+                    )
+                
+                val messages = get
+            }
+        } }
+    }
 }
