@@ -10,18 +10,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.network.api.loginBasic
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LoginScreen(
+    client: HttpClient,
     onClick: ClickEvent
 ) {
     val loginState by mutableStateOf(LoginState())
-    var checked by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -69,7 +73,11 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
-                    onClick = onClick,
+                    onClick = {
+                        scope.launch {
+                            loginBasic(loginState, client)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
                     Text(stringResource(Res.string.login))

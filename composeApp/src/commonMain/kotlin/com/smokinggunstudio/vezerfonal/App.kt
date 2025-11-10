@@ -78,6 +78,6 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             ProfileCreationScreen(registerState!!, client) { navigator.go(NavTree.Home) }
         }
         
-        screen(NavTree.Login) { LoginScreen { navigator.go(NavTree.Home) } }
+        screen(NavTree.Login) { LoginScreen(client) { navigator.go(NavTree.Home) } }
     }
 }
