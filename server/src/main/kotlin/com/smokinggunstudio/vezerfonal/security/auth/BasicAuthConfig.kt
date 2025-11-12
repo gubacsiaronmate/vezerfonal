@@ -3,9 +3,8 @@ package com.smokinggunstudio.vezerfonal.security.auth
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.repositories.getUserByEmail
 import com.smokinggunstudio.vezerfonal.security.verifyPassword
-import io.ktor.server.auth.AuthenticationConfig
-import io.ktor.server.auth.basic
-import io.ktor.server.request.receive
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
 import kotlin.coroutines.CoroutineContext
 
 fun configureBasicAuth(feature: AuthenticationConfig, context: CoroutineContext) {

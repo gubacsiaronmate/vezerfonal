@@ -3,10 +3,9 @@ package com.smokinggunstudio.vezerfonal.helpers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.URLConnection
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.net.URLConnection
 import javax.swing.JFileChooser
 import javax.swing.SwingUtilities
 

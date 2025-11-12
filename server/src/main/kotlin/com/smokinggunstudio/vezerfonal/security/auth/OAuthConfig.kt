@@ -1,8 +1,6 @@
 package com.smokinggunstudio.vezerfonal.security.auth
 
-import io.ktor.server.auth.AuthenticationConfig
-import io.ktor.server.auth.OAuthServerSettings
-import io.ktor.server.auth.oauth
+import io.ktor.server.auth.*
 import kotlin.coroutines.CoroutineContext
 
 fun configureOAuth(feature: AuthenticationConfig, context: CoroutineContext) {

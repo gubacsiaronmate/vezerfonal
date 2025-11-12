@@ -1,7 +1,7 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.util.unaryPlus
-import io.ktor.http.ContentType
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.withContext

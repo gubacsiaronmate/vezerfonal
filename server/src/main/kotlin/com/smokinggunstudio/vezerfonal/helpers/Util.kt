@@ -1,19 +1,15 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.RoutingContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
+import io.ktor.http.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import kotlinx.datetime.*
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toKotlinInstant
 import org.jetbrains.exposed.sql.FieldSet
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import java.util.Date
+import java.util.*
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
