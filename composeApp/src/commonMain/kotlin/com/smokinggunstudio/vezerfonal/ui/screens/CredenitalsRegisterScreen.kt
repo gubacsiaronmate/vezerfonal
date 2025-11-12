@@ -68,7 +68,6 @@ import vezerfonal.composeapp.generated.resources.*
             ) {
                 AnimatedButton(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary)
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp, vertical = 20.dp),
                     onClick = onClick,
@@ -84,7 +83,6 @@ import vezerfonal.composeapp.generated.resources.*
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AnimatedButton(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary)
                             .fillMaxWidth()
                             .padding(vertical = 2.dp),
                         onClick = {
@@ -98,8 +96,7 @@ import vezerfonal.composeapp.generated.resources.*
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 2.dp)
-                            .background(MaterialTheme.colorScheme.primary)
-                    ) { Text(stringResource(Res.string.continue_apple), color = MaterialTheme.colorScheme.onPrimary) }
+                    ) { Text(stringResource(Res.string.continue_apple)) }
                 }
             }
         }

@@ -63,19 +63,29 @@ import vezerfonal.composeapp.generated.resources.registration_code
                         onClickCallback(nonAdminRegisterState)
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                ) { Text(stringResource(Res.string.proceed),
-                    color = MaterialTheme.colorScheme.onPrimary) }
+                ) {
+                    Text(
+                        text = stringResource(Res.string.proceed),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
+                
                 OrOptionDivider()
+                
                 Spacer(modifier = Modifier.height(16.dp))
+                
                 AnimatedButton(
                     onClick = {
                         onClickCallback(AdminRegisterState())
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                        .background(color = MaterialTheme.colorScheme.primary)
-                ) { Text(stringResource(Res.string.create_organization),
-                    color = MaterialTheme.colorScheme.onPrimary) }
+                ) {
+                    Text(
+                        text = stringResource(Res.string.create_organization),
+                    color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     }

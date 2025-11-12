@@ -4,8 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,11 +23,6 @@ import vezerfonal.composeapp.generated.resources.*
 fun LandingPageScreen(
     onRegisterClick: ClickEvent, onLoginClick: ClickEvent
 ) {
-    val color = ButtonDefaults.buttonColors(
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        containerColor = MaterialTheme.colorScheme.primary
-    )
-    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -48,7 +41,7 @@ fun LandingPageScreen(
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(top = 30.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -60,7 +53,7 @@ fun LandingPageScreen(
             )
         }
         Column(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(1/3F),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(1/3F + .1F),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             AnimatedButton(
@@ -80,7 +73,6 @@ fun LandingPageScreen(
                 onClick = onLoginClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
             ) {
                 Text(
                     text = stringResource(Res.string.login),

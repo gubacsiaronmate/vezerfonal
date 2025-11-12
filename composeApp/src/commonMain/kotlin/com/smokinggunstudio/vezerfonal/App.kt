@@ -40,7 +40,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             )
         }
         
-        screen(NavTree.Home) { navigator.go(NavTree.Register(1)) }
+        screen(NavTree.Home) { HomePageScreen() }
         
         screen(NavTree.Register(1)) {
             fun handleOnClickCallback(regState: RegisterState) {

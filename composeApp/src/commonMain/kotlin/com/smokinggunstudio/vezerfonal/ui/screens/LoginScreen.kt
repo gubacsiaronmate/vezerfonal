@@ -3,8 +3,14 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -15,8 +21,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
-import com.smokinggunstudio.vezerfonal.ui.theme.Black
-import com.smokinggunstudio.vezerfonal.ui.theme.White
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -37,31 +41,35 @@ fun LoginScreen(
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
         
-        ) {
-        Row {
-            Text(
+    ) {
+        Row { Text(
                 text = stringResource(Res.string.login),
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
-            )
-        }
+        ) }
+        
         Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = loginState.email,
                 onValueChange = loginState::updateEmail,
-                label = { Text(stringResource(Res.string.email_address),
-                    color = MaterialTheme.colorScheme.onSurface) },
+                label = { Text(
+                    text = stringResource(Res.string.email_address),
+                    color = MaterialTheme.colorScheme.onSurface
+                ) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
+            
             OutlinedTextField(
                 value = loginState.password,
                 onValueChange = loginState::updatePassword,
-                label = { Text(stringResource(Res.string.password),
-                    color = MaterialTheme.colorScheme.onSurface) },
+                label = { Text(
+                    text = stringResource(Res.string.password),
+                    color = MaterialTheme.colorScheme.onSurface
+                ) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
@@ -70,13 +78,17 @@ fun LoginScreen(
                     checked = loginState.rememberMe,
                     onCheckedChange = loginState::updateRememberMe
                 )
-                Text(text = stringResource(Res.string.remember_me),
-                    color = MaterialTheme.colorScheme.onSurface)
+                
+                Text(
+                    text = stringResource(Res.string.remember_me),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
+            
             Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 AnimatedButton(
                     onClick = {
@@ -85,35 +97,36 @@ fun LoginScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                        .background(color = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(stringResource(Res.string.login),
-                        color = MaterialTheme.colorScheme.onPrimary)
-                }
+                ) { Text(
+                    text = stringResource(Res.string.login),
+                    color = MaterialTheme.colorScheme.onPrimary
+                ) }
+                
                 Text(
-                    stringResource(Res.string.forgot_password),
+                    text = stringResource(Res.string.forgot_password),
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(vertical = 20.dp)
+                    modifier = Modifier
+                        .padding(vertical = 20.dp)
                         .clickable(onClick = onClick)
                 )
+                
                 OrOptionDivider()
+                
                 Spacer(modifier = Modifier.height(24.dp))
+                
                 AnimatedButton(
                     onClick = onClick,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                        .background(color = White)
-                ) {
-                    Text(stringResource(Res.string.continue_google),
-                        color = Black)
-                }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                ) { Text(stringResource(Res.string.continue_google)) }
+                
                 AnimatedButton(
                     onClick = onClick,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                        .background(color = Black)
-                ) {
-                    Text(stringResource(Res.string.continue_apple),
-                        color = White)
-                }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                ) { Text(stringResource(Res.string.continue_apple)) }
             }
         }
     }
