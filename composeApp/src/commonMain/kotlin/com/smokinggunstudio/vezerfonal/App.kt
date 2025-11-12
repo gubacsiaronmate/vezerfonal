@@ -1,9 +1,16 @@
 package com.smokinggunstudio.vezerfonal
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.ui.helpers.NavTree
 import com.smokinggunstudio.vezerfonal.ui.helpers.go
@@ -21,7 +28,13 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 @Composable fun App() {
     VezerfonalTheme {
         PreComposeApp {
-            Navigator()
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) { Navigator() }
         }
     }
 }
@@ -36,7 +49,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
         screen(NavTree.Landing) {
             LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
-                onLoginClick = { navigator.go(NavTree.Login) }
+                onLoginClick = { navigator.go(NavTree.Home) }
             )
         }
         
