@@ -12,7 +12,7 @@ import io.ktor.http.*
 suspend fun registerBasic(userData: UserData, pfp: FileData, client: HttpClient): TokenResponse {
     val (id: Int, success: Boolean) = (client.post(
         NetworkConstants.Endpoints.REGISTER_DATA_BASIC
-    ) { setBody(userData) }).let { Pair(it.body<String>().trim().toInt(), it.status == HttpStatusCode) }
+    ) { setBody(userData) }).let { Pair(it.body<String>().trim().toInt(), it.status == HttpStatusCode.Created) }
     
     if (!success) error("Could not register.")
     
