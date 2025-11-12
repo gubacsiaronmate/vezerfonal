@@ -1,12 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -18,29 +13,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.important
-import vezerfonal.composeapp.generated.resources.search_title_or_in_message_content
-import vezerfonal.composeapp.generated.resources.senders_name
-import vezerfonal.composeapp.generated.resources.time_sent
-import vezerfonal.composeapp.generated.resources.waiting_for_answer
+import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 @Preview
 fun MessageFilter() {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(8.dp)
-        .background(color = MaterialTheme.colorScheme.surface),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+            .background(color = MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         OutlinedTextField(
             value = "",
             onValueChange = {},
-            label = { Text(
-                text = stringResource(Res.string.senders_name),
-                color = MaterialTheme.colorScheme.onSurface
-            ) },
+            label = {
+                Text(
+                    text = stringResource(Res.string.senders_name),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
@@ -57,10 +50,12 @@ fun MessageFilter() {
             )
             RangeSlider()
         }
-        Row(modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = stringResource(Res.string.important),
                 color = MaterialTheme.colorScheme.onSurface,
@@ -75,10 +70,12 @@ fun MessageFilter() {
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
-        Row(modifier = Modifier
-            .fillMaxWidth(),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 text = stringResource(Res.string.waiting_for_answer),
                 color = MaterialTheme.colorScheme.onSurface,
