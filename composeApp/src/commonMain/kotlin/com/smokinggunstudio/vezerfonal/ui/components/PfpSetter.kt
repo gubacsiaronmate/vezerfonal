@@ -2,37 +2,36 @@ package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.FilePicker
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.set_profile_picture
 
 @Composable fun PfpSetter(
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier,
     onFilePickCallBack: CallbackClickEvent<FileData?>
 ) {
     val filePicker = FilePicker()
     val scope = rememberCoroutineScope()
+    var data: FileData? by remember { mutableStateOf(null) }
     
     Column(
         verticalArrangement = verticalArrangement,
@@ -44,21 +43,37 @@ import vezerfonal.composeapp.generated.resources.set_profile_picture
             color = MaterialTheme.colorScheme.onBackground
         )
         IconButton(
+            shape = CircleShape,
             onClick = {
-                var data: FileData? = null
-                scope.launch { data = filePicker.pickFile() }
-                onFilePickCallBack(data)
+                val job = scope.launch { data = filePicker.pickFile() }
+                if ((job.start() && (job.isCompleted || job.isCancelled)) || data != null) onFilePickCallBack(data)
             },
-            modifier = Modifier
+            modifier = modifier
                 .height(120.dp)
                 .width(120.dp)
+                .aspectRatio(1F)
+                .align(Alignment.CenterHorizontally)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(500.dp)
+                    shape = CircleShape
+                ),
+        ) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            ) { Row {
+                data?.let {
+                    Image(
+                        bitmap = it.toImageResource(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                
+                if (data == null) Image(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
                 )
-        ) { Image(
-            imageVector = Icons.Outlined.Person,
-            contentDescription = null,
-        ) }
+            } }
+        }
     }
 }

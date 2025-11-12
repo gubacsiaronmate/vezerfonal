@@ -62,6 +62,7 @@ import vezerfonal.composeapp.generated.resources.registration_code
                     onClick = {
                         onClickCallback(nonAdminRegisterState)
                     },
+                    enabled = nonAdminRegisterState.regCode.isNotBlank(),
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
                     Text(

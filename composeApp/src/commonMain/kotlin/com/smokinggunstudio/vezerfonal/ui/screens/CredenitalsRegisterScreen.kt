@@ -15,6 +15,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.isValidEmail
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -69,15 +70,22 @@ import vezerfonal.composeapp.generated.resources.*
                 AnimatedButton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 20.dp),
+                        .padding(
+                            horizontal = 8.dp,
+                            vertical = 20.dp
+                        ),
                     onClick = onClick,
                     enabled = (
                         registerState.password == confirmPassword.value
-                        && !confirmPassword.value.isBlank()
+                        && registerState.password.length >= 8
+                        && registerState.email.isNotBlank()
+                        && registerState.email.isValidEmail()
+                        && confirmPassword.value.isNotBlank()
                     ),
                 ) { Text(stringResource(Res.string.proceed)) }
                 
                 OrOptionDivider()
+                
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Column(modifier = Modifier.fillMaxWidth()) {

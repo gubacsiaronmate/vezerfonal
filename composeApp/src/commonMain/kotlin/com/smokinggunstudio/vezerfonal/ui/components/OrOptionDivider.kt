@@ -33,7 +33,7 @@ import vezerfonal.composeapp.generated.resources.or
         )
         Text(
             text = stringResource(Res.string.or),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,

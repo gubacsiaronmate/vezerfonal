@@ -65,11 +65,13 @@ kotlin {
         
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.skiko)
         }
         
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
             implementation(npm("bcryptjs", "2.4.3"))
+            implementation(libs.skiko)
         }
         
         jvmMain.dependencies {
@@ -77,6 +79,7 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.skiko)
         }
         
     }

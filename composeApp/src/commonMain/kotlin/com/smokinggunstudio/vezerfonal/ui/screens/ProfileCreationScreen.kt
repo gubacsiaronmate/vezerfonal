@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
+import com.smokinggunstudio.vezerfonal.ui.components.DismissibleSnackBar
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
@@ -28,7 +30,7 @@ import vezerfonal.composeapp.generated.resources.*
     onClick: ClickEvent
 ) {
     var areTermsAccepted by remember { mutableStateOf(false) }
-    var data: FileData? = null
+    var data: FileData? by remember { mutableStateOf(null) }
     val scope = rememberCoroutineScope()
     
     Column(
@@ -62,14 +64,15 @@ import vezerfonal.composeapp.generated.resources.*
             
             PfpSetter(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 onFilePickCallBack = { data = it }
             )
             
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = areTermsAccepted,
-                    onCheckedChange = { areTermsAccepted = it }
+                    onCheckedChange = { areTermsAccepted = it; }
                 )
                 Text(
                     text = stringResource(Res.string.accept_terms),
@@ -77,11 +80,13 @@ import vezerfonal.composeapp.generated.resources.*
                 )
             }
             
+            if (areTermsAccepted) DismissibleSnackBar { Text("Data is $data") }
+            
             AnimatedButton(
                 onClick = {
                     scope.launch { 
                         if (data == null) throw NullPointerException("Profile picture cannot be null.")
-                        registerBasic(
+                        else registerBasic(
                             userData = registerState.toUserData(),
                             pfp = data!!,
                             client = client
@@ -89,7 +94,12 @@ import vezerfonal.composeapp.generated.resources.*
                     }
                     onClick()
                 },
-                enabled = areTermsAccepted,
+                enabled = (
+                    registerState.identifier.isNotBlank()
+                    && registerState.name.isNotBlank()
+                    && areTermsAccepted
+                    && data != null
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
