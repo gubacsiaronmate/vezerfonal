@@ -11,9 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
-import com.smokinggunstudio.vezerfonal.ui.components.DismissibleSnackBar
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
@@ -25,10 +25,12 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun ProfileCreationScreen(
     registerState: RegisterState,
+    tokenStorage: TokenStorage,
     client: HttpClient,
     onClick: ClickEvent
 ) {
     var areTermsAccepted by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(false) }
     var data: FileData? by remember { mutableStateOf(null) }
     val scope = rememberCoroutineScope()
     
@@ -68,30 +70,43 @@ import vezerfonal.composeapp.generated.resources.*
                 onFilePickCallBack = { data = it }
             )
             
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = areTermsAccepted,
-                    onCheckedChange = { areTermsAccepted = it; }
-                )
-                Text(
-                    text = stringResource(Res.string.accept_terms),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = areTermsAccepted,
+                        onCheckedChange = { areTermsAccepted = it; }
+                    )
+                    Text(
+                        text = stringResource(Res.string.accept_terms),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = rememberMe,
+                        onCheckedChange = { rememberMe = it; }
+                    )
+                    Text(
+                        text = stringResource(Res.string.remember_me),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
-            
-            if (areTermsAccepted) DismissibleSnackBar { Text("Data is $data") }
             
             AnimatedButton(
                 onClick = {
                     scope.launch { 
-                        if (data == null) throw NullPointerException("Profile picture cannot be null.")
+                        val tokens = if (data == null) throw NullPointerException("Profile picture cannot be null.")
                         else registerBasic(
                             userData = registerState.toUserData(),
+                            rememberMe = rememberMe,
                             pfp = data!!,
                             client = client
                         )
+                        tokenStorage.saveTokens(tokens)
+                        onClick()
                     }
-                    onClick()
                 },
                 enabled = (
                     registerState.identifier.isNotBlank()

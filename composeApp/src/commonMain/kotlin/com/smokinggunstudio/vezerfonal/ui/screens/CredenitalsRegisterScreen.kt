@@ -1,15 +1,26 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
@@ -33,6 +44,7 @@ import vezerfonal.composeapp.generated.resources.*
             .padding(horizontal = 8.dp),
     ) {
         val confirmPassword = remember { mutableStateOf("") }
+        var isPasswordVisible by remember { mutableStateOf(false) }
         
         RegisterText()
         
@@ -51,7 +63,27 @@ import vezerfonal.composeapp.generated.resources.*
                 label = { Text(stringResource(Res.string.password),
                 color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 8.dp,
+                        vertical = 4.dp
+                    ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation =
+                    if (isPasswordVisible)
+                        VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon =
+                        if (isPasswordVisible)
+                            Icons.Filled.VisibilityOff
+                        else Icons.Filled.Visibility
+                    
+                    IconButton({isPasswordVisible = !isPasswordVisible}) {
+                        Image(imageVector = icon, contentDescription = null)
+                    }
+                }
             )
             OutlinedTextField(
                 value = confirmPassword.value,
@@ -59,7 +91,27 @@ import vezerfonal.composeapp.generated.resources.*
                 label = { Text(stringResource(Res.string.confirm_password),
                     color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = 8.dp,
+                        vertical = 4.dp
+                    ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation =
+                    if (isPasswordVisible)
+                        VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon =
+                        if (isPasswordVisible)
+                            Icons.Filled.VisibilityOff
+                        else Icons.Filled.Visibility
+                    
+                    IconButton({isPasswordVisible = !isPasswordVisible}) {
+                        Image(imageVector = icon, contentDescription = null)
+                    }
+                }
             )
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,

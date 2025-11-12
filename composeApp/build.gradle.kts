@@ -39,9 +39,11 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.bcrypt)
+            implementation(libs.kvault)
         }
         
         commonMain.dependencies {
+            implementation(libs.multiplatformSettings)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinxJson)
@@ -66,12 +68,14 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.skiko)
+            implementation(libs.kvault)
         }
         
         jsMain.dependencies {
             implementation(libs.ktor.client.js)
             implementation(npm("bcryptjs", "2.4.3"))
             implementation(libs.skiko)
+            implementation(libs.multiplatformSettings)
         }
         
         jvmMain.dependencies {
@@ -80,8 +84,8 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.skiko)
+            implementation(libs.multiplatformSettings)
         }
-        
     }
 }
 

@@ -51,10 +51,16 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 )
             }
             
-            post("/basic/pfp/{userId}") {
+            post("/basic/pfp/{userId}/{rememberMe}") {
                 val userId = call.parameters["userId"]?.toIntOrNull()
                     ?: run { call.respondText(
                         "Invalid user ID",
+                        status = HttpStatusCode.BadRequest
+                    ); return@post }
+                
+                val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
+                    ?: run { call.respondText(
+                        "Invalid remember me parameter.",
                         status = HttpStatusCode.BadRequest
                     ); return@post }
                 
@@ -83,7 +89,12 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val refreshToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
                 
-                call.respond(TokenResponse(accessToken, refreshToken))
+                call.respond(TokenResponse(
+                    accessToken,
+                    if (rememberMe)
+                        refreshToken
+                    else null // "No token for you :("
+                ))
             }
             
             route("/oauth") {
@@ -91,7 +102,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             }
         }
         
-        authenticate("jwt-refresh") { post("/refresh") {
+        authenticate("jwt-refresh") { post("/refresh/{rememberMe}") {
             val principal = call.principal<AuthResponse>()
             val id = principal?.userId
                 ?: return@post call.respondText(
@@ -99,13 +110,24 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     status = HttpStatusCode.Unauthorized
                 )
             
+            val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
+                ?: run { call.respondText(
+                    "Invalid remember me parameter.",
+                    status = HttpStatusCode.BadRequest
+                ); return@post }
+            
             val accessToken = tryInternal("Cannot generate jwt")
             { JWTConfig.generateToken(id, context) } ?: return@post
             
             val refreshToken = tryInternal("Cannot generate jwt")
             { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
             
-            call.respond(TokenResponse(accessToken, refreshToken))
+            call.respond(TokenResponse(
+                accessToken,
+                if (rememberMe)
+                    refreshToken
+                else null // "No token for you :("
+            ))
         } }
         
         route("/login") {
@@ -126,7 +148,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 call.respond(TokenResponse(
                     accessToken,
                     if (principal.rememberMe) refreshToken
-                    else "no token for you :("
+                    else null // "No token for you :("
                 ))
             } }
             
@@ -146,7 +168,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         status = HttpStatusCode.Unauthorized
                     )
                 
-                val messages = get
+//                val messages = get
             }
         } }
     }

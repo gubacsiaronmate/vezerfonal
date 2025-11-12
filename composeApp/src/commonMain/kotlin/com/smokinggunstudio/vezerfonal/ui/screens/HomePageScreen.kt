@@ -7,12 +7,16 @@ import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
+import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.ui.components.DismissibleSnackBar
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -21,7 +25,18 @@ import vezerfonal.composeapp.generated.resources.spiralgraphic
 import vezerfonal.composeapp.generated.resources.vezerfonal
 
 @Composable
-fun HomePageScreen() {
+fun HomePageScreen(
+    tokenStorage: TokenStorage
+) {
+    val scope = rememberCoroutineScope()
+    var tokens: TokenResponse? by remember { mutableStateOf(null) }
+    scope.launch {
+        tokens = tokenStorage.getTokens()
+    }
+    DismissibleSnackBar {
+        Text("Token is null: ${tokens == null}")
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()

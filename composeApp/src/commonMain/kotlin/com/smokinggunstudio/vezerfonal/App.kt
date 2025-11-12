@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.ui.helpers.NavTree
 import com.smokinggunstudio.vezerfonal.ui.helpers.go
@@ -22,6 +20,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import com.smokinggunstudio.vezerfonal.ui.theme.VezerfonalTheme
 import moe.tlaster.precompose.PreComposeApp
+import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.rememberNavigator
 
@@ -42,8 +41,27 @@ import moe.tlaster.precompose.navigation.rememberNavigator
 
 @Composable fun Navigator() {
     val navigator = rememberNavigator()
-    var registerState by mutableStateOf<RegisterState?>(null)
+    var registerState by remember { mutableStateOf<RegisterState?>(null) }
+    var pendingRegisterState by remember {  mutableStateOf<RegisterState?>(null) }
     val client = createHttpClient()
+    val canGoBack by navigator.canGoBack.collectAsState(initial = false)
+    val tokenStorage = TokenStorage()
+    
+    LaunchedEffect(pendingRegisterState) {
+        pendingRegisterState?.let { regState ->
+            registerState = regState
+            when (registerState) {
+                is NonAdminRegisterState -> navigator.go(NavTree.Register(2))
+                is AdminRegisterState -> navigator.go(NavTree.CreateOrg)
+                else -> error(
+                    "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { $registerState }"
+                )
+            }
+        }
+    }
+    
+    BackHandler(enabled = canGoBack)
+    { navigator.goBack() }
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         screen(NavTree.Landing) {
@@ -53,26 +71,15 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             )
         }
         
-        screen(NavTree.Home) { HomePageScreen() }
+        screen(NavTree.Home) { HomePageScreen(tokenStorage) }
         
         screen(NavTree.Register(1)) {
-            fun handleOnClickCallback(regState: RegisterState) {
-                registerState = regState
-                when (registerState) {
-                    is NonAdminRegisterState -> navigator.go(NavTree.Register(2))
-                    is AdminRegisterState -> navigator.go(NavTree.CreateOrg)
-                    else -> error(
-                        "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { $registerState }"
-                    )
-                }
-            }
-            
-            InitialRegisterScreen(::handleOnClickCallback)
+            InitialRegisterScreen { pendingRegisterState = it }
         }
         
         screen(NavTree.CreateOrg) {
             if (registerState == null)
-                error("Register2.route: RegisterState cannot be null.")
+                error("CreateOrg.route: RegisterState cannot be null.")
             
             // TODO: Organisation creation screen
         }
@@ -88,9 +95,9 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             if (registerState == null)
                 error("Register2.route: RegisterState cannot be null.")
             
-            ProfileCreationScreen(registerState!!, client) { navigator.go(NavTree.Home) }
+            ProfileCreationScreen(registerState!!, tokenStorage, client) { navigator.go(NavTree.Home) }
         }
         
-        screen(NavTree.Login) { LoginScreen(client) { navigator.go(NavTree.Home) } }
+        screen(NavTree.Login) { LoginScreen(client, tokenStorage) { navigator.go(NavTree.Home) } }
     }
 }

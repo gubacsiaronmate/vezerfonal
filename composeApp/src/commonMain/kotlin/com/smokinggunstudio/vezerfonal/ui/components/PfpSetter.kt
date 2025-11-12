@@ -45,8 +45,10 @@ import vezerfonal.composeapp.generated.resources.set_profile_picture
         IconButton(
             shape = CircleShape,
             onClick = {
-                val job = scope.launch { data = filePicker.pickFile() }
-                if ((job.start() && (job.isCompleted || job.isCancelled)) || data != null) onFilePickCallBack(data)
+                scope.launch {
+                    data = filePicker.pickFile()
+                    onFilePickCallBack(data)
+                }
             },
             modifier = modifier
                 .height(120.dp)

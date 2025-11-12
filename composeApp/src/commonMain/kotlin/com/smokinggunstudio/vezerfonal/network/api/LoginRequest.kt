@@ -2,6 +2,8 @@ package com.smokinggunstudio.vezerfonal.network.api
 
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
+import com.smokinggunstudio.vezerfonal.network.helpers.Platform
+import com.smokinggunstudio.vezerfonal.network.helpers.PlatformType
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -14,10 +16,15 @@ suspend fun loginBasic(loginState: LoginState, client: HttpClient): TokenRespons
     val encodedCredentials = Base64.encode("${loginState.email}:${loginState.password}".toByteArray())
     
     val response = client.post(NetworkConstants.Endpoints.LOGIN_BASIC) {
-         headers {
-             append(HttpHeaders.Authorization, "Basic $encodedCredentials")
-         }
-        setBody(loginState.rememberMe)
+        headers {
+            append(HttpHeaders.Authorization, "Basic $encodedCredentials")
+        }
+        
+        when (Platform.type) {
+            PlatformType.JS -> setBody(false)
+            PlatformType.Desktop -> setBody(false)
+            else -> setBody(loginState.rememberMe)
+        }
     }
     
     return response.body<TokenResponse>()

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
@@ -29,6 +30,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LoginScreen(
     client: HttpClient,
+    tokenStorage: TokenStorage,
     onClick: ClickEvent
 ) {
     val loginState by mutableStateOf(LoginState())
@@ -94,7 +96,8 @@ fun LoginScreen(
                 AnimatedButton(
                     onClick = {
                         scope.launch {
-                            loginBasic(loginState, client)
+                            val tokens = loginBasic(loginState, client)
+                            tokenStorage.saveTokens(tokens)
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
