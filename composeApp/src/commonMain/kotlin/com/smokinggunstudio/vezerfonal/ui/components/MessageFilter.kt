@@ -1,7 +1,13 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -104,5 +110,32 @@ fun MessageFilter() {
                 )
             }
         )
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        ) {
+            IconToggleButton(
+                checked = false,
+                onCheckedChange = {},
+                modifier = Modifier.padding(8.dp)
+                    .width(75.dp),
+                content = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            imageVector = Icons.Default.Stars,
+                            contentDescription = null
+                        )
+                        Text(text = stringResource(Res.string.tags),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            )
+        }
     }
 }
