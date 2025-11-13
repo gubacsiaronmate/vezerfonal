@@ -32,7 +32,7 @@ actual class FilePicker {
                     val bytes = data.toByteArray()
                     val name = url.lastPathComponent ?: "file"
                     val mime = "application/octet-stream"
-                    if (cont.isActive) cont.resume(FileData(name = name, bytes = bytes, mimeType = mime))
+                    if (cont.isActive) cont.resume(FileData(bytes = bytes, FileMetaData(name = name, mimeType = mime)))
                 } else {
                     if (cont.isActive) cont.resume(null)
                 }

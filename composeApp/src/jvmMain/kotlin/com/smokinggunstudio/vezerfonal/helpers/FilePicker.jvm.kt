@@ -34,7 +34,7 @@ actual class FilePicker {
             val bytes = file.readBytes()
             val name = file.name
             val mimeType = probeMimeType(file.toPath()) ?: URLConnection.guessContentTypeFromName(name) ?: "application/octet-stream"
-            FileData(name = name, bytes = bytes, mimeType = mimeType)
+            FileData(bytes = bytes, FileMetaData(name = name, mimeType = mimeType))
         } else {
             null
         }

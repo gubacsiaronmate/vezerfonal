@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.bcrypt)
             implementation(libs.kvault)
+            implementation(libs.kotlinx.datetime)
         }
         
         commonMain.dependencies {
@@ -70,6 +71,7 @@ kotlin {
             implementation(libs.ktor.client.darwin)
             implementation(libs.skiko)
             implementation(libs.kvault)
+            implementation(libs.kotlinx.datetime)
         }
         
         jsMain.dependencies {
@@ -77,6 +79,7 @@ kotlin {
             implementation(npm("bcryptjs", "2.4.3"))
             implementation(libs.skiko)
             implementation(libs.multiplatformSettings)
+            implementation(libs.kotlinx.datetime)
         }
         
         jvmMain.dependencies {
@@ -86,6 +89,7 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.skiko)
             implementation(libs.multiplatformSettings)
+            implementation(libs.kotlinx.datetime)
         }
     }
 }

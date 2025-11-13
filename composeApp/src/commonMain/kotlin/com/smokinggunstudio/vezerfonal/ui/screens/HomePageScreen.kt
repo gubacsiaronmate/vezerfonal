@@ -56,7 +56,7 @@ fun HomePageScreen(
                     isSuperAdmin = false
                 ),
                 rememberMe = true,
-                pfp = filePicker.pickFile() ?: error("File is not picked"),
+                fileData = filePicker.pickFile() ?: error("File is not picked"),
                 client = client
             )
             

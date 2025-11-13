@@ -41,7 +41,7 @@ actual class FilePicker {
                     val name = file.name
                     val mime = file.type.ifEmpty { "application/octet-stream" }
                     cleanup()
-                    if (cont.isActive) cont.resume(FileData(name = name, bytes = bytes, mimeType = mime))
+                    if (cont.isActive) cont.resume(FileData(bytes = bytes, FileMetaData(name = name, mimeType = mime)))
                 } catch (_: Throwable) {
                     cleanup()
                     if (cont.isActive) cont.resume(null)

@@ -29,7 +29,6 @@ dependencies {
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.kotlinx.datetime)
     implementation(libs.bcrypt)
-    implementation(libs.ktor.server.bodyLimit)
     
     // default imports
     implementation(projects.shared)

@@ -17,6 +17,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.cio.toByteArray
 import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
@@ -51,8 +52,9 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             }
             
             route("/basic/pfp/{userId}/{rememberMe}") {
-                var userId: Int?
-                var rememberMe: Boolean?
+                var userId: Int? = null
+                var rememberMe: Boolean? = null
+                var metadata: FileMetaData? = null
                 
                 post("/metadata") {
                     userId = call.parameters["userId"]?.toIntOrNull()
@@ -71,11 +73,24 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             ); return@post
                         }
                     
-                    val data = tryIncoming("Unable to receive image.")
-                    { call.receive<FileData>() } ?: return@post
+                    metadata = tryIncoming("Unable to receive image metadata.")
+                    { call.receive<FileMetaData>() } ?: return@post
+                    
+                    call.respondText("Accepted", status = HttpStatusCode.Accepted)
+                }
+                
+                post("/filedata") {
+                    when {
+                        userId == null -> error("User Id cannot be null.")
+                        metadata == null -> error("Metadata cannot be null.")
+                        rememberMe == null -> error("Remember Me cannot be null.")
+                    }
+                    
+                    val data = tryIncoming("Unable to receive image bytes.")
+                    { call.receiveChannel().toByteArray() } ?: return@post
                     
                     val pfpURI = tryInternal("Failed to save image.")
-                    { imageService.saveImageBytes(data.bytes, userId, context, extension = data.fileType) } ?: return@post
+                    { imageService.saveImageBytes(data, userId, context, extension = metadata.fileType) } ?: return@post
                     
                     val updateSuccess = tryInternal("Failed to add picture to user.")
                     {
@@ -106,10 +121,6 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             else null // "No token for you :("
                         )
                     )
-                }
-                
-                post("/filedata") {
-                
                 }
             }
             

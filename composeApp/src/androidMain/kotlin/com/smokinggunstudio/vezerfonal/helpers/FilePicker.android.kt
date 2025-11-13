@@ -32,7 +32,7 @@ actual class FilePicker {
                 } ?: uri.lastPathSegment ?: "file"
                 val mime = cr.getType(uri) ?: "application/octet-stream"
                 val bytes = cr.openInputStream(uri)?.use { it.readBytes() } ?: ByteArray(0)
-                if (cont.isActive) cont.resume(FileData(name = name, bytes = bytes, mimeType = mime))
+                if (cont.isActive) cont.resume(FileData(bytes = bytes, FileMetaData(name = name, mimeType = mime)))
             } catch (_: Throwable) {
                 if (cont.isActive) cont.resume(null)
             }

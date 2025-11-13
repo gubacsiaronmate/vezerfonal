@@ -101,7 +101,7 @@ import vezerfonal.composeapp.generated.resources.*
                         else registerBasic(
                             userData = registerState.toUserData(),
                             rememberMe = rememberMe,
-                            pfp = data!!,
+                            fileData = data!!,
                             client = client
                         )
                         tokenStorage.saveTokens(tokens)

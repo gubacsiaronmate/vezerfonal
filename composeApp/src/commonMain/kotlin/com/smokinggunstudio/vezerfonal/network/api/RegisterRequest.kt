@@ -14,7 +14,7 @@ import io.ktor.http.*
 suspend fun registerBasic(
     userData: UserData,
     rememberMe: Boolean,
-    pfp: FileData,
+    fileData: FileData,
     client: HttpClient
 ): TokenResponse {
     val (id: Int, success: Boolean) = (
@@ -30,14 +30,25 @@ suspend fun registerBasic(
     
     if (!success) error("Could not register.")
     
-    val url = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
+    val urlMetadata = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
         when (Platform.type) {
             PlatformType.Desktop -> "/false"
             PlatformType.JS -> "/false"
             else -> "/$rememberMe"
-        }
+        } + "/metadata"
     
-    val response = client.post(url) { setBody(pfp) }
+    val acceptance = (client.post(urlMetadata) { setBody(fileData.metaData) }).status == HttpStatusCode.Accepted
+    
+    if (!acceptance) error("Metadata didn't get received.")
+    
+    val urlData = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
+            when (Platform.type) {
+                PlatformType.Desktop -> "/false"
+                PlatformType.JS -> "/false"
+                else -> "/$rememberMe"
+            } + "/filedata"
+    
+    val response = client.post(urlData) { setBody(fileData.bytes) }
     
     val tokens = response.body<TokenResponse>()
     return tokens
