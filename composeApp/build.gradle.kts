@@ -43,6 +43,7 @@ kotlin {
         }
         
         commonMain.dependencies {
+            implementation(libs.kotlinx.datetime)
             implementation(libs.multiplatformSettings)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
