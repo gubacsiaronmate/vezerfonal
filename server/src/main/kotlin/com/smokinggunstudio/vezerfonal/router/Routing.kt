@@ -9,7 +9,6 @@ import com.smokinggunstudio.vezerfonal.repositories.modifyUser
 import com.smokinggunstudio.vezerfonal.security.JWTConfig
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
-import com.smokinggunstudio.vezerfonal.security.auth.configureOAuth
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -26,7 +25,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
     authentication {
         configureBasicAuth(this, context)
         configureJWTAuth(this, context)
-        configureOAuth(this, context)
+//        configureOAuth(this, context)
     }
     
     routing {
@@ -51,50 +50,67 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 )
             }
             
-            post("/basic/pfp/{userId}/{rememberMe}") {
-                val userId = call.parameters["userId"]?.toIntOrNull()
-                    ?: run { call.respondText(
-                        "Invalid user ID",
-                        status = HttpStatusCode.BadRequest
-                    ); return@post }
+            route("/basic/pfp/{userId}/{rememberMe}") {
+                var userId: Int?
+                var rememberMe: Boolean?
                 
-                val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                    ?: run { call.respondText(
-                        "Invalid remember me parameter.",
-                        status = HttpStatusCode.BadRequest
-                    ); return@post }
+                post("/metadata") {
+                    userId = call.parameters["userId"]?.toIntOrNull()
+                        ?: run {
+                            call.respondText(
+                                "Invalid user ID",
+                                status = HttpStatusCode.BadRequest
+                            ); return@post
+                        }
+                    
+                    rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
+                        ?: run {
+                            call.respondText(
+                                "Invalid remember me parameter.",
+                                status = HttpStatusCode.BadRequest
+                            ); return@post
+                        }
+                    
+                    val data = tryIncoming("Unable to receive image.")
+                    { call.receive<FileData>() } ?: return@post
+                    
+                    val pfpURI = tryInternal("Failed to save image.")
+                    { imageService.saveImageBytes(data.bytes, userId, context, extension = data.fileType) } ?: return@post
+                    
+                    val updateSuccess = tryInternal("Failed to add picture to user.")
+                    {
+                        modifyUser(
+                            userId = userId,
+                            property = Users.profilePicURI,
+                            newValue = pfpURI,
+                            context = context
+                        )
+                    } ?: return@post
+                    
+                    if (!updateSuccess) call.respondText(
+                        "Failed to save picture to database.",
+                        status = HttpStatusCode.InternalServerError
+                    )
+                    
+                    val accessToken = tryInternal("Cannot generate jwt.")
+                    { JWTConfig.generateToken(userId, context) } ?: return@post
+                    
+                    val refreshToken = tryInternal("Cannot generate jwt")
+                    { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
+                    
+                    call.respond(
+                        TokenResponse(
+                            accessToken,
+                            if (rememberMe)
+                                refreshToken
+                            else null // "No token for you :("
+                        )
+                    )
+                }
                 
-                val data = tryIncoming("Unable to receive image.")
-                { call.receive<FileData>() } ?: return@post
+                post("/filedata") {
                 
-                val pfpURI = tryInternal("Failed to save image.")
-                { imageService.saveImageBytes(data.bytes, userId, context, extension = data.fileType) } ?: return@post
-                
-                val updateSuccess = tryInternal("Failed to add picture to user.")
-                { modifyUser(
-                    userId = userId,
-                    property = Users.profilePicURI,
-                    newValue = pfpURI,
-                    context = context
-                ) } ?: return@post
-                
-                if (!updateSuccess) call.respondText(
-                    "Failed to save picture to database.",
-                    status = HttpStatusCode.InternalServerError
-                )
-                
-                val accessToken = tryInternal("Cannot generate jwt.")
-                { JWTConfig.generateToken(userId, context) } ?: return@post
-                
-                val refreshToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
-                
-                call.respond(TokenResponse(
-                    accessToken,
-                    if (rememberMe)
-                        refreshToken
-                    else null // "No token for you :("
-                ))
+                }
             }
             
             route("/oauth") {
@@ -102,42 +118,22 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             }
         }
         
-        authenticate("jwt-refresh") { post("/refresh/{rememberMe}") {
-            val principal = call.principal<AuthResponse>()
-            val id = principal?.userId
-                ?: return@post call.respondText(
-                    "Unauthorized",
-                    status = HttpStatusCode.Unauthorized
-                )
-            
-            val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                ?: run { call.respondText(
-                    "Invalid remember me parameter.",
-                    status = HttpStatusCode.BadRequest
-                ); return@post }
-            
-            val accessToken = tryInternal("Cannot generate jwt")
-            { JWTConfig.generateToken(id, context) } ?: return@post
-            
-            val refreshToken = tryInternal("Cannot generate jwt")
-            { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
-            
-            call.respond(TokenResponse(
-                accessToken,
-                if (rememberMe)
-                    refreshToken
-                else null // "No token for you :("
-            ))
-        } }
-        
-        route("/login") {
-            authenticate("basic") { post("/basic") {
+        authenticate("jwt-refresh") {
+            post("/refresh/{rememberMe}") {
                 val principal = call.principal<AuthResponse>()
-                val id: Int = principal?.userId
+                val id = principal?.userId
                     ?: return@post call.respondText(
                         "Unauthorized",
                         status = HttpStatusCode.Unauthorized
                     )
+                
+                val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
+                    ?: run {
+                        call.respondText(
+                            "Invalid remember me parameter.",
+                            status = HttpStatusCode.BadRequest
+                        ); return@post
+                    }
                 
                 val accessToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(id, context) } ?: return@post
@@ -145,31 +141,62 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 val refreshToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
                 
-                call.respond(TokenResponse(
-                    accessToken,
-                    if (principal.rememberMe) refreshToken
-                    else null // "No token for you :("
-                ))
-            } }
-            
-            
-            
+                call.respond(
+                    TokenResponse(
+                        accessToken,
+                        if (rememberMe)
+                            refreshToken
+                        else null // "No token for you :("
+                    )
+                )
+            }
+        }
+        
+        route("/login") {
+            authenticate("basic") {
+                post("/basic") {
+                    val principal = call.principal<AuthResponse>()
+                    val id: Int = principal?.userId
+                        ?: return@post call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val accessToken = tryInternal("Cannot generate jwt")
+                    { JWTConfig.generateToken(id, context) } ?: return@post
+                    
+                    val refreshToken = tryInternal("Cannot generate jwt")
+                    { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
+                    
+                    call.respond(
+                        TokenResponse(
+                            accessToken,
+                            if (principal.rememberMe) refreshToken
+                            else null // "No token for you :("
+                        )
+                    )
+                }
+            }
+
+
 //            authenticate("oauth") { post("/oauth") {
 //                print("asd")
 //            } }
         }
         
-        authenticate("jwt-access") { route("/api"){
-            get("/messages/{amount}") {
-                val principal = call.principal<AuthResponse>()
-                val id = principal?.userId
-                    ?: return@get call.respondText(
-                        "Unauthorized",
-                        status = HttpStatusCode.Unauthorized
-                    )
-                
+        authenticate("jwt-access") {
+            route("/api") {
+                get("/messages/{amount}") {
+                    val principal = call.principal<AuthResponse>()
+                    val id = principal?.userId
+                        ?: return@get call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+
 //                val messages = get
+                }
             }
-        } }
+        }
     }
 }

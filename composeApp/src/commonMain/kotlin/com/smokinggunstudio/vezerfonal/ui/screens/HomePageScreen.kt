@@ -12,10 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.FilePicker
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.DismissibleSnackBar
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -23,16 +27,46 @@ import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.filter
 import vezerfonal.composeapp.generated.resources.spiralgraphic
 import vezerfonal.composeapp.generated.resources.vezerfonal
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun HomePageScreen(
-    tokenStorage: TokenStorage
+    tokenStorage: TokenStorage,
+    client: HttpClient
 ) {
     val scope = rememberCoroutineScope()
     var tokens: TokenResponse? by remember { mutableStateOf(null) }
     scope.launch {
         tokens = tokenStorage.getTokens()
-        println("Tokens is null: ${tokens == null}")
+        
+        if (tokens == null) {
+            println("Tokens is null: ${tokens == null}")
+            println("Trying to request tokens to test...")
+            val filePicker = FilePicker()
+            
+            val testTokens = registerBasic(
+                userData = UserData(
+                    registrationCode = "996633",
+                    email = "asd${(1..100_000).random()}@gmail.com",
+                    password = Uuid.random().toString(),
+                    name = "My name is John Cena",
+                    identifier = Uuid.random().toString(),
+                    isSuperAdmin = false
+                ),
+                rememberMe = true,
+                pfp = filePicker.pickFile() ?: error("File is not picked"),
+                client = client
+            )
+            
+            tokenStorage.saveTokens(testTokens)
+            
+            println("Trying to get stored tokens again...")
+            tokens = tokenStorage.getTokens()
+            println("Tokens is null: ${tokens == null}")
+            
+        } else println("Tokens is null: ${tokens == null}")
     }
     var isVisible by remember { mutableStateOf(false) }
     

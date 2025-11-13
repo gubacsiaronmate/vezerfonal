@@ -29,12 +29,14 @@ dependencies {
     implementation(libs.ktor.server.contentNegotiation)
     implementation(libs.kotlinx.datetime)
     implementation(libs.bcrypt)
+    implementation(libs.ktor.server.bodyLimit)
     
     // default imports
     implementation(projects.shared)
     implementation(libs.logback)
     implementation(libs.ktor.serverCore)
     implementation(libs.ktor.serverNetty)
+    implementation(libs.ktor.server.request.validation)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }

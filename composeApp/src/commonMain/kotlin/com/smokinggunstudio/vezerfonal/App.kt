@@ -71,7 +71,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             )
         }
         
-        screen(NavTree.Home) { HomePageScreen(tokenStorage) }
+        screen(NavTree.Home) { HomePageScreen(tokenStorage, client) }
         
         screen(NavTree.Register(1)) {
             InitialRegisterScreen { pendingRegisterState = it }
