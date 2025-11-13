@@ -1,15 +1,14 @@
 package com.smokinggunstudio.vezerfonal.helpers.security
 
-import android.content.Context
+
 import com.liftric.kvault.KVault
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 
 actual class TokenStorage actual constructor() {
-    private lateinit var kVault: KVault
+    private val context = CurrentContextProvider.current
+        ?: error("Context cannot be null.")
     
-    constructor(context: Context) : this() {
-        this.kVault = KVault(context)
-    }
+    private val kVault = KVault(context)
     
     actual suspend fun saveTokens(tokens: TokenResponse) {
         kVault.set("access_token", tokens.accessToken)

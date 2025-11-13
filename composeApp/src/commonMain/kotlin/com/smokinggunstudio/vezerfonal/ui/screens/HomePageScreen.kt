@@ -32,10 +32,9 @@ fun HomePageScreen(
     var tokens: TokenResponse? by remember { mutableStateOf(null) }
     scope.launch {
         tokens = tokenStorage.getTokens()
+        println("Tokens is null: ${tokens == null}")
     }
-    DismissibleSnackBar {
-        Text("Token is null: ${tokens == null}")
-    }
+    var isVisible by remember { mutableStateOf(false) }
     
     Column(
         modifier = Modifier
@@ -80,7 +79,7 @@ fun HomePageScreen(
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.clickable(onClick = {})
+                modifier = Modifier.clickable(onClick = { isVisible = true })
                     .padding(8.dp)
             ) {
                 Text(stringResource(Res.string.filter),
@@ -96,6 +95,10 @@ fun HomePageScreen(
             .fillMaxWidth()
             .height(1.dp)
         )
+        
+        DismissibleSnackBar(isVisible) {
+            Text("Token is null: ${tokens == null}")
+        }
         
         Column(
             modifier = Modifier
