@@ -4,10 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FileData(
-    val name: String,
     val bytes: ByteArray,
-    val mimeType: String,
-    val fileType: String = name.substringAfterLast(".").lowercase()
+    val metaData: FileMetaData
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -15,17 +13,16 @@ data class FileData(
         
         other as FileData
         
-        if (name != other.name) return false
         if (!bytes.contentEquals(other.bytes)) return false
-        if (mimeType != other.mimeType) return false
+        if (metaData != other.metaData) return false
         
         return true
     }
     
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + bytes.contentHashCode()
-        result = 31 * result + mimeType.hashCode()
+        var result = bytes.contentHashCode()
+        result = 31 * result + metaData.hashCode()
         return result
     }
+    
 }
