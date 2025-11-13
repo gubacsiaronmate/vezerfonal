@@ -13,16 +13,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.MessageData
+import io.ktor.http.ContentType
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 @Composable
 @Preview
 fun MessageFilter() {
+    val earliest = 1731379200f
+    val latest = 1731465600f
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.SpaceEvenly
@@ -50,7 +59,19 @@ fun MessageFilter() {
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
-            RangeSlider()
+            MessageTimeRangeSlider(
+                valueRange = earliest..latest,
+                initialRange = earliest..latest,
+                formatLabel = { ts ->
+                    val instant = Instant.fromEpochSeconds(ts.toLong())
+                    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+                    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+                },
+                onRangeSelected = { range ->
+                    val from = range.start.toLong()
+                    val to = range.endInclusive.toLong()
+                }
+            )
         }
         Row(
             modifier = Modifier
@@ -112,26 +133,28 @@ fun MessageFilter() {
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            IconToggleButton(
-                checked = false,
-                onCheckedChange = {},
-                modifier = Modifier.padding(8.dp)
-                    .width(75.dp),
-                content = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            imageVector = Icons.Default.Stars,
-                            contentDescription = null
-                        )
-                        Text(text = stringResource(Res.string.tags),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+            for (i in 1..10) {
+                IconToggleButton(
+                    checked = false,
+                    onCheckedChange = {},
+                    modifier = Modifier.padding(8.dp)
+                        .width(75.dp),
+                    content = {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                imageVector = Icons.Default.Stars,
+                                contentDescription = null
+                            )
+                            Text(text = stringResource(Res.string.tags),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
