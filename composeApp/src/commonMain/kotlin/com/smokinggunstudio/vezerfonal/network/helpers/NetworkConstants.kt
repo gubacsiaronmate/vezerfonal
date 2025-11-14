@@ -7,5 +7,6 @@ object NetworkConstants {
         const val REGISTER_DATA_BASIC = "/register/basic"
         const val REGISTER_PICTURE = "/register/basic/pfp/"
         const val LOGIN_BASIC = "/login/basic"
+        const val GET_MESSAGES = "/api/messages/"
     }
 }

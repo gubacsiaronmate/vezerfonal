@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.router
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.objects.Users
+import com.smokinggunstudio.vezerfonal.repositories.getMessagesByUserId
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.insertUser
 import com.smokinggunstudio.vezerfonal.repositories.modifyUser
@@ -17,7 +18,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.cio.toByteArray
 import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
@@ -204,8 +204,12 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             "Unauthorized",
                             status = HttpStatusCode.Unauthorized
                         )
+                    val amount = call.parameters["amount"]?.toIntOrNull()
+                        ?: return@get
 
-//                val messages = get
+                    val messages = getMessagesByUserId(id, context, limit = amount).map { it.toDTO() }
+                    
+                    call.respond(messages)
                 }
             }
         }
