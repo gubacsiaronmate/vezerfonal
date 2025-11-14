@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
@@ -54,19 +57,19 @@ fun MessageFilter() {
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
-//            MessageTimeRangeSlider(
-//                valueRange = earliest..latest,
-//                initialRange = earliest..latest,
-//                formatLabel = { ts: Float ->
-//                    val instant = Instant.fromEpochSeconds(ts.toLong())
-//                    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-//                    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
-//                },
-//                onRangeSelected = { range ->
-//                    val from = range.start.toLong()
-//                    val to = range.endInclusive.toLong()
-//                }
-//            )
+            MessageTimeRangeSlider(
+                valueRange = earliest..latest,
+                initialRange = earliest..latest,
+                formatLabel = { ts: Float ->
+                    val instant = Instant.fromEpochSeconds(ts.toLong())
+                    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+                    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+                },
+                onRangeSelected = { range ->
+                    val from = range.start.toLong()
+                    val to = range.endInclusive.toLong()
+                }
+            )
         }
         Row(
             modifier = Modifier

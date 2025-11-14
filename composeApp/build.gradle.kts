@@ -33,6 +33,12 @@ kotlin {
         binaries.executable()
     }
     
+    configurations.all {
+        resolutionStrategy {
+            force(libs.kotlinx.datetime)
+        }
+    }
+    
     sourceSets {
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
