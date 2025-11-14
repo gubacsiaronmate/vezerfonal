@@ -23,14 +23,14 @@ class ImageService(
     suspend fun saveImage(
         multipart: MultiPartData,
         userId: Int,
-        context: CoroutineContext
+        context: CoroutineContext,
+        extension: String = "jpg"
     ): String = withContext(context) {
         var savedFileName = "nofile"
         
         multipart.forEachPart { part ->
             if (part !is PartData.FileItem) error("Part is not FileItem type.")
             val fileBytes = part.provider().readBuffer().readByteArray()
-            val extension = part.originalFileName?.substringAfterLast(".", "jpg")
             savedFileName = buildString {
                 + "user_${userId}_"
                 + UUID.randomUUID().toString()

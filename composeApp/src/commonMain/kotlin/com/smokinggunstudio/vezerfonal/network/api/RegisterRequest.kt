@@ -9,6 +9,8 @@ import com.smokinggunstudio.vezerfonal.network.helpers.PlatformType
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.http.*
 
 suspend fun registerBasic(
@@ -48,7 +50,22 @@ suspend fun registerBasic(
                 else -> "/$rememberMe"
             } + "/filedata"
     
-    val response = client.post(urlData) { setBody(fileData.bytes) }
+    val response = client.submitFormWithBinaryData(
+        url = urlData,
+        formData = formData {
+            append(
+                key = "file",
+                value = fileData.bytes,
+                headers = headers {
+                    append(HttpHeaders.ContentType, fileData.metaData.mimeType)
+                    append(
+                        HttpHeaders.ContentDisposition,
+                        """form-data; name="file"; filename="${fileData.metaData.name}"""
+                    )
+                }
+            )
+        }
+    )
     
     val tokens = response.body<TokenResponse>()
     return tokens

@@ -38,37 +38,7 @@ fun HomePageScreen(
 ) {
     val scope = rememberCoroutineScope()
     var tokens: TokenResponse? by remember { mutableStateOf(null) }
-    scope.launch {
-        tokens = tokenStorage.getTokens()
-        
-        if (tokens == null) {
-            println("Tokens is null: ${tokens == null}")
-            println("Trying to request tokens to test...")
-            val filePicker = FilePicker()
-            
-            val testTokens = registerBasic(
-                userData = UserData(
-                    registrationCode = "996633",
-                    email = "asd${(1..100_000).random()}@gmail.com",
-                    password = Uuid.random().toString(),
-                    name = "My name is John Cena",
-                    identifier = Uuid.random().toString(),
-                    isSuperAdmin = false
-                ),
-                rememberMe = true,
-                fileData = filePicker.pickFile() ?: error("File is not picked"),
-                client = client
-            )
-            
-            tokenStorage.saveTokens(testTokens)
-            
-            println("Trying to get stored tokens again...")
-            tokens = tokenStorage.getTokens()
-            println("Tokens is null: ${tokens == null}")
-            
-        } else println("Tokens is null: ${tokens == null}")
-    }
-    var isVisible by remember { mutableStateOf(false) }
+    scope.launch { tokens = tokenStorage.getTokens() }
     
     Column(
         modifier = Modifier
@@ -113,7 +83,7 @@ fun HomePageScreen(
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.clickable(onClick = { isVisible = true })
+                modifier = Modifier
                     .padding(8.dp)
             ) {
                 Text(stringResource(Res.string.filter),
@@ -129,10 +99,6 @@ fun HomePageScreen(
             .fillMaxWidth()
             .height(1.dp)
         )
-        
-        DismissibleSnackBar(isVisible) {
-            Text("Token is null: ${tokens == null}")
-        }
         
         Column(
             modifier = Modifier

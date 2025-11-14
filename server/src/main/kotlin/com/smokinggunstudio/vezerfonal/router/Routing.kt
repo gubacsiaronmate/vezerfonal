@@ -87,10 +87,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     }
                     
                     val data = tryIncoming("Unable to receive image bytes.")
-                    { call.receiveChannel().toByteArray() } ?: return@post
+                    { call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L) } ?: return@post
                     
                     val pfpURI = tryInternal("Failed to save image.")
-                    { imageService.saveImageBytes(data, userId, context, extension = metadata.fileType) } ?: return@post
+                    { imageService.saveImage(data, userId, context, extension = metadata.fileType) } ?: return@post
                     
                     val updateSuccess = tryInternal("Failed to add picture to user.")
                     {
