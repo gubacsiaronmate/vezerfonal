@@ -133,15 +133,20 @@ fun MessageFilter() {
         ) {
             for (i in 1..10) {
                 IconToggleButton(
+                    colors = IconButtonDefaults.iconToggleButtonColors(
+                        checkedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
                     checked = false,
                     onCheckedChange = {},
                     modifier = Modifier.padding(8.dp)
-                        .width(75.dp),
+                        .width(90.dp),
                     content = {
                         Row(
                             modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 imageVector = Icons.Default.Stars,
