@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.ui.helpers.NavTree
@@ -65,11 +66,22 @@ import moe.tlaster.precompose.navigation.rememberNavigator
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         screen(NavTree.Landing) {
-            LandingPageScreen(
+            var tokens: TokenResponse? by remember { mutableStateOf(null) }
+            var loaded by remember { mutableStateOf(false) }
+            
+            LaunchedEffect(Unit) {
+                val t = tokenStorage.getTokens()
+                tokens = t
+                loaded = true
+            }
+            
+            if (!loaded) return@screen
+            
+            if (tokens == null) LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
                 onLoginClick = { navigator.go(NavTree.Login) },
                 myTestClickEvent = { navigator.go(NavTree.Options(1)) }
-            )
+            ) else navigator.go(NavTree.Home)
         }
         
         screen(NavTree.Home) { HomePageScreen(tokenStorage, client) }
