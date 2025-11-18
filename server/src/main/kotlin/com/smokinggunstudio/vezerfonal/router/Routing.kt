@@ -3,12 +3,7 @@ package com.smokinggunstudio.vezerfonal.router
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.repositories.getActiveJWTsByUserId
-import com.smokinggunstudio.vezerfonal.repositories.getJWTById
-import com.smokinggunstudio.vezerfonal.repositories.getMessagesByUserId
-import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
-import com.smokinggunstudio.vezerfonal.repositories.insertUser
-import com.smokinggunstudio.vezerfonal.repositories.modifyUser
+import com.smokinggunstudio.vezerfonal.repositories.*
 import com.smokinggunstudio.vezerfonal.security.JWTConfig
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
