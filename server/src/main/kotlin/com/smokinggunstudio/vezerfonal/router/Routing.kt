@@ -3,6 +3,8 @@ package com.smokinggunstudio.vezerfonal.router
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.objects.Users
+import com.smokinggunstudio.vezerfonal.repositories.getActiveJWTsByUserId
+import com.smokinggunstudio.vezerfonal.repositories.getJWTById
 import com.smokinggunstudio.vezerfonal.repositories.getMessagesByUserId
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.insertUser
@@ -42,8 +44,8 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 
                 if (insertSuccess) {
                     val user = getUserByIdentifier(user.identifier, context)
-                        ?: error("Inside insertSuccess if block user is null.")
-                    val userId = user.id ?: error("Inside insertSuccess if block userId is null.")
+                        ?: error("Cannot get user by identifier.")
+                    val userId = user.id ?: error("Cannot get user id.")
                     call.respondText("$userId", status = HttpStatusCode.Created)
                 } else call.respondText(
                     "Failed to insert user into the database.",
@@ -167,11 +169,16 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             authenticate("basic") {
                 post("/basic") {
                     val principal = call.principal<AuthResponse>()
+                    println("Principal: $principal")
                     val id: Int = principal?.userId
                         ?: return@post call.respondText(
                             "Unauthorized",
                             status = HttpStatusCode.Unauthorized
                         )
+                    
+                    val activeTokens = getActiveJWTsByUserId(id, context).latestPair()
+                    
+                    if (activeTokens != null) return@post call.respond(activeTokens)
                     
                     val accessToken = tryInternal("Cannot generate jwt")
                     { JWTConfig.generateToken(id, context) } ?: return@post
@@ -179,13 +186,13 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     val refreshToken = tryInternal("Cannot generate jwt")
                     { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
                     
-                    call.respond(
-                        TokenResponse(
-                            accessToken,
-                            if (principal.rememberMe) refreshToken
-                            else null // "No token for you :("
-                        )
+                    val newToken = TokenResponse(
+                        accessToken,
+                        if (principal.rememberMe) refreshToken
+                        else null // "No token for you :("
                     )
+                    
+                    call.respond(newToken)
                 }
             }
 

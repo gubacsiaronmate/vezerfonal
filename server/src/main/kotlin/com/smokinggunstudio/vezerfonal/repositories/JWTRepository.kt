@@ -46,10 +46,42 @@ suspend fun getJWTByCondition(
     }
 }
 
+suspend fun getJWTsByCondition(
+    context: CoroutineContext,
+    condition: SqlExpressionBuilder.() -> Op<Boolean>
+): List<JWTModel> = withContext(context) {
+    val users = getAllUsers(context)
+    JWTs.select(condition).map { jwt ->
+        JWTModel(
+            id = jwt[JWTs.id],
+            tokenHash = jwt[JWTs.tokenHash],
+            isRefresh = jwt[JWTs.isRefresh],
+            user = jwt[JWTs.userId].let { id -> users.first { user -> user.id == id } },
+            revoked = jwt[JWTs.revoked],
+            createdAt = jwt[JWTs.createdAt],
+            expiresAt = jwt[JWTs.expiresAt]
+        )
+    }
+}
+
 suspend fun getJWTById(
     id: String,
     context: CoroutineContext
 ): JWTModel? = newSuspendedTransaction { getJWTByCondition(context) { JWTs.id eq id } }
+
+suspend fun getJWTsByUserId(
+    id: Int,
+    context: CoroutineContext
+): List<JWTModel> = newSuspendedTransaction { getJWTsByCondition(context) { JWTs.userId eq id } }
+
+suspend fun getActiveJWTsByUserId(
+    id: Int,
+    context: CoroutineContext
+): List<JWTModel> = newSuspendedTransaction {
+    getJWTsByCondition(context) {
+        (JWTs.userId eq id) and (JWTs.revoked eq false)
+    }
+}
 
 suspend fun insertJWT(
     context: CoroutineContext,
