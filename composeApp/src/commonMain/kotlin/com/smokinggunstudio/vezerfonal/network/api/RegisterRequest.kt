@@ -32,23 +32,20 @@ suspend fun registerBasic(
     
     if (!success) error("Could not register.")
     
-    val urlMetadata = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
+    val baseURL = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
         when (Platform.type) {
             PlatformType.Desktop -> "/false"
             PlatformType.JS -> "/false"
             else -> "/$rememberMe"
-        } + "/metadata"
+        }
+    
+    val urlMetadata = "$baseURL/metadata"
     
     val acceptance = (client.post(urlMetadata) { setBody(fileData.metaData) }).status == HttpStatusCode.Accepted
     
     if (!acceptance) error("Metadata didn't get received.")
     
-    val urlData = NetworkConstants.Endpoints.REGISTER_PICTURE + id +
-            when (Platform.type) {
-                PlatformType.Desktop -> "/false"
-                PlatformType.JS -> "/false"
-                else -> "/$rememberMe"
-            } + "/filedata"
+    val urlData = "$baseURL/filedata"
     
     val response = client.submitFormWithBinaryData(
         url = urlData,

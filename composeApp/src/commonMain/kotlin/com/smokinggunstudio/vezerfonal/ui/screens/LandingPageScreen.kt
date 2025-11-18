@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,9 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LandingPageScreen(
-    onRegisterClick: ClickEvent, onLoginClick: ClickEvent
+    onRegisterClick: ClickEvent,
+    onLoginClick: ClickEvent,
+    myTestClickEvent: ClickEvent,
 ) {
     Column(
         modifier = Modifier
@@ -38,8 +41,10 @@ fun LandingPageScreen(
                 else Res.drawable.scene_1
             ),
             contentDescription = "Landing Page Image",
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F)
+                .clickable(onClick = myTestClickEvent),
         )
+        
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
