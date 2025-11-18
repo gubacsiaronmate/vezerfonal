@@ -7,11 +7,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material.icons.outlined.Article
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -19,19 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.archive
-import vezerfonal.composeapp.generated.resources.dark_mode
-import vezerfonal.composeapp.generated.resources.identifier
-import vezerfonal.composeapp.generated.resources.language
-import vezerfonal.composeapp.generated.resources.name
-import vezerfonal.composeapp.generated.resources.notifications
-import vezerfonal.composeapp.generated.resources.terms_of_service
+import vezerfonal.composeapp.generated.resources.*
 
 @Preview
 @Composable
