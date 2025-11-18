@@ -68,7 +68,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
                 onLoginClick = { navigator.go(NavTree.Login) },
-                myTestClickEvent = { navigator.go(NavTree.Home) }
+                myTestClickEvent = { navigator.go(NavTree.Options(1)) }
             )
         }
         
@@ -100,5 +100,7 @@ import moe.tlaster.precompose.navigation.rememberNavigator
         }
         
         screen(NavTree.Login) { LoginScreen(client, tokenStorage) { navigator.go(NavTree.Home) } }
+        
+        screen(NavTree.Options(1)) { SettingsScreen() }
     }
 }
