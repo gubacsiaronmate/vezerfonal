@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
@@ -30,7 +31,7 @@ suspend fun getAllJWTs(context: CoroutineContext): List<JWTModel> = withContext(
 
 suspend fun getJWTByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): JWTModel? = withContext(context) {
     val users = getAllUsers(context)
     JWTs.select(condition).firstOrNull()?.let { jwt ->
@@ -48,7 +49,7 @@ suspend fun getJWTByCondition(
 
 suspend fun getJWTsByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): List<JWTModel> = withContext(context) {
     val users = getAllUsers(context)
     JWTs.select(condition).map { jwt ->

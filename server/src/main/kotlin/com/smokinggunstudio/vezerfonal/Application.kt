@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal
 
 import com.smokinggunstudio.vezerfonal.database.configureDatabase
 import com.smokinggunstudio.vezerfonal.helpers.ImageService
-import com.smokinggunstudio.vezerfonal.router.configureRouting
+import com.smokinggunstudio.vezerfonal.routing.configureRouting
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.Dispatchers

@@ -11,6 +11,7 @@ object Groups : Table("groups") {
     val displayName = varchar("display_name", 255)
     val description = text("description").default("")
     val groupAdminId = integer("group_admin_id").references(Users.id)
+    val isInternal = bool("is_internal").default(false)
     
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now())

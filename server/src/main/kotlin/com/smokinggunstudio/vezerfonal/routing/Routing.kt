@@ -1,5 +1,6 @@
-package com.smokinggunstudio.vezerfonal.router
+package com.smokinggunstudio.vezerfonal.routing
 
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.objects.Users
@@ -198,19 +199,39 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         
         authenticate("jwt-access") {
             route("/api") {
-                get("/messages/{amount}") {
-                    val principal = call.principal<AuthResponse>()
-                    val id = principal?.userId
-                        ?: return@get call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    val amount = call.parameters["amount"]?.toIntOrNull()
-                        ?: return@get
-
-                    val messages = getMessagesByUserId(id, context, limit = amount).map { it.toDTO() }
+                route("/messages") {
+                    get("/{amount}") {
+                        val principal = call.principal<AuthResponse>()
+                        val id = principal?.userId
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        val amount = call.parameters["amount"]?.toIntOrNull()
+                            ?: return@get
+                        
+                        val messages = getMessagesByUserId(id, context, limit = amount).map { it.toDTO() }
+                        
+                        call.respond(messages)
+                    }
                     
-                    call.respond(messages)
+                    post("/send") {
+                        val principal = call.principal<AuthResponse>()
+                        val id = principal?.userId
+                            ?: return@post call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val message = tryInternal("Unable to receive message.")
+                        { call.receive<MessageData>().toMessage(
+                            authorId = id,
+                            context = context
+                        ) } ?: return@post
+                        
+                        val success = tryInternal("")
+                        {  } ?: return@post
+                    }
                 }
             }
         }

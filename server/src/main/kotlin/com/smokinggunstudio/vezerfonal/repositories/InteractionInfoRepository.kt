@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
@@ -40,7 +41,7 @@ suspend fun getAllInteractionInfo(context: CoroutineContext): List<InteractionIn
 
 suspend fun getInteractionInfoByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): InteractionInfo? = withContext(context) {
     val messages = getAllMessages(context)
     val users = getAllUsers(context)
@@ -65,7 +66,7 @@ suspend fun getInteractionInfoByCondition(
 
 suspend fun getInteractionInfosByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): List<InteractionInfo> = withContext(context) {
     val messages = getAllMessages(context)
     val users = getAllUsers(context)

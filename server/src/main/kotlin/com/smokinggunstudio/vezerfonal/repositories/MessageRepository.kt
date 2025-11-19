@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
@@ -64,7 +65,7 @@ suspend fun getAllMessages(context: CoroutineContext): List<Message> = withConte
 
 suspend fun getMessageByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): Message? = withContext(context) {
     val users = getAllUsers(context)
     val groups = getAllGroups(context)
@@ -95,7 +96,7 @@ suspend fun getMessageByCondition(
 suspend fun getMessagesByCondition(
     context: CoroutineContext,
     limit: Int? = null,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): List<Message> = withContext(context) {
     val users = getAllUsers(context)
     val groups = getAllGroups(context)
@@ -161,3 +162,8 @@ suspend fun getMessagesByTagId(
     id: Int,
     context: CoroutineContext
 ): List<Message> = getAllMessages(context).filter { message -> message.tags.any { tag -> tag.id == id } }
+
+suspend fun insertMessage(
+    message: Message,
+    context: CoroutineContext,
+): Boolean = TODO()

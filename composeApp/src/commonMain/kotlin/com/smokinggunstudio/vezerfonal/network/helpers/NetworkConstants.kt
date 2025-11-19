@@ -16,5 +16,7 @@ object NetworkConstants {
         const val LOGIN_BASIC = "/login/basic"
         /** GET: /api/messages/{amount} -> messages: [List]<[MessageData]> */
         const val GET_MESSAGES = "/api/messages/"
+        /** POST: /api/messages/send */
+        const val SEND_MESSAGE = "/api/messages/send"
     }
 }

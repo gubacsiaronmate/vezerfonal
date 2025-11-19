@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 
 suspend fun getAllCodes(context: CoroutineContext): List<RegistrationCode> = withContext(context) {
     return@withContext transaction {
@@ -28,7 +29,7 @@ suspend fun getAllCodes(context: CoroutineContext): List<RegistrationCode> = wit
 
 suspend fun getCodeByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): RegistrationCode? = withContext(context) {
     RegistrationCodes.select(condition).firstOrNull()?.let {
         RegistrationCode(
@@ -42,7 +43,7 @@ suspend fun getCodeByCondition(
 
 suspend fun getCodesByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): List<RegistrationCode> = withContext(context) {
     RegistrationCodes.select(condition).map {
         RegistrationCode(

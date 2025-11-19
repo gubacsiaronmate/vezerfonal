@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.ProfileImage
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Users
@@ -36,7 +37,7 @@ suspend fun getAllUsers(context: CoroutineContext): List<User> = withContext(con
 
 suspend fun getUserByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): User? = withContext(context) {
     val codes = getAllCodes(context)
     Users.select(condition).firstOrNull()?.let { user ->
@@ -60,7 +61,7 @@ suspend fun getUserByCondition(
 
 suspend fun getUsersByCondition(
     context: CoroutineContext,
-    condition: SqlExpressionBuilder.() -> Op<Boolean>
+    condition: SQLCondition
 ): List<User> = withContext(context) {
     val codes = getAllCodes(context)
     Users.select(condition).map { user ->

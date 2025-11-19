@@ -43,7 +43,7 @@ suspend inline fun <T> RoutingContext.tryInternal(
 )
 
 inline fun FieldSet.select(
-    where: SqlExpressionBuilder.() -> Op<Boolean>
+    where: SQLCondition
 ): Query = selectWhere(SqlExpressionBuilder.where())
 
 fun FieldSet.selectWhere(
@@ -90,3 +90,5 @@ fun List<JWTModel>.latestPair(): TokenResponse? {
         refreshToken = latest[latest.indexOfFirst { it.isRefresh }].tokenHash
     )
 }
+
+typealias SQLCondition = SqlExpressionBuilder.() -> Op<Boolean>

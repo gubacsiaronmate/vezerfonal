@@ -1,16 +1,17 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
-import com.smokinggunstudio.vezerfonal.repositories.doesCodeExist
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
+import com.smokinggunstudio.vezerfonal.repositories.getTagByName
+import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 suspend fun UserData.toUser(context: CoroutineContext): User = withContext(context) {
-    val code = if(doesCodeExist(registrationCode, context))
-        getCodeByCode(registrationCode, context)!!
-    else error("Code cannot be null!")
+    val code = getCodeByCode(registrationCode, context) ?: error("Code cannot be null!")
     
     User(
         registrationCode = code,
@@ -28,4 +29,25 @@ suspend fun UserData.toUser(context: CoroutineContext): User = withContext(conte
         user.password = password!!
         user
     }
+}
+
+suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Message = withContext(context) {
+    val author = getUserById(authorId, context) ?: error("")
+    val tagList = tags.map { tagName -> getTagByName(tagName, context) ?: error("Tag is not available.") }
+    
+    groudAdminIdentifiers.isNullOrEmpty().and(!userIdentifiers.isNullOrEmpty())
+    
+    Message(
+        id = null,
+        user = null,
+        group = null,
+        title = title,
+        content = content,
+        isUrgent = isUrgent,
+        author = author,
+        tags = tagList,
+        createdAt = null,
+        updatedAt = null,
+        deletedAt = null
+    )
 }

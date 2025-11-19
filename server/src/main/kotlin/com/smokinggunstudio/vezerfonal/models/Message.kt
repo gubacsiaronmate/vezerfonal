@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import kotlinx.datetime.LocalDateTime
-
+import kotlinx.serialization.builtins.PairSerializer
 
 data class Message(
     val id: Int?,
@@ -13,8 +13,8 @@ data class Message(
     val isUrgent: Boolean,
     val author: User,
     val tags: List<Tag>,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?,
     val deletedAt: LocalDateTime?
 ) {
     fun toDTO(): MessageData = MessageData(

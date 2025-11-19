@@ -9,6 +9,7 @@ data class Group(
     val description: String,
     val members: List<Membership>,
     val admin: User,
+    val isInternal: Boolean,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val deletedAt: LocalDateTime?
