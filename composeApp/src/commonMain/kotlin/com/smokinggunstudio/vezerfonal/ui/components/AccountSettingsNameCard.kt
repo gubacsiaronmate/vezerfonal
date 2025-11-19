@@ -1,0 +1,103 @@
+package com.smokinggunstudio.vezerfonal.ui.components
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.name
+import vezerfonal.composeapp.generated.resources.reveal_email
+import vezerfonal.composeapp.generated.resources.reveal_id
+
+@Preview(showBackground = true)
+@Composable
+fun AccountSettingsNameCard() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ProfilePicture(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .size(100.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.name),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                        modifier = Modifier
+                            .padding(4.dp)
+                    )
+                    IconButton(
+                        onClick = {},
+                        content = {
+                            Image(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                            )
+                        }
+                    )
+                }
+                Row {
+                    Image(
+                        imageVector = Icons.Outlined.AccountCircle,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.reveal_id),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        modifier = Modifier
+                            .padding(4.dp)
+                    )
+                }
+                Row {
+                    Image(
+                        imageVector = Icons.Outlined.Email,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.reveal_email),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                        modifier = Modifier
+                            .padding(4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
