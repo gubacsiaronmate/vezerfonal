@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.identifier
 import vezerfonal.composeapp.generated.resources.name
 
 @Preview(showBackground = true)
@@ -44,13 +43,6 @@ fun SettingsNameCard() {
                     text = stringResource(Res.string.name),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                    modifier = Modifier
-                        .padding(4.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.identifier),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                     modifier = Modifier
                         .padding(4.dp)
                 )
