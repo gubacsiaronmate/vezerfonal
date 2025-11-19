@@ -22,6 +22,8 @@ data class Message(
         author = author.displayName,
         content = content,
         isUrgent = isUrgent,
-        tags = tags.map { tag -> tag.tagName }
+        tags = tags.map { tag -> tag.tagName },
+        userIdentifiers = null,
+        groudAdminIdentifiers = null
     )
 }
