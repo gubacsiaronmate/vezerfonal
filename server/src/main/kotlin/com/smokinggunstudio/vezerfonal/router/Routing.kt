@@ -164,7 +164,6 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             authenticate("basic") {
                 post("/basic") {
                     val principal = call.principal<AuthResponse>()
-                    println("Principal: $principal")
                     val id: Int = principal?.userId
                         ?: return@post call.respondText(
                             "Unauthorized",
