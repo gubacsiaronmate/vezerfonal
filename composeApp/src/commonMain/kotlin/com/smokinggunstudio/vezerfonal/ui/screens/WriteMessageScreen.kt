@@ -90,7 +90,13 @@ fun WriteMessageScreen() {
                     .padding(
                         horizontal = 8.dp,
                         vertical = 4.dp
+                    ),
+                label = {
+                    Text(
+                        text = stringResource(Res.string.message),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
+                },
             )
         }
     }
