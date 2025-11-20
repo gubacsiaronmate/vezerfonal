@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +34,7 @@ fun LoginScreen(
     tokenStorage: TokenStorage,
     onClick: ClickEvent
 ) {
-    val loginState by mutableStateOf(LoginState())
+    val loginState by remember { mutableStateOf(LoginState()) }
     val scope = rememberCoroutineScope()
     
     Column(
@@ -98,6 +99,7 @@ fun LoginScreen(
                         scope.launch {
                             val tokens = loginBasic(loginState, client)
                             tokenStorage.saveTokens(tokens)
+                            onClick()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
