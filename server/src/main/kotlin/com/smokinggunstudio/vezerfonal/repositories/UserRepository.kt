@@ -132,3 +132,7 @@ suspend fun <T> modifyUser(
         } == 1
     } else false
 }
+
+suspend fun createInternalUser(context: CoroutineContext): User = withContext(context) {
+
+}

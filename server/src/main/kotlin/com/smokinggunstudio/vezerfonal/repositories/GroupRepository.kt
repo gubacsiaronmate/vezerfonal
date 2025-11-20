@@ -136,7 +136,7 @@ suspend fun getAllGroupsByMemberUserId(
 suspend fun insertGroup(
     group: Group,
     context: CoroutineContext
-): Boolean = withContext(context) {
+): Int = withContext(context) {
     val doesGroupExist = getGroupByAdminIdentifier(group.admin.identifier, context) != null
     val admin = getUserByIdentifier(group.admin.identifier, context)
     if (!doesGroupExist && admin != null) transaction {
@@ -144,15 +144,15 @@ suspend fun insertGroup(
             it[displayName] = group.displayName
             it[description] = group.description
             it[groupAdminId] = admin.id!!
-        }.insertedCount == 1
-    } else false
+        }[Groups.id]
+    } else -1
 }
 
 @OptIn(ExperimentalUuidApi::class)
-suspend fun createInternalGroup(members: List<User>, context: CoroutineContext): Boolean =
+suspend fun createInternalGroup(members: List<User>, context: CoroutineContext): Group =
     withContext(context) {
         newSuspendedTransaction {
-            insertGroup(Group(
+            val group = Group(
                 id = null,
                 displayName = Uuid.random().toString(),
                 description = "",
@@ -162,6 +162,8 @@ suspend fun createInternalGroup(members: List<User>, context: CoroutineContext):
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),
                 deletedAt = null
-            ), context)
+            )
+            insertGroup(group, context)
+            group
         }
     }

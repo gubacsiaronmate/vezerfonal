@@ -2,11 +2,15 @@ package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
+import com.smokinggunstudio.vezerfonal.repositories.createInternalGroup
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
+import com.smokinggunstudio.vezerfonal.repositories.getGroupById
 import com.smokinggunstudio.vezerfonal.repositories.getTagByName
 import com.smokinggunstudio.vezerfonal.repositories.getUserById
+import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
@@ -35,12 +39,33 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
     val author = getUserById(authorId, context) ?: error("")
     val tagList = tags.map { tagName -> getTagByName(tagName, context) ?: error("Tag is not available.") }
     
-    groudAdminIdentifiers.isNullOrEmpty().and(!userIdentifiers.isNullOrEmpty())
+    var group: Group? = null
+    var user: User? = null
+    
+    val areOnlyUsersAvailable =
+        groudAdminIdentifiers.isNullOrEmpty()
+            && !userIdentifiers.isNullOrEmpty()
+    
+    val areOnlyGroupsAvailable =
+        !groudAdminIdentifiers.isNullOrEmpty()
+                && userIdentifiers.isNullOrEmpty()
+    
+    when {
+        areOnlyUsersAvailable && userIdentifiers!!.size > 1 -> {
+            group = createInternalGroup(
+                userIdentifiers!!.map { getUserByIdentifier(it, context)!! },
+                context
+            )
+        }
+        areOnlyUsersAvailable && userIdentifiers!!.size == 1 -> {
+            user = getUserByIdentifier(userIdentifiers!!.first(), context)
+        }
+    }
     
     Message(
         id = null,
-        user = null,
-        group = null,
+        user = user,
+        group = group,
         title = title,
         content = content,
         isUrgent = isUrgent,
