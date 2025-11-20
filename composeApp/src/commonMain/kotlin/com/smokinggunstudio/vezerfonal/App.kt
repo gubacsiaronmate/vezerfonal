@@ -113,6 +113,6 @@ import moe.tlaster.precompose.navigation.rememberNavigator
         
         screen(NavTree.Login) { LoginScreen(client, tokenStorage) { navigator.go(NavTree.Home) } }
         
-        screen(NavTree.Options(1)) { SettingsScreen() }
+        screen(NavTree.Options(1)) { WriteMessageScreen() }
     }
 }
