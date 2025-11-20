@@ -7,6 +7,7 @@ import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.createInternalGroup
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
+import com.smokinggunstudio.vezerfonal.repositories.getGroupByAdminIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.getGroupById
 import com.smokinggunstudio.vezerfonal.repositories.getTagByName
 import com.smokinggunstudio.vezerfonal.repositories.getUserById
@@ -50,7 +51,22 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
         !groudAdminIdentifiers.isNullOrEmpty()
                 && userIdentifiers.isNullOrEmpty()
     
+    val areBothAvailable =
+        !groudAdminIdentifiers.isNullOrEmpty()
+                && !userIdentifiers.isNullOrEmpty()
+    
     when {
+        areBothAvailable -> {
+            group = createInternalGroup(
+                members = listOf(
+                    groudAdminIdentifiers!!.map { id ->
+                        getGroupByAdminIdentifier(id, context)!!.members.map { (user, _) -> user }
+                    }.flatten(),
+                    userIdentifiers!!.map { getUserByIdentifier(it, context)!! }
+                ).flatten(),
+                context = context
+            )
+        }
         areOnlyUsersAvailable && userIdentifiers!!.size > 1 -> {
             group = createInternalGroup(
                 userIdentifiers!!.map { getUserByIdentifier(it, context)!! },
@@ -60,7 +76,20 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
         areOnlyUsersAvailable && userIdentifiers!!.size == 1 -> {
             user = getUserByIdentifier(userIdentifiers!!.first(), context)
         }
+        areOnlyGroupsAvailable && groudAdminIdentifiers!!.size == 1 -> {
+            group = getGroupByAdminIdentifier(groudAdminIdentifiers!!.first(), context)
+        }
+        areOnlyGroupsAvailable && groudAdminIdentifiers!!.size > 1 -> {
+            group = createInternalGroup(
+                members = groudAdminIdentifiers!!.map { id ->
+                    getGroupByAdminIdentifier(id, context)!!.members.map { m -> m.user }
+                }.flatten(),
+                context = context
+            )
+        }
     }
+    
+    if (user == null && group == null) error("Both user and group cannot be null.")
     
     Message(
         id = null,

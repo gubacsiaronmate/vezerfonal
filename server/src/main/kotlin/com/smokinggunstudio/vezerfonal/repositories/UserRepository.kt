@@ -10,6 +10,8 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 suspend fun getAllUsers(context: CoroutineContext): List<User> = withContext(context) {
     val codes = getAllCodes(context)
@@ -101,7 +103,7 @@ suspend fun getUserByIdentifier(
 suspend fun insertUser(
     user: User,
     context: CoroutineContext
-): Boolean = withContext(context) {
+): Int = withContext(context) {
     val code = getCodeByCode(user.registrationCode.code, context)
     if(
         code != null &&
@@ -115,8 +117,8 @@ suspend fun insertUser(
             it[displayName] = user.displayName
             it[identifier] = user.identifier
             it[isSuperAdmin] = user.isSuperAdmin
-        }.insertedCount == 1
-    } else false
+        }[Users.id]
+    } else -1
 }
 
 suspend fun <T> modifyUser(
@@ -133,6 +135,24 @@ suspend fun <T> modifyUser(
     } else false
 }
 
-suspend fun createInternalUser(context: CoroutineContext): User = withContext(context) {
-
-}
+@OptIn(ExperimentalUuidApi::class)
+suspend fun createInternalUser(context: CoroutineContext): User =
+    withContext(context) {
+        newSuspendedTransaction { 
+            val user = User(
+                id = null,
+                registrationCode = getCodeByCode("996633", context)!!,
+                email = "${Uuid.random().toString().substring(0..8)}@example.com",
+                _password = Uuid.random().toString().substring(0..8),
+                profilePic = null,
+                displayName = Uuid.random().toString().substring(0..8),
+                identifier = Uuid.random().toString().substring(0..8),
+                isSuperAdmin = false,
+                createdAt = null,
+                updatedAt = null,
+                deletedAt = null
+            )
+            insertUser(user, context)
+            user
+        }
+    }

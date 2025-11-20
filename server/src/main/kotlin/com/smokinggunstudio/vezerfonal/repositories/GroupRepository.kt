@@ -157,7 +157,7 @@ suspend fun createInternalGroup(members: List<User>, context: CoroutineContext):
                 displayName = Uuid.random().toString(),
                 description = "",
                 members = members.map { user -> Membership(user, LocalDateTime.now()) },
-                admin = getUserByIdentifier("system", context)!!,
+                admin = createInternalUser(context),
                 isInternal = true,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),

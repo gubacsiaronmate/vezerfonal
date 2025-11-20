@@ -36,7 +36,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 { call.receive<UserData>().toUser(context) } ?: return@post
                 
                 val insertSuccess = tryInternal("Failed to insert user.")
-                { insertUser(user, context) } ?: return@post
+                { insertUser(user, context) != -1 } ?: return@post
                 
                 if (insertSuccess) {
                     val user = getUserByIdentifier(user.identifier, context)
@@ -229,8 +229,8 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             context = context
                         ) } ?: return@post
                         
-                        val success = tryInternal("")
-                        {  } ?: return@post
+                        val success = tryInternal("Unable to insert message.")
+                        { insertMessage(message, context) } ?: return@post
                     }
                 }
             }

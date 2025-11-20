@@ -6,8 +6,10 @@ import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.Tag
 import com.smokinggunstudio.vezerfonal.models.User
+import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
+import com.smokinggunstudio.vezerfonal.objects.Users
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.Query
@@ -15,6 +17,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.exists
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -125,7 +128,13 @@ suspend fun getMessageByUserId(
 suspend fun getMessageByUserIdentifier(
     identifier: String,
     context: CoroutineContext
-): Message? = getAllMessages(context).firstOrNull { message -> message.user?.identifier == identifier }
+): Message? = newSuspendedTransaction {
+    getMessageByCondition(context) {
+        Messages.userId eq Users.select {
+            Users.identifier eq identifier
+        }.first()[Users.id]
+    }
+}
 
 suspend fun getMessagesByGroupId(
     id: Int,
@@ -161,9 +170,26 @@ suspend fun getMessagesByRecipientUserId(
 suspend fun getMessagesByTagId(
     id: Int,
     context: CoroutineContext
-): List<Message> = getAllMessages(context).filter { message -> message.tags.any { tag -> tag.id == id } }
+): List<Message> = newSuspendedTransaction {
+    getMessagesByCondition(context) {
+        (MessageTagConnection.tagId eq id) and
+        (Messages.id eq MessageTagConnection.messageId)
+    }
+}
 
 suspend fun insertMessage(
     message: Message,
     context: CoroutineContext,
-): Boolean = TODO()
+): Int = withContext(context) {
+    val doesMessageExist = false
+    if (doesMessageExist) transaction {
+        Messages.insert {
+            it[userId] = message.user?.id
+            it[groupId] = message.group?.id
+            it[title] = message.title
+            it[content] = message.content
+            it[isUrgent] = message.isUrgent
+            it[authorUserId] = message.author.id!!
+        }[Messages.id]
+    } else -1
+}
