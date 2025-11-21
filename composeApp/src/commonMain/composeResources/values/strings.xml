@@ -117,4 +117,5 @@
     <string name="create_account">Fiók létrehozása</string>
     <string name="or">VAGY</string>
     <string name="to">Címzett(ek):</string>
+    <string name="send">Küldés</string>
 </resources>
