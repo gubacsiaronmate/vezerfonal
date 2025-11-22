@@ -116,5 +116,6 @@
     <string name="accept_terms">I accept the terms and conditions.</string>
     <string name="create_account">Create account</string>
     <string name="or">OR</string>
-    <string name="to">To</string>
+    <string name="to">Recipient(s):</string>
+    <string name="send">Send</string>
 </resources>

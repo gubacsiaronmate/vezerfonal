@@ -4,15 +4,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AssignmentLate
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagSelect
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientSelectButton
 import com.smokinggunstudio.vezerfonal.ui.state.WriteMessageState
 import org.jetbrains.compose.resources.stringResource
@@ -28,17 +29,19 @@ fun WriteMessageScreen() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
+        Text(
+            text = stringResource(Res.string.to),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .padding(8.dp),
+            style = MaterialTheme.typography.titleLarge
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(
-                text = stringResource(Res.string.to),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(8.dp)
-            )
             RecipientSelectButton(
                 text = stringResource(Res.string.groups),
                 onClick = {}
@@ -98,6 +101,39 @@ fun WriteMessageScreen() {
                     )
                 },
             )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = stringResource(Res.string.tags),
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(8.dp)
+                )
+                HorizontallyScrollableTagSelect()
+                Button(
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    onClick = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.send),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
         }
     }
 }
