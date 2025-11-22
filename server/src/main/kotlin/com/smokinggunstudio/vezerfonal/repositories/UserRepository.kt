@@ -42,22 +42,24 @@ suspend fun getUserByCondition(
     condition: SQLCondition
 ): User? = withContext(context) {
     val codes = getAllCodes(context)
-    Users.select(condition).firstOrNull()?.let { user ->
-        val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-        val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
-        User(
-            id = user[Users.id],
-            registrationCode = regCode,
-            email = user[Users.email],
-            _password = user[Users.password],
-            profilePic = pfp,
-            displayName = user[Users.displayName],
-            identifier = user[Users.identifier],
-            isSuperAdmin = user[Users.isSuperAdmin],
-            createdAt = user[Users.createdAt],
-            updatedAt = user[Users.updatedAt],
-            deletedAt = user[Users.deletedAt]
-        )
+    transaction {
+        Users.select(condition).firstOrNull()?.let { user ->
+            val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
+            val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
+            User(
+                id = user[Users.id],
+                registrationCode = regCode,
+                email = user[Users.email],
+                _password = user[Users.password],
+                profilePic = pfp,
+                displayName = user[Users.displayName],
+                identifier = user[Users.identifier],
+                isSuperAdmin = user[Users.isSuperAdmin],
+                createdAt = user[Users.createdAt],
+                updatedAt = user[Users.updatedAt],
+                deletedAt = user[Users.deletedAt]
+            )
+        }
     }
 }
 
@@ -66,22 +68,24 @@ suspend fun getUsersByCondition(
     condition: SQLCondition
 ): List<User> = withContext(context) {
     val codes = getAllCodes(context)
-    Users.select(condition).map { user ->
-        val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-        val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
-        User(
-            id = user[Users.id],
-            registrationCode = regCode,
-            email = user[Users.email],
-            _password = user[Users.password],
-            profilePic = pfp,
-            displayName = user[Users.displayName],
-            identifier = user[Users.identifier],
-            isSuperAdmin = user[Users.isSuperAdmin],
-            createdAt = user[Users.createdAt],
-            updatedAt = user[Users.updatedAt],
-            deletedAt = user[Users.deletedAt]
-        )
+    transaction {
+        Users.select(condition).map { user ->
+            val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
+            val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
+            User(
+                id = user[Users.id],
+                registrationCode = regCode,
+                email = user[Users.email],
+                _password = user[Users.password],
+                profilePic = pfp,
+                displayName = user[Users.displayName],
+                identifier = user[Users.identifier],
+                isSuperAdmin = user[Users.isSuperAdmin],
+                createdAt = user[Users.createdAt],
+                updatedAt = user[Users.updatedAt],
+                deletedAt = user[Users.deletedAt]
+            )
+        }
     }
 }
 

@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.builtins.PairSerializer
 
 data class Message(
     val id: Int?,
@@ -12,11 +11,16 @@ data class Message(
     val content: String,
     val isUrgent: Boolean,
     val author: User,
+    val availableReactions: List<String>?,
     val tags: List<Tag>,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
     val deletedAt: LocalDateTime?
 ) {
+    init {
+        require((user == null) != (group == null)) { "Only one can and must be null." }
+    }
+    
     fun toDTO(): MessageData = MessageData(
         title = title,
         author = author.displayName,
@@ -24,6 +28,7 @@ data class Message(
         isUrgent = isUrgent,
         tags = tags.map { tag -> tag.tagName },
         userIdentifiers = null,
+        availableReactions = availableReactions,
         groudAdminIdentifiers = null
     )
 }

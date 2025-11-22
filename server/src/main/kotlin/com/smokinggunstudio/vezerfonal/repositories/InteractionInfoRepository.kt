@@ -109,3 +109,10 @@ suspend fun getInteractionInfosByUserId(
 ): List<InteractionInfo> = newSuspendedTransaction {
     getInteractionInfosByCondition(context) { MessageUserInteractions.userId eq id }
 }
+
+suspend fun insertInteraction(
+    interaction: InteractionInfo,
+    context: CoroutineContext
+): Int = withContext(context) {
+    TODO()
+}

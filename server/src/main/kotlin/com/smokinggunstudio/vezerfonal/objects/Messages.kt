@@ -1,8 +1,10 @@
 package com.smokinggunstudio.vezerfonal.objects
 
-import com.smokinggunstudio.vezerfonal.util.now
+import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.json.jsonb
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 
 object Messages : Table("message") {
@@ -14,6 +16,11 @@ object Messages : Table("message") {
     val content = text("content")
     val isUrgent = bool("is_urgent").default(false)
     val authorUserId = integer("author_user_id").references(Users.id)
+    val availableReactions = jsonb(
+        name = "available_reactions",
+        serialize = { list: List<String> -> Json.encodeToString(list) },
+        deserialize = { str: String -> Json.decodeFromString<List<String>>(str) },
+    ).nullable()
     
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     val updatedAt = datetime("updated_at").default(LocalDateTime.now())

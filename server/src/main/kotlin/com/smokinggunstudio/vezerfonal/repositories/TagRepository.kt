@@ -43,7 +43,27 @@ suspend fun getTagByCondition(
     }
 }
 
+suspend fun getTagsByCondition(
+    context: CoroutineContext,
+    condition: SQLCondition
+): List<Tag> = withContext(context) {
+    newSuspendedTransaction {
+        MessageTag
+            .select(condition)
+            .map { tag -> Tag(
+                id = tag[MessageTag.id],
+                tagName = tag[MessageTag.name],
+                messageIds = getMessagesByTagId(tag[MessageTag.id], context).map { it.id!! }
+            ) }
+    }
+}
+
 suspend fun getTagByName(
     name: String,
     context: CoroutineContext
 ): Tag? = newSuspendedTransaction { getTagByCondition(context) { MessageTag.name eq name } }
+
+suspend fun getTagsByMessageId(
+    id: Int,
+    context: CoroutineContext
+): List<Tag> = newSuspendedTransaction { getTagsByCondition(context) { MessageTagConnection.messageId eq id } }

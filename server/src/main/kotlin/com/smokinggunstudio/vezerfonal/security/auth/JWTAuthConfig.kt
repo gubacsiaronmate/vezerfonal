@@ -31,7 +31,6 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 jwt == null -> return@validate null
                 jwt.revoked -> return@validate null
                 jwt.isRefresh -> return@validate null
-                !credentials.expiresAt!!.compareTo(jwt.expiresAt) -> return@validate null
                 jwt.expiresAt.isExpired() -> {
                     modifyJWT(
                         tokenId = jwt.id,
@@ -63,14 +62,14 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 jwt == null -> return@validate null
                 jwt.revoked -> return@validate null
                 !jwt.isRefresh -> return@validate null
-                !credentials.expiresAt!!.compareTo(jwt.expiresAt) -> return@validate null
                 jwt.expiresAt.isExpired() -> {
                     modifyJWT(
                         tokenId = jwt.id,
                         property = JWTs.revoked,
                         newValue = true,
                         context = context
-                    ); return@validate null
+                    )
+                    return@validate null
                 }
                 !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
                 else -> return@validate AuthResponse(user.id!!)

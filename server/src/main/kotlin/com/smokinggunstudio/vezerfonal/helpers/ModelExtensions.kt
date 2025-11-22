@@ -8,7 +8,6 @@ import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.createInternalGroup
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
 import com.smokinggunstudio.vezerfonal.repositories.getGroupByAdminIdentifier
-import com.smokinggunstudio.vezerfonal.repositories.getGroupById
 import com.smokinggunstudio.vezerfonal.repositories.getTagByName
 import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
@@ -43,53 +42,16 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
     var group: Group? = null
     var user: User? = null
     
-    val areOnlyUsersAvailable =
-        groudAdminIdentifiers.isNullOrEmpty()
-            && !userIdentifiers.isNullOrEmpty()
+    val users = userIdentifiers.orEmpty().map { getUserByIdentifier(it, context)!! }
+    val groups = groudAdminIdentifiers.orEmpty().map { getGroupByAdminIdentifier(it, context)!! }
+    val allGroupUsers = groups.flatMap { group -> group.members.map { it.user } }
+    val combinedUsers = users + allGroupUsers
     
-    val areOnlyGroupsAvailable =
-        !groudAdminIdentifiers.isNullOrEmpty()
-                && userIdentifiers.isNullOrEmpty()
-    
-    val areBothAvailable =
-        !groudAdminIdentifiers.isNullOrEmpty()
-                && !userIdentifiers.isNullOrEmpty()
-    
-    when {
-        areBothAvailable -> {
-            group = createInternalGroup(
-                members = listOf(
-                    groudAdminIdentifiers!!.map { id ->
-                        getGroupByAdminIdentifier(id, context)!!.members.map { (user, _) -> user }
-                    }.flatten(),
-                    userIdentifiers!!.map { getUserByIdentifier(it, context)!! }
-                ).flatten(),
-                context = context
-            )
-        }
-        areOnlyUsersAvailable && userIdentifiers!!.size > 1 -> {
-            group = createInternalGroup(
-                userIdentifiers!!.map { getUserByIdentifier(it, context)!! },
-                context
-            )
-        }
-        areOnlyUsersAvailable && userIdentifiers!!.size == 1 -> {
-            user = getUserByIdentifier(userIdentifiers!!.first(), context)
-        }
-        areOnlyGroupsAvailable && groudAdminIdentifiers!!.size == 1 -> {
-            group = getGroupByAdminIdentifier(groudAdminIdentifiers!!.first(), context)
-        }
-        areOnlyGroupsAvailable && groudAdminIdentifiers!!.size > 1 -> {
-            group = createInternalGroup(
-                members = groudAdminIdentifiers!!.map { id ->
-                    getGroupByAdminIdentifier(id, context)!!.members.map { m -> m.user }
-                }.flatten(),
-                context = context
-            )
-        }
+    when(combinedUsers.size) {
+        0 -> error("Both user and group cannot be null.")
+        1 -> user = combinedUsers.single()
+        else -> group = createInternalGroup(combinedUsers, context)
     }
-    
-    if (user == null && group == null) error("Both user and group cannot be null.")
     
     Message(
         id = null,
@@ -99,6 +61,7 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
         content = content,
         isUrgent = isUrgent,
         author = author,
+        availableReactions = availableReactions,
         tags = tagList,
         createdAt = null,
         updatedAt = null,

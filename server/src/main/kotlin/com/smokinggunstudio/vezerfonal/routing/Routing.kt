@@ -111,6 +111,8 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     val refreshToken = tryInternal("Cannot generate jwt")
                     { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
                     
+                    MessageHub.subscribe(userId)
+                    
                     call.respond(
                         TokenResponse(
                             accessToken,
@@ -128,7 +130,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         }
         
         authenticate("jwt-refresh") {
-            post("/refresh/{rememberMe}") {
+            post("/refresh") {
                 val principal = call.principal<AuthResponse>()
                 val id = principal?.userId
                     ?: return@post call.respondText(
@@ -136,28 +138,13 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         status = HttpStatusCode.Unauthorized
                     )
                 
-                val rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                    ?: run {
-                        call.respondText(
-                            "Invalid remember me parameter.",
-                            status = HttpStatusCode.BadRequest
-                        ); return@post
-                    }
-                
                 val accessToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(id, context) } ?: return@post
                 
                 val refreshToken = tryInternal("Cannot generate jwt")
                 { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
                 
-                call.respond(
-                    TokenResponse(
-                        accessToken,
-                        if (rememberMe)
-                            refreshToken
-                        else null // "No token for you :("
-                    )
-                )
+                call.respond(TokenResponse(accessToken, refreshToken))
             }
         }
         
@@ -165,21 +152,23 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             authenticate("basic") {
                 post("/basic") {
                     val principal = call.principal<AuthResponse>()
-                    val id: Int = principal?.userId
+                    val userId: Int = principal?.userId
                         ?: return@post call.respondText(
                             "Unauthorized",
                             status = HttpStatusCode.Unauthorized
                         )
                     
-                    val activeTokens = getActiveJWTsByUserId(id, context).latestPair()
+                    val activeTokens = getActiveJWTsByUserId(userId, context).latestPair()
                     
                     if (activeTokens != null) return@post call.respond(activeTokens)
                     
                     val accessToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(id, context) } ?: return@post
+                    { JWTConfig.generateToken(userId, context) } ?: return@post
                     
                     val refreshToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
+                    { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
+                    
+                    MessageHub.subscribe(userId)
                     
                     val newToken = TokenResponse(
                         accessToken,
@@ -199,6 +188,18 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         
         authenticate("jwt-access") {
             route("/api") {
+                get {
+                    val principal = call.principal<AuthResponse>()
+                    if (principal == null) call.respondText(
+                        text = "Unauthorized.",
+                        status = HttpStatusCode.Unauthorized
+                    )
+                    else call.respondText(
+                        text = "Authorized",
+                        status = HttpStatusCode.OK
+                    )
+                }
+                
                 route("/messages") {
                     get("/{amount}") {
                         val principal = call.principal<AuthResponse>()
@@ -230,7 +231,16 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         ) } ?: return@post
                         
                         val success = tryInternal("Unable to insert message.")
-                        { insertMessage(message, context) } ?: return@post
+                        { insertMessage(message, context) != -1 } ?: return@post
+                        
+                        if (!success) call.respondText(
+                            text = "Message already sent.",
+                            status = HttpStatusCode.TooManyRequests
+                        )
+                        
+                        MessageHub.broadcast(message, context)
+                        
+                        
                     }
                 }
             }

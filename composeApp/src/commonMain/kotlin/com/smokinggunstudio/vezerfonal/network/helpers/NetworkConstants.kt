@@ -18,5 +18,9 @@ object NetworkConstants {
         const val GET_MESSAGES = "/api/messages/"
         /** POST: /api/messages/send */
         const val SEND_MESSAGE = "/api/messages/send"
+        /** GET: /api */
+        const val AUTH_CHECKER = "/api"
+        /** GET: /refresh/{rememberMe} */
+        const val REFRESH_REQUEST = "/refresh/"
     }
 }

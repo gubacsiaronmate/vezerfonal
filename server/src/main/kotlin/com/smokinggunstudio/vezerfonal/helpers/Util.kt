@@ -62,9 +62,9 @@ fun LocalDateTime.isExpired(): Boolean =
 fun Date.compareTo(
     anotherDate: LocalDateTime
 ): Boolean =
-    toInstant().toKotlinInstant() == anotherDate.toInstant(
+    toInstant().toKotlinInstant().let { println(it); it } == anotherDate.toInstant(
         TimeZone.currentSystemDefault()
-    )
+    ).let { println(it); it }
 
 /**
  * @return [Instant] based on [TimeZone.currentSystemDefault].

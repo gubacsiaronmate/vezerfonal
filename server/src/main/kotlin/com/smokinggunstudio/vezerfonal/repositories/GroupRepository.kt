@@ -8,11 +8,10 @@ import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.util.now
+import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction

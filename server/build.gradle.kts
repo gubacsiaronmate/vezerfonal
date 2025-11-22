@@ -18,6 +18,7 @@ application {
 
 dependencies {
     // my imports
+    implementation(libs.exposed.json)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.java.jwt)
     implementation(libs.ktor.server.auth)

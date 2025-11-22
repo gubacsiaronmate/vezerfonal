@@ -10,5 +10,6 @@ data class MessageData(
     val isUrgent: Boolean,
     val tags: List<String>,
     val userIdentifiers: List<String>?,
+    val availableReactions: List<String>?,
     val groudAdminIdentifiers: List<String>?
 )

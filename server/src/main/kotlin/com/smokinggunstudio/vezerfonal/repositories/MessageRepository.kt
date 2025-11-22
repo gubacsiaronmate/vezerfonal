@@ -2,37 +2,24 @@ package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
-import com.smokinggunstudio.vezerfonal.models.Tag
-import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import com.smokinggunstudio.vezerfonal.objects.Users
 import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.exists
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
-fun Query.toMessageList(
-    users: List<User>,
-    groups: List<Group>,
-    tags: List<Tag>
+suspend fun Query.toMessageList(
+    context: CoroutineContext
 ): List<Message> = map { message ->
-    val user = users.firstOrNull { user -> user.id == message[Messages.userId] }
-    val group = groups.firstOrNull { group -> group.id == message[Messages.groupId] }
-    val author = users.first { user -> user.id == message[Messages.authorUserId] }
-    val selectedTags = tags.filter { tag -> tag.messageIds.any { it == message[Messages.id] } }
+    val user = message[Messages.userId]?.let { getUserById(it, context) }
+    val group = message[Messages.groupId]?.let { getGroupById(it, context) }
+    val author = getUserById(message[Messages.authorUserId], context)!!
+    val selectedTags = getTagsByMessageId(message[Messages.id], context)
     if ((user == null) == (group == null))
         throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
     Message(
@@ -43,6 +30,7 @@ fun Query.toMessageList(
         content = message[Messages.content],
         isUrgent = message[Messages.isUrgent],
         author = author,
+        availableReactions = message[Messages.availableReactions],
         tags = selectedTags,
         createdAt = message[Messages.createdAt],
         updatedAt = message[Messages.updatedAt],
@@ -50,19 +38,9 @@ fun Query.toMessageList(
     )
 }
 
-suspend fun getAllMessages(context: CoroutineContext): List<Message> = withContext(context) {
-    val users: List<User> = getAllUsers(context)
-    val groups: List<Group> = getAllGroups(context)
-    val tags: List<Tag> = getAllTags(context)
-    transaction {
-        val messages = Messages.selectAll()
-        messages.toMessageList(
-            users,
-            groups,
-            tags
-        )
-    }
-}
+suspend fun getAllMessages(
+    context: CoroutineContext
+): List<Message> = newSuspendedTransaction { Messages.selectAll().toMessageList(context) }
 
 
 
@@ -88,6 +66,7 @@ suspend fun getMessageByCondition(
             content = message[Messages.content],
             isUrgent = message[Messages.isUrgent],
             author = author,
+            availableReactions = message[Messages.availableReactions],
             tags = selectedTags,
             createdAt = message[Messages.createdAt],
             updatedAt = message[Messages.updatedAt],
@@ -101,18 +80,11 @@ suspend fun getMessagesByCondition(
     limit: Int? = null,
     condition: SQLCondition
 ): List<Message> = withContext(context) {
-    val users = getAllUsers(context)
-    val groups = getAllGroups(context)
-    val tags = getAllTags(context)
     val messages = if (limit == null)
         Messages.select(condition)
     else
         Messages.select(condition).limit(limit)
-    messages.toMessageList(
-        users,
-        groups,
-        tags
-    )
+    messages.toMessageList(context)
 }
 
 suspend fun getMessageById(

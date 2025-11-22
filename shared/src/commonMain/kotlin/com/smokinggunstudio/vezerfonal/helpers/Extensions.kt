@@ -1,4 +1,4 @@
-package com.smokinggunstudio.vezerfonal.util
+package com.smokinggunstudio.vezerfonal.helpers
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
