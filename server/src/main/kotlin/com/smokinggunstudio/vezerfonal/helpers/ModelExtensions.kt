@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
@@ -62,6 +63,7 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
         isUrgent = isUrgent,
         author = author,
         availableReactions = availableReactions,
+        status = status ?: MessageStatus.sent,
         tags = tagList,
         createdAt = null,
         updatedAt = null,

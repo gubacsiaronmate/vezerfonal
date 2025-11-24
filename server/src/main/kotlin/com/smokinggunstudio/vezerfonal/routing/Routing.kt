@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
+import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Users
 import com.smokinggunstudio.vezerfonal.repositories.*
 import com.smokinggunstudio.vezerfonal.security.JWTConfig
@@ -262,17 +263,22 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         
                         MessageHub.broadcast(message, context)
                         
-                        val interactionSuccess = tryInternal("")
-                        { insertInteraction(
-                            InteractionInfo(
-                                message = message,
-                                user = getUserById(authorId, context)!!,
-                                type = InteractionType.status,
-                                status = MessageStatus.sent,
-                            ), context
-                        ) } ?: return@post
+                        val recipients: List<User> = (message.user?.let { listOf(it) }
+                            ?: message.group!!.members.map { it.user }) + message.author
                         
-                        if (interactionSuccess) call.respond(HttpStatusCode.OK)
+                        val interactionSuccess = tryInternal("Unable to insert all interactions.")
+                        { recipients.map { user ->
+                            insertInteraction(
+                                InteractionInfo(
+                                    message = message,
+                                    user = user,
+                                    type = InteractionType.status,
+                                    status = message.status,
+                                ), context
+                            )
+                        } } ?: return@post
+                        
+                        if (interactionSuccess.all { it }) call.respond(HttpStatusCode.OK)
                         else call.respond(HttpStatusCode.InternalServerError)
                     }
                 }
