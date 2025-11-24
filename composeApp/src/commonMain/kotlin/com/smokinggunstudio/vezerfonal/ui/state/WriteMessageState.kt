@@ -10,8 +10,8 @@ class WriteMessageState {
     private val _message = mutableStateOf("")
     val message: String get() = _message.value
     
-    private val _reactions = mutableStateOf<List<String>>(emptyList())
-    val reactions: List<String> get() = _reactions.value
+    private val _reactions = mutableStateOf<List<String?>>(emptyList())
+    val reactions: List<String?> get() = _reactions.value
     
     private val _isUrgent = mutableStateOf(false)
     val isUrgent: Boolean get() = _isUrgent.value
