@@ -59,6 +59,7 @@ fun WriteMessageScreen() {
                 Image(
                     imageVector = Icons.Outlined.ErrorOutline,
                     contentDescription = null,
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
                     modifier = Modifier
                         .size(32.dp)
                 )

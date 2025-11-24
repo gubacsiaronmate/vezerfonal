@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -48,7 +49,8 @@ fun HorizontallyScrollableTagSelect() {
                         verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             imageVector = Icons.Default.Stars,
-                            contentDescription = null
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                         )
                         Text(text = stringResource(Res.string.tags),
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
