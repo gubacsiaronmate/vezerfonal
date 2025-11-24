@@ -26,7 +26,6 @@ import vezerfonal.composeapp.generated.resources.tags
 fun HorizontallyScrollableTagSelect() {
     Row(
         modifier = Modifier
-            .padding(8.dp)
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
