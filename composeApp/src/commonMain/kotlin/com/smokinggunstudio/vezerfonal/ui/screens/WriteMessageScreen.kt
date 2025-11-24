@@ -5,7 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.AssignmentLate
+import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagSelect
+import com.smokinggunstudio.vezerfonal.ui.components.ReactionBar
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientSelectButton
 import com.smokinggunstudio.vezerfonal.ui.state.WriteMessageState
 import org.jetbrains.compose.resources.stringResource
@@ -25,6 +27,7 @@ import vezerfonal.composeapp.generated.resources.*
 fun WriteMessageScreen() {
     val state = WriteMessageState()
     Column(
+        verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
@@ -51,13 +54,13 @@ fun WriteMessageScreen() {
                 onClick = {}
             )
             IconToggleButton(
-                modifier = Modifier
-                    .size(48.dp),
                 checked = false,
                 onCheckedChange = {}) {
                 Image(
-                    imageVector = Icons.Default.AssignmentLate,
+                    imageVector = Icons.Outlined.ErrorOutline,
                     contentDescription = null,
+                    modifier = Modifier
+                        .size(32.dp)
                 )
             }
         }
@@ -103,9 +106,18 @@ fun WriteMessageScreen() {
             )
             Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
                 horizontalAlignment = Alignment.Start
             ) {
+                ReactionBar { emoji ->
+                    if (state.reactions.contains(emoji)) {
+                        state.removeReaction(emoji)
+                    } else {
+                        state.addReaction(emoji)
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = stringResource(Res.string.tags),
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
@@ -115,12 +127,13 @@ fun WriteMessageScreen() {
                         .padding(8.dp)
                 )
                 HorizontallyScrollableTagSelect()
+                Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(4.dp)
                 ) {
                     Image(
                         imageVector = Icons.AutoMirrored.Filled.Send,
@@ -130,7 +143,8 @@ fun WriteMessageScreen() {
                     )
                     Text(
                         text = stringResource(Res.string.send),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize
                     )
                 }
             }
