@@ -18,7 +18,7 @@ object MessageUserInteractions : Table("message_user_interactions") {
         sql = "interaction_type",
         fromDb = { value -> InteractionType.valueOf(value as String) },
         toDb = { PGEnum("interaction_type", it) }
-    ).nullable()
+    )
     val status = customEnumeration(
         name = "status",
         sql = "message_status",

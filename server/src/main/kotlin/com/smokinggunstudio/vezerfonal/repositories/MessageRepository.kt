@@ -152,9 +152,8 @@ suspend fun getMessagesByTagId(
 suspend fun insertMessage(
     message: Message,
     context: CoroutineContext,
-): Int = withContext(context) {
-    val doesMessageExist = false
-    if (doesMessageExist) transaction {
+): Boolean = withContext(context) {
+    transaction {
         Messages.insert {
             it[userId] = message.user?.id
             it[groupId] = message.group?.id
@@ -162,6 +161,6 @@ suspend fun insertMessage(
             it[content] = message.content
             it[isUrgent] = message.isUrgent
             it[authorUserId] = message.author.id!!
-        }[Messages.id]
-    } else -1
+        }.insertedCount == 1
+    }
 }
