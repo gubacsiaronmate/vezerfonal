@@ -14,12 +14,10 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 suspend fun getAllUsers(context: CoroutineContext): List<User> = withContext(context) {
-    val codes = getAllCodes(context)
-    transaction {
-        val users = Users.selectAll()
-        users.map { user ->
+    newSuspendedTransaction {
+        Users.selectAll().map { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-            val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
+            val regCode = getCodeById(user[Users.registrationCodeId], context)!!
             User(
                 id = user[Users.id],
                 registrationCode = regCode,
@@ -28,6 +26,7 @@ suspend fun getAllUsers(context: CoroutineContext): List<User> = withContext(con
                 profilePic = pfp,
                 displayName = user[Users.displayName],
                 identifier = user[Users.identifier],
+                isAnyAdmin = null,
                 isSuperAdmin = user[Users.isSuperAdmin],
                 createdAt = user[Users.createdAt],
                 updatedAt = user[Users.updatedAt],
@@ -42,7 +41,7 @@ suspend fun getUserByCondition(
     condition: SQLCondition
 ): User? = withContext(context) {
     val codes = getAllCodes(context)
-    transaction {
+    newSuspendedTransaction {
         Users.select(condition).firstOrNull()?.let { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
             val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
@@ -54,6 +53,7 @@ suspend fun getUserByCondition(
                 profilePic = pfp,
                 displayName = user[Users.displayName],
                 identifier = user[Users.identifier],
+                isAnyAdmin = null,
                 isSuperAdmin = user[Users.isSuperAdmin],
                 createdAt = user[Users.createdAt],
                 updatedAt = user[Users.updatedAt],
@@ -68,7 +68,7 @@ suspend fun getUsersByCondition(
     condition: SQLCondition
 ): List<User> = withContext(context) {
     val codes = getAllCodes(context)
-    transaction {
+    newSuspendedTransaction {
         Users.select(condition).map { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
             val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
@@ -80,6 +80,7 @@ suspend fun getUsersByCondition(
                 profilePic = pfp,
                 displayName = user[Users.displayName],
                 identifier = user[Users.identifier],
+                isAnyAdmin = null,
                 isSuperAdmin = user[Users.isSuperAdmin],
                 createdAt = user[Users.createdAt],
                 updatedAt = user[Users.updatedAt],
@@ -151,6 +152,7 @@ suspend fun createInternalUser(context: CoroutineContext): User =
                 profilePic = null,
                 displayName = Uuid.random().toString().substring(0..8),
                 identifier = Uuid.random().toString().substring(0..8),
+                isAnyAdmin = true,
                 isSuperAdmin = false,
                 createdAt = null,
                 updatedAt = null,

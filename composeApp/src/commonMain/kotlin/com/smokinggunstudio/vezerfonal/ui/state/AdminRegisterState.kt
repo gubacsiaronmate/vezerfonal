@@ -26,6 +26,7 @@ class AdminRegisterState : RegisterState {
         password = Bcrypt.hashPassword(password),
         name = name,
         identifier = identifier,
+        isAnyAdmin = true,
         isSuperAdmin = true
     )
     

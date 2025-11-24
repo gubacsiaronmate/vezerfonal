@@ -1,6 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
@@ -10,14 +10,14 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
 
-suspend fun getMessages(amount: Int, tokenStorage: TokenStorage, client: HttpClient): List<MessageData> {
+suspend fun getUserData(tokenStorage: TokenStorage, client: HttpClient): UserData {
     val token = getAccessToken(tokenStorage, client)
     
-    val response = client.get(NetworkConstants.Endpoints.GET_MESSAGES + amount) {
+    val response = client.get(NetworkConstants.Endpoints.GET_USER_DATA) {
         headers {
             append(HttpHeaders.Authorization, "Bearer $token")
         }
     }
     
-    return response.body<List<MessageData>>()
+    return response.body<UserData>()
 }

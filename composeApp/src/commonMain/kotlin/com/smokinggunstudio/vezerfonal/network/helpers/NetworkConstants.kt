@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.network.helpers
 
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.UserData
 import io.ktor.http.HttpStatusCode
 
 object NetworkConstants {
@@ -22,5 +23,7 @@ object NetworkConstants {
         const val AUTH_CHECKER = "/api"
         /** GET: /refresh/{rememberMe} */
         const val REFRESH_REQUEST = "/refresh/"
+        /** GET: /api/user-data -> userData: [UserData] */
+        const val GET_USER_DATA = "/api/user-data"
     }
 }

@@ -13,6 +13,7 @@ data class User(
     val profilePic: Image?,
     val displayName: String,
     val identifier: String,
+    var isAnyAdmin: Boolean?,
     val isSuperAdmin: Boolean = false,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
@@ -28,6 +29,7 @@ data class User(
         password = null,
         name = displayName,
         identifier = identifier,
+        isAnyAdmin = isAnyAdmin!!,
         isSuperAdmin = isSuperAdmin
     )
 }

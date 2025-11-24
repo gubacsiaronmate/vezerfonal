@@ -21,18 +21,11 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 suspend fun getAllGroups(context: CoroutineContext): List<Group> = withContext(context) {
-    val users = getAllUsers(context)
-    val memberships = getAllMemberShips(context)
-    return@withContext transaction {
-        val groups = Groups.selectAll()
-        return@transaction groups.map { group ->
-            val admin = users.first { user -> user.id == group[Groups.groupAdminId] }
-            val members = memberships
-                .filter { it[UserGroupConnection.groupId] == group[Groups.id] }
-                .map { memberships -> Membership(
-                    user = users.first { user -> user.id == memberships[UserGroupConnection.userId] },
-                    joinedAt = memberships[UserGroupConnection.joinedAt]
-                ) }
+    newSuspendedTransaction {
+        Groups.selectAll().map { group ->
+            val admin = getUserById(group[Groups.groupAdminId], context)!!
+            val members = getMembershipsByGroupId(group[Groups.id], context)
+            
             Group(
                 id = group[Groups.id],
                 displayName = group[Groups.displayName],
@@ -52,27 +45,23 @@ suspend fun getGroupByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): Group? = withContext(context) {
-    val users = getAllUsers(context)
-    val memberships = getAllMemberShips(context)
-    Groups.select(condition).firstOrNull()?.let { group ->
-        val admin = users.first { user -> user.id == group[Groups.groupAdminId] }
-        val members = memberships
-            .filter { it[UserGroupConnection.groupId] == group[Groups.id] }
-            .map { memberships -> Membership(
-                user = users.first { user -> user.id == memberships[UserGroupConnection.userId] },
-                joinedAt = memberships[UserGroupConnection.joinedAt]
-            ) }
-        Group(
-            id = group[Groups.id],
-            displayName = group[Groups.displayName],
-            description = group[Groups.description],
-            members = members,
-            admin = admin,
-            isInternal = group[Groups.isInternal],
-            createdAt = group[Groups.createdAt],
-            updatedAt = group[Groups.updatedAt],
-            deletedAt = group[Groups.deletedAt]
-        )
+    newSuspendedTransaction {
+        Groups.select(condition).firstOrNull()?.let { group ->
+            val admin = getUserById(group[Groups.groupAdminId], context)!!
+            val members = getMembershipsByGroupId(group[Groups.id], context)
+            
+            Group(
+                id = group[Groups.id],
+                displayName = group[Groups.displayName],
+                description = group[Groups.description],
+                members = members,
+                admin = admin,
+                isInternal = group[Groups.isInternal],
+                createdAt = group[Groups.createdAt],
+                updatedAt = group[Groups.updatedAt],
+                deletedAt = group[Groups.deletedAt]
+            )
+        }
     }
 }
 
@@ -80,27 +69,23 @@ suspend fun getGroupsByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): List<Group> = withContext(context) {
-    val users = getAllUsers(context)
-    val memberships = getAllMemberShips(context)
-    Groups.select(condition).map { group ->
-        val admin = users.first { user -> user.id == group[Groups.groupAdminId] }
-        val members = memberships
-            .filter { it[UserGroupConnection.groupId] == group[Groups.id] }
-            .map { memberships -> Membership(
-                user = users.first { user -> user.id == memberships[UserGroupConnection.userId] },
-                joinedAt = memberships[UserGroupConnection.joinedAt]
-            ) }
-        Group(
-            id = group[Groups.id],
-            displayName = group[Groups.displayName],
-            description = group[Groups.description],
-            members = members,
-            admin = admin,
-            isInternal = group[Groups.isInternal],
-            createdAt = group[Groups.createdAt],
-            updatedAt = group[Groups.updatedAt],
-            deletedAt = group[Groups.deletedAt]
-        )
+    newSuspendedTransaction {
+        Groups.select(condition).map { group ->
+            val admin = getUserById(group[Groups.groupAdminId], context)!!
+            val members = getMembershipsByGroupId(group[Groups.id], context)
+            
+            Group(
+                id = group[Groups.id],
+                displayName = group[Groups.displayName],
+                description = group[Groups.description],
+                members = members,
+                admin = admin,
+                isInternal = group[Groups.isInternal],
+                createdAt = group[Groups.createdAt],
+                updatedAt = group[Groups.updatedAt],
+                deletedAt = group[Groups.deletedAt]
+            )
+        }
     }
 }
 
@@ -113,6 +98,11 @@ suspend fun getGroupByAdminId(
     id: Int,
     context: CoroutineContext
 ): Group? = newSuspendedTransaction { getGroupByCondition(context) { Groups.groupAdminId eq id } }
+
+suspend fun getGroupsByAdminId(
+    id: Int,
+    context: CoroutineContext
+): List<Group> = newSuspendedTransaction { getGroupsByCondition(context) { Groups.groupAdminId eq id } }
 
 suspend fun getGroupByAdminIdentifier(
     identifier: String,
@@ -155,7 +145,7 @@ suspend fun createInternalGroup(members: List<User>, context: CoroutineContext):
                 id = null,
                 displayName = Uuid.random().toString(),
                 description = "",
-                members = members.map { user -> Membership(user, LocalDateTime.now()) },
+                members = members.map { user -> Membership(user, null, LocalDateTime.now()) },
                 admin = createInternalUser(context),
                 isInternal = true,
                 createdAt = LocalDateTime.now(),

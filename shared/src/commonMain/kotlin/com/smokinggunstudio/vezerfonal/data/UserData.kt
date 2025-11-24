@@ -9,5 +9,6 @@ data class UserData(
     val password: String?,
     val name: String,
     val identifier: String,
+    val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
 )

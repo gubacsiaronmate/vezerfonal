@@ -47,6 +47,7 @@ class NonAdminRegisterState : RegisterState {
         password = Bcrypt.hashPassword(password),
         name = name,
         identifier = identifier,
+        isAnyAdmin = false,
         isSuperAdmin = false
     )
     

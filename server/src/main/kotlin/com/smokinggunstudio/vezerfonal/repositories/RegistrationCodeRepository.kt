@@ -13,10 +13,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 
-suspend fun getAllCodes(context: CoroutineContext): List<RegistrationCode> = withContext(context) {
-    return@withContext transaction {
-        val code = RegistrationCodes.selectAll()
-        return@transaction code.map {
+suspend fun getAllCodes(
+    context: CoroutineContext
+): List<RegistrationCode> = withContext(context) {
+    transaction {
+        RegistrationCodes.selectAll().map {
             RegistrationCode(
                 id = it[RegistrationCodes.id],
                 code = it[RegistrationCodes.code],

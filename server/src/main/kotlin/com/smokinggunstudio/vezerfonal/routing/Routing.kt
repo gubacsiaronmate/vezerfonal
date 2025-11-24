@@ -282,6 +282,30 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         else call.respond(HttpStatusCode.InternalServerError)
                     }
                 }
+                
+                route("/user-data") {
+                    get {
+                        val principal = call.principal<AuthResponse>()
+                        val userId = principal?.userId
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val user = tryInternal("Unable to query users table.")
+                        {
+                            getUserById(userId, context)!!.let {
+                                it.isAnyAdmin = getGroupsByAdminId(
+                                    id = it.id!!,
+                                    context = context
+                                ).isNotEmpty()
+                                it
+                            }.toDTO()
+                        } ?: return@get
+                        
+                        call.respond(user)
+                    }
+                }
             }
         }
     }

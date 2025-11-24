@@ -23,6 +23,7 @@ suspend fun UserData.toUser(context: CoroutineContext): User = withContext(conte
         email = email,
         displayName = name,
         identifier = identifier,
+        isAnyAdmin = isAnyAdmin,
         isSuperAdmin = isSuperAdmin,
         
         id = null,
