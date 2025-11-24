@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -25,7 +26,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Preview(showBackground = true)
 @Composable
 fun WriteMessageScreen() {
-    val state = WriteMessageState()
+    val state = remember { WriteMessageState() }
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
@@ -54,10 +55,13 @@ fun WriteMessageScreen() {
                 onClick = {}
             )
             IconToggleButton(
-                checked = false,
-                onCheckedChange = {}) {
+                checked = state.isUrgent,
+                onCheckedChange = state::toggleUrgency
+            ) {
                 Image(
-                    imageVector = Icons.Outlined.ErrorOutline,
+                    imageVector = if (!state.isUrgent)
+                        Icons.Outlined.ErrorOutline
+                    else Icons.Outlined.Error,
                     contentDescription = null,
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
                     modifier = Modifier
