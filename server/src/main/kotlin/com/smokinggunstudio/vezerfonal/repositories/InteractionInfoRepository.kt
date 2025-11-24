@@ -7,6 +7,7 @@ import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -113,6 +114,15 @@ suspend fun getInteractionInfosByUserId(
 suspend fun insertInteraction(
     interaction: InteractionInfo,
     context: CoroutineContext
-): Int = withContext(context) {
-    TODO()
+): Boolean = withContext(context) {
+    transaction {
+        MessageUserInteractions.insert {
+            it[messageId] = interaction.message.id!!
+            it[userId] = interaction.user.id!!
+            it[type] = interaction.type
+            it[status] = interaction.status
+            it[reaction] = interaction.reaction
+            it[actorUserId] = interaction.actor?.id!!
+        }.insertedCount == 1
+    }
 }

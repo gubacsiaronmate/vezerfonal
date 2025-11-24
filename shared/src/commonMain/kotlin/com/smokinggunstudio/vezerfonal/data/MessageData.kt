@@ -12,4 +12,8 @@ data class MessageData(
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
     val groudAdminIdentifiers: List<String>?
-)
+) {
+    init {
+        require(availableReactions == null || availableReactions.size < 9)
+    }
+}
