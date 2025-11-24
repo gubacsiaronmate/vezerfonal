@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
-import vezerfonal.composeapp.generated.resources.Res
 
 @Composable
 fun SimpleSearchBar(
