@@ -119,4 +119,5 @@
     <string name="to">Recipient(s):</string>
     <string name="send">Send</string>
     <string name="send_message">Send Message</string>
+    <string name="passwords_must_match">Passwords must match</string>
 </resources>
