@@ -23,6 +23,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagSe
 import com.smokinggunstudio.vezerfonal.ui.components.ReactionBar
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientSelectButton
 import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
+import com.smokinggunstudio.vezerfonal.ui.state.UserSelectionState
 import com.smokinggunstudio.vezerfonal.ui.state.WriteMessageState
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ fun WriteMessageScreen() {
     val state = remember { WriteMessageState() }
     var isGroupTabOpened by remember { mutableStateOf(false) }
     val groupSelectionState = remember { GroupSelectionState() }
+    val userSelectionState = remember { UserSelectionState() }
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
