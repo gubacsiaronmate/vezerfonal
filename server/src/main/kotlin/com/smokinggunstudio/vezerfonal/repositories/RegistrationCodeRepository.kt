@@ -12,81 +12,64 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
+import org.jetbrains.exposed.sql.ResultRow
 
-suspend fun getAllCodes(
-    context: CoroutineContext
-): List<RegistrationCode> = withContext(context) {
-    transaction {
-        RegistrationCodes.selectAll().map {
-            RegistrationCode(
-                id = it[RegistrationCodes.id],
-                code = it[RegistrationCodes.code],
-                totalUses = it[RegistrationCodes.totalUses],
-                remainingUses = it[RegistrationCodes.remainingUses]
-            )
-        }
+private fun ResultRow.toCode(): RegistrationCode = RegistrationCode(
+    id = this[RegistrationCodes.id],
+    code = this[RegistrationCodes.code],
+    totalUses = this[RegistrationCodes.totalUses],
+    remainingUses = this[RegistrationCodes.remainingUses]
+)
+
+suspend fun getAllCodes(): List<RegistrationCode> =
+    newSuspendedTransaction {
+        RegistrationCodes.selectAll().map { it.toCode() }
     }
-}
 
 suspend fun getCodeByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
-): RegistrationCode? = withContext(context) {
-    RegistrationCodes.select(condition).firstOrNull()?.let {
-        RegistrationCode(
-            id = it[RegistrationCodes.id],
-            code = it[RegistrationCodes.code],
-            totalUses = it[RegistrationCodes.totalUses],
-            remainingUses = it[RegistrationCodes.remainingUses]
-        )
-    }
+): RegistrationCode? = newSuspendedTransaction {
+    RegistrationCodes.select(condition).toList().ifNotEmpty()?.single()?.toCode()
 }
 
 suspend fun getCodesByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
-): List<RegistrationCode> = withContext(context) {
-    RegistrationCodes.select(condition).map {
-        RegistrationCode(
-            id = it[RegistrationCodes.id],
-            code = it[RegistrationCodes.code],
-            totalUses = it[RegistrationCodes.totalUses],
-            remainingUses = it[RegistrationCodes.remainingUses]
-        )
-    }
+): List<RegistrationCode> = newSuspendedTransaction {
+    RegistrationCodes.select(condition).map { it.toCode() }
 }
 
 suspend fun getCodeById(
     id: Int,
-    context: CoroutineContext
-): RegistrationCode? = newSuspendedTransaction { getCodeByCondition(context) { RegistrationCodes.id eq id } }
+): RegistrationCode? = newSuspendedTransaction {
+    getCodeByCondition { RegistrationCodes.id eq id }
+}
 
 suspend fun getCodeByCode(
     code: String,
-    context: CoroutineContext
-): RegistrationCode? = newSuspendedTransaction { getCodeByCondition(context) { RegistrationCodes.code eq code } }
+): RegistrationCode? = newSuspendedTransaction {
+    getCodeByCondition { RegistrationCodes.code eq code }
+}
 
 suspend fun insertCode(
     registrationCode: RegistrationCode,
-    context: CoroutineContext
-): Boolean = withContext(context) {
-    return@withContext if (getAllCodes(context).none { code ->
-        code.id == registrationCode.id
-    }) transaction {
+): Boolean = newSuspendedTransaction {
+    if (doesCodeExist(registrationCode.code))
         RegistrationCodes.insert {
             it[code] = registrationCode.code
             it[totalUses] = registrationCode.totalUses
             it[remainingUses] = registrationCode.remainingUses
         }.insertedCount == 1
-    } else false
+    else false
 }
 
 suspend fun insertCodes(
     registrationCodes: List<RegistrationCode>,
     context: CoroutineContext
-): List<Boolean> = registrationCodes.map { insertCode(it, context) }
+): List<Boolean> = newSuspendedTransaction {
+    registrationCodes.map { insertCode(it) }
+}
 
 suspend fun doesCodeExist(
     code: String,
-    context: CoroutineContext
-): Boolean = getCodeByCode(code, context) != null
+): Boolean = newSuspendedTransaction { getCodeByCode(code) != null }

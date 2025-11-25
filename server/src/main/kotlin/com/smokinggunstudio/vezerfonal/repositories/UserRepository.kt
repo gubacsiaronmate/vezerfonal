@@ -13,28 +13,29 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-suspend fun getAllUsers(context: CoroutineContext): List<User> = withContext(context) {
-    newSuspendedTransaction {
-        Users.selectAll().map { user ->
-            val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-            val regCode = getCodeById(user[Users.registrationCodeId], context)!!
-            User(
-                id = user[Users.id],
-                registrationCode = regCode,
-                email = user[Users.email],
-                _password = user[Users.password],
-                profilePic = pfp,
-                displayName = user[Users.displayName],
-                identifier = user[Users.identifier],
-                isAnyAdmin = null,
-                isSuperAdmin = user[Users.isSuperAdmin],
-                createdAt = user[Users.createdAt],
-                updatedAt = user[Users.updatedAt],
-                deletedAt = user[Users.deletedAt]
-            )
-        }
-    }
+private suspend fun ResultRow.toUser(): User = newSuspendedTransaction {
+    val pfp = this@toUser[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
+    val regCode = getCodeById(this@toUser[Users.registrationCodeId])!!
+    User(
+        id = this@toUser[Users.id],
+        registrationCode = regCode,
+        email = this@toUser[Users.email],
+        _password = this@toUser[Users.password],
+        profilePic = pfp,
+        displayName = this@toUser[Users.displayName],
+        identifier = this@toUser[Users.identifier],
+        isAnyAdmin = null,
+        isSuperAdmin = this@toUser[Users.isSuperAdmin],
+        createdAt = this@toUser[Users.createdAt],
+        updatedAt = this@toUser[Users.updatedAt],
+        deletedAt = this@toUser[Users.deletedAt]
+    )
 }
+
+suspend fun getAllUsers(): List<User> =
+    newSuspendedTransaction {
+        Users.selectAll().map { it.toUser() }
+    }
 
 suspend fun getUserByCondition(
     context: CoroutineContext,
@@ -43,7 +44,7 @@ suspend fun getUserByCondition(
     newSuspendedTransaction {
         Users.select(condition).firstOrNull()?.let { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-            val regCode = getCodeById(user[Users.registrationCodeId], context)!!
+            val regCode = getCodeById(user[Users.registrationCodeId])!!
             User(
                 id = user[Users.id],
                 registrationCode = regCode,
@@ -66,11 +67,10 @@ suspend fun getUsersByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): List<User> = withContext(context) {
-    val codes = getAllCodes(context)
     newSuspendedTransaction {
         Users.select(condition).map { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-            val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
+            val regCode = getCodeById(user[Users.registrationCodeId])!!
             User(
                 id = user[Users.id],
                 registrationCode = regCode,
@@ -108,7 +108,7 @@ suspend fun insertUser(
     user: User,
     context: CoroutineContext
 ): Int = withContext(context) {
-    val code = getCodeByCode(user.registrationCode.code, context)
+    val code = getCodeByCode(user.registrationCode.code)
     if(
         code != null &&
         getUserByIdentifier(user.identifier, context) == null
@@ -145,7 +145,7 @@ suspend fun createInternalUser(context: CoroutineContext): User =
         newSuspendedTransaction { 
             val user = User(
                 id = null,
-                registrationCode = getCodeByCode("996633", context)!!,
+                registrationCode = getCodeByCode("996633")!!,
                 email = "${Uuid.random().toString().substring(0..8)}@example.com",
                 _password = Uuid.random().toString().substring(0..8),
                 profilePic = null,

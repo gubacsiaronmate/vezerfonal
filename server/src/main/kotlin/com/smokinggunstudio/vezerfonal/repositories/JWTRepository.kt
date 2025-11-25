@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
@@ -10,59 +11,39 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
-suspend fun getAllJWTs(context: CoroutineContext): List<JWTModel> = withContext(context) {
-    newSuspendedTransaction {
-        JWTs.selectAll().map { jwt ->
-            val user = getUserById(jwt[JWTs.userId], context)!!
-            JWTModel(
-                id = jwt[JWTs.id],
-                tokenHash = jwt[JWTs.tokenHash],
-                isRefresh = jwt[JWTs.isRefresh],
-                user = user,
-                revoked = jwt[JWTs.revoked],
-                createdAt = jwt[JWTs.createdAt],
-                expiresAt = jwt[JWTs.expiresAt]
-            )
-        }
-    }
+private suspend fun ResultRow.toJWTModel(
+    context: CoroutineContext
+): JWTModel = newSuspendedTransaction {
+    val user = getUserById(this@toJWTModel[JWTs.userId], context)!!
+    JWTModel(
+        id = this@toJWTModel[JWTs.id],
+        tokenHash = this@toJWTModel[JWTs.tokenHash],
+        isRefresh = this@toJWTModel[JWTs.isRefresh],
+        user = user,
+        revoked = this@toJWTModel[JWTs.revoked],
+        createdAt = this@toJWTModel[JWTs.createdAt],
+        expiresAt = this@toJWTModel[JWTs.expiresAt]
+    )
+}
+
+suspend fun getAllJWTs(
+    context: CoroutineContext
+): List<JWTModel> = newSuspendedTransaction {
+    JWTs.selectAll().map { it.toJWTModel(context) }
 }
 
 suspend fun getJWTByCondition(
     context: CoroutineContext,
     condition: SQLCondition
-): JWTModel? = withContext(context) {
-    newSuspendedTransaction {
-        JWTs.select(condition).firstOrNull()?.let { jwt ->
-            JWTModel(
-                id = jwt[JWTs.id],
-                tokenHash = jwt[JWTs.tokenHash],
-                isRefresh = jwt[JWTs.isRefresh],
-                user = jwt[JWTs.userId].let { id -> getUserById(id, context)!! },
-                revoked = jwt[JWTs.revoked],
-                createdAt = jwt[JWTs.createdAt],
-                expiresAt = jwt[JWTs.expiresAt]
-            )
-        }
-    }
+): JWTModel? = newSuspendedTransaction {
+    JWTs.select(condition).toList().ifNotEmpty()?.single()?.toJWTModel(context)
 }
 
 suspend fun getJWTsByCondition(
     context: CoroutineContext,
     condition: SQLCondition
-): List<JWTModel> = withContext(context) {
-    newSuspendedTransaction {
-        JWTs.select(condition).map { jwt ->
-            JWTModel(
-                id = jwt[JWTs.id],
-                tokenHash = jwt[JWTs.tokenHash],
-                isRefresh = jwt[JWTs.isRefresh],
-                user = jwt[JWTs.userId].let { id -> getUserById(id, context)!! },
-                revoked = jwt[JWTs.revoked],
-                createdAt = jwt[JWTs.createdAt],
-                expiresAt = jwt[JWTs.expiresAt]
-            )
-        }
-    }
+): List<JWTModel> = newSuspendedTransaction {
+    JWTs.select(condition).map { it.toJWTModel(context) }
 }
 
 suspend fun getJWTById(

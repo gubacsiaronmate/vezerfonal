@@ -92,3 +92,5 @@ fun List<JWTModel>.latestPair(): TokenResponse? {
 }
 
 typealias SQLCondition = SqlExpressionBuilder.() -> Op<Boolean>
+
+inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }

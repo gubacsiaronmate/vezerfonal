@@ -16,41 +16,37 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
-suspend fun ResultRow.toMessage(
+private suspend fun ResultRow.toMessage(
     context: CoroutineContext,
-): Message {
-    val user = this[Messages.userId]?.let { getUserById(it, context) }
-    val group = this[Messages.groupId]?.let { getGroupById(it, context) }
-    val author = getUserById(this[Messages.authorUserId], context)!!
-    val selectedTags = getTagsByMessageId(this[Messages.id], context)
+): Message = newSuspendedTransaction {
+    val user = this@toMessage[Messages.userId]?.let { getUserById(it, context) }
+    val group = this@toMessage[Messages.groupId]?.let { getGroupById(it, context) }
+    val author = getUserById(this@toMessage[Messages.authorUserId], context)!!
+    val selectedTags = getTagsByMessageId(this@toMessage[Messages.id], context)
     
     if ((user == null) == (group == null))
         throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
     
-    return Message(
-        id = this[Messages.id],
+    Message(
+        id = this@toMessage[Messages.id],
         user = user,
         group = group,
-        title = this[Messages.title],
-        content = this[Messages.content],
-        isUrgent = this[Messages.isUrgent],
+        title = this@toMessage[Messages.title],
+        content = this@toMessage[Messages.content],
+        isUrgent = this@toMessage[Messages.isUrgent],
         author = author,
-        availableReactions = this[Messages.availableReactions],
+        availableReactions = this@toMessage[Messages.availableReactions],
         status = null,
         tags = selectedTags,
-        createdAt = this[Messages.createdAt],
-        updatedAt = this[Messages.updatedAt],
-        deletedAt = this[Messages.deletedAt]
+        createdAt = this@toMessage[Messages.createdAt],
+        updatedAt = this@toMessage[Messages.updatedAt],
+        deletedAt = this@toMessage[Messages.deletedAt]
     )
 }
 
-suspend fun Query.toMessageList(
-    context: CoroutineContext
-): List<Message> = map { it.toMessage(context) }
-
 suspend fun getAllMessages(
     context: CoroutineContext
-): List<Message> = newSuspendedTransaction { Messages.selectAll().toMessageList(context) }
+): List<Message> = newSuspendedTransaction { Messages.selectAll().map { it.toMessage(context) } }
 
 suspend fun getMessageByCondition(
     context: CoroutineContext,
@@ -71,7 +67,7 @@ suspend fun getMessagesByCondition(
         Messages.select(condition)
     else
         Messages.select(condition).limit(limit)
-    messages.toMessageList(context)
+    messages.map { it.toMessage(context) }
 }
 
 suspend fun getMessageById(
