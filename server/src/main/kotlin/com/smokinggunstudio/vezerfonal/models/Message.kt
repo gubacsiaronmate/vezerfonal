@@ -32,6 +32,6 @@ data class Message(
         status = status,
         userIdentifiers = null,
         availableReactions = availableReactions,
-        groudAdminIdentifiers = null
+        groups = null
     )
 }

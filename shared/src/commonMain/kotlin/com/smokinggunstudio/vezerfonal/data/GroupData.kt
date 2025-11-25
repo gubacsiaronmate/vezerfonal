@@ -1,8 +1,11 @@
 package com.smokinggunstudio.vezerfonal.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class GroupData(
-    val displayName: String,
+    override val name: String,
     val description: String,
     val members: List<String>,
-    val admin: String
-)
+    val adminIdentifier: String
+) : DTO

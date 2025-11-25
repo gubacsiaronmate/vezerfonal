@@ -13,7 +13,7 @@ data class MessageData(
     val status: MessageStatus?,
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
-    val groudAdminIdentifiers: List<String>?
+    val groups: List<GroupData>?
 ) {
     init {
         require(availableReactions == null || availableReactions.size < 9)

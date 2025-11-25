@@ -8,24 +8,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
-import com.smokinggunstudio.vezerfonal.helpers.FilePicker
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
-import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.set_profile_picture
 
 @Preview(showBackground = true)
 @Composable fun ProfilePicture(
+    size: Dp = 120.dp,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier
@@ -42,8 +37,8 @@ import vezerfonal.composeapp.generated.resources.set_profile_picture
             shape = CircleShape,
             onClick = {},
             modifier = modifier
-                .height(120.dp)
-                .width(120.dp)
+                .height(size)
+                .width(size)
                 .aspectRatio(1F)
                 .align(Alignment.CenterHorizontally)
                 .background(

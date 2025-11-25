@@ -8,17 +8,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
+import kotlinx.coroutines.launch
 
 @Composable
-fun SimpleSearchBar(
+fun SearchBar(
+    state: SearchBarState,
     modifier: Modifier = Modifier,
-    onClick: CallbackClickEvent<SearchBarState>
+    onClick: SuspendCallbackClickEvent<SearchBarState>
 ) {
-    val state = remember { SearchBarState() }
+    val scope = rememberCoroutineScope()
     
     TextField(
         value = state.query,
@@ -28,7 +30,7 @@ fun SimpleSearchBar(
         label = { Text(text = "Search") },
         singleLine = true,
         trailingIcon = {
-            IconButton(onClick = { onClick(state) }) {
+            IconButton(onClick = { scope.launch { onClick(state) } }) {
                 Icon(Icons.Filled.Search,
                     contentDescription = "Search")
             }

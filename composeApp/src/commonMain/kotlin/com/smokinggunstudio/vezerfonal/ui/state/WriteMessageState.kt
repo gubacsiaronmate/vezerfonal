@@ -16,7 +16,7 @@ class WriteMessageState {
     private val _isUrgent = mutableStateOf(false)
     val isUrgent: Boolean get() = _isUrgent.value
     
-    fun toggleUrgency(newValue: Boolean) {
+    fun updateUrgency(newValue: Boolean) {
         _isUrgent.value = newValue
     }
     
