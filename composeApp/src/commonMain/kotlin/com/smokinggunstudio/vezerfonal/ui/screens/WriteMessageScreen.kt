@@ -36,6 +36,7 @@ fun WriteMessageScreen() {
     var isGroupTabOpened by remember { mutableStateOf(false) }
     val groupSelectionState = remember { GroupSelectionState() }
     val userSelectionState = remember { UserSelectionState() }
+    var isIndividualTabOpened by remember { mutableStateOf(true) }
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -62,7 +63,7 @@ fun WriteMessageScreen() {
             )
             RecipientSelectButton(
                 text = stringResource(Res.string.individuals),
-                onClick = {}
+                onClick = { isIndividualTabOpened = it }
             )
             IconToggleButton(
                 checked = state.isUrgent,

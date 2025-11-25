@@ -59,10 +59,10 @@
     <string name="logout_confirmation">Are you sure you want to log out?</string>
     <string name="logout_warning">Once you do, you have to enter your credentials again to log in.</string>
     <string name="yes_log_out">Yes, I wish to log out</string>
-    <string name="setup_2fa_info">Settting up 2-Factor Authentication greatly helps in improving the security of your account.</string>
+    <string name="setup_2fa_info">Setting up 2-Factor Authentication greatly helps in improving the security of your account.</string>
     <string name="how_it_works">Here's how it works:</string>
     <string name="how_it_works_step1">1. Everytime you try to log in to your account from a new device, the system will ask for a one-time password.</string>
-    <string name="how_it_works_step2">2. You can choose to recieve this code via the Google Authenticator app or e-mail.</string>
+    <string name="how_it_works_step2">2. You can choose to receive this code via the Google Authenticator app or e-mail.</string>
     <string name="how_it_works_step3">3. You're all set!</string>
     <string name="set_up_2fa">Set up 2FA</string>
     <string name="choose_2fa_setup">How would you like to set up 2FA?</string>
