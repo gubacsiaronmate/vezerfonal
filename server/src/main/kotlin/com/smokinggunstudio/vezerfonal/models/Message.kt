@@ -13,7 +13,7 @@ data class Message(
     val isUrgent: Boolean,
     val author: User,
     val availableReactions: List<String>?,
-    val status: MessageStatus,
+    val status: MessageStatus?,
     val tags: List<Tag>,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,

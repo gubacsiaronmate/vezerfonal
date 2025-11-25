@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal.models
 
 import kotlinx.datetime.LocalDateTime
 
-
 data class Group(
     val id: Int?,
     val displayName: String,

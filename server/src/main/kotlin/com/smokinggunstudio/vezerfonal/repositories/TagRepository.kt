@@ -14,16 +14,12 @@ import kotlin.coroutines.CoroutineContext
 
 suspend fun getAllTags(context: CoroutineContext): List<Tag> = withContext(context) {
     transaction {
-        val tags = MessageTag.selectAll()
-        val connections = MessageTagConnection.selectAll().toList()
-        tags.map { tag -> Tag(
-            id = tag[MessageTag.id],
-            tagName = tag[MessageTag.name],
-            messageIds = connections
-                .filter { connection ->
-                    connection[MessageTagConnection.tagId] == tag[MessageTag.id]
-                }.map { it[MessageTagConnection.messageId] }
-        ) }
+        MessageTag.selectAll().map { tag ->
+            Tag(
+                id = tag[MessageTag.id],
+                tagName = tag[MessageTag.name],
+            )
+        }
     }
 }
 
@@ -35,11 +31,12 @@ suspend fun getTagByCondition(
         MessageTag
             .select(condition)
             .firstOrNull()
-            ?.let { tag -> Tag(
-                id = tag[MessageTag.id],
-                tagName = tag[MessageTag.name],
-                messageIds = getMessagesByTagId(tag[MessageTag.id], context).map { it.id!! }
-            ) }
+            ?.let { tag ->
+                Tag(
+                    id = tag[MessageTag.id],
+                    tagName = tag[MessageTag.name],
+                )
+            }
     }
 }
 
@@ -50,11 +47,12 @@ suspend fun getTagsByCondition(
     newSuspendedTransaction {
         MessageTag
             .select(condition)
-            .map { tag -> Tag(
-                id = tag[MessageTag.id],
-                tagName = tag[MessageTag.name],
-                messageIds = getMessagesByTagId(tag[MessageTag.id], context).map { it.id!! }
-            ) }
+            .map { tag ->
+                Tag(
+                    id = tag[MessageTag.id],
+                    tagName = tag[MessageTag.name]
+                )
+            }
     }
 }
 

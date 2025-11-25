@@ -40,11 +40,10 @@ suspend fun getUserByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): User? = withContext(context) {
-    val codes = getAllCodes(context)
     newSuspendedTransaction {
         Users.select(condition).firstOrNull()?.let { user ->
             val pfp = user[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-            val regCode = codes.first { code -> code.id == user[Users.registrationCodeId] }
+            val regCode = getCodeById(user[Users.registrationCodeId], context)!!
             User(
                 id = user[Users.id],
                 registrationCode = regCode,

@@ -14,15 +14,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 suspend fun getAllInteractionInfo(context: CoroutineContext): List<InteractionInfo> = withContext(context) {
-    val messages = getAllMessages(context)
-    val users = getAllUsers(context)
-    return@withContext transaction { 
-        val infos = MessageUserInteractions.selectAll()
-        
-        return@transaction infos.map { info ->
-            val message = messages.first { message -> message.id == info[MessageUserInteractions.messageId] }
-            val user = users.first { user -> user.id == info[MessageUserInteractions.userId] }
-            val actor = users.firstOrNull { user -> user.id == info[MessageUserInteractions.actorUserId] }
+    newSuspendedTransaction {
+        MessageUserInteractions.selectAll().map { info ->
+            val message = getMessageById(info[MessageUserInteractions.messageId], context)!!
+            val user = getUserById(info[MessageUserInteractions.userId], context)!!
+            val actor = info[MessageUserInteractions.actorUserId]?.let { getUserById(it, context) }
             
             InteractionInfo(
                 id = info[MessageUserInteractions.id],
@@ -44,12 +40,11 @@ suspend fun getInteractionInfoByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): InteractionInfo? = withContext(context) {
-    val messages = getAllMessages(context)
-    val users = getAllUsers(context)
     MessageUserInteractions.select(condition).firstOrNull()?.let { info ->
-        val message = messages.first { message -> message.id == info[MessageUserInteractions.messageId] }
-        val user = users.first { user -> user.id == info[MessageUserInteractions.userId] }
-        val actor = users.firstOrNull { user -> user.id == info[MessageUserInteractions.actorUserId] }
+        val message = getMessageById(info[MessageUserInteractions.messageId], context)!!
+        val user = getUserById(info[MessageUserInteractions.userId], context)!!
+        val actor = info[MessageUserInteractions.actorUserId]?.let { getUserById(it, context) }
+        
         InteractionInfo(
             id = info[MessageUserInteractions.id],
             message = message,
@@ -69,12 +64,11 @@ suspend fun getInteractionInfosByCondition(
     context: CoroutineContext,
     condition: SQLCondition
 ): List<InteractionInfo> = withContext(context) {
-    val messages = getAllMessages(context)
-    val users = getAllUsers(context)
     MessageUserInteractions.select(condition).map { info ->
-        val message = messages.first { message -> message.id == info[MessageUserInteractions.messageId] }
-        val user = users.first { user -> user.id == info[MessageUserInteractions.userId] }
-        val actor = users.firstOrNull { user -> user.id == info[MessageUserInteractions.actorUserId] }
+        val message = getMessageById(info[MessageUserInteractions.messageId], context)!!
+        val user = getUserById(info[MessageUserInteractions.userId], context)!!
+        val actor = info[MessageUserInteractions.actorUserId]?.let { getUserById(it, context) }
+        
         InteractionInfo(
             id = info[MessageUserInteractions.id],
             message = message,

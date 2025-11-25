@@ -122,11 +122,27 @@ suspend fun getAllGroupsByMemberUserId(
     context: CoroutineContext,
 ): List<Group> = getAllGroups(context).filter { group -> group.members.any { membership -> membership.user.id == id } }
 
+suspend fun getGroupByName(
+    name: String,
+    context: CoroutineContext
+): Group? = newSuspendedTransaction { getGroupByCondition(context) { Groups.displayName eq name } }
+
+suspend fun doesGroupExist(
+    identifier: String,
+    name: String,
+    context: CoroutineContext
+): Boolean = newSuspendedTransaction {
+    val groupByAdmin = getGroupByAdminIdentifier(identifier, context)
+    val groupByName = getGroupByName(name, context)
+    
+    groupByAdmin != null && (groupByAdmin == groupByName)
+}
+
 suspend fun insertGroup(
     group: Group,
     context: CoroutineContext
 ): Int = withContext(context) {
-    val doesGroupExist = getGroupByAdminIdentifier(group.admin.identifier, context) != null
+    val doesGroupExist = doesGroupExist(group.admin.identifier, group.displayName, context)
     val admin = getUserByIdentifier(group.admin.identifier, context)
     if (!doesGroupExist && admin != null) transaction {
         Groups.insert {
