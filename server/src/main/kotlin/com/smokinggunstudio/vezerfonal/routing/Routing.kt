@@ -3,7 +3,6 @@ package com.smokinggunstudio.vezerfonal.routing
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
-import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
@@ -41,10 +40,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                 { call.receive<UserData>().toUser(context) } ?: return@post
                 
                 val insertSuccess = tryInternal("Failed to insert user.")
-                { insertUser(user, context) != -1 } ?: return@post
+                { insertUser(user) } ?: return@post
                 
                 if (insertSuccess) {
-                    val user = getUserByIdentifier(user.identifier, context)
+                    val user = getUserByIdentifier(user.identifier)
                         ?: error("Cannot get user by identifier.")
                     val userId = user.id ?: error("Cannot get user id.")
                     call.respondText("$userId", status = HttpStatusCode.Created)
@@ -101,7 +100,6 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             userId = userId,
                             property = Users.profilePicURI,
                             newValue = pfpURI,
-                            context = context
                         )
                     } ?: return@post
                     
@@ -161,7 +159,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                             status = HttpStatusCode.Unauthorized
                         )
                     
-                    val activeTokens = getActiveJWTsByUserId(userId, context).latestPair()
+                    val activeTokens = getActiveJWTsByUserId(userId).latestPair()
                     
                     if (activeTokens != null) return@post call.respond(activeTokens)
                     
@@ -234,7 +232,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         val amount = call.parameters["amount"]?.toIntOrNull()
                             ?: return@get
                         
-                        val messages = getMessagesByUserId(userId, context, limit = amount).map { it.toDTO() }
+                        val messages = getMessagesBySenderUserId(userId, limit = amount).map { it.toDTO() }
                         
                         call.respond(messages)
                     }
@@ -254,7 +252,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         ) } ?: return@post
                         
                         val success = tryInternal("Unable to insert message.")
-                        { insertMessage(message, context) } ?: return@post
+                        { insertMessage(message) } ?: return@post
                         
                         if (!success) call.respondText(
                             text = "Message already sent.",
@@ -274,7 +272,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                                     user = user,
                                     type = InteractionType.status,
                                     status = message.status,
-                                ), context
+                                )
                             )
                         } } ?: return@post
                         
@@ -294,11 +292,8 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                         
                         val user = tryInternal("Unable to query users table.")
                         {
-                            getUserById(userId, context)!!.let {
-                                it.isAnyAdmin = getGroupsByAdminId(
-                                    id = it.id!!,
-                                    context = context
-                                ).isNotEmpty()
+                            getUserById(userId)!!.let {
+                                it.isAnyAdmin = getGroupsByAdminId(it.id!!).isNotEmpty()
                                 it
                             }.toDTO()
                         } ?: return@get

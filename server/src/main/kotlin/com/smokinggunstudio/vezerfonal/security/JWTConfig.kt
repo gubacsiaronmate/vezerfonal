@@ -46,14 +46,16 @@ object JWTConfig {
             .withExpiresAt(expiresAt)
             .sign(algorithm)
         
-        val success = insertJWT(context, JWTModel(
-            id = tokenId,
-            tokenHash = hashLongString(jwt),
-            isRefresh = isRefresh,
-            user = getUserById(userId, context)!!,
-            revoked = false,
-            expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
-        ))
+        val success = insertJWT(
+            JWTModel(
+                id = tokenId,
+                tokenHash = hashLongString(jwt),
+                isRefresh = isRefresh,
+                user = getUserById(userId)!!,
+                revoked = false,
+                expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
+            )
+        )
         
         return@withContext if (success) jwt else throw IllegalArgumentException("Unable to insert token into database.")
     }

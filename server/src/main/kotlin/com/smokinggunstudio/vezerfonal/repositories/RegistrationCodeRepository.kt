@@ -51,10 +51,14 @@ suspend fun getCodeByCode(
     getCodeByCondition { RegistrationCodes.code eq code }
 }
 
+suspend fun doesCodeExist(
+    code: String,
+): Boolean = newSuspendedTransaction { getCodeByCode(code) != null }
+
 suspend fun insertCode(
     registrationCode: RegistrationCode,
 ): Boolean = newSuspendedTransaction {
-    if (doesCodeExist(registrationCode.code))
+    if (!doesCodeExist(registrationCode.code))
         RegistrationCodes.insert {
             it[code] = registrationCode.code
             it[totalUses] = registrationCode.totalUses
@@ -65,11 +69,6 @@ suspend fun insertCode(
 
 suspend fun insertCodes(
     registrationCodes: List<RegistrationCode>,
-    context: CoroutineContext
 ): List<Boolean> = newSuspendedTransaction {
     registrationCodes.map { insertCode(it) }
 }
-
-suspend fun doesCodeExist(
-    code: String,
-): Boolean = newSuspendedTransaction { getCodeByCode(code) != null }

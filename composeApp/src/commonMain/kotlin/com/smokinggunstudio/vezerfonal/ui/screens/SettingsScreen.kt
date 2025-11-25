@@ -51,7 +51,7 @@ fun SettingsScreen() {
             text = stringResource(Res.string.dark_mode),
             trailing = @Composable {
                 Switch(
-                    checked = false,
+                    checked = true,
                     onCheckedChange = {},
                     modifier = Modifier
                         .height(24.dp)

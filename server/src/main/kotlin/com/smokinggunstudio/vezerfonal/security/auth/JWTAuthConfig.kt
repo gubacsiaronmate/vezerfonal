@@ -24,8 +24,8 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 ?: return@validate null
             val userId = credentials.payload.getClaim("userId").asInt()
             val tokenId = credentials.payload.getClaim("tokenId").asString()
-            val user = getUserById(userId, context)
-            val jwt = getJWTById(tokenId, context)
+            val user = getUserById(userId)
+            val jwt = getJWTById(tokenId)
             when {
                 user == null -> return@validate null
                 jwt == null -> return@validate null
@@ -36,7 +36,6 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                         tokenId = jwt.id,
                         property = JWTs.revoked,
                         newValue = true,
-                        context = context
                     ); return@validate null
                 }
                 !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
@@ -55,8 +54,8 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                 ?: return@validate null
             val userId = credentials.payload.getClaim("userId").asInt()
             val tokenId = credentials.payload.getClaim("tokenId").asString()
-            val user = getUserById(userId, context)
-            val jwt = getJWTById(tokenId, context)
+            val user = getUserById(userId)
+            val jwt = getJWTById(tokenId)
             when {
                 user == null -> return@validate null
                 jwt == null -> return@validate null
@@ -67,7 +66,6 @@ fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
                         tokenId = jwt.id,
                         property = JWTs.revoked,
                         newValue = true,
-                        context = context
                     )
                     return@validate null
                 }

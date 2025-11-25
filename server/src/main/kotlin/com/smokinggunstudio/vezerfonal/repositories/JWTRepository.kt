@@ -11,65 +11,68 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
-private suspend fun ResultRow.toJWTModel(
-    context: CoroutineContext
-): JWTModel = newSuspendedTransaction {
-    val user = getUserById(this@toJWTModel[JWTs.userId], context)!!
-    JWTModel(
-        id = this@toJWTModel[JWTs.id],
-        tokenHash = this@toJWTModel[JWTs.tokenHash],
-        isRefresh = this@toJWTModel[JWTs.isRefresh],
-        user = user,
-        revoked = this@toJWTModel[JWTs.revoked],
-        createdAt = this@toJWTModel[JWTs.createdAt],
-        expiresAt = this@toJWTModel[JWTs.expiresAt]
-    )
-}
+private suspend fun ResultRow.toJWTModel(): JWTModel =
+    newSuspendedTransaction {
+        val user = getUserById(this@toJWTModel[JWTs.userId])!!
+        JWTModel(
+            id = this@toJWTModel[JWTs.id],
+            tokenHash = this@toJWTModel[JWTs.tokenHash],
+            isRefresh = this@toJWTModel[JWTs.isRefresh],
+            user = user,
+            revoked = this@toJWTModel[JWTs.revoked],
+            createdAt = this@toJWTModel[JWTs.createdAt],
+            expiresAt = this@toJWTModel[JWTs.expiresAt]
+        )
+    }
 
-suspend fun getAllJWTs(
-    context: CoroutineContext
-): List<JWTModel> = newSuspendedTransaction {
-    JWTs.selectAll().map { it.toJWTModel(context) }
-}
+suspend fun getAllJWTs(): List<JWTModel> =
+    newSuspendedTransaction {
+        JWTs.selectAll().map { it.toJWTModel() }
+    }
 
 suspend fun getJWTByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
 ): JWTModel? = newSuspendedTransaction {
-    JWTs.select(condition).toList().ifNotEmpty()?.single()?.toJWTModel(context)
+    JWTs
+        .select(condition)
+        .toList()
+        .ifNotEmpty()
+        ?.single()
+        ?.toJWTModel()
 }
 
 suspend fun getJWTsByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
 ): List<JWTModel> = newSuspendedTransaction {
-    JWTs.select(condition).map { it.toJWTModel(context) }
+    JWTs.select(condition).map { it.toJWTModel() }
 }
 
 suspend fun getJWTById(
     id: String,
-    context: CoroutineContext
-): JWTModel? = newSuspendedTransaction { getJWTByCondition(context) { JWTs.id eq id } }
+): JWTModel? = newSuspendedTransaction { getJWTByCondition { JWTs.id eq id } }
+
+suspend fun getJWTByTokenHash(
+    tokenHash: String
+): JWTModel? = newSuspendedTransaction { getJWTByCondition { JWTs.tokenHash eq tokenHash } }
 
 suspend fun getJWTsByUserId(
     id: Int,
-    context: CoroutineContext
-): List<JWTModel> = newSuspendedTransaction { getJWTsByCondition(context) { JWTs.userId eq id } }
+): List<JWTModel> = newSuspendedTransaction { getJWTsByCondition { JWTs.userId eq id } }
 
 suspend fun getActiveJWTsByUserId(
     id: Int,
-    context: CoroutineContext
 ): List<JWTModel> = newSuspendedTransaction {
-    getJWTsByCondition(context) {
-        (JWTs.userId eq id) and (JWTs.revoked eq false)
-    }
+    getJWTsByCondition { (JWTs.userId eq id) and (JWTs.revoked eq false) }
 }
 
+suspend fun doesJWTExist(
+    tokenHash: String
+): Boolean = newSuspendedTransaction { getJWTByTokenHash(tokenHash) != null }
+
 suspend fun insertJWT(
-    context: CoroutineContext,
     jwt: JWTModel
-): Boolean = withContext(context) {
-    if (getJWTById(jwt.id, context) == null) transaction {
+): Boolean = newSuspendedTransaction {
+    if (!doesJWTExist(jwt.tokenHash))
         JWTs.insert { row ->
             row[id] = jwt.id
             row[tokenHash] = jwt.tokenHash
@@ -79,16 +82,15 @@ suspend fun insertJWT(
             jwt.createdAt?.let { row[createdAt] = it }
             row[expiresAt] = jwt.expiresAt
         }.insertedCount == 1
-    } else false
+    else false
 }
 
 suspend fun <T> modifyJWT(
     tokenId: String,
     property: Column<T>,
     newValue: T,
-    context: CoroutineContext
-): Boolean = withContext(context) {
-    val jwt = getJWTById(tokenId, context)
+): Boolean = newSuspendedTransaction {
+    val jwt = getJWTById(tokenId)
     if (jwt != null) transaction {
         JWTs.update({ JWTs.id eq jwt.id }) {
             it[property] = newValue

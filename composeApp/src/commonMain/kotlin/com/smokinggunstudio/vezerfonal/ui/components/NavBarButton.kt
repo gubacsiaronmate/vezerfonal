@@ -25,16 +25,15 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 ) {
     Column(
         modifier = modifier
-            .aspectRatio(1F)
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 4.dp)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(20.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(

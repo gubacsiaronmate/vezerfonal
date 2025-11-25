@@ -12,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
 
-
 @Composable
 fun NavBar(
     tabs: List<NavBarContent>,

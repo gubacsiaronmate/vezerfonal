@@ -1,63 +1,70 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
+import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
+import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlin.coroutines.CoroutineContext
 
-suspend fun getAllMemberships(
-    context: CoroutineContext
-): List<Membership> = withContext(context) {
-    UserGroupConnection.selectAll().map { membership ->
-        val user = getUserById(membership[UserGroupConnection.userId], context)!!
+private suspend fun ResultRow.toMembership(): Membership =
+    newSuspendedTransaction {
+        val user = getUserById(this@toMembership[UserGroupConnection.userId])!!
         Membership(
             user = user,
-            groupId = membership[UserGroupConnection.groupId],
-            joinedAt = membership[UserGroupConnection.joinedAt]
+            groupId = this@toMembership[UserGroupConnection.groupId],
+            joinedAt = this@toMembership[UserGroupConnection.joinedAt]
         )
     }
-}
+
+suspend fun getAllMemberships(): List<Membership> =
+    newSuspendedTransaction {
+        UserGroupConnection
+            .selectAll()
+            .map { it.toMembership() }
+    }
 
 suspend fun getMembershipByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
-): Membership? = withContext(context) {
-    newSuspendedTransaction {
-        UserGroupConnection.select(condition).firstOrNull()?.let { membership ->
-            val user = getUserById(membership[UserGroupConnection.userId], context)!!
-            Membership(
-                user = user,
-                groupId = membership[UserGroupConnection.groupId],
-                joinedAt = membership[UserGroupConnection.joinedAt]
-            )
-        }
-    }
+): Membership? = newSuspendedTransaction {
+    UserGroupConnection
+        .select(condition)
+        .toList()
+        .ifNotEmpty()
+        ?.single()
+        ?.toMembership()
 }
 
 suspend fun getMembershipsByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
-): List<Membership> = withContext(context) {
-    newSuspendedTransaction {
-        UserGroupConnection.select(condition).map { membership ->
-            val user = getUserById(membership[UserGroupConnection.userId], context)!!
-            Membership(
-                user = user,
-                groupId = membership[UserGroupConnection.groupId],
-                joinedAt = membership[UserGroupConnection.joinedAt]
-            )
-        }
-    }
+): List<Membership> = newSuspendedTransaction {
+    UserGroupConnection
+        .select(condition)
+        .map { it.toMembership() }
 }
 
 suspend fun getMembershipsByGroupId(
     id: Int,
-    context: CoroutineContext
 ): List<Membership> = newSuspendedTransaction {
-    getMembershipsByCondition(context) { UserGroupConnection.groupId eq id }
+    getMembershipsByCondition { UserGroupConnection.groupId eq id }
+}
+
+suspend fun insertMemberIntoGroup(
+    newUserId: Int,
+    newGroupId: Int,
+    newJoinedAt: LocalDateTime = LocalDateTime.now()
+): Boolean = newSuspendedTransaction {
+    UserGroupConnection.insert {
+        it[userId] = newUserId
+        it[groupId] = newGroupId
+        it[joinedAt] = newJoinedAt
+    }.insertedCount == 1
 }

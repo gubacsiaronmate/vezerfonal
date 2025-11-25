@@ -187,9 +187,9 @@ import vezerfonal.composeapp.generated.resources.settings
         ) { i ->
             when (tabs[i]) {
                 Home -> HomePageScreen(tokenStorage, client)
-                Archive -> TODO()
+                Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
-                Group -> TODO()
+                Group -> GroupScreen()
                 Settings -> SettingsScreen()
             }
         }

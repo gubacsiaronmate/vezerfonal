@@ -1,132 +1,118 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
-import com.smokinggunstudio.vezerfonal.enums.InteractionType
-import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
-import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
-import com.smokinggunstudio.vezerfonal.objects.Users
-import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
 
-private suspend fun ResultRow.toMessage(
-    context: CoroutineContext,
-): Message = newSuspendedTransaction {
-    val user = this@toMessage[Messages.userId]?.let { getUserById(it, context) }
-    val group = this@toMessage[Messages.groupId]?.let { getGroupById(it, context) }
-    val author = getUserById(this@toMessage[Messages.authorUserId], context)!!
-    val selectedTags = getTagsByMessageId(this@toMessage[Messages.id], context)
-    
-    if ((user == null) == (group == null))
-        throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
-    
-    Message(
-        id = this@toMessage[Messages.id],
-        user = user,
-        group = group,
-        title = this@toMessage[Messages.title],
-        content = this@toMessage[Messages.content],
-        isUrgent = this@toMessage[Messages.isUrgent],
-        author = author,
-        availableReactions = this@toMessage[Messages.availableReactions],
-        status = null,
-        tags = selectedTags,
-        createdAt = this@toMessage[Messages.createdAt],
-        updatedAt = this@toMessage[Messages.updatedAt],
-        deletedAt = this@toMessage[Messages.deletedAt]
-    )
-}
+private suspend fun ResultRow.toMessage(): Message =
+    newSuspendedTransaction {
+        val user = this@toMessage[Messages.userId]?.let { getUserById(it) }
+        val group = this@toMessage[Messages.groupId]?.let { getGroupById(it) }
+        val author = getUserById(this@toMessage[Messages.authorUserId])!!
+        val selectedTags = getTagsByMessageId(this@toMessage[Messages.id])
+        
+        if ((user == null) == (group == null))
+            throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
+        
+        Message(
+            id = this@toMessage[Messages.id],
+            user = user,
+            group = group,
+            title = this@toMessage[Messages.title],
+            content = this@toMessage[Messages.content],
+            isUrgent = this@toMessage[Messages.isUrgent],
+            author = author,
+            availableReactions = this@toMessage[Messages.availableReactions],
+            status = null,
+            tags = selectedTags,
+            createdAt = this@toMessage[Messages.createdAt],
+            updatedAt = this@toMessage[Messages.updatedAt],
+            deletedAt = this@toMessage[Messages.deletedAt]
+        )
+    }
 
-suspend fun getAllMessages(
-    context: CoroutineContext
-): List<Message> = newSuspendedTransaction { Messages.selectAll().map { it.toMessage(context) } }
+suspend fun getAllMessages(): List<Message> =
+    newSuspendedTransaction {
+        Messages
+            .selectAll()
+            .map { it.toMessage() }
+    }
 
 suspend fun getMessageByCondition(
-    context: CoroutineContext,
     condition: SQLCondition
-): Message? = withContext(context) {
+): Message? = newSuspendedTransaction {
     Messages
         .select(condition)
-        .firstOrNull()
-        ?.toMessage(context)
+        .toList()
+        .ifNotEmpty()
+        ?.single()
+        ?.toMessage()
 }
 
 suspend fun getMessagesByCondition(
-    context: CoroutineContext,
     limit: Int? = null,
     condition: SQLCondition
-): List<Message> = withContext(context) {
-    val messages = if (limit == null)
-        Messages.select(condition)
-    else
-        Messages.select(condition).limit(limit)
-    messages.map { it.toMessage(context) }
+): List<Message> = newSuspendedTransaction {
+    val messages =
+        if (limit == null) Messages.select(condition)
+        else Messages.select(condition).limit(limit)
+    
+    messages.map { it.toMessage() }
 }
 
 suspend fun getMessageById(
     id: Int,
-    context: CoroutineContext
-): Message? = newSuspendedTransaction { getMessageByCondition(context) { Messages.id eq id } }
+): Message? = newSuspendedTransaction { getMessageByCondition { Messages.id eq id } }
 
-suspend fun getMessageByUserId(
+suspend fun getMessagesByUserId(
     id: Int,
-    context: CoroutineContext
-): Message? = newSuspendedTransaction { getMessageByCondition(context) { Messages.userId eq id } }
+): List<Message> = newSuspendedTransaction { getMessagesByCondition { Messages.userId eq id } }
 
-suspend fun getMessageByUserIdentifier(
+suspend fun getMessagesByUserIdentifier(
     identifier: String,
-    context: CoroutineContext
-): Message? = newSuspendedTransaction {
-    getMessageByCondition(context) {
-        Messages.userId eq Users.select {
-            Users.identifier eq identifier
-        }.first()[Users.id]
+): List<Message> = newSuspendedTransaction {
+    val user = getUserByIdentifier(identifier)
+        ?: return@newSuspendedTransaction emptyList()
+    
+    getMessagesByCondition {
+        Messages.userId eq user.id!!
     }
 }
 
 suspend fun getMessagesByGroupId(
     id: Int,
-    context: CoroutineContext
-): List<Message> = getMessagesByCondition(context) { Messages.groupId eq id }
+): List<Message> = newSuspendedTransaction {
+    getMessagesByCondition { Messages.groupId eq id }
+}
 
-suspend fun getMessagesByUserId(
+suspend fun getMessagesBySenderUserId(
     id: Int,
-    context: CoroutineContext,
     limit: Int? = null
 ): List<Message> = newSuspendedTransaction {
-    getMessagesByCondition(context, limit) {
-        val ugc = UserGroupConnection.alias("ugc")
-        
-        (Messages.userId eq id) or exists(
-            ugc.select {
-                (ugc[UserGroupConnection.groupId] eq Messages.groupId) and
-                (ugc[UserGroupConnection.userId] eq id)
-            }
-        )
-    }
+    getMessagesByCondition(limit) { Messages.authorUserId eq id }
 }
 
 suspend fun getMessagesByRecipientUserId(
     id: Int,
-    context: CoroutineContext
-): List<Message> = getAllMessages(context).filter { message ->
-    message.group?.members?.any { membership ->
-        membership.user.id == id
-    } == true
+): List<Message> = newSuspendedTransaction {
+    getMessagesByCondition {
+        (Messages.userId eq id) or
+        (Messages.groupId inList UserGroupConnection
+            .select { UserGroupConnection.userId eq id }
+            .map { it[UserGroupConnection.groupId] })
+    }
 }
 
 suspend fun getMessagesByTagId(
     id: Int,
-    context: CoroutineContext
 ): List<Message> = newSuspendedTransaction {
-    getMessagesByCondition(context) {
+    getMessagesByCondition {
         (MessageTagConnection.tagId eq id) and
         (Messages.id eq MessageTagConnection.messageId)
     }
@@ -134,16 +120,22 @@ suspend fun getMessagesByTagId(
 
 suspend fun insertMessage(
     message: Message,
-    context: CoroutineContext,
-): Boolean = withContext(context) {
-    transaction {
-        Messages.insert {
-            it[userId] = message.user?.id
-            it[groupId] = message.group?.id
-            it[title] = message.title
-            it[content] = message.content
-            it[isUrgent] = message.isUrgent
-            it[authorUserId] = message.author.id!!
-        }.insertedCount == 1
+): Boolean = newSuspendedTransaction {
+    val statement = Messages.insert {
+        it[userId] = message.user?.id
+        it[groupId] = message.group?.id
+        it[title] = message.title
+        it[content] = message.content
+        it[isUrgent] = message.isUrgent
+        it[authorUserId] = message.author.id!!
+        it[availableReactions] = message.availableReactions
     }
+    
+    val tagIds = message.tags.map { getTagByName(it.tagName)!!.id!! }
+    attachTagsToMessageId(
+        newMessageId = statement[Messages.id],
+        tagIds = tagIds
+    )
+    
+    statement.insertedCount == 1
 }

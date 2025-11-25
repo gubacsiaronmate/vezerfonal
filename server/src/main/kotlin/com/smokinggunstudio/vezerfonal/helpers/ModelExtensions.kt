@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 suspend fun UserData.toUser(context: CoroutineContext): User = withContext(context) {
-    val code = getCodeByCode(registrationCode, context) ?: error("Code cannot be null!")
+    val code = getCodeByCode(registrationCode) ?: error("Code cannot be null!")
     
     User(
         registrationCode = code,
@@ -38,21 +38,21 @@ suspend fun UserData.toUser(context: CoroutineContext): User = withContext(conte
 }
 
 suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Message = withContext(context) {
-    val author = getUserById(authorId, context) ?: error("")
-    val tagList = tags.map { tagName -> getTagByName(tagName, context) ?: error("Tag is not available.") }
+    val author = getUserById(authorId) ?: error("")
+    val tagList = tags.map { tagName -> getTagByName(tagName) ?: error("Tag is not available.") }
     
     var group: Group? = null
     var user: User? = null
     
-    val users = userIdentifiers.orEmpty().map { getUserByIdentifier(it, context)!! }
-    val groups = groups.orEmpty().map { getExactGroupByNameAndAdminIdentifier(it.name, it.adminIdentifier, context)!! }
+    val users = userIdentifiers.orEmpty().map { getUserByIdentifier(it)!! }
+    val groups = groups.orEmpty().map { getExactGroupByNameAndAdminIdentifier(it.name, it.adminIdentifier)!! }
     val allGroupUsers = groups.flatMap { group -> group.members.map { it.user } }
     val combinedUsers = users + allGroupUsers
     
     when(combinedUsers.size) {
         0 -> error("Both user and group cannot be null.")
         1 -> user = combinedUsers.single()
-        else -> group = createInternalGroup(combinedUsers, context)
+        else -> group = createInternalGroup(combinedUsers)
     }
     
     Message(

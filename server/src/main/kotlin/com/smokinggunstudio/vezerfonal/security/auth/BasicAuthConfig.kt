@@ -12,7 +12,7 @@ fun configureBasicAuth(feature: AuthenticationConfig, context: CoroutineContext)
         validate { credentials ->
             val rememberMe = receive<Boolean>()
             
-            val user = getUserByEmail(credentials.name, context)
+            val user = getUserByEmail(credentials.name)
                 ?: return@validate null
             
             val isPasswordValid = verifyPassword(credentials.password, user.password)
