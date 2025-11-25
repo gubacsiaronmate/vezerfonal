@@ -58,7 +58,7 @@ fun WriteMessageScreen() {
         ) {
             RecipientSelectButton(
                 text = stringResource(Res.string.groups),
-                onClick = { isOpened -> isGroupTabOpened = isOpened }
+                onClick = { isGroupTabOpened = it }
             )
             RecipientSelectButton(
                 text = stringResource(Res.string.individuals),

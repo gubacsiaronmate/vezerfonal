@@ -8,7 +8,7 @@ import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.createInternalGroup
 import com.smokinggunstudio.vezerfonal.repositories.getCodeByCode
-import com.smokinggunstudio.vezerfonal.repositories.getGroupByAdminIdentifier
+import com.smokinggunstudio.vezerfonal.repositories.getExactGroupByNameAndAdminIdentifier
 import com.smokinggunstudio.vezerfonal.repositories.getTagByName
 import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import com.smokinggunstudio.vezerfonal.repositories.getUserByIdentifier
@@ -45,7 +45,7 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext): Mes
     var user: User? = null
     
     val users = userIdentifiers.orEmpty().map { getUserByIdentifier(it, context)!! }
-    val groups = groups.orEmpty().map { getGroupByAdminIdentifier(it.adminIdentifier, context)!! }
+    val groups = groups.orEmpty().map { getExactGroupByNameAndAdminIdentifier(it.name, it.adminIdentifier, context)!! }
     val allGroupUsers = groups.flatMap { group -> group.members.map { it.user } }
     val combinedUsers = users + allGroupUsers
     

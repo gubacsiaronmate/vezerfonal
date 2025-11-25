@@ -6,12 +6,13 @@ import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Groups
-import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import com.smokinggunstudio.vezerfonal.objects.Users
 import com.smokinggunstudio.vezerfonal.helpers.now
+import com.smokinggunstudio.vezerfonal.objects.Messages
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -104,16 +105,17 @@ suspend fun getGroupsByAdminId(
     context: CoroutineContext
 ): List<Group> = newSuspendedTransaction { getGroupsByCondition(context) { Groups.groupAdminId eq id } }
 
-suspend fun getGroupByAdminIdentifier(
+suspend fun getExactGroupByNameAndAdminIdentifier(
+    name: String,
     identifier: String,
     context: CoroutineContext
 ): Group? = newSuspendedTransaction {
     getGroupByCondition(context) {
-        Users.select { Groups.groupAdminId eq Users.id }.let { result ->
+        (Users.select { (Groups.groupAdminId eq Users.id) }.let { result ->
             val user = result.firstOrNull() ?: return@getGroupByCondition Op.FALSE
             if (user[Users.identifier] == identifier) Op.TRUE
             else Op.FALSE
-        }
+        }) and (Groups.displayName eq name)
     }
 }
 
@@ -127,15 +129,19 @@ suspend fun getGroupByName(
     context: CoroutineContext
 ): Group? = newSuspendedTransaction { getGroupByCondition(context) { Groups.displayName eq name } }
 
+suspend fun getGroupsByMessageId(
+    id: Int,
+    context: CoroutineContext
+): List<Group> = newSuspendedTransaction {
+    getGroupsByCondition(context) { (Messages.id eq id) and (Messages.groupId eq Groups.id) }
+}
+
 suspend fun doesGroupExist(
-    identifier: String,
     name: String,
+    identifier: String,
     context: CoroutineContext
 ): Boolean = newSuspendedTransaction {
-    val groupByAdmin = getGroupByAdminIdentifier(identifier, context)
-    val groupByName = getGroupByName(name, context)
-    
-    groupByAdmin != null && (groupByAdmin == groupByName)
+    getExactGroupByNameAndAdminIdentifier(name, identifier, context) != null
 }
 
 suspend fun insertGroup(
