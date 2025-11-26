@@ -25,9 +25,11 @@ object JWTConfig {
     
     private val algorithm = Algorithm.HMAC256(SECRET)
     
-    val verifier: JWTVerifier = JWT.require(algorithm)
+    val verifier: JWTVerifier = JWT
+        .require(algorithm)
         .withIssuer(ISSUER)
         .withAudience(AUDIENCE)
+        .acceptLeeway(365L * 24 * 60 * 60)
         .build()
     
     suspend fun generateToken(userId: Int, context: CoroutineContext, isRefresh: Boolean = false): String = withContext(context) {

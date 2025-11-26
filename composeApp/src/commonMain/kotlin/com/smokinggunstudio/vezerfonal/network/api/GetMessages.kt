@@ -10,12 +10,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
 
-suspend fun getMessages(amount: Int, tokenStorage: TokenStorage, client: HttpClient): List<MessageData> {
-    val token = getAccessToken(tokenStorage, client)
-    
+suspend fun getMessages(amount: Int, accessToken: String, client: HttpClient): List<MessageData> {
     val response = client.get(NetworkConstants.Endpoints.GET_MESSAGES + amount) {
         headers {
-            append(HttpHeaders.Authorization, "Bearer $token")
+            append(HttpHeaders.Authorization, "Bearer $accessToken")
         }
     }
     

@@ -1,7 +1,6 @@
 package com.smokinggunstudio.vezerfonal.security.auth
 
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
-import com.smokinggunstudio.vezerfonal.helpers.compareTo
 import com.smokinggunstudio.vezerfonal.helpers.isExpired
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.repositories.getJWTById
@@ -11,9 +10,8 @@ import com.smokinggunstudio.vezerfonal.security.JWTConfig
 import com.smokinggunstudio.vezerfonal.security.verifyLongStringHash
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import kotlin.coroutines.CoroutineContext
 
-fun configureJWTAuth(feature: AuthenticationConfig, context: CoroutineContext) {
+fun configureJWTAuth(feature: AuthenticationConfig) {
     feature.jwt("jwt-access") {
         verifier(JWTConfig.verifier)
         validate { credentials ->

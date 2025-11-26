@@ -31,12 +31,10 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 fun HomePageScreen(
-    tokenStorage: TokenStorage,
+    accessToken: String,
     client: HttpClient
 ) {
     val scope = rememberCoroutineScope()
-    var tokens: TokenResponse? by remember { mutableStateOf(null) }
-    scope.launch { tokens = tokenStorage.getTokens() }
     
     Column(
         modifier = Modifier

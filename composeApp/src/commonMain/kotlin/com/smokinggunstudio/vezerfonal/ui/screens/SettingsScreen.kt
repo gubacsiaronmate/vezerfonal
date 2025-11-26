@@ -17,19 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
 @Preview
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    onClickEvent: ClickEvent
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        SettingsNameCard()
+        SettingsNameCard(onClickEvent)
         SettingRow(
             imageVector = Icons.Default.Archive,
             text = stringResource(Res.string.archive),

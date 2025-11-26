@@ -55,7 +55,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinxJson)
-            implementation(libs.material.icons.extended)
+            implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
             implementation(libs.precompose)
             implementation(compose.runtime)

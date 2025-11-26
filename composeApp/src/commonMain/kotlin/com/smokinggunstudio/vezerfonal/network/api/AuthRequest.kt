@@ -14,9 +14,11 @@ import io.ktor.http.HttpStatusCode
  * @return `true` if authorized otherwise `false`
  * */
 suspend fun checkAccessTokenValidity(accessToken: String, client: HttpClient): Boolean {
-    return client.get(NetworkConstants.Endpoints.AUTH_CHECKER) {
-        headers {
-            append(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-    }.status == HttpStatusCode.OK
+    return try {
+        client.get(NetworkConstants.Endpoints.AUTH_CHECKER) {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessToken")
+            }
+        }.status == HttpStatusCode.OK
+    } catch (_: Exception) { false }
 }

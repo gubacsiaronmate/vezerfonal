@@ -27,7 +27,7 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
     
     authentication {
         configureBasicAuth(this, context)
-        configureJWTAuth(this, context)
+        configureJWTAuth(this)
 //        configureOAuth(this, context)
     }
     
@@ -131,19 +131,19 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         }
         
         authenticate("jwt-refresh") {
-            post("/refresh") {
+            get("/refresh") {
                 val principal = call.principal<AuthResponse>()
                 val id = principal?.userId
-                    ?: return@post call.respondText(
+                    ?: return@get call.respondText(
                         "Unauthorized",
                         status = HttpStatusCode.Unauthorized
                     )
                 
                 val accessToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(id, context) } ?: return@post
+                { JWTConfig.generateToken(id, context) } ?: return@get
                 
                 val refreshToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@post
+                { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@get
                 
                 call.respond(TokenResponse(accessToken, refreshToken))
             }

@@ -10,12 +10,10 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.HttpHeaders
 
-suspend fun getUserData(tokenStorage: TokenStorage, client: HttpClient): UserData {
-    val token = getAccessToken(tokenStorage, client)
-    
+suspend fun getUserData(accessToken: String, client: HttpClient): UserData {
     val response = client.get(NetworkConstants.Endpoints.GET_USER_DATA) {
         headers {
-            append(HttpHeaders.Authorization, "Bearer $token")
+            append(HttpHeaders.Authorization, "Bearer $accessToken")
         }
     }
     

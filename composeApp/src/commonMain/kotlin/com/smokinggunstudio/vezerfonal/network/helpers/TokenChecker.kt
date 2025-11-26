@@ -6,17 +6,18 @@ import com.smokinggunstudio.vezerfonal.network.api.checkAccessTokenValidity
 import com.smokinggunstudio.vezerfonal.network.api.refreshTokens
 import io.ktor.client.*
 
-suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): String {
+suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): String? {
     val savedTokens = tokenStorage.getTokens()
-        ?: throw UnauthorizedException("Log in please")
+        ?: return null
     
     val isAccessTokenValid = checkAccessTokenValidity(savedTokens.accessToken, client)
     
     return if(isAccessTokenValid) savedTokens.accessToken
     else when(savedTokens.refreshToken) {
-        null -> throw UnauthorizedException("Log in please")
+        null -> null
         else -> {
             val tokens = refreshTokens(savedTokens.refreshToken!!, client)
+                ?: return null
             tokenStorage.saveTokens(tokens)
             tokens.accessToken
         }

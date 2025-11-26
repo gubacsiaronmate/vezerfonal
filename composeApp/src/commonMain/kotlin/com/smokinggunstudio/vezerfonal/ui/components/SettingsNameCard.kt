@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -18,11 +20,14 @@ import vezerfonal.composeapp.generated.resources.name
 
 @Preview(showBackground = true)
 @Composable
-fun SettingsNameCard() {
+fun SettingsNameCard(
+    onClickEvent: ClickEvent
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(20.dp)
+            .clickable { onClickEvent() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
