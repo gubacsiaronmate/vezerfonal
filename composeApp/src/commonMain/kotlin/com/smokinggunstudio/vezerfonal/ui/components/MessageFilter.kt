@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -23,7 +24,8 @@ import kotlin.time.ExperimentalTime
 @Composable
 @Preview
 fun MessageFilter(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     val earliest = 1731379200f
     val latest = 1731465600f
@@ -67,8 +69,9 @@ fun MessageFilter(
                 onRangeSelected = { range ->
                     val from = range.start.toLong()
                     val to = range.endInclusive.toLong()
-                }
-            )
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) { scrollLockedBySliderCallback(it) }
         }
         Row(
             modifier = Modifier

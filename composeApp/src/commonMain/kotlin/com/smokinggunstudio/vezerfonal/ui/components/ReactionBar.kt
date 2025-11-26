@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -18,17 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
-import com.smokinggunstudio.vezerfonal.ui.theme.Black
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.helpers.EmojiPicker
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun ReactionBar(
-    onClick: CallbackClickEvent<String>
+    onClick: CallbackEvent<String>
 ) {
     // track selected emoji for each of the 8 buttons
     val buttonEmojis = remember { List(8) { mutableStateOf<String?>(null) } }

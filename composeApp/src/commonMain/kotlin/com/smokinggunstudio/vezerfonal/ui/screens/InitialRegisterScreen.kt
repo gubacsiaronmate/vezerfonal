@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
@@ -24,7 +24,7 @@ import vezerfonal.composeapp.generated.resources.proceed
 import vezerfonal.composeapp.generated.resources.registration_code
 
 @Composable fun InitialRegisterScreen(
-    onClickCallback: CallbackClickEvent<RegisterState>,
+    onClickCallback: CallbackEvent<RegisterState>,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,

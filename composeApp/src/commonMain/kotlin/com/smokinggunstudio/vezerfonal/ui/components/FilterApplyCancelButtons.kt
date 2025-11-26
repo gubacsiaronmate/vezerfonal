@@ -13,7 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -21,7 +21,7 @@ import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.clear
 
 @Composable fun FilterApplyCancelButtons(
-    onApply: CallbackClickEvent<Boolean>,
+    onApply: CallbackEvent<Boolean>,
     onCancel: ClickEvent
 ) {
     val height = 32.dp

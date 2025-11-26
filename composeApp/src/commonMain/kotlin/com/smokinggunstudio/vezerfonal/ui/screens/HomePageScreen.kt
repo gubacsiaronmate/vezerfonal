@@ -24,6 +24,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.FilterApplyCancelButtons
 import com.smokinggunstudio.vezerfonal.ui.components.FilterButton
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
 import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -38,7 +39,8 @@ import kotlin.uuid.ExperimentalUuidApi
 @Composable
 fun HomePageScreen(
     accessToken: String,
-    client: HttpClient
+    client: HttpClient,
+    scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
@@ -111,7 +113,10 @@ fun HomePageScreen(
                 }
             }
             
-            if (isFilterOpened) MessageFilter(modifier = Modifier.align(Alignment.TopCenter))
+            if (isFilterOpened)
+                MessageFilter(modifier = Modifier.align(Alignment.TopCenter))
+                { scrollLockedBySliderCallback(it && isFilterOpened) }
+            else scrollLockedBySliderCallback(false)
         }
     }
 }

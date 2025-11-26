@@ -13,14 +13,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun RecipientSelectButton(
     text: String,
-    onClick: CallbackClickEvent<Boolean>
+    onClick: CallbackEvent<Boolean>
 ) {
     val isOpened by remember { mutableStateOf(false) }
     

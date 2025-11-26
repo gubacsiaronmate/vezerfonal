@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -176,6 +177,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     
     val pagerState = rememberPagerState { tabs.size }
     val scope = rememberCoroutineScope()
+    val startSrc = remember { MutableInteractionSource() }
+    val endSrc = remember { MutableInteractionSource() }
+    var isScrollEnabled by remember { mutableStateOf(true) }
     
     Scaffold(
         bottomBar = {
@@ -191,10 +195,10 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.padding(paddingValues),
-            userScrollEnabled = true
+            userScrollEnabled = isScrollEnabled
         ) { i ->
             when (tabs[i]) {
-                Home -> HomePageScreen(accessToken, client)
+                Home -> HomePageScreen(accessToken, client) { isScrollEnabled = !it }
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
                 Group -> GroupScreen(groupData!!)

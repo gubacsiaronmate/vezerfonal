@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 
 @Composable
 fun NavBar(
     tabs: List<NavBarContent>,
     currentIndex: Int,
-    onTabSelected: CallbackClickEvent<Int>
+    onTabSelected: CallbackEvent<Int>
 ) {
     Row(
         modifier = Modifier
