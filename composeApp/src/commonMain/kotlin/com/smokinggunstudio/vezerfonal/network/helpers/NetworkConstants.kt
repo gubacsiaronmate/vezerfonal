@@ -1,9 +1,8 @@
 package com.smokinggunstudio.vezerfonal.network.helpers
 
-import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
-import io.ktor.http.HttpStatusCode
+import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 
 object NetworkConstants {
     const val BASE_URL = "https://api.vezerfonal.org"
