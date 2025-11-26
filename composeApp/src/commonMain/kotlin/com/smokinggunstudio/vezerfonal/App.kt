@@ -13,9 +13,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.network.api.getGroupData
 import com.smokinggunstudio.vezerfonal.network.api.getUserData
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
@@ -146,17 +148,21 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     client: HttpClient
 ) {
     var userData: UserData? by remember { mutableStateOf(null) }
+    var groupData by remember { mutableStateOf<List<GroupData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
         val u = getUserData(accessToken, client)
+        val g = getGroupData(accessToken, client)
         userData = u
+        groupData = g
         loaded = true
     }
     
     if (!loaded) return
     
     if (userData == null) error("UserData is null.")
+    if (groupData == null) error("GroupData is null.")
     
     val tabs = remember {
         buildList {
@@ -191,7 +197,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 Home -> HomePageScreen(accessToken, client)
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
-                Group -> GroupScreen()
+                Group -> GroupScreen(groupData!!)
                 Settings -> SettingsScreen { navigator.go(NavTree.AccountSettings) }
             }
         }
