@@ -25,5 +25,7 @@ object NetworkConstants {
         const val REFRESH_REQUEST = "/refresh"
         /** GET: /api/user-data -> userData: [UserData] */
         const val GET_USER_DATA = "/api/user-data"
+        
+        const val GET_GROUP_DATA = "/api/group-data"
     }
 }

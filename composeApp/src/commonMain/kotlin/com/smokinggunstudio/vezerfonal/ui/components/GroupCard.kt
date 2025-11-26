@@ -18,6 +18,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun GroupCard(
+    text: String
 ) {
     Row(modifier = Modifier
         .fillMaxWidth()
@@ -33,7 +34,7 @@ fun GroupCard(
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
             )
             Text(
-                text = "Group Name",
+                text = text,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
                     .padding(start = 16.dp)
