@@ -290,15 +290,28 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val user = tryInternal("Unable to query users table.")
-                        {
-                            getUserById(userId)!!.let {
-                                it.isAnyAdmin = getGroupsByAdminId(it.id!!).isNotEmpty()
-                                it
+                        val user = tryInternal("Unable to query users table.") {
+                            getUserById(userId)!!.apply {
+                                this.isAnyAdmin = getGroupsByAdminId(this.id!!).isNotEmpty()
                             }.toDTO()
                         } ?: return@get
                         
                         call.respond(user)
+                    }
+                }
+                
+                route("/group-data") {
+                    get {
+                        val principal = call.principal<AuthResponse>()
+                        val userId = principal?.userId
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        val groups = tryInternal("")
+                        { getAllGroupsByMemberUserId(userId).map { it.toDTO() } } ?: return@get
+                        
+                        call.respond(groups)
                     }
                 }
             }
