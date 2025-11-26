@@ -29,7 +29,7 @@ actual object BackHandler {
                     }
                 }
             }
-            val onKeyDown: (org.w3c.dom.events.Event) -> Unit = { e ->
+            val onKeyDown: (Event) -> Unit = { e ->
                 val ke = e as? KeyboardEvent
                 if (ke != null) {
                     val backKey = (ke.key == "Backspace" && !ke.ctrlKey && !ke.metaKey) ||
