@@ -25,11 +25,12 @@ exposed = "0.61.0"
 kotlinx-datetime = "0.6.1"
 postgresql = "42.7.8"
 kotlinx-serialization = "1.9.0"
-precompose = "1.6.2"
+precompose = "1.7.0-alpha01"
 skiko = "0.9.5"
 multiplatformSettings = "1.3.0"
 
 [libraries]
+androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "composeMultiplatform" }
 bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposedJson" }
 java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
