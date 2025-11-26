@@ -32,10 +32,10 @@ import com.smokinggunstudio.vezerfonal.ui.theme.VezerfonalTheme
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.PreComposeApp
-import moe.tlaster.precompose.navigation.BackHandler
 import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
+import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
 
 @Composable fun App() {
     VezerfonalTheme {
@@ -80,15 +80,9 @@ import moe.tlaster.precompose.navigation.rememberNavigator
         }
     }
     
-    BackHandler(
-        enabled = navigator
-            .canGoBack
-            .collectAsState(
-                initial = false
-            ).value
-    ) { navigator.goBack() }
-    
     println("Setting up NavHost with route: ${NavTree.Landing.route}")
+
+    BackHandler.Bind(navigator)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         screen(NavTree.Landing) {
@@ -97,10 +91,8 @@ import moe.tlaster.precompose.navigation.rememberNavigator
             
             LaunchedEffect(Unit) {
                 val t = getAccessToken(tokenStorage, client)
-                println("t: $t")
                 token = t
                 loaded = true
-                println("loaded: $loaded")
             }
             
             if (!loaded) return@screen

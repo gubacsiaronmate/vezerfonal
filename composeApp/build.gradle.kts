@@ -41,7 +41,9 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.androidx.animation.core)
             implementation(libs.ktor.client.okhttp)
+            implementation(compose.animation)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.bcrypt)
@@ -61,6 +63,8 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.animation)
+            implementation(compose.animationGraphics)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
