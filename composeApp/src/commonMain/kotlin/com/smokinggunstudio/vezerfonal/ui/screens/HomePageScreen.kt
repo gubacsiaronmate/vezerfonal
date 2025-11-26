@@ -25,6 +25,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.FilterButton
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
 import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -44,6 +45,7 @@ fun HomePageScreen(
 ) {
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
+    val messageFilterState = remember { MessageFilterState() }
     
     Column(
         modifier = Modifier
@@ -114,8 +116,11 @@ fun HomePageScreen(
             }
             
             if (isFilterOpened)
-                MessageFilter(modifier = Modifier.align(Alignment.TopCenter))
-                { scrollLockedBySliderCallback(it && isFilterOpened) }
+                MessageFilter(
+                    state = messageFilterState,
+                    tabOpenedCallback = { _ -> },
+                    modifier = Modifier.align(Alignment.TopCenter)
+                ) { scrollLockedBySliderCallback(it && isFilterOpened) }
             else scrollLockedBySliderCallback(false)
         }
     }

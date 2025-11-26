@@ -24,7 +24,6 @@ import vezerfonal.composeapp.generated.resources.*
 fun LandingPageScreen(
     onRegisterClick: ClickEvent,
     onLoginClick: ClickEvent,
-    myTestClickEvent: ClickEvent,
 ) {
     Column(
         modifier = Modifier
@@ -41,8 +40,7 @@ fun LandingPageScreen(
                 else Res.drawable.scene_1
             ),
             contentDescription = "Landing Page Image",
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F)
-                .clickable(onClick = myTestClickEvent),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
         )
         
         Column(

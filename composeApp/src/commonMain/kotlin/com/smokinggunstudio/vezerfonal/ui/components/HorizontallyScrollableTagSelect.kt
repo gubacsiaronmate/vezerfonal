@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Stars
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
@@ -24,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -31,59 +36,68 @@ import vezerfonal.composeapp.generated.resources.browse_tags
 import vezerfonal.composeapp.generated.resources.tags
 
 @Composable
-fun HorizontallyScrollableTagSelect() {
-    val state = remember { TagSelectionState() }
-    val tagSelectionState = remember { TagSelectionState() }
-    var isTagsTabOpened by remember { mutableStateOf(true) }
+fun HorizontallyScrollableTagSelect(
+    state: TagSelectionState,
+    tabOpenedCallback: CallbackEvent<Boolean>
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
-        for (i in 1..10) {
+        state.visibleItems.forEach { tag ->
+            val checked by remember { mutableStateOf(tag in state.selectedItems) }
+            
             IconToggleButton(
+                checked = checked,
+                onCheckedChange = {
+                    if (checked) state.removeItem(tag)
+                    else state.addItem(tag)
+                },
                 colors = IconButtonDefaults.iconToggleButtonColors(
                     checkedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
-                checked = false,
-                onCheckedChange = {},
-                modifier = Modifier.padding(8.dp)
-                    .width(90.dp),
-                content = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(2.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            imageVector = Icons.Default.Stars,
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
-                        )
-                        Text(text = stringResource(Res.string.tags),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                modifier = Modifier
+                    .padding(8.dp)
+                    .width(90.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.tags),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            )
+            }
         }
-        IconButton(
-            onClick = { isTagsTabOpened = true },
-            colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        Button(
+            onClick = { tabOpenedCallback(true) },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier.padding(8.dp)
         ) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(2.dp),
+            Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    imageVector = Icons.Default.Stars,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(2.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant))
-                Text(text = stringResource(Res.string.browse_tags),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(Res.string.browse_tags),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
             }
         }
     }

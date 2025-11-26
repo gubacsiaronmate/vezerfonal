@@ -1,8 +1,10 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 
@@ -12,4 +14,14 @@ fun LocalDateTime.Companion.now(): LocalDateTime = Clock.System.now().toLocalDat
 context(builder: StringBuilder)
 operator fun String.unaryPlus(): StringBuilder = builder.append(this)
 
-//operator fun StringBuilder.unaryPlus(value: String): StringBuilder = append(value)
+/**
+ * @return [Instant] based on [TimeZone.currentSystemDefault].
+ */
+fun LocalDateTime.toInstant(): Instant = toInstant(TimeZone.currentSystemDefault())
+
+/**
+ * @return [LocalDateTime] based on [TimeZone.currentSystemDefault].
+ * */
+fun Instant.toLocalDateTime(): LocalDateTime = toLocalDateTime(TimeZone.currentSystemDefault())
+
+fun LocalDateTime.toFloat(): Float = toInstant().epochSeconds.toFloat()

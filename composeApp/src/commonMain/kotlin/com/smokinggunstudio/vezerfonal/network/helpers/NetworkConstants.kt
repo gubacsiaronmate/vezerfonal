@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.network.helpers
 
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import io.ktor.http.HttpStatusCode
 
@@ -25,7 +26,9 @@ object NetworkConstants {
         const val REFRESH_REQUEST = "/refresh"
         /** GET: /api/user-data -> userData: [UserData] */
         const val GET_USER_DATA = "/api/user-data"
-        
+        /** GET: /api/group-data -> groupData: [List]<[GroupData]> */
         const val GET_GROUP_DATA = "/api/group-data"
+        /** GET: /api/logout */
+        const val LOGOUT = "/api/logout"
     }
 }

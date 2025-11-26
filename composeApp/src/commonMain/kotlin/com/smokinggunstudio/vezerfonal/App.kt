@@ -58,6 +58,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable fun NavigatorComposable() {
     val navigator = rememberNavigator()
+    val scope = rememberCoroutineScope()
     var registerState by remember { mutableStateOf<RegisterState?>(null) }
     var pendingRegisterState by remember {  mutableStateOf<RegisterState?>(null) }
     val client = createHttpClient()
@@ -102,13 +103,15 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             
             if (token == null) LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
-                onLoginClick = { navigator.go(NavTree.Login) },
-                myTestClickEvent = { navigator.go(NavTree.Home) }
+                onLoginClick = { navigator.go(NavTree.Login) }
             ) else navigator.go(NavTree.Home)
         }
         
         screen(NavTree.Home) {
-            if (token == null) navigator.go(NavTree.Landing)
+            if (token == null) {
+                navigator.go(NavTree.Landing)
+                return@screen
+            }
             MainTabHost(token!!, navigator, client)
         }
         
@@ -137,9 +140,25 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             ProfileCreationScreen(registerState!!, tokenStorage, client) { navigator.go(NavTree.Home) }
         }
         
-        screen(NavTree.Login) { LoginScreen(client, tokenStorage) { navigator.go(NavTree.Home) } }
+        screen(NavTree.Login) {
+            LoginScreen(client, tokenStorage) { newTokens ->
+                token = newTokens.accessToken
+                navigator.go(NavTree.Home)
+                scope.launch {
+                    tokenStorage.saveTokens(newTokens)
+                }
+            }
+        }
         
-        screen(NavTree.AccountSettings) { AccountSettingsScreen() }
+        screen(NavTree.AccountSettings) {
+            if (token == null) {
+                navigator.go(NavTree.Landing)
+                return@screen
+            }
+            AccountSettingsScreen(client, token!!, tokenStorage) {
+                navigator.go(NavTree.Landing)
+            }
+        }
     }
 }
 

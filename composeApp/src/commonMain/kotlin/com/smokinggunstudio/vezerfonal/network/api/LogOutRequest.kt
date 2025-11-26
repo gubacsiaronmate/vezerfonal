@@ -4,20 +4,13 @@ import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.network.helpers.addTokenAuthHeader
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.http.HeadersBuilder
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headers
 
-/**
- * @param accessToken used to request access and authorize
- * @param client [HttpClient] used to send the request
- *
- * @return `true` if authorized otherwise `false`
- * */
-suspend fun checkAccessTokenValidity(accessToken: String, client: HttpClient): Boolean {
+suspend fun logOutRequest(accessToken: String, client: HttpClient): Boolean {
     return try {
-        client.get(NetworkConstants.Endpoints.AUTH_CHECKER) {
+        client.get(NetworkConstants.Endpoints.LOGOUT) {
             headers.addTokenAuthHeader(accessToken)
         }.status == HttpStatusCode.OK
     } catch (_: Exception) { false }

@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 
 @Composable
@@ -30,15 +32,12 @@ fun SettingRow(
             contentDescription = null,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
         )
-    }
+    },
+    onClick: ClickEvent = { }
 ) {
-    HorizontalDivider(modifier = Modifier
-        .height(1.dp)
-    )
+    HorizontalDivider(modifier = Modifier.height(1.dp))
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier = modifier.clickable(onClick = onClick),
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = verticalAlignment
     ) {

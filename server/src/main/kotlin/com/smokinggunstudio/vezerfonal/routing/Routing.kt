@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
+import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.objects.Users
 import com.smokinggunstudio.vezerfonal.repositories.*
 import com.smokinggunstudio.vezerfonal.security.JWTConfig
@@ -300,19 +301,38 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     }
                 }
                 
-                route("/group-data") {
-                    get {
-                        val principal = call.principal<AuthResponse>()
-                        val userId = principal?.userId
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
+                get("/group-data") {
+                    val principal = call.principal<AuthResponse>()
+                    val userId = principal?.userId
+                        ?: return@get call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    val groups = tryInternal("")
+                    { getAllGroupsByMemberUserId(userId).map { it.toDTO() } } ?: return@get
+                    
+                    call.respond(groups)
+                }
+                
+                get("/logout") {
+                    val principal = call.principal<AuthResponse>()
+                    val userId = principal?.userId
+                        ?: return@get call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val success = tryInternal("Cannot log out user.") {
+                        getJWTsByUserId(userId).map { jwt ->
+                            modifyJWT(
+                                tokenId = jwt.id,
+                                property = JWTs.revoked,
+                                newValue = true
                             )
-                        val groups = tryInternal("")
-                        { getAllGroupsByMemberUserId(userId).map { it.toDTO() } } ?: return@get
-                        
-                        call.respond(groups)
-                    }
+                        }.all { it }
+                    } ?: return@get
+                    
+                    if (success) call.respond(HttpStatusCode.OK)
                 }
             }
         }

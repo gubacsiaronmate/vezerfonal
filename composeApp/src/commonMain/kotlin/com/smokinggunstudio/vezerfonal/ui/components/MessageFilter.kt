@@ -7,11 +7,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -24,11 +27,11 @@ import kotlin.time.ExperimentalTime
 @Composable
 @Preview
 fun MessageFilter(
+    state: MessageFilterState,
+    tabOpenedCallback: CallbackEvent<Boolean>,
     modifier: Modifier = Modifier,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
-    val earliest = 1731379200f
-    val latest = 1731465600f
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -36,8 +39,8 @@ fun MessageFilter(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = state.senderName,
+            onValueChange = state::updateSenderName,
             label = {
                 Text(
                     text = stringResource(Res.string.senders_name),
@@ -59,16 +62,15 @@ fun MessageFilter(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             MessageTimeRangeSlider(
-                valueRange = earliest..latest,
-                initialRange = earliest..latest,
+                valueRange = state.earliestMessageUnixTime..state.latestMessageUnixTime,
                 formatLabel = { ts: Float ->
                     val instant = Instant.fromEpochSeconds(ts.toLong())
-                    val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-                    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+                    val local = instant.toLocalDateTime()
+                    "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
                 },
                 onRangeSelected = { range ->
-                    val from = range.start.toLong()
-                    val to = range.endInclusive.toLong()
+                    state.updateSelectedStartDate(range.start.toLong())
+                    state.updateSelectedEndDate(range.endInclusive.toLong())
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) { scrollLockedBySliderCallback(it) }
@@ -88,8 +90,8 @@ fun MessageFilter(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             Switch(
-                checked = false,
-                onCheckedChange = {},
+                checked = state.isImportant,
+                onCheckedChange = state::updateIsImportant,
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
@@ -108,14 +110,14 @@ fun MessageFilter(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             Switch(
-                checked = false,
-                onCheckedChange = {},
+                checked = state.isWaitingForAnswer,
+                onCheckedChange = state::updateIsWaitingForAnswer,
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = state.searchQuery,
+            onValueChange = state::updateSearchQuery,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -127,6 +129,6 @@ fun MessageFilter(
                 )
             }
         )
-        HorizontallyScrollableTagSelect()
+        HorizontallyScrollableTagSelect(state.tagSelectionState, tabOpenedCallback)
     }
 }

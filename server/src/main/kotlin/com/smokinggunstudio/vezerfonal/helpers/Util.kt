@@ -66,11 +66,6 @@ fun Date.compareTo(
         TimeZone.currentSystemDefault()
     ).let { println(it); it }
 
-/**
- * @return [Instant] based on [TimeZone.currentSystemDefault].
- */
-fun LocalDateTime.toInstant(): Instant = toInstant(TimeZone.currentSystemDefault())
-
 private typealias jtLDT = java.time.LocalDateTime
 
 fun List<JWTModel>.latestPair(): TokenResponse? {
