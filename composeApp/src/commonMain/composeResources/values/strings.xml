@@ -26,7 +26,7 @@
     <string name="confirm_password">Jelszó megerősítése</string>
     <string name="password_must_be_at_least_8_characters_long">A jelszónak minimum 8 karakter hosszúnak kell lennie</string>
     <string name="clear">Törlés</string>
-    <string name="apply">Alkalmaz</string>
+    <string name="applyStr">Alkalmaz</string>
     <string name="senders_name">Feladó neve</string>
     <string name="enter_name">Adj meg egy nevet</string>
     <string name="time_sent">Elküldés ideje</string>

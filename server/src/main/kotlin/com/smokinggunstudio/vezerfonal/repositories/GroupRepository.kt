@@ -16,6 +16,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
@@ -89,8 +90,9 @@ suspend fun getAllGroupsByMemberUserId(
     id: Int,
 ): List<Group> = newSuspendedTransaction {
     getGroupsByCondition {
-        (UserGroupConnection.userId eq id) and
-        (Groups.id eq UserGroupConnection.groupId)
+        Groups.id inSubQuery UserGroupConnection
+            .select { UserGroupConnection.userId eq id }
+            .adjustSelect { select(UserGroupConnection.groupId) }
     }
 }
 

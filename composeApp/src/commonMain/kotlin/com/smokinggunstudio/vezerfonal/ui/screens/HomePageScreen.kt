@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,13 +12,18 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.ui.components.FilterApplyCancelButtons
+import com.smokinggunstudio.vezerfonal.ui.components.FilterButton
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
+import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -35,6 +41,7 @@ fun HomePageScreen(
     client: HttpClient
 ) {
     val scope = rememberCoroutineScope()
+    var isFilterOpened by remember { mutableStateOf(false) }
     
     Column(
         modifier = Modifier
@@ -78,36 +85,33 @@ fun HomePageScreen(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Text(stringResource(Res.string.filter),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(modifier = Modifier.width(8.dp))
-                Image(
-                    imageVector = Icons.Filled.Filter,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant))
-            }
+            if (!isFilterOpened) FilterButton { isFilterOpened = true }
+            else FilterApplyCancelButtons(
+                onApply = { _ -> isFilterOpened = false },
+                onCancel = { isFilterOpened = false }
+            )
         }
         HorizontalDivider(modifier = Modifier
             .fillMaxWidth()
             .height(1.dp)
         )
         
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            for (i in 0..10) {
-                ListItem(
-                    title = "Pelda$i",
-                    author = "PeldaAuthor$i",
-                    onClick = {}
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                for (i in 0..10) {
+                    ListItem(
+                        title = "Pelda$i",
+                        author = "PeldaAuthor$i",
+                        onClick = {}
+                    )
+                }
             }
+            
+            if (isFilterOpened) MessageFilter(modifier = Modifier.align(Alignment.TopCenter))
         }
     }
 }

@@ -26,7 +26,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="password_must_be_at_least_8_characters_long">Password must be at least 8 characters long</string>
     <string name="clear">Clear</string>
-    <string name="apply">Apply</string>
+    <string name="applyStr">Apply</string>
     <string name="senders_name">Sender's name</string>
     <string name="enter_name">Enter name</string>
     <string name="time_sent">Time Sent</string>

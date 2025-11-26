@@ -21,7 +21,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.SelectionState
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.apply
+import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.cancel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,7 +87,7 @@ internal inline fun <reified T : DTO> GeneralSelectionScreen(
                     onClick = {},
                 ) {
                     Text(
-                        text = stringResource(Res.string.apply),
+                        text = stringResource(Res.string.applyStr),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }

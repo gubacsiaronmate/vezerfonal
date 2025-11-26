@@ -22,13 +22,14 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 @Preview
-fun MessageFilter() {
+fun MessageFilter(
+    modifier: Modifier = Modifier
+) {
     val earliest = 1731379200f
     val latest = 1731465600f
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
