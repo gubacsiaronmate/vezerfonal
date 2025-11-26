@@ -31,8 +31,8 @@ import vezerfonal.composeapp.generated.resources.groups
         )
         Spacer(modifier = Modifier
             .height(16.dp))
-        repeat(5) {
-            GroupCard(text = "group ${it + 1}")
+        groupData.forEach { group ->
+            GroupCard(group.name)
         }
     }
 }
