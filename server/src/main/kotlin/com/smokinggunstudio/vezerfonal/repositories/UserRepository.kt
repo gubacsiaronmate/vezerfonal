@@ -1,11 +1,14 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.database.triggers.trgAddToDefaultGroup
 import com.smokinggunstudio.vezerfonal.helpers.ProfileImage
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
+import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Users
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -74,8 +77,8 @@ suspend fun insertUser(
     val code = getCodeByCode(user.registrationCode.code)
         ?: return@suspendTransaction false
     
-    if (!doesUserExist(user.identifier))
-        Users.insert {
+    if (!doesUserExist(user.identifier)) {
+        val insert = Users.insert {
             it[registrationCodeId] = code.id!!
             it[email] = user.email
             it[password] = user.password
@@ -83,7 +86,11 @@ suspend fun insertUser(
             it[displayName] = user.displayName
             it[identifier] = user.identifier
             it[isSuperAdmin] = user.isSuperAdmin
-        }.insertedCount == 1
+        }
+        val user = getUserById(insert[Users.id])!!
+        if (!user.isSuperAdmin) trgAddToDefaultGroup(user.id!!, db)
+        insert.insertedCount == 1
+    }
     else false
 }
 
@@ -96,6 +103,7 @@ suspend fun <T> modifyUser(
     if (user != null)
         Users.update({ Users.id eq user.id!! }) {
             it[property] = newValue
+            it[updatedAt] = LocalDateTime.now()
         } == 1
     else false
 }

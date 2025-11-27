@@ -1,12 +1,15 @@
 package com.smokinggunstudio.vezerfonal.objects
 
+import com.smokinggunstudio.vezerfonal.helpers.Modifiable
 import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.datetime
 
-object Users : Table("users") {
-    val id = integer("id").autoIncrement()
+object Users : Table("users"), Modifiable<Int> {
+    override val table: Table = this
+    
+    override val id = integer("id").autoIncrement()
     val registrationCodeId = integer("registration_code_id").references(RegistrationCodes.id)
     
     val email = varchar("email", 255).uniqueIndex()

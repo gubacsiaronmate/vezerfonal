@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.repositories
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
+import com.smokinggunstudio.vezerfonal.helpers.toSingle
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import org.jetbrains.exposed.v1.core.Column
@@ -38,9 +39,7 @@ suspend fun getJWTByCondition(
 ): JWTModel? = suspendTransaction {
     JWTs
         .select(condition)
-        .toList()
-        .ifNotEmpty()
-        ?.single()
+        .toSingle()
         ?.toJWTModel()
 }
 
@@ -95,7 +94,7 @@ suspend fun <T> modifyJWT(
 ): Boolean = suspendTransaction {
     val jwt = getJWTById(tokenId)
     if (jwt != null)
-        JWTs.update({ JWTs.id eq jwt.id }) {
+         JWTs.update({ JWTs.id eq jwt.id }) {
             it[property] = newValue
         } == 1
     else false

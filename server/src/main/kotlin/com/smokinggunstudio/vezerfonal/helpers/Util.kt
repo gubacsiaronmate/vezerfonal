@@ -100,3 +100,5 @@ typealias SQLCondition = () -> Op<Boolean>
 inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
 inline fun <reified T : Table> makeArrayOfTable(vararg items: T): Array<T> = arrayOf(*items)
+
+fun Query.toSingle(): ResultRow? = toList().ifNotEmpty()?.single()

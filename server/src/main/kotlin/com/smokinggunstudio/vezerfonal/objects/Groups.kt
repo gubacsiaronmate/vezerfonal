@@ -1,12 +1,15 @@
 package com.smokinggunstudio.vezerfonal.objects
 
+import com.smokinggunstudio.vezerfonal.helpers.Modifiable
 import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.datetime
 
-object Groups : Table("groups") {
-    val id = integer("id").autoIncrement()
+object Groups : Table("groups"), Modifiable<Int> {
+    override val table: Table = this
+    
+    override val id = integer("id").autoIncrement()
     
     val displayName = varchar("display_name", 255)
     val description = text("description").default("")

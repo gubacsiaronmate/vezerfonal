@@ -1,12 +1,15 @@
 package com.smokinggunstudio.vezerfonal.objects
 
+import com.smokinggunstudio.vezerfonal.helpers.Modifiable
 import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.datetime
 
-object JWTs : Table("jwt") {
-    val id = char("id", 36)
+object JWTs : Table("jwt"), Modifiable<String> {
+    override val table: Table = this
+    
+    override val id = char("id", 36)
     val tokenHash = char("token_hash", 64).uniqueIndex()
     val isRefresh = bool("is_refresh")
     val userId = integer("user_id").references(Users.id)
