@@ -2,8 +2,8 @@ package com.smokinggunstudio.vezerfonal.objects
 
 import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.kotlin.datetime.datetime
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.datetime.datetime
 
 object Users : Table("users") {
     val id = integer("id").autoIncrement()

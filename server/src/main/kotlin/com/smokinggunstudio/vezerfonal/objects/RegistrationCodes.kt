@@ -1,6 +1,6 @@
 package com.smokinggunstudio.vezerfonal.objects
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object RegistrationCodes : Table("registration_code") {
     val id = integer("id").autoIncrement()

@@ -1,6 +1,6 @@
 package com.smokinggunstudio.vezerfonal.objects
 
-import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.v1.core.Table
 
 object MessageTagConnection : Table("message_tag_connection") {
     val messageId = integer("message_id").references(Messages.id)

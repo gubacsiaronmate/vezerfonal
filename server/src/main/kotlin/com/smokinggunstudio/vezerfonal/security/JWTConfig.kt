@@ -8,10 +8,11 @@ import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import com.smokinggunstudio.vezerfonal.repositories.insertJWT
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toKotlinInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.*
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinInstant
 
 object JWTConfig {
     private val SECRET by lazy {
@@ -32,6 +33,7 @@ object JWTConfig {
         .acceptLeeway(365L * 24 * 60 * 60)
         .build()
     
+    @OptIn(ExperimentalTime::class)
     suspend fun generateToken(userId: Int, context: CoroutineContext, isRefresh: Boolean = false): String = withContext(context) {
         val tokenId = UUID.randomUUID().toString()
         val expiresAt = when (isRefresh) {

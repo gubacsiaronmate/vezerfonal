@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.java.jwt)
     implementation(libs.ktor.server.auth)
+    implementation(libs.exposed.migration.core)
+    implementation(libs.exposed.migration.jdbc)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.kotlin.datetime)

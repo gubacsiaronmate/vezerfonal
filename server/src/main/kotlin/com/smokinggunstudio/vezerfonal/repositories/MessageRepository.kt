@@ -7,11 +7,13 @@ import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 private suspend fun ResultRow.toMessage(): Message =
-    newSuspendedTransaction {
+    suspendTransaction {
         val user = this@toMessage[Messages.userId]?.let { getUserById(it) }
         val group = this@toMessage[Messages.groupId]?.let { getGroupById(it) }
         val author = getUserById(this@toMessage[Messages.authorUserId])!!
@@ -38,7 +40,7 @@ private suspend fun ResultRow.toMessage(): Message =
     }
 
 suspend fun getAllMessages(): List<Message> =
-    newSuspendedTransaction {
+    suspendTransaction {
         Messages
             .selectAll()
             .map { it.toMessage() }
@@ -46,7 +48,7 @@ suspend fun getAllMessages(): List<Message> =
 
 suspend fun getMessageByCondition(
     condition: SQLCondition
-): Message? = newSuspendedTransaction {
+): Message? = suspendTransaction {
     Messages
         .select(condition)
         .toList()
@@ -58,7 +60,7 @@ suspend fun getMessageByCondition(
 suspend fun getMessagesByCondition(
     limit: Int? = null,
     condition: SQLCondition
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     val messages =
         if (limit == null) Messages.select(condition)
         else Messages.select(condition).limit(limit)
@@ -68,17 +70,17 @@ suspend fun getMessagesByCondition(
 
 suspend fun getMessageById(
     id: Int,
-): Message? = newSuspendedTransaction { getMessageByCondition { Messages.id eq id } }
+): Message? = suspendTransaction { getMessageByCondition { Messages.id eq id } }
 
 suspend fun getMessagesByUserId(
     id: Int,
-): List<Message> = newSuspendedTransaction { getMessagesByCondition { Messages.userId eq id } }
+): List<Message> = suspendTransaction { getMessagesByCondition { Messages.userId eq id } }
 
 suspend fun getMessagesByUserIdentifier(
     identifier: String,
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     val user = getUserByIdentifier(identifier)
-        ?: return@newSuspendedTransaction emptyList()
+        ?: return@suspendTransaction emptyList()
     
     getMessagesByCondition {
         Messages.userId eq user.id!!
@@ -87,20 +89,20 @@ suspend fun getMessagesByUserIdentifier(
 
 suspend fun getMessagesByGroupId(
     id: Int,
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     getMessagesByCondition { Messages.groupId eq id }
 }
 
 suspend fun getMessagesBySenderUserId(
     id: Int,
     limit: Int? = null
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     getMessagesByCondition(limit) { Messages.authorUserId eq id }
 }
 
 suspend fun getMessagesByRecipientUserId(
     id: Int,
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     getMessagesByCondition {
         (Messages.userId eq id) or
         (Messages.groupId inList UserGroupConnection
@@ -111,7 +113,7 @@ suspend fun getMessagesByRecipientUserId(
 
 suspend fun getMessagesByTagId(
     id: Int,
-): List<Message> = newSuspendedTransaction {
+): List<Message> = suspendTransaction {
     getMessagesByCondition {
         (MessageTagConnection.tagId eq id) and
         (Messages.id eq MessageTagConnection.messageId)
@@ -120,7 +122,7 @@ suspend fun getMessagesByTagId(
 
 suspend fun insertMessage(
     message: Message,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val statement = Messages.insert {
         it[userId] = message.user?.id
         it[groupId] = message.group?.id

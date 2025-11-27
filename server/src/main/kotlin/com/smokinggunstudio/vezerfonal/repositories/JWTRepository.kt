@@ -5,14 +5,17 @@ import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
-import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.update
 
 private suspend fun ResultRow.toJWTModel(): JWTModel =
-    newSuspendedTransaction {
+    suspendTransaction {
         val user = getUserById(this@toJWTModel[JWTs.userId])!!
         JWTModel(
             id = this@toJWTModel[JWTs.id],
@@ -26,13 +29,13 @@ private suspend fun ResultRow.toJWTModel(): JWTModel =
     }
 
 suspend fun getAllJWTs(): List<JWTModel> =
-    newSuspendedTransaction {
+    suspendTransaction {
         JWTs.selectAll().map { it.toJWTModel() }
     }
 
 suspend fun getJWTByCondition(
     condition: SQLCondition
-): JWTModel? = newSuspendedTransaction {
+): JWTModel? = suspendTransaction {
     JWTs
         .select(condition)
         .toList()
@@ -43,35 +46,35 @@ suspend fun getJWTByCondition(
 
 suspend fun getJWTsByCondition(
     condition: SQLCondition
-): List<JWTModel> = newSuspendedTransaction {
+): List<JWTModel> = suspendTransaction {
     JWTs.select(condition).map { it.toJWTModel() }
 }
 
 suspend fun getJWTById(
     id: String,
-): JWTModel? = newSuspendedTransaction { getJWTByCondition { JWTs.id eq id } }
+): JWTModel? = suspendTransaction { getJWTByCondition { JWTs.id eq id } }
 
 suspend fun getJWTByTokenHash(
     tokenHash: String
-): JWTModel? = newSuspendedTransaction { getJWTByCondition { JWTs.tokenHash eq tokenHash } }
+): JWTModel? = suspendTransaction { getJWTByCondition { JWTs.tokenHash eq tokenHash } }
 
 suspend fun getJWTsByUserId(
     id: Int,
-): List<JWTModel> = newSuspendedTransaction { getJWTsByCondition { JWTs.userId eq id } }
+): List<JWTModel> = suspendTransaction { getJWTsByCondition { JWTs.userId eq id } }
 
 suspend fun getActiveJWTsByUserId(
     id: Int,
-): List<JWTModel> = newSuspendedTransaction {
+): List<JWTModel> = suspendTransaction {
     getJWTsByCondition { (JWTs.userId eq id) and (JWTs.revoked eq false) }
 }
 
 suspend fun doesJWTExist(
     tokenHash: String
-): Boolean = newSuspendedTransaction { getJWTByTokenHash(tokenHash) != null }
+): Boolean = suspendTransaction { getJWTByTokenHash(tokenHash) != null }
 
 suspend fun insertJWT(
     jwt: JWTModel
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     if (!doesJWTExist(jwt.tokenHash))
         JWTs.insert { row ->
             row[id] = jwt.id
@@ -89,11 +92,11 @@ suspend fun <T> modifyJWT(
     tokenId: String,
     property: Column<T>,
     newValue: T,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val jwt = getJWTById(tokenId)
-    if (jwt != null) transaction {
+    if (jwt != null)
         JWTs.update({ JWTs.id eq jwt.id }) {
             it[property] = newValue
         } == 1
-    } else false
+    else false
 }

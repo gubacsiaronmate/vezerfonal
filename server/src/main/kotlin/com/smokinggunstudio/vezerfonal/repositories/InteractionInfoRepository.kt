@@ -4,18 +4,15 @@ import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
-import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
-import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 private suspend fun ResultRow.toInteractionInfo(): InteractionInfo =
-    newSuspendedTransaction {
+    suspendTransaction {
         val message = getMessageById(this@toInteractionInfo[MessageUserInteractions.messageId])!!
         val user = getUserById(this@toInteractionInfo[MessageUserInteractions.userId])!!
         val actor = this@toInteractionInfo[MessageUserInteractions.actorUserId]?.let { getUserById(it) }
@@ -35,7 +32,7 @@ private suspend fun ResultRow.toInteractionInfo(): InteractionInfo =
     }
 
 suspend fun getAllInteractionInfo(): List<InteractionInfo> =
-    newSuspendedTransaction {
+    suspendTransaction {
         MessageUserInteractions
             .selectAll()
             .map { it.toInteractionInfo() }
@@ -43,7 +40,7 @@ suspend fun getAllInteractionInfo(): List<InteractionInfo> =
 
 suspend fun getInteractionInfoByCondition(
     condition: SQLCondition
-): InteractionInfo? = newSuspendedTransaction {
+): InteractionInfo? = suspendTransaction {
     MessageUserInteractions
         .select(condition)
         .toList()
@@ -54,7 +51,7 @@ suspend fun getInteractionInfoByCondition(
 
 suspend fun getInteractionInfosByCondition(
     condition: SQLCondition
-): List<InteractionInfo> = newSuspendedTransaction {
+): List<InteractionInfo> = suspendTransaction {
     MessageUserInteractions
         .select(condition)
         .map { it.toInteractionInfo() }
@@ -62,25 +59,25 @@ suspend fun getInteractionInfosByCondition(
 
 suspend fun getInteractionInfoById(
     id: Int,
-): InteractionInfo? = newSuspendedTransaction {
+): InteractionInfo? = suspendTransaction {
     getInteractionInfoByCondition { MessageUserInteractions.id eq id }
 }
 
 suspend fun getInteractionInfosByMessageId(
     id: Int,
-): List<InteractionInfo> = newSuspendedTransaction {
+): List<InteractionInfo> = suspendTransaction {
     getInteractionInfosByCondition { MessageUserInteractions.messageId eq id }
 }
 
 suspend fun getInteractionInfosByUserId(
     id: Int,
-): List<InteractionInfo> = newSuspendedTransaction {
+): List<InteractionInfo> = suspendTransaction {
     getInteractionInfosByCondition { MessageUserInteractions.userId eq id }
 }
 
 suspend fun insertInteraction(
     interaction: InteractionInfo,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val actorUserID = interaction.actor?.identifier?.let { getUserByIdentifier(it)?.id }
     MessageUserInteractions.insert {
         it[messageId] = interaction.message.id!!

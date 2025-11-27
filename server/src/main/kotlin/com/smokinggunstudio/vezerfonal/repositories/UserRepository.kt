@@ -6,15 +6,17 @@ import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Users
-import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-private suspend fun ResultRow.toUser(): User = newSuspendedTransaction {
+private suspend fun ResultRow.toUser(): User = suspendTransaction {
     val pfp = this@toUser[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
     val regCode = getCodeById(this@toUser[Users.registrationCodeId])!!
     User(
@@ -34,43 +36,43 @@ private suspend fun ResultRow.toUser(): User = newSuspendedTransaction {
 }
 
 suspend fun getAllUsers(): List<User> =
-    newSuspendedTransaction {
+    suspendTransaction {
         Users.selectAll().map { it.toUser() }
     }
 
 suspend fun getUserByCondition(
     condition: SQLCondition
-): User? = newSuspendedTransaction {
+): User? = suspendTransaction {
     Users.select(condition).toList().ifNotEmpty()?.single()?.toUser()
 }
 
 suspend fun getUsersByCondition(
     condition: SQLCondition
-): List<User> = newSuspendedTransaction {
+): List<User> = suspendTransaction {
     Users.select(condition).map { it.toUser() }
 }
 
 suspend fun getUserById(
     id: Int,
-): User? = newSuspendedTransaction { getUserByCondition { Users.id eq id } }
+): User? = suspendTransaction { getUserByCondition { Users.id eq id } }
 
 suspend fun getUserByEmail(
     email: String,
-): User? = newSuspendedTransaction { getUserByCondition { Users.email eq email } }
+): User? = suspendTransaction { getUserByCondition { Users.email eq email } }
 
 suspend fun getUserByIdentifier(
     identifier: String,
-): User? = newSuspendedTransaction { getUserByCondition { Users.identifier eq identifier } }
+): User? = suspendTransaction { getUserByCondition { Users.identifier eq identifier } }
 
 suspend fun doesUserExist(
     identifier: String
-): Boolean = newSuspendedTransaction { getUserByIdentifier(identifier) != null }
+): Boolean = suspendTransaction { getUserByIdentifier(identifier) != null }
 
 suspend fun insertUser(
     user: User,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val code = getCodeByCode(user.registrationCode.code)
-        ?: return@newSuspendedTransaction false
+        ?: return@suspendTransaction false
     
     if (!doesUserExist(user.identifier))
         Users.insert {
@@ -89,18 +91,18 @@ suspend fun <T> modifyUser(
     userId: Int,
     property: Column<T>,
     newValue: T,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val user = getUserById(userId)
-    if (user != null) transaction {
+    if (user != null)
         Users.update({ Users.id eq user.id!! }) {
             it[property] = newValue
         } == 1
-    } else false
+    else false
 }
 
 @OptIn(ExperimentalUuidApi::class)
 suspend fun createInternalUser(): User =
-    newSuspendedTransaction {
+    suspendTransaction {
         val identifier = Uuid.random().toString().substring(0..8)
         insertUser(
             User(

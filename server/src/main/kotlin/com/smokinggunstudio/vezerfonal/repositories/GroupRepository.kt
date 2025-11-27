@@ -2,30 +2,27 @@ package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
+import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Groups
-import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
-import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDateTime
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inSubQuery
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-private suspend fun ResultRow.toGroup(): Group = newSuspendedTransaction {
+private suspend fun ResultRow.toGroup(): Group = suspendTransaction {
     val admin = getUserById(this@toGroup[Groups.groupAdminId])!!
     val members = getMembershipsByGroupId(this@toGroup[Groups.id])
     
@@ -43,13 +40,13 @@ private suspend fun ResultRow.toGroup(): Group = newSuspendedTransaction {
 }
 
 suspend fun getAllGroups(): List<Group> =
-    newSuspendedTransaction {
+    suspendTransaction {
         Groups.selectAll().map { it.toGroup() }
     }
 
 suspend fun getGroupByCondition(
     condition: SQLCondition
-): Group? = newSuspendedTransaction {
+): Group? = suspendTransaction {
     Groups
         .select(condition)
         .toList()
@@ -60,25 +57,25 @@ suspend fun getGroupByCondition(
 
 suspend fun getGroupsByCondition(
     condition: SQLCondition
-): List<Group> = newSuspendedTransaction {
+): List<Group> = suspendTransaction {
     Groups.select(condition).map { it.toGroup() }
 }
 
 suspend fun getGroupById(
     id: Int,
-): Group? = newSuspendedTransaction { getGroupByCondition { Groups.id eq id } }
+): Group? = suspendTransaction { getGroupByCondition { Groups.id eq id } }
 
 suspend fun getGroupsByAdminId(
     id: Int,
-): List<Group> = newSuspendedTransaction { getGroupsByCondition { Groups.groupAdminId eq id } }
+): List<Group> = suspendTransaction { getGroupsByCondition { Groups.groupAdminId eq id } }
 
 
 suspend fun getExactGroupByNameAndAdminIdentifier(
     name: String,
     identifier: String,
-): Group? = newSuspendedTransaction {
+): Group? = suspendTransaction {
     val admin = getUserByIdentifier(identifier)
-        ?: return@newSuspendedTransaction null
+        ?: return@suspendTransaction null
     
     getGroupByCondition {
         (Groups.displayName eq name) and
@@ -88,7 +85,7 @@ suspend fun getExactGroupByNameAndAdminIdentifier(
 
 suspend fun getAllGroupsByMemberUserId(
     id: Int,
-): List<Group> = newSuspendedTransaction {
+): List<Group> = suspendTransaction {
     getGroupsByCondition {
         Groups.id inSubQuery UserGroupConnection
             .select { UserGroupConnection.userId eq id }
@@ -98,24 +95,24 @@ suspend fun getAllGroupsByMemberUserId(
 
 suspend fun getGroupByName(
     name: String,
-): Group? = newSuspendedTransaction { getGroupByCondition { Groups.displayName eq name } }
+): Group? = suspendTransaction { getGroupByCondition { Groups.displayName eq name } }
 
 suspend fun getGroupsByMessageId(
     id: Int,
-): List<Group> = newSuspendedTransaction {
+): List<Group> = suspendTransaction {
     getGroupsByCondition { (Messages.id eq id) and (Messages.groupId eq Groups.id) }
 }
 
 suspend fun doesGroupExist(
     name: String,
     identifier: String,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     getExactGroupByNameAndAdminIdentifier(name, identifier) != null
 }
 
 suspend fun insertGroup(
     group: Group,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     val doesGroupExist = doesGroupExist(
         name = group.displayName,
         identifier = group.admin.identifier
@@ -133,7 +130,7 @@ suspend fun insertGroup(
 @OptIn(ExperimentalUuidApi::class)
 suspend fun createInternalGroup(
     members: List<User>,
-): Group = newSuspendedTransaction {
+): Group = suspendTransaction {
     val groupName = Uuid.random().toString()
     val admin = createInternalUser()
     val memberships = members.map { user -> Membership(user, null, LocalDateTime.now()) }

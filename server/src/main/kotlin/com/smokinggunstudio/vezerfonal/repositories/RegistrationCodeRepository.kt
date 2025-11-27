@@ -1,19 +1,15 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.RegistrationCode
 import com.smokinggunstudio.vezerfonal.objects.RegistrationCodes
-import kotlinx.coroutines.withContext
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.coroutines.CoroutineContext
-import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
-import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 private fun ResultRow.toCode(): RegistrationCode = RegistrationCode(
     id = this[RegistrationCodes.id],
@@ -23,41 +19,41 @@ private fun ResultRow.toCode(): RegistrationCode = RegistrationCode(
 )
 
 suspend fun getAllCodes(): List<RegistrationCode> =
-    newSuspendedTransaction {
+    suspendTransaction {
         RegistrationCodes.selectAll().map { it.toCode() }
     }
 
 suspend fun getCodeByCondition(
     condition: SQLCondition
-): RegistrationCode? = newSuspendedTransaction {
+): RegistrationCode? = suspendTransaction {
     RegistrationCodes.select(condition).toList().ifNotEmpty()?.single()?.toCode()
 }
 
 suspend fun getCodesByCondition(
     condition: SQLCondition
-): List<RegistrationCode> = newSuspendedTransaction {
+): List<RegistrationCode> = suspendTransaction {
     RegistrationCodes.select(condition).map { it.toCode() }
 }
 
 suspend fun getCodeById(
     id: Int,
-): RegistrationCode? = newSuspendedTransaction {
+): RegistrationCode? = suspendTransaction {
     getCodeByCondition { RegistrationCodes.id eq id }
 }
 
 suspend fun getCodeByCode(
     code: String,
-): RegistrationCode? = newSuspendedTransaction {
+): RegistrationCode? = suspendTransaction {
     getCodeByCondition { RegistrationCodes.code eq code }
 }
 
 suspend fun doesCodeExist(
     code: String,
-): Boolean = newSuspendedTransaction { getCodeByCode(code) != null }
+): Boolean = suspendTransaction { getCodeByCode(code) != null }
 
 suspend fun insertCode(
     registrationCode: RegistrationCode,
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     if (!doesCodeExist(registrationCode.code))
         RegistrationCodes.insert {
             it[code] = registrationCode.code
@@ -69,6 +65,6 @@ suspend fun insertCode(
 
 suspend fun insertCodes(
     registrationCodes: List<RegistrationCode>,
-): List<Boolean> = newSuspendedTransaction {
+): List<Boolean> = suspendTransaction {
     registrationCodes.map { insertCode(it) }
 }

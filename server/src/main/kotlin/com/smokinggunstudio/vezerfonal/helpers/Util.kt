@@ -4,13 +4,19 @@ import com.smokinggunstudio.vezerfonal.models.JWTModel
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import org.jetbrains.exposed.sql.FieldSet
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.Query
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toKotlinLocalDateTime
+import org.jetbrains.exposed.v1.core.FieldSet
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.statements.DeleteStatement.Companion.where
+import org.jetbrains.exposed.v1.jdbc.Query
 import java.util.*
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
@@ -44,21 +50,24 @@ suspend inline fun <T> RoutingContext.tryInternal(
 
 inline fun FieldSet.select(
     where: SQLCondition
-): Query = selectWhere(SqlExpressionBuilder.where())
+): Query = selectWhere(where())
 
 fun FieldSet.selectWhere(
     where: Op<Boolean>
 ): Query = Query(this, where)
 
+@OptIn(ExperimentalTime::class)
 fun LocalDateTime.before(
     instant: Instant
 ): Boolean = toInstant(
     TimeZone.currentSystemDefault()
 ) < instant
 
+@OptIn(ExperimentalTime::class)
 fun LocalDateTime.isExpired(): Boolean =
     before(Clock.System.now())
 
+@OptIn(ExperimentalTime::class)
 fun Date.compareTo(
     anotherDate: LocalDateTime
 ): Boolean =
@@ -86,6 +95,8 @@ fun List<JWTModel>.latestPair(): TokenResponse? {
     )
 }
 
-typealias SQLCondition = SqlExpressionBuilder.() -> Op<Boolean>
+typealias SQLCondition = () -> Op<Boolean>
 
 inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
+
+inline fun <reified T : Table> makeArrayOfTable(vararg items: T): Array<T> = arrayOf(*items)

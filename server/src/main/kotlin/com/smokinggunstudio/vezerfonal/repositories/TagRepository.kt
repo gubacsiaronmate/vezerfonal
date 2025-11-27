@@ -6,11 +6,12 @@ import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.Tag
 import com.smokinggunstudio.vezerfonal.objects.MessageTag
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 private fun ResultRow.toTag(): Tag = Tag(
     id = this@toTag[MessageTag.id],
@@ -18,7 +19,7 @@ private fun ResultRow.toTag(): Tag = Tag(
 )
 
 suspend fun getAllTags(): List<Tag> =
-    newSuspendedTransaction {
+    suspendTransaction {
         MessageTag
             .selectAll()
             .map { it.toTag() }
@@ -26,7 +27,7 @@ suspend fun getAllTags(): List<Tag> =
 
 suspend fun getTagByCondition(
     condition: SQLCondition
-): Tag? = newSuspendedTransaction {
+): Tag? = suspendTransaction {
     MessageTag
         .select(condition)
         .toList()
@@ -37,7 +38,7 @@ suspend fun getTagByCondition(
 
 suspend fun getTagsByCondition(
     condition: SQLCondition
-): List<Tag> = newSuspendedTransaction {
+): List<Tag> = suspendTransaction {
     MessageTag
         .select(condition)
         .map { it.toTag() }
@@ -45,11 +46,11 @@ suspend fun getTagsByCondition(
 
 suspend fun getTagByName(
     name: String,
-): Tag? = newSuspendedTransaction { getTagByCondition { MessageTag.name eq name } }
+): Tag? = suspendTransaction { getTagByCondition { MessageTag.name eq name } }
 
 suspend fun getTagsByMessageId(
     id: Int,
-): List<Tag> = newSuspendedTransaction {
+): List<Tag> = suspendTransaction {
     getTagsByCondition {
         (MessageTagConnection.messageId eq id) and
         (MessageTag.id eq MessageTagConnection.tagId)
@@ -58,11 +59,11 @@ suspend fun getTagsByMessageId(
 
 suspend fun doesTagExist(
     name: String
-): Boolean = newSuspendedTransaction { getTagByName(name) != null }
+): Boolean = suspendTransaction { getTagByName(name) != null }
 
 suspend fun insertTag(
     tag: Tag
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     if (!doesTagExist(tag.tagName))
         MessageTag.insert {
             it[name] = tag.tagName
@@ -73,7 +74,7 @@ suspend fun insertTag(
 suspend fun attachTagToMessageId(
     newMessageId: Int,
     newTagId: Int
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     MessageTagConnection.insert {
         it[messageId] = newMessageId
         it[tagId] = newTagId
@@ -83,7 +84,7 @@ suspend fun attachTagToMessageId(
 suspend fun attachTagsToMessageId(
     newMessageId: Int,
     tagIds: List<Int>
-): Boolean = newSuspendedTransaction {
+): Boolean = suspendTransaction {
     tagIds.map { id ->
         attachTagToMessageId(
             newMessageId = newMessageId,
