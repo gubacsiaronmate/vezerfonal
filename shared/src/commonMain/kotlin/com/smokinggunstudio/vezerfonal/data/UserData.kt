@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserData(
+    val registrationCode: String,
     val email: String,
     val password: String?,
     override val name: String,

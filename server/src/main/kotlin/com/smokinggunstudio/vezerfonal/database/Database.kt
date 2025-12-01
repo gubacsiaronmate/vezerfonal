@@ -2,13 +2,9 @@ package com.smokinggunstudio.vezerfonal.database
 
 import com.smokinggunstudio.vezerfonal.helpers.makeArrayOfTable
 import com.smokinggunstudio.vezerfonal.objects.*
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.DatabaseConfig
-import org.jetbrains.exposed.v1.core.TextColumnType
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
 import kotlin.coroutines.CoroutineContext
@@ -32,8 +28,8 @@ private val orgTables = makeArrayOfTable(
     Users
 )
 
-var mainDb: Database? = null
-var orgDbs: MutableMap<String, Database> = mutableMapOf()
+var MainDB: Database? = null
+val OrgDBs: MutableMap<String, Database> = mutableMapOf()
 
 private var mainDbUrlBase: String = ""
 private var mainDbUsername: String = ""
@@ -63,9 +59,7 @@ suspend fun configureDatabase(urlBase: String, username: String, password: Strin
                 statements.forEach(::exec)
             }
             
-            mainDb = db
-            
-            return@withContext db
+            MainDB = db
         } catch (e: Exception) {
             System.err.println("Unable to connect to database at url: $url\nError: ${e.message}")
             exitProcess(1)
@@ -78,7 +72,7 @@ suspend fun ensureOrgDb(name: String, context: CoroutineContext): Database? =
         val schemaName = "vezerfonal_org_$escapedName"
         val url = mainDbUrlBase + schemaName
         
-        if (orgDbs.containsKey(escapedName)) orgDbs[escapedName]
+        if (OrgDBs.containsKey(escapedName)) OrgDBs[escapedName]
         
         try {
             val db = Database.connect(
@@ -126,7 +120,7 @@ suspend fun ensureOrgDb(name: String, context: CoroutineContext): Database? =
                 statements.forEach(::exec)
             }
             
-            orgDbs[escapedName] = db
+            OrgDBs[escapedName] = db
             
             return@withContext db
         } catch (e: Exception) {

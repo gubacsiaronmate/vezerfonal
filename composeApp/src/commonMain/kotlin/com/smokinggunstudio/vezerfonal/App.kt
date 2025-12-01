@@ -84,14 +84,11 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
     }
     
-    println("Setting up NavHost with route: ${NavTree.Landing.route}")
-
     BackHandler.Bind(navigator)
     
     NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
         screen(NavTree.Landing) {
             var loaded by remember { mutableStateOf(false) }
-            println("loaded: $loaded")
             
             LaunchedEffect(Unit) {
                 val t = getAccessToken(tokenStorage, client)
@@ -108,10 +105,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
         
         screen(NavTree.Home) {
-            if (token == null) {
-                navigator.go(NavTree.Landing)
-                return@screen
-            }
+            if (token == null) return@screen
             MainTabHost(token!!, navigator, client)
         }
         
@@ -123,7 +117,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             if (registerState == null)
                 error("CreateOrg.route: RegisterState cannot be null.")
             
-            // TODO: Organisation creation screen
+            CreateOrganizationScreen(
+                registerState as AdminRegisterState
+            ) { navigator.go(NavTree.Register(2)) }
         }
         
         screen(NavTree.Register(2)) {
@@ -196,8 +192,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     
     val pagerState = rememberPagerState { tabs.size }
     val scope = rememberCoroutineScope()
-    val startSrc = remember { MutableInteractionSource() }
-    val endSrc = remember { MutableInteractionSource() }
     var isScrollEnabled by remember { mutableStateOf(true) }
     
     Scaffold(

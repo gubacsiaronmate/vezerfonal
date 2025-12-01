@@ -30,8 +30,12 @@ class AdminRegisterState : RegisterState {
         isSuperAdmin = true
     )
     
-    fun updateOrgName(newCode: String) {
-        _orgName.value = newCode
+    fun updateOrgName(newValue: String) {
+        val valid =
+            newValue.all { it.isLetter() }
+                && newValue.length <= 100
+        if (!valid) return
+        _orgName.value = newValue
     }
     
     override fun updateEmail(newEmail: String) {

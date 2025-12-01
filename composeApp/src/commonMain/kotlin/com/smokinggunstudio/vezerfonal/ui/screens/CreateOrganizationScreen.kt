@@ -11,7 +11,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.CreateOrganizationState
+import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -21,9 +24,10 @@ import vezerfonal.composeapp.generated.resources.organization_name
 
 @Preview
 @Composable
-fun CreateOrganizationScreen() {
-    val state = remember { CreateOrganizationState() }
-    
+fun CreateOrganizationScreen(
+    state: AdminRegisterState,
+    onClick: ClickEvent
+) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -38,24 +42,26 @@ fun CreateOrganizationScreen() {
             style = MaterialTheme.typography.displaySmall
         )
         OutlinedTextField(
-            value = state.organizationName,
-            onValueChange = state::updateOrganizationName,
+            value = state.orgName,
+            onValueChange = state::updateOrgName,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
                     horizontal = 8.dp,
-                    vertical = 4.dp
+                    vertical = 4.dp,
                 ),
-            label = {Text(
-                text = stringResource(Res.string.organization_name),
-                color = MaterialTheme.colorScheme.onSurface
-            )}
+            singleLine = true,
+            label = {
+                Text(
+                    text = stringResource(Res.string.organization_name),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         )
         Button(
             modifier = Modifier.fillMaxWidth(),
-            
-            onClick = {}
-            ) {
+            onClick = onClick
+        ) {
             Text(text = stringResource(Res.string.create))
         }
     }
