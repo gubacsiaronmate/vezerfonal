@@ -13,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
 import org.jetbrains.compose.resources.painterResource
@@ -23,8 +25,9 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LandingPageScreen(
     onRegisterClick: ClickEvent,
-    onLoginClick: ClickEvent,
+    onLoginClick: CallbackEvent<List<OrgData>>,
 ) {
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,7 +76,7 @@ fun LandingPageScreen(
                 )
             }
             AnimatedButton(
-                onClick = onLoginClick,
+                onClick = { onLoginClick },
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()
             ) {

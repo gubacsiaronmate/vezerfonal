@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -12,11 +13,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
@@ -33,10 +36,11 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LoginScreen(
     client: HttpClient,
-    tokenStorage: TokenStorage,
+    orgs: List<OrgData>,
     onClick: CallbackEvent<TokenResponse>
 ) {
     val loginState by remember { mutableStateOf(LoginState()) }
+    var selectedOrgName by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     
     Column(
@@ -79,16 +83,33 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
             )
             
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = loginState.rememberMe,
-                    onCheckedChange = loginState::updateRememberMe
-                )
-                
-                Text(
-                    text = stringResource(Res.string.remember_me),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            Box(Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = selectedOrgName,
+                        onValueChange = { selectedOrgName = it },
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.organization_name),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = loginState.rememberMe,
+                            onCheckedChange = loginState::updateRememberMe
+                        )
+                        
+                        Text(
+                            text = stringResource(Res.string.remember_me),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             }
             
             Column(

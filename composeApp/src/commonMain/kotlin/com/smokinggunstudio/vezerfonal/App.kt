@@ -137,7 +137,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
         
         screen(NavTree.Login) {
-            LoginScreen(client, tokenStorage) { newTokens ->
+            LoginScreen(client, listOf()) { newTokens ->
                 token = newTokens.accessToken
                 navigator.go(NavTree.Home)
                 scope.launch {
