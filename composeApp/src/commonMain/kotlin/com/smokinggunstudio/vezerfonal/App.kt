@@ -199,9 +199,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             NavBar(
                 tabs = tabs,
                 currentIndex = pagerState.currentPage,
-                onTabSelected = { i ->
-                    scope.launch { pagerState.animateScrollToPage(i) }
-                }
+                onTabSelected = { i -> scope.launch { pagerState.animateScrollToPage(i) } }
             )
         }
     ) { paddingValues ->
