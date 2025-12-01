@@ -21,10 +21,8 @@ import kotlin.uuid.Uuid
 
 private suspend fun ResultRow.toUser(): User = suspendTransaction {
     val pfp = this@toUser[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
-    val regCode = getCodeById(this@toUser[Users.registrationCodeId])!!
     User(
         id = this@toUser[Users.id],
-        registrationCode = regCode,
         email = this@toUser[Users.email],
         _password = this@toUser[Users.password],
         profilePic = pfp,
@@ -74,12 +72,8 @@ suspend fun doesUserExist(
 suspend fun insertUser(
     user: User,
 ): Boolean = suspendTransaction {
-    val code = getCodeByCode(user.registrationCode.code)
-        ?: return@suspendTransaction false
-    
     if (!doesUserExist(user.identifier)) {
         val insert = Users.insert {
-            it[registrationCodeId] = code.id!!
             it[email] = user.email
             it[password] = user.password
             it[profilePicURI] = user.profilePic?.uri
@@ -115,7 +109,6 @@ suspend fun createInternalUser(): User =
         insertUser(
             User(
                 id = null,
-                registrationCode = getCodeByCode("996633")!!,
                 email = "${Uuid.random().toString().substring(0..8)}@example.com",
                 _password = Uuid.random().toString().substring(0..8),
                 profilePic = null,

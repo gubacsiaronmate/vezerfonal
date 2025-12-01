@@ -7,7 +7,6 @@ import kotlinx.datetime.LocalDateTime
 
 data class User(
     val id: Int?,
-    val registrationCode: RegistrationCode,
     val email: String,
     private var _password: String = "",
     val profilePic: Image?,
@@ -24,7 +23,6 @@ data class User(
         set(value) { _password = hashPassword(value) }
     
     fun toDTO(): UserData = UserData(
-        registrationCode = registrationCode.code,
         email = email,
         password = null,
         name = displayName,

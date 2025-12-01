@@ -10,7 +10,6 @@ object Users : Table("users"), Modifiable<Int> {
     override val table: Table = this
     
     override val id = integer("id").autoIncrement()
-    val registrationCodeId = integer("registration_code_id").references(RegistrationCodes.id)
     
     val email = varchar("email", 255).uniqueIndex()
     val password = varchar("password", 255)
