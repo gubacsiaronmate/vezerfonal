@@ -27,9 +27,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun ReactionBar(
     onClick: CallbackEvent<String>
 ) {
-    // track selected emoji for each of the 8 buttons
     val buttonEmojis = remember { List(8) { mutableStateOf<String?>(null) } }
-    // simple inline picker visibility and active index
     val isPickerVisible = remember { mutableStateOf(false) }
     val activeIndex = remember { mutableStateOf<Int?>(null) }
 
@@ -40,7 +38,7 @@ fun ReactionBar(
             onEmojiSelected = { emoji ->
                 val previous = buttonEmojis[idx].value
                 if (previous != null && previous != emoji) {
-                    onClick(previous) // signal removal of previous
+                    onClick(previous)
                 }
                 buttonEmojis[idx].value = emoji
                 onClick(emoji)
@@ -50,7 +48,7 @@ fun ReactionBar(
                 val current = buttonEmojis[idx].value
                 if (current != null) {
                     buttonEmojis[idx].value = null
-                    onClick(current) // signal removal
+                    onClick(current)
                 }
                 isPickerVisible.value = false
             },

@@ -47,7 +47,6 @@ fun HorizontallyScrollableTagSelect(
     ) {
         state.visibleItems.forEach { tag ->
             val checked by remember { mutableStateOf(tag in state.selectedItems) }
-            
             IconToggleButton(
                 checked = checked,
                 onCheckedChange = {
