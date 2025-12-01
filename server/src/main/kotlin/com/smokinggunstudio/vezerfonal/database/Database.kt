@@ -66,7 +66,7 @@ suspend fun configureDatabase(urlBase: String, username: String, password: Strin
             mainDb = db
             
             return@withContext db
-        } catch (e: IllegalStateException) {
+        } catch (e: Exception) {
             System.err.println("Unable to connect to database at url: $url\nError: ${e.message}")
             exitProcess(1)
         }
@@ -78,9 +78,7 @@ suspend fun ensureOrgDb(name: String, context: CoroutineContext): Database? =
         val schemaName = "vezerfonal_org_$escapedName"
         val url = mainDbUrlBase + schemaName
         
-        if (orgDbs.containsKey(escapedName)) {
-            return@withContext orgDbs[escapedName]
-        }
+        if (orgDbs.containsKey(escapedName)) orgDbs[escapedName]
         
         try {
             val db = Database.connect(
@@ -126,9 +124,7 @@ suspend fun ensureOrgDb(name: String, context: CoroutineContext): Database? =
                 )
                 
                 statements.forEach(::exec)
-                println()
             }
-            
             
             orgDbs[escapedName] = db
             
