@@ -120,4 +120,5 @@
     <string name="send">Küldés</string>
     <string name="send_message">Üzenetküldés</string>
     <string name="passwords_must_match">A jelszavaknak egyezniük kell</string>
+    <string name="organization_name">Szervezet neve</string>
 </resources>
