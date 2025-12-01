@@ -6,8 +6,10 @@ import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.datetime
 
 object Organisations : Table("organisation") {
+    val id = integer("id").autoIncrement()
+    
     val name = varchar("name", 255)
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     
-    override val primaryKey = PrimaryKey(name)
+    override val primaryKey = PrimaryKey(id)
 }
