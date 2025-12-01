@@ -21,14 +21,15 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
-fun Application.configureRouting(imageService: ImageService, context: CoroutineContext) {
+fun Application.configureRouting(imageService: ImageService, mainDB: Database, context: CoroutineContext) {
     install(ContentNegotiation) { json() }
     
     authentication {
-        configureBasicAuth(this, context)
-        configureJWTAuth(this)
+        configureBasicAuth(this)
+        configureJWTAuth(this, mainDB, context)
 //        configureOAuth(this, context)
     }
     
@@ -36,15 +37,21 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         get("/") { call.respondText("Hello") }
         
         route("/register") {
+            lateinit var db: Database
             post("/basic") {
-                val user = tryIncoming("Unable to receive user.")
-                { call.receive<UserData>().toUser(context) } ?: return@post
+                val pair = tryIncoming("Unable to receive user.")
+                { call.receive<UserData>().toUser(context, mainDB) } ?: return@post
+                
+                db = pair.first
+                val user = pair.second
+                
+                val urepo = UserRepository(db)
                 
                 val insertSuccess = tryInternal("Failed to insert user.")
-                { insertUser(user) } ?: return@post
+                { urepo.insertUser(user) } ?: return@post
                 
                 if (insertSuccess) {
-                    val user = getUserByIdentifier(user.identifier)
+                    val user = urepo.getUserByIdentifier(user.identifier)
                         ?: error("Cannot get user by identifier.")
                     val userId = user.id ?: error("Cannot get user id.")
                     call.respondText("$userId", status = HttpStatusCode.Created)
@@ -95,9 +102,11 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     val pfpURI = tryInternal("Failed to save image.")
                     { imageService.saveImage(data, userId, context, extension = metadata.fileType) } ?: return@post
                     
+                    val urepo = UserRepository(db)
+                    
                     val updateSuccess = tryInternal("Failed to add picture to user.")
                     {
-                        modifyUser(
+                        urepo.modifyUser(
                             userId = userId,
                             property = Users.profilePicURI,
                             newValue = pfpURI,
@@ -110,10 +119,10 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
                     )
                     
                     val accessToken = tryInternal("Cannot generate jwt.")
-                    { JWTConfig.generateToken(userId, context) } ?: return@post
+                    { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@post
                     
                     val refreshToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
+                    { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@post
                     
                     call.respond(
                         TokenResponse(
@@ -134,17 +143,19 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         authenticate("jwt-refresh") {
             get("/refresh") {
                 val principal = call.principal<AuthResponse>()
-                val id = principal?.userId
                     ?: return@get call.respondText(
                         "Unauthorized",
                         status = HttpStatusCode.Unauthorized
                     )
                 
+                val userId = principal.userId
+                val db = principal.db
+                
                 val accessToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(id, context) } ?: return@get
+                { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@get
                 
                 val refreshToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(id, context, isRefresh = true) } ?: return@get
+                { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@get
                 
                 call.respond(TokenResponse(accessToken, refreshToken))
             }
@@ -154,21 +165,23 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
             authenticate("basic") {
                 post("/basic") {
                     val principal = call.principal<AuthResponse>()
-                    val userId: Int = principal?.userId
-                        ?: return@post call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
+                    ?: return@post call.respondText(
+                        "Unauthorized",
+                        status = HttpStatusCode.Unauthorized
+                    )
+                
+                    val userId = principal.userId
+                    val db = principal.db
                     
-                    val activeTokens = getActiveJWTsByUserId(userId).latestPair()
+                    val activeTokens = JWTRepository(db).getActiveJWTsByUserId(userId).latestPair()
                     
                     if (activeTokens != null) return@post call.respond(activeTokens)
                     
                     val accessToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context) } ?: return@post
+                    { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@post
                     
                     val refreshToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context, isRefresh = true) } ?: return@post
+                    { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@post
                     
                     val newToken = TokenResponse(
                         accessToken,
@@ -189,15 +202,13 @@ fun Application.configureRouting(imageService: ImageService, context: CoroutineC
         authenticate("jwt-access") {
             route("/api") {
                 get {
-                    val principal = call.principal<AuthResponse>()
-                    if (principal == null) call.respondText(
-                        text = "Unauthorized.",
-                        status = HttpStatusCode.Unauthorized
-                    )
-                    else call.respondText(
-                        text = "Authorized",
-                        status = HttpStatusCode.OK
-                    )
+                    call.principal<AuthResponse>()
+                        ?: return@get call.respondText(
+                            text = "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    call.respond(HttpStatusCode.OK)
                 }
                 
                 route("/messages") {

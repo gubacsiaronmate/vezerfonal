@@ -8,6 +8,7 @@ object RegistrationCodes : Table("registration_code") {
     val code = varchar("code", 255).uniqueIndex()
     val totalUses = integer("total_uses").default(1)
     val remainingUses = integer("remaining_uses")
+    val organisationId = integer("organisation_id").references(Organisations.id)
     
     override val primaryKey = PrimaryKey(id)
 }

@@ -27,7 +27,8 @@ data class User(
         password = null,
         name = displayName,
         identifier = identifier,
+        registrationCode = null,
         isAnyAdmin = isAnyAdmin!!,
-        isSuperAdmin = isSuperAdmin
+        isSuperAdmin = isSuperAdmin,
     )
 }

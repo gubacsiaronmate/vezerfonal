@@ -1,3 +1,5 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-data class AuthResponse(val userId: Int, val rememberMe: Boolean = true)
+import org.jetbrains.exposed.v1.jdbc.Database
+
+data class AuthResponse(val userId: Int, val db: Database, val rememberMe: Boolean = true)

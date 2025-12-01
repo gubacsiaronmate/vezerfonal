@@ -66,7 +66,7 @@ suspend fun configureDatabase(urlBase: String, username: String, password: Strin
         }
     }
 
-suspend fun ensureOrgDb(name: String, context: CoroutineContext): Database? =
+suspend fun ensureOrgDB(name: String, context: CoroutineContext): Database? =
     withContext(context) {
         val escapedName = name.filter { it.isLetter() }
         val schemaName = "vezerfonal_org_$escapedName"

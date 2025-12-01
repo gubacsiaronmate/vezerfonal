@@ -7,8 +7,8 @@ import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.repositories.getMembershipsByGroupId
-import com.smokinggunstudio.vezerfonal.repositories.getUserById
+import com.smokinggunstudio.vezerfonal.repositories.MembershipRepository
+import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -17,8 +17,8 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
 private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(db) {
-    val admin = getUserById(this@toGroup[Groups.groupAdminId])!!
-    val members = getMembershipsByGroupId(this@toGroup[Groups.id])
+    val admin = UserRepository(db).getUserById(this@toGroup[Groups.groupAdminId])!!
+    val members = MembershipRepository(db).getMembershipsByGroupId(this@toGroup[Groups.id])
     
     Group(
         id = this@toGroup[Groups.id],
@@ -35,9 +35,7 @@ private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(
 
 suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransaction(db) {
     val default = Groups
-        .select {
-            Groups.displayName eq "default"
-        }
+        .select { Groups.displayName eq "default" }
         .toSingle()
         ?.toGroup(db)
     

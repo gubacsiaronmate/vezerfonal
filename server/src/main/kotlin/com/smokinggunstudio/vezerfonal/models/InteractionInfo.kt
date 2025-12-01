@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
-import com.smokinggunstudio.vezerfonal.repositories.getUserById
 import kotlinx.datetime.LocalDateTime
 
 data class InteractionInfo(

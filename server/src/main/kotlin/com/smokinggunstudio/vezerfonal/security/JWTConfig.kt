@@ -4,11 +4,15 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.smokinggunstudio.vezerfonal.models.JWTModel
-import com.smokinggunstudio.vezerfonal.repositories.getUserById
-import com.smokinggunstudio.vezerfonal.repositories.insertJWT
+import com.smokinggunstudio.vezerfonal.models.Organisation
+import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
+import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
+import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.name
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
@@ -34,12 +38,16 @@ object JWTConfig {
         .build()
     
     @OptIn(ExperimentalTime::class)
-    suspend fun generateToken(userId: Int, context: CoroutineContext, isRefresh: Boolean = false): String = withContext(context) {
+    suspend fun generateToken(userId: Int, context: CoroutineContext, db: Database, mainDB: Database, isRefresh: Boolean = false): String = withContext(context) {
         val tokenId = UUID.randomUUID().toString()
         val expiresAt = when (isRefresh) {
             false -> Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_IN_MS)
             true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
+        
+        val orgName = db.url.substringAfterLast("=").substringAfterLast("_")
+        val orgId = OrganisationRepository(mainDB).getOrganisationByName(orgName)?.id
+            ?: error("Cannot resolve organisation by name: $orgName")
         
         val jwt = JWT.create()
             .withSubject("Authentication")
@@ -47,15 +55,16 @@ object JWTConfig {
             .withAudience(AUDIENCE)
             .withClaim("userId", userId)
             .withClaim("tokenId", tokenId)
+            .withClaim("orgId", orgId)
             .withExpiresAt(expiresAt)
             .sign(algorithm)
         
-        val success = insertJWT(
+        val success = JWTRepository(db).insertJWT(
             JWTModel(
                 id = tokenId,
                 tokenHash = hashLongString(jwt),
                 isRefresh = isRefresh,
-                user = getUserById(userId)!!,
+                user = UserRepository(db).getUserById(userId)!!,
                 revoked = false,
                 expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
             )

@@ -9,6 +9,7 @@ object Organisations : Table("organisation") {
     val id = integer("id").autoIncrement()
     
     val name = varchar("name", 255)
+    val externalId = char("external_id", 16)
     val createdAt = datetime("created_at").default(LocalDateTime.now())
     
     override val primaryKey = PrimaryKey(id)
