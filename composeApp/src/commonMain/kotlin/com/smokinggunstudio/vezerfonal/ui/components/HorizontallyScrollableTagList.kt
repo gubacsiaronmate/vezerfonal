@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,17 +24,20 @@ fun HorizontallyScrollableTagList(
 ) {
     Row(modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
         .horizontalScroll(rememberScrollState())
+        .padding(horizontal = 16.dp)
+        .padding(bottom = 8.dp)
     ) {
         tags.forEach { tag ->
             Row(modifier = Modifier
-                .padding(8.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(50)
+                )
+                .padding(horizontal =  12.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp))
             {
                 Text(tag,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

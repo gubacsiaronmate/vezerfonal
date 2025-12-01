@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBar
+import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
@@ -53,11 +55,13 @@ fun MessageViewScreen(
             Text(text = messageData.title,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall)
+                style = MaterialTheme.typography.headlineLarge)
         }
+        HorizontallyScrollableTagList(tags = messageData.tags)
         HorizontalDivider(modifier = Modifier
             .height(1.dp)
-            .fillMaxWidth())
+            .fillMaxWidth()
+            .padding(8.dp))
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())) {
             Text(
@@ -68,12 +72,12 @@ fun MessageViewScreen(
                 style = MaterialTheme.typography.bodyLarge
             )
         }
-        Spacer(
-            modifier = Modifier
-            .height(32.dp))
-        RecipientReactionBar(
-            reactions = listOf("👍", "❤️", "🔥", "👏", "😂","😒"),
-            onReactionSelected = {}
-        )
+        Column(verticalArrangement = Arrangement.SpaceBetween) {
+            RecipientReactionBar(
+                reactions = listOf("👍", "❤️", "🔥", "👏", "😂", "😒"),
+                onReactionSelected = {}
+            )
+            RecipientReactionBottomPanel()
+        }
     }
 }
