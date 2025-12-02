@@ -12,19 +12,23 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlin.io.encoding.Base64
 
-suspend fun loginBasic(loginState: LoginState, client: HttpClient): TokenResponse {
+suspend fun loginBasic(loginState: LoginState, orgExtId: String, client: HttpClient): TokenResponse {
     val encodedCredentials = Base64.encode("${loginState.email}:${loginState.password}".toByteArray())
+    
+    val rememberMe = when (Platform.type) {
+        PlatformType.JS -> false
+        PlatformType.Desktop -> false
+        else -> loginState.rememberMe
+    }
+    
+    val body = Base64.encode("$rememberMe|$orgExtId".toByteArray())
     
     val response = client.post(NetworkConstants.Endpoints.LOGIN_BASIC) {
         headers {
             append(HttpHeaders.Authorization, "Basic $encodedCredentials")
         }
         
-        when (Platform.type) {
-            PlatformType.JS -> setBody(false)
-            PlatformType.Desktop -> setBody(false)
-            else -> setBody(loginState.rememberMe)
-        }
+        setBody(body)
     }
     
     return response.body<TokenResponse>()

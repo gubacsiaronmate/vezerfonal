@@ -136,7 +136,7 @@ import vezerfonal.composeapp.generated.resources.*
                     ),
                 ) { Text(stringResource(Res.string.proceed)) }
                 
-                OrOptionDivider()
+                /*OrOptionDivider()
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
@@ -157,7 +157,7 @@ import vezerfonal.composeapp.generated.resources.*
                             .fillMaxWidth()
                             .padding(vertical = 2.dp)
                     ) { Text(stringResource(Res.string.continue_apple)) }
-                }
+                }*/
             }
         }
     }
