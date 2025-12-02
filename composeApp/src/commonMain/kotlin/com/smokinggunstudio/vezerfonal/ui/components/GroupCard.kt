@@ -15,10 +15,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun GroupCard(
-    text: String
+    name: String,
+    description: String,
 ) {
     Row(modifier = Modifier
         .fillMaxWidth()
@@ -33,15 +33,32 @@ fun GroupCard(
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
             )
-            Text(
-                text = text,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
+            Column {
+                Text(
+                    text = name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                )
+                Text(
+                    text = description,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
                     .padding(start = 16.dp)
-            )
+                )
+            }
         }
         Image(imageVector = Icons.AutoMirrored.Filled.ArrowRight,
             contentDescription = null,
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant))
     }
+}
+
+@Preview
+@Composable
+fun GroupCardPreview() {
+    GroupCard(
+        name = "Group Card",
+        description = "This is a description"
+    )
 }
