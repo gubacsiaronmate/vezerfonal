@@ -31,12 +31,13 @@ import vezerfonal.composeapp.generated.resources.*
 fun LandingPageScreen(
     onRegisterClick: ClickEvent,
     onLoginClick: CallbackEvent<List<OrgData>>,
+    asdClickEvent: ClickEvent
 ) {
     var loaded by remember { mutableStateOf(false) }
     var data by remember { mutableStateOf<List<OrgData>?>(null) }
     LaunchedEffect(Unit) {
-        val d = TODO()
-        data = d
+        val d = "asd"
+//        data = d
         loaded = true
     }
     val isEnabled by remember { mutableStateOf(loaded && data != null) }
@@ -56,7 +57,7 @@ fun LandingPageScreen(
                 else Res.drawable.scene_1
             ),
             contentDescription = "Landing Page Image",
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.6F).clickable(onClick = asdClickEvent),
         )
         
         Column(

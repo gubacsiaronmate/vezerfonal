@@ -105,7 +105,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 onLoginClick = { data ->
                     orgs = data
                     navigator.go(NavTree.Login)
-                }
+                },
+                asdClickEvent = { navigator.go(NavTree.Test) }
             ) else navigator.go(NavTree.Home)
         }
         
@@ -160,6 +161,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 navigator.go(NavTree.Landing)
             }
         }
+        
+        screen(NavTree.Test) { GroupScreen(emptyList()) }
     }
 }
 
@@ -217,7 +220,11 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 Home -> HomePageScreen(accessToken, client) { isScrollEnabled = !it }
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
-                Group -> GroupScreen(groupData!!)
+                Group -> {
+                    if (!userData!!.isSuperAdmin)
+                        GroupScreen(groupData!!)
+                    else SuperAdminGroupScreen()
+                }
                 Settings -> SettingsScreen { navigator.go(NavTree.AccountSettings) }
             }
         }

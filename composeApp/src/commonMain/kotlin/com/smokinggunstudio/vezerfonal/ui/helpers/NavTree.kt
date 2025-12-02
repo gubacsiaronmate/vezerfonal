@@ -9,4 +9,5 @@ sealed class NavTree(val hasParameters: Boolean) {
     data object CreateOrg : NavTree(false) { override fun getParameter(): String = "" }
     data object Login : NavTree(false) { override fun getParameter(): String = "" }
     data object AccountSettings : NavTree(false) { override fun getParameter(): String = "" }
+    data object Test : NavTree(false) { override fun getParameter(): String = "" }
 }

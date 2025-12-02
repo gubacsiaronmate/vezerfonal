@@ -344,11 +344,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     val userId = principal.userId
                     val db = principal.db
+                    val user = UserRepository(db).getUserById(userId)!!
                     
-                    val groups = tryInternal("") {
-                        GroupRepository(db)
-                            .getAllGroupsByMemberUserId(userId)
-                            .map { it.toDTO() }
+                    val groups = tryInternal("Unable to get groups by member userId.") {
+                        GroupRepository(db).let {
+                            if (!user.isSuperAdmin)
+                                it.getAllGroupsByMemberUserId(userId)
+                            else it.getAllGroups()
+                        }.map { it.toDTO() }
                     } ?: return@get
                     
                     call.respond(groups)
@@ -388,10 +391,16 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     val db = principal.db
                     
-                    val group = tryIncoming("") {
-                        call.receive<GroupData>()
-                    } ?: return@post
+                    val group = tryIncoming("Unable to receive group data.")
+                    { call.receive<GroupData>().toGroup(context, db) } ?: return@post
+                    
+                    val success = tryInternal("Unable to insert group.")
+                    { GroupRepository(db).insertGroup(group) } ?: return@post
+                    
+                    if (success) call.respond(HttpStatusCode.OK)
                 }
+                
+                
             }
         }
     }

@@ -22,7 +22,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
-@Preview
 @Composable
 fun SettingsScreen(
     onClickEvent: ClickEvent
@@ -56,10 +55,14 @@ fun SettingsScreen(
                 Switch(
                     checked = true,
                     onCheckedChange = {},
-                    modifier = Modifier
-                        .height(24.dp)
+                    modifier = Modifier.height(24.dp)
                 )
             }
         )
     }
+}
+
+@Preview
+@Composable fun SettingsPreview() {
+    SettingsScreen {  }
 }
