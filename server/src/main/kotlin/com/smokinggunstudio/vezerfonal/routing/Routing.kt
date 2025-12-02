@@ -214,11 +214,11 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 route("/messages") {
                     get("/subscribe") {
                         val principal = call.principal<AuthResponse>()
-                        val userId = principal?.userId
                             ?: return@get call.respondText(
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
+                        val userId = principal.userId
                         
                         call.response.cacheControl(CacheControl.NoCache(null))
                         call.respondTextWriter(contentType = ContentType.Text.EventStream) {
@@ -236,11 +236,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     get("/{amount}") {
                         val principal = call.principal<AuthResponse>()
-                        val userId = principal?.userId
                             ?: return@get call.respondText(
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
+                        
+                        val userId = principal.userId
+                        val db = principal.db
+                        
                         val amount = call.parameters["amount"]?.toIntOrNull()
                             ?: return@get
                         

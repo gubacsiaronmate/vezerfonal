@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -107,6 +108,19 @@ fun LoginScreen(
                         Text(
                             text = stringResource(Res.string.remember_me),
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                
+                // your code here
+                DropdownMenu(
+                    expanded = true,
+                    onDismissRequest = {}
+                ) {
+                    orgs.forEach { data ->
+                        DropdownMenuItem(
+                            text = { Text(data.name) },
+                            onClick = {}
                         )
                     }
                 }

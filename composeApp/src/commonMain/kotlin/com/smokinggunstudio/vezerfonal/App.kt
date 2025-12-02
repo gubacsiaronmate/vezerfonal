@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.data.GroupData
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
@@ -70,6 +71,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
     }
     var token: String? by remember { mutableStateOf(null) }
+    var orgs: List<OrgData> by remember { mutableStateOf(emptyList()) }
     
     LaunchedEffect(pendingRegisterState) {
         pendingRegisterState?.let { regState ->
@@ -100,7 +102,10 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             
             if (token == null) LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
-                onLoginClick = { navigator.go(NavTree.Login) }
+                onLoginClick = { data ->
+                    orgs = data
+                    navigator.go(NavTree.Login)
+                }
             ) else navigator.go(NavTree.Home)
         }
         
@@ -137,7 +142,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
         
         screen(NavTree.Login) {
-            LoginScreen(client, listOf()) { newTokens ->
+            LoginScreen(client, orgs) { newTokens ->
                 token = newTokens.accessToken
                 navigator.go(NavTree.Home)
                 scope.launch {
