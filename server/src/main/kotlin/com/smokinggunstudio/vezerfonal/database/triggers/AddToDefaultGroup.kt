@@ -26,6 +26,7 @@ private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(
         description = this@toGroup[Groups.description],
         members = members,
         admin = admin,
+        externalId = this@toGroup[Groups.externalId],
         isInternal = this@toGroup[Groups.isInternal],
         createdAt = this@toGroup[Groups.createdAt],
         updatedAt = this@toGroup[Groups.updatedAt],
