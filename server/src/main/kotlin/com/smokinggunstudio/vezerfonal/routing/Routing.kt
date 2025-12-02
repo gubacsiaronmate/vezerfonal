@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.routing
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
@@ -20,6 +22,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.reflect.instanceOf
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
@@ -28,7 +31,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
     install(ContentNegotiation) { json() }
     
     authentication {
-        configureBasicAuth(this)
+        configureBasicAuth(this, mainDB, context)
         configureJWTAuth(this, mainDB, context)
 //        configureOAuth(this, context)
     }
@@ -37,12 +40,30 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         get("/") { call.respondText("Hello") }
         
         route("/register") {
-            lateinit var db: Database
+            var db: Database? = null
+            
+            post("/create-org") {
+                val org = tryIncoming("Unable to receive organisation data.")
+                { call.receive<OrgData>().toOrganisation() } ?: return@post
+                
+                val success = tryInternal("Unable to insert org to db.")
+                { OrganisationRepository(mainDB).insertOrg(org) } ?: return@post
+                
+                if (!success) return@post call.respond(HttpStatusCode.InternalServerError)
+                
+                val orgDB = ensureOrgDB(org.name, context)
+                    ?: return@post call.respond(HttpStatusCode.InternalServerError)
+                
+                db = orgDB
+                
+                call.respond(HttpStatusCode.OK)
+            }
+            
             post("/basic") {
                 val pair = tryIncoming("Unable to receive user.")
-                { call.receive<UserData>().toUser(context, mainDB) } ?: return@post
+                { call.receive<UserData>().toUser(context, mainDB, db) } ?: return@post
                 
-                db = pair.first
+                if (db == null) db = pair.first
                 val user = pair.second
                 
                 val urepo = UserRepository(db)
@@ -102,7 +123,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     val pfpURI = tryInternal("Failed to save image.")
                     { imageService.saveImage(data, userId, context, extension = metadata.fileType) } ?: return@post
                     
-                    val urepo = UserRepository(db)
+                    val urepo = UserRepository(db!!)
                     
                     val updateSuccess = tryInternal("Failed to add picture to user.")
                     {
@@ -247,27 +268,30 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val amount = call.parameters["amount"]?.toIntOrNull()
                             ?: return@get
                         
-                        val messages = getMessagesBySenderUserId(userId, limit = amount).map { it.toDTO() }
+                        val messages = MessageRepository(db).getMessagesBySenderUserId(userId, limit = amount).map { it.toDTO() }
                         
                         call.respond(messages)
                     }
                     
                     post("/send") {
                         val principal = call.principal<AuthResponse>()
-                        val authorId = principal?.userId
                             ?: return@post call.respondText(
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
                         
+                        val authorId = principal.userId
+                        val db = principal.db
+                        
                         val message = tryInternal("Unable to receive message.")
                         { call.receive<MessageData>().toMessage(
                             authorId = authorId,
-                            context = context
+                            context = context,
+                            db = db
                         ) } ?: return@post
                         
                         val success = tryInternal("Unable to insert message.")
-                        { insertMessage(message) } ?: return@post
+                        { MessageRepository(db).insertMessage(message) } ?: return@post
                         
                         if (!success) call.respondText(
                             text = "Message already sent.",
@@ -281,14 +305,15 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         val interactionSuccess = tryInternal("Unable to insert all interactions.")
                         { recipients.map { user ->
-                            insertInteraction(
-                                InteractionInfo(
-                                    message = message,
-                                    user = user,
-                                    type = InteractionType.status,
-                                    status = message.status,
+                            InteractionInfoRepository(db)
+                                .insertInteraction(
+                                    InteractionInfo(
+                                        message = message,
+                                        user = user,
+                                        type = InteractionType.status,
+                                        status = message.status,
+                                    )
                                 )
-                            )
                         } } ?: return@post
                         
                         if (interactionSuccess.all { it }) call.respond(HttpStatusCode.OK)
@@ -296,49 +321,59 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     }
                 }
                 
-                route("/user-data") {
-                    get {
-                        val principal = call.principal<AuthResponse>()
-                        val userId = principal?.userId
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
-                        
-                        val user = tryInternal("Unable to query users table.") {
-                            getUserById(userId)!!.apply {
-                                this.isAnyAdmin = getGroupsByAdminId(this.id!!).isNotEmpty()
-                            }.toDTO()
-                        } ?: return@get
-                        
-                        call.respond(user)
-                    }
-                }
-                
-                get("/group-data") {
+                get("/user-data") {
                     val principal = call.principal<AuthResponse>()
-                    val userId = principal?.userId
                         ?: return@get call.respondText(
                             "Unauthorized",
                             status = HttpStatusCode.Unauthorized
                         )
-                    val groups = tryInternal("")
-                    { getAllGroupsByMemberUserId(userId).map { it.toDTO() } } ?: return@get
+                    
+                    val userId = principal.userId
+                    val db = principal.db
+                    
+                    val user = tryInternal("Unable to query users table.") {
+                        UserRepository(db).getUserById(userId)!!.apply {
+                            this.isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
+                        }.toDTO()
+                    } ?: return@get
+                    
+                    call.respond(user)
+                }
+                
+                get("/group-data") {
+                    val principal = call.principal<AuthResponse>()
+                        ?: return@get call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val userId = principal.userId
+                    val db = principal.db
+                    
+                    val groups = tryInternal("") {
+                        GroupRepository(db)
+                            .getAllGroupsByMemberUserId(userId)
+                            .map { it.toDTO() }
+                    } ?: return@get
                     
                     call.respond(groups)
                 }
                 
                 get("/logout") {
                     val principal = call.principal<AuthResponse>()
-                    val userId = principal?.userId
                         ?: return@get call.respondText(
                             "Unauthorized",
                             status = HttpStatusCode.Unauthorized
                         )
                     
+                    val userId = principal.userId
+                    val db = principal.db
+                    
+                    val jrepo = JWTRepository(db)
+                    
                     val success = tryInternal("Cannot log out user.") {
-                        getJWTsByUserId(userId).map { jwt ->
-                            modifyJWT(
+                        jrepo.getJWTsByUserId(userId).map { jwt ->
+                            jrepo.modifyJWT(
                                 tokenId = jwt.id,
                                 property = JWTs.revoked,
                                 newValue = true

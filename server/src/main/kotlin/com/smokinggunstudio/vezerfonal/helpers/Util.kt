@@ -24,10 +24,11 @@ suspend inline fun <T> RoutingContext.trial(
     action: () -> T,
 ): T? {
     return try { action() }
-    catch (e: Exception) { call.respondText(
-        "$onErrorMessage Error: ${e.message}",
-        status = statusCode
-    ); println("\n\n$e\n${ e.printStackTrace() }\n\n"); null }
+    catch (e: Exception) {
+        call.respond(statusCode)
+        println("\n\n$onErrorMessage\n\n$e\n${ e.printStackTrace() }\n\n")
+        null
+    }
 }
 
 suspend inline fun <T> RoutingContext.tryIncoming(

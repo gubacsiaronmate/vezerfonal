@@ -5,7 +5,7 @@ import java.util.UUID
 
 
 data class Organisation(
-    val id: Int,
+    val id: Int?,
     val name: String,
     val externalId: String,
     val createdAt: LocalDateTime

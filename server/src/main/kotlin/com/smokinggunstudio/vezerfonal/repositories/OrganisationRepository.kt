@@ -8,6 +8,7 @@ import com.smokinggunstudio.vezerfonal.objects.Organisations
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
@@ -48,5 +49,24 @@ class OrganisationRepository(val db: Database) {
         name: String
     ): Organisation? = suspendTransaction(db) {
         getOrganisationByCondition { Organisations.name eq name }
+    }
+    
+    suspend fun getOrganisationByExternalId(
+        externalId: String
+    ): Organisation? = suspendTransaction(db) {
+        getOrganisationByCondition { Organisations.externalId eq externalId }
+    }
+    
+    suspend fun doesOrgExist(extId: String) =
+        suspendTransaction(db) { getOrganisationByExternalId(extId) != null }
+    
+    suspend fun insertOrg(
+        org: Organisation
+    ): Boolean = suspendTransaction(db) {
+        if (!doesOrgExist(org.externalId))
+            Organisations.insert {
+            
+            }.insertedCount == 1
+        else false
     }
 }

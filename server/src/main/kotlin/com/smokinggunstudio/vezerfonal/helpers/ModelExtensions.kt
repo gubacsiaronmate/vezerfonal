@@ -1,25 +1,38 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Message
+import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
 import com.smokinggunstudio.vezerfonal.repositories.RegistrationCodeRepository
 import com.smokinggunstudio.vezerfonal.repositories.TagRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
-suspend fun UserData.toUser(context: CoroutineContext, mainDB: Database): Pair<Database, User> = withContext(context) {
-    val code = RegistrationCodeRepository(mainDB).getCodeByCode(registrationCode!!)
-        ?: error("Registration code not found")
-    val db: Database = ensureOrgDB(code.organisation.name, context)
-        ?: error("Could not resolve database for organisation: ${code.organisation.name}")
+suspend fun UserData.toUser(
+    context: CoroutineContext,
+    mainDB: Database,
+    db: Database? = null
+): Pair<Database, User> = withContext(context) {
+    val db: Database = suspend getDB@{
+        val code = registrationCode?.let {
+            RegistrationCodeRepository(mainDB).getCodeByCode(it)
+                ?: error("Registration code not found")
+        } ?: return@getDB db!!
+        ensureOrgDB(code.organisation.name, context)
+            ?: error("Could not resolve database for organisation: ${code.organisation.name}")
+    }()
+    
+    
     
     Pair(
         db,
@@ -39,7 +52,11 @@ suspend fun UserData.toUser(context: CoroutineContext, mainDB: Database): Pair<D
     )
 }
 
-suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext, db: Database): Message = withContext(context) {
+suspend fun MessageData.toMessage(
+    authorId: Int,
+    context: CoroutineContext,
+    db: Database
+): Message = withContext(context) {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
@@ -76,3 +93,11 @@ suspend fun MessageData.toMessage(authorId: Int, context: CoroutineContext, db: 
         deletedAt = null
     )
 }
+
+fun OrgData.toOrganisation() =
+    Organisation(
+        id = null,
+        name = name,
+        externalId = externalId,
+        createdAt = LocalDateTime.now()
+    )
