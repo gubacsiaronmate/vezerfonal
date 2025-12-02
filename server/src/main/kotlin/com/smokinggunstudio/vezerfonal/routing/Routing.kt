@@ -1,11 +1,13 @@
 package com.smokinggunstudio.vezerfonal.routing
 
+import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
+import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.JWTs
@@ -156,9 +158,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 }
             }
             
-            route("/oauth") {
-            
-            }
+            // TODO? maybe: route("/oauth") { }
         }
         
         authenticate("jwt-refresh") {
@@ -213,11 +213,6 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     call.respond(newToken)
                 }
             }
-
-
-//            authenticate("oauth") { post("/oauth") {
-//                print("asd")
-//            } }
         }
         
         authenticate("jwt-access") {
@@ -382,6 +377,20 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     } ?: return@get
                     
                     if (success) call.respond(HttpStatusCode.OK)
+                }
+                
+                post("/create-group") {
+                    val principal = call.principal<AuthResponse>()
+                        ?: return@post call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val db = principal.db
+                    
+                    val group = tryIncoming("") {
+                        call.receive<GroupData>()
+                    } ?: return@post
                 }
             }
         }

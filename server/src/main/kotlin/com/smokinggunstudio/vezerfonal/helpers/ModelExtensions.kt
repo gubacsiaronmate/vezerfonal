@@ -1,11 +1,13 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Group
+import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.models.User
@@ -101,3 +103,30 @@ fun OrgData.toOrganisation() =
         externalId = externalId,
         createdAt = LocalDateTime.now()
     )
+
+suspend fun GroupData.toGroup(
+    context: CoroutineContext,
+    db: Database
+): Group = withContext(context) {
+    val urepo = UserRepository(db)
+    val admin = urepo.getUserByIdentifier(adminIdentifier)!!
+    val memberships = members.map { identifier ->
+        Membership(
+            user = urepo.getUserByIdentifier(identifier)!!,
+            groupId = null,
+            joinedAt = LocalDateTime.now()
+        )
+    }
+    
+    Group(
+        id = null,
+        displayName = name,
+        description = description,
+        members = memberships,
+        admin = admin,
+        isInternal = false,
+        createdAt = null,
+        updatedAt = null,
+        deletedAt = null
+    )
+}

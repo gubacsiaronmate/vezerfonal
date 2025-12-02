@@ -120,12 +120,20 @@ class GroupRepository(val db: Database) {
             identifier = group.admin.identifier
         )
         val admin = UserRepository(db).getUserByIdentifier(group.admin.identifier)
-        if (!doesGroupExist && admin != null)
-            Groups.insert {
+        if (!doesGroupExist && admin != null) {
+            val insert = Groups.insert {
                 it[displayName] = group.displayName
                 it[description] = group.description
                 it[groupAdminId] = admin.id!!
-            }.insertedCount == 1
+            }
+            group.members.forEach {
+                MembershipRepository(db).insertMemberIntoGroup(
+                    newUserId = UserRepository(db).getUserByIdentifier(it.user.identifier)!!.id!!,
+                    newGroupId = insert[Groups.id],
+                )
+            }
+            insert.insertedCount == 1
+        }
         else false
     }
     
