@@ -9,6 +9,7 @@ data class Group(
     val description: String,
     val members: List<Membership>,
     val admin: User,
+    val externalId: String,
     val isInternal: Boolean,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
@@ -16,6 +17,7 @@ data class Group(
 ) {
     fun toDTO(): GroupData = GroupData(
         name = displayName,
+        externalId = externalId,
         description = description,
         members = members.map { it.user.identifier },
         adminIdentifier = admin.identifier

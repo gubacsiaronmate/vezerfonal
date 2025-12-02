@@ -7,6 +7,7 @@ private typealias Identifier = String
 @Serializable
 data class GroupData(
     override val name: String,
+    val externalId: String,
     val description: String,
     val members: List<Identifier>,
     val adminIdentifier: Identifier

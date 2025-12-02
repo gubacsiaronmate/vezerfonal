@@ -124,7 +124,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 error("CreateOrg.route: RegisterState cannot be null.")
             
             CreateOrganizationScreen(
-                registerState as AdminRegisterState
+                registerState as AdminRegisterState, client
             ) { navigator.go(NavTree.Register(2)) }
         }
         

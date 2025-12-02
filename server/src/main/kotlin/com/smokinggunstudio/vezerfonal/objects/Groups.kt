@@ -14,6 +14,7 @@ object Groups : Table("groups"), Modifiable<Int> {
     val displayName = varchar("display_name", 255)
     val description = text("description").default("")
     val groupAdminId = integer("group_admin_id").references(Users.id)
+    val externalId = char("external_id", 16).uniqueIndex()
     val isInternal = bool("is_internal").default(false)
     
     val createdAt = datetime("created_at").default(LocalDateTime.now())

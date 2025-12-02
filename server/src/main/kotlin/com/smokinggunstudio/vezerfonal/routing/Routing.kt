@@ -25,6 +25,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.reflect.instanceOf
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
@@ -400,7 +401,31 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     if (success) call.respond(HttpStatusCode.OK)
                 }
                 
-                
+                post("/join-group") {
+                    val principal = call.principal<AuthResponse>()
+                        ?: return@post call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val userId = principal.userId
+                    val db = principal.db
+                    
+                    val groupExtId = call.receive<String>()
+                    
+                    val group = tryInternal("Unable to find group with ext id: $groupExtId")
+                    { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
+                    
+                    val success = tryInternal("Unable to join group: ${group.displayName}.") {
+                        MembershipRepository(db)
+                            .insertMemberIntoGroup(
+                                newUserId = userId,
+                                newGroupId = group.id!!
+                            )
+                    } ?: return@post
+                    
+                    if (success) call.respond(HttpStatusCode.OK)
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
+import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
@@ -34,6 +35,7 @@ class GroupRepository(val db: Database) {
             description = this@toGroup[Groups.description],
             members = members,
             admin = admin,
+            externalId = this@toGroup[Groups.externalId],
             isInternal = this@toGroup[Groups.isInternal],
             createdAt = this@toGroup[Groups.createdAt],
             updatedAt = this@toGroup[Groups.updatedAt],
@@ -105,6 +107,12 @@ class GroupRepository(val db: Database) {
         getGroupsByCondition { (Messages.id eq id) and (Messages.groupId eq Groups.id) }
     }
     
+    suspend fun getGroupByExtId(
+        externalId: String
+    ): Group? = suspendTransaction(db) {
+        getGroupByCondition { Groups.externalId eq externalId }
+    }
+    
     suspend fun doesGroupExist(
         name: String,
         identifier: String,
@@ -125,6 +133,7 @@ class GroupRepository(val db: Database) {
                 it[displayName] = group.displayName
                 it[description] = group.description
                 it[groupAdminId] = admin.id!!
+                it[externalId] = group.externalId
             }
             group.members.forEach {
                 MembershipRepository(db).insertMemberIntoGroup(
@@ -151,6 +160,7 @@ class GroupRepository(val db: Database) {
                 description = "",
                 members = memberships,
                 admin = admin,
+                externalId = getExtId(),
                 isInternal = true,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now(),

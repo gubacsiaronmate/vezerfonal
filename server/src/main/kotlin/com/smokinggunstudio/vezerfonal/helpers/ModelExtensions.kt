@@ -124,6 +124,7 @@ suspend fun GroupData.toGroup(
         description = description,
         members = memberships,
         admin = admin,
+        externalId = externalId,
         isInternal = false,
         createdAt = null,
         updatedAt = null,

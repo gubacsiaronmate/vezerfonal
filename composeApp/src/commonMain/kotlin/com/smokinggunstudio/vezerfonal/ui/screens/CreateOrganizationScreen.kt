@@ -7,11 +7,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.helpers.getExtId
+import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -23,8 +30,11 @@ import vezerfonal.composeapp.generated.resources.organization_name
 @Composable
 fun CreateOrganizationScreen(
     state: AdminRegisterState,
+    client: HttpClient,
     onClick: ClickEvent
 ) {
+    val scope = rememberCoroutineScope()
+    
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,9 +67,17 @@ fun CreateOrganizationScreen(
         )
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = onClick
-        ) {
-            Text(text = stringResource(Res.string.create))
-        }
+            onClick = {
+                scope.launch {
+                    if (createOrgRequest(
+                        OrgData(
+                            externalId = getExtId(),
+                            name = state.orgName
+                        ),
+                        client
+                    )) onClick()
+                }
+            }
+        ) { Text(text = stringResource(Res.string.create)) }
     }
 }
