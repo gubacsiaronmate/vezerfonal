@@ -62,12 +62,17 @@ class RegistrationCodeRepository(val db: Database) {
     suspend fun insertCode(
         registrationCode: RegistrationCode,
     ): Boolean = suspendTransaction(db) {
+        val org = OrganisationRepository(db)
+            .getOrganisationByExternalId(
+                registrationCode.organisation.externalId
+            )!!
+        
         if (!doesCodeExist(registrationCode.code))
             RegistrationCodes.insert {
                 it[code] = registrationCode.code
                 it[totalUses] = registrationCode.totalUses
                 it[remainingUses] = registrationCode.remainingUses
-                it[organisationId] = registrationCode.organisation.id
+                it[organisationId] = org.id!!
             }.insertedCount == 1
         else false
     }
