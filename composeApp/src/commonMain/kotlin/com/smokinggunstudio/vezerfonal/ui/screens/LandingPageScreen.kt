@@ -9,6 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,9 +32,14 @@ fun LandingPageScreen(
     onRegisterClick: ClickEvent,
     onLoginClick: CallbackEvent<List<OrgData>>,
 ) {
+    var loaded by remember { mutableStateOf(false) }
+    var data by remember { mutableStateOf<List<OrgData>?>(null) }
     LaunchedEffect(Unit) {
-    
+        val d = TODO()
+        data = d
+        loaded = true
     }
+    val isEnabled by remember { mutableStateOf(loaded && data != null) }
     
     Column(
         modifier = Modifier
@@ -80,7 +89,8 @@ fun LandingPageScreen(
                 )
             }
             AnimatedButton(
-                onClick = { onLoginClick(emptyList()) },
+                enabled = isEnabled,
+                onClick = { onLoginClick(data!!) },
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()
             ) {

@@ -21,7 +21,7 @@ class AdminRegisterState : RegisterState {
     override val identifier: String get() = _identifier.value
     
     override fun toUserData(): UserData = UserData(
-        registrationCode = "",
+        registrationCode = null,
         email = email,
         password = Bcrypt.hashPassword(password),
         name = name,
