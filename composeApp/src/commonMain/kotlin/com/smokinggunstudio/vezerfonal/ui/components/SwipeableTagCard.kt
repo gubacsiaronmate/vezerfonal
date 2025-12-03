@@ -9,7 +9,9 @@ fun SwipeableTagCard(
     onDelete: () -> Unit,
     tag: TagData
 ) {
-    SwipeableActionItem(onEdit = onEdit, onDelete = onDelete) {
-    TagCard(tag.name)
-    }
+    SwipeableActionItem(
+        isEditable = true,
+        onEdit = onEdit,
+        onDelete = onDelete
+    ) { TagCard(tag.name) }
 }

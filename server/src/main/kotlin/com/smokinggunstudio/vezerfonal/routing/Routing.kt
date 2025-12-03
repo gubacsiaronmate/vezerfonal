@@ -348,7 +348,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     }
                 }
                 
-                route("/user") {
+                route("/users") {
                     get("/data") {
                         val principal = call.principal<AuthResponse>()
                             ?: return@get call.respondText(
@@ -367,9 +367,30 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         call.respond(user)
                     }
+                    
+                    get("/all") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        if (!principal.user.isSuperAdmin)
+                            call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val db = principal.db
+                        
+                        val users = tryInternal("Unable to get users.") {
+                            UserRepository(db)
+                                .getAllUsers()
+                                .map { it.toDTO() }
+                        } ?: return@get
+                        
+                        call.respond(users)
+                    }
                 }
                 
-                route("/group") {
+                route("/groups") {
                     get("/data") {
                         val principal = call.principal<AuthResponse>()
                             ?: return@get call.respondText(
@@ -438,8 +459,8 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     }
                 }
                 
-                route("/code") {
-                    get {
+                route("/codes") {
+                    get("/all") {
                         val principal = call.principal<AuthResponse>()
                             ?: return@get call.respondText(
                                 "Unauthorized",

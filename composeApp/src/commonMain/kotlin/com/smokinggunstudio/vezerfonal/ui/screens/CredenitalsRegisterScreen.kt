@@ -23,7 +23,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
+import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
+import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.isValidEmail
@@ -44,75 +46,28 @@ import vezerfonal.composeapp.generated.resources.*
             .padding(horizontal = 8.dp),
     ) {
         val confirmPassword = remember { mutableStateOf("") }
-        var isPasswordVisible by remember { mutableStateOf(false) }
         
         RegisterText()
         
         Column(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
+            EmailField(
                 value = registerState.email,
-                onValueChange = registerState::updateEmail,
-                label = { Text(stringResource(Res.string.email_address),
-                    color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                labelText = stringResource(Res.string.email_address),
+                onValueChanged = registerState::updateEmail
             )
-            OutlinedTextField(
+            
+            PasswordField(
                 value = registerState.password,
-                onValueChange = registerState::updatePassword,
-                label = { Text(stringResource(Res.string.password),
-                color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 8.dp,
-                        vertical = 4.dp
-                    ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation =
-                    if (isPasswordVisible)
-                        VisualTransformation.None
-                    else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon =
-                        if (isPasswordVisible)
-                            Icons.Filled.VisibilityOff
-                        else Icons.Filled.Visibility
-                    
-                    IconButton({isPasswordVisible = !isPasswordVisible}) {
-                        Image(imageVector = icon, contentDescription = null)
-                    }
-                }
+                labelText = stringResource(Res.string.password),
+                onValueChanged = registerState::updatePassword
             )
-            OutlinedTextField(
+            
+            PasswordField(
                 value = confirmPassword.value,
-                onValueChange = { confirmPassword.value = it },
-                label = { Text(stringResource(Res.string.confirm_password),
-                    color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 8.dp,
-                        vertical = 4.dp
-                    ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation =
-                    if (isPasswordVisible)
-                        VisualTransformation.None
-                    else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon =
-                        if (isPasswordVisible)
-                            Icons.Filled.VisibilityOff
-                        else Icons.Filled.Visibility
-                    
-                    IconButton({isPasswordVisible = !isPasswordVisible}) {
-                        Image(imageVector = icon, contentDescription = null)
-                    }
-                }
+                labelText = stringResource(Res.string.confirm_password),
+                onValueChanged = { confirmPassword.value = it },
             )
+            
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,

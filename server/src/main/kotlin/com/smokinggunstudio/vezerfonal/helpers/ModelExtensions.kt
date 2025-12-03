@@ -143,7 +143,7 @@ suspend fun RegCodeData.toRegCode(
         id = null,
         code = code,
         totalUses = totalUses,
-        remainingUses = remainingUses ?: totalUses,
+        remainingUses = remainingUses,
         organisation = org
     )
 }

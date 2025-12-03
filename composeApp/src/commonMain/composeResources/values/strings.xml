@@ -125,4 +125,8 @@
     <string name="registration_code_management">Regisztrációs kódok kezelése</string>
     <string name="tag_management">Címkék kezelése</string>
     <string name="create_reg_code">Regisztrációs kód létrehozása</string>
+    <string name="create_group">Csoport létrehozása</string>
+    <string name="group_name">Csoport neve</string>
+    <string name="join">Csatlakozás</string>
+    <string name="total_uses">Max használhatóság</string>
 </resources>

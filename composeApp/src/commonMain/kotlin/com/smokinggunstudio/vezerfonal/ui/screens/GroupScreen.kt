@@ -2,20 +2,36 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.network.api.createGroup
+import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
+import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
 import com.smokinggunstudio.vezerfonal.ui.components.GroupCard
+import com.smokinggunstudio.vezerfonal.ui.components.JoinGroupDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SwipeableGroupCard
+import io.ktor.client.HttpClient
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -23,60 +39,125 @@ import vezerfonal.composeapp.generated.resources.groups
 import vezerfonal.composeapp.generated.resources.join_group
 
 @Composable fun GroupScreen(
+    client: HttpClient,
+    accessToken: String,
     groupData: List<GroupData>,
     isSuperAdminLogIn: Boolean = false
 ) {
-    Column(
+    val scope = rememberCoroutineScope()
+    var groups by remember(groupData) { mutableStateOf(groupData) }
+    var isCreatePopUpOn by remember { mutableStateOf(false) }
+    var isJoinPopUpOn by remember { mutableStateOf(false) }
+    var users by remember { mutableStateOf<List<UserData>?>(null) }
+    var loaded by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        val d = getAllUsers(accessToken, client)
+        users = d
+        loaded = true
+    }
+    
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .padding(8.dp)
+        .fillMaxSize()
+        .background(color = MaterialTheme.colorScheme.surface)
+        .padding(8.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface)
+                .padding(8.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.groups),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(8.dp)
-            )
-            
-            IconButton(
-                onClick = {},
-                modifier = Modifier
-                    .fillMaxWidth(1/2F)
-                    .padding(horizontal = 4.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(Res.string.join_group),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1
+                Text(
+                    text = stringResource(Res.string.groups),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(8.dp)
+                )
+                
+                Button(
+                    onClick = { isJoinPopUpOn = true },
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Add, null)
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.join_group),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
-        }
-        Spacer(Modifier.height(16.dp))
-        groupData.forEach { group ->
-            if (isSuperAdminLogIn)
-                SwipeableGroupCard(
-                    onEdit = { },
-                    onDelete = { },
-                    group = group
+            
+            Spacer(Modifier.height(16.dp))
+            
+            groups.forEach { group ->
+                if (isSuperAdminLogIn)
+                    SwipeableGroupCard(
+                        onEdit = { },
+                        onDelete = {
+                            groups = groups.filter { it != group }
+                            scope.launch {
+                                // TODO: Add logic to delete group
+                            }
+                        },
+                        group = group
+                    )
+                else GroupCard(
+                    name = group.name,
+                    extId = group.externalId,
+                    description = group.description
                 )
-            else GroupCard(group.name, group.description)
+            }
         }
+        
+        if (isSuperAdminLogIn) IconButton(
+            onClick = { isCreatePopUpOn = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(50)
+                )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+        
+        if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
+            CreateGroupDialog(
+                client = client,
+                accessToken = accessToken,
+                users = users!!,
+                onCancelClick = { isCreatePopUpOn = false },
+                onCreatedGroup = { groups += it }
+            )
+        
+        if (isJoinPopUpOn) JoinGroupDialog(
+            accessToken = accessToken,
+            client = client,
+        ) { isJoinPopUpOn = false }
     }
-}
-
-@Preview(showBackground = true)
-@Composable fun GroupPreview() {
-    GroupScreen(emptyList())
 }

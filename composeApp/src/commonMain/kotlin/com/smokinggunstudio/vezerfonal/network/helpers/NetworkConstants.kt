@@ -26,9 +26,9 @@ object NetworkConstants {
         /** GET: /refresh */
         const val REFRESH_REQUEST = "/refresh"
         /** GET: /api/user-data -> userData: [UserData] */
-        const val GET_USER_DATA = "/api/user/data"
+        const val GET_USER_DATA = "/api/users/data"
         /** GET: /api/group-data -> groupData: [List]<[GroupData]> */
-        const val GET_GROUP_DATA = "/api/group/data"
+        const val GET_GROUP_DATA = "/api/groups/data"
         /** GET: /api/logout */
         const val LOGOUT = "/api/logout"
         /** POST: /register/create-org */
@@ -36,8 +36,14 @@ object NetworkConstants {
         /** GET: /organisations -> [List]<[OrgData]> */
         const val GET_ORGS = "/organisations"
         /** POST: /api/code/create */
-        const val CREATE_CODE = "/api/code/create"
+        const val CREATE_CODE = "/api/codes/create"
         /** POST: /api/group/join */
-        const val JOIN_GROUP = "/api/group/join"
+        const val JOIN_GROUP = "/api/groups/join"
+        
+        const val GET_ALL_USERS = "/api/users/all"
+        
+        const val CREATE_GROUP = "/api/groups/create"
+        
+        const val GET_ALL_REG_CODES = "/api/codes/all"
     }
 }

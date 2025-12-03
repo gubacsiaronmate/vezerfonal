@@ -15,5 +15,9 @@ fun SwipeableGroupCard(
         isEditable = true,
         onEdit = onEdit,
         onDelete = onDelete
-    ) { GroupCard(group.name, group.description) }
+    ) { GroupCard(
+        name = group.name,
+        extId = group.externalId,
+        description = group.description
+    ) }
 }

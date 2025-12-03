@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import kotlin.math.exp
 
 @Composable
 fun GroupCard(
     name: String,
+    extId: String,
     description: String,
 ) {
     Row(modifier = Modifier
@@ -35,7 +37,7 @@ fun GroupCard(
             )
             Column {
                 Text(
-                    text = name,
+                    text = "$name: ($extId)",
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .padding(start = 16.dp)
@@ -59,6 +61,7 @@ fun GroupCard(
 fun GroupCardPreview() {
     GroupCard(
         name = "Group Card",
+        extId = "6546asd",
         description = "This is a description"
     )
 }

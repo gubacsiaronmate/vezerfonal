@@ -15,7 +15,10 @@ import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
+import com.smokinggunstudio.vezerfonal.ui.components.DropdownSearchBar
+import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
+import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.state.LoginState
 import io.ktor.client.*
@@ -30,15 +33,12 @@ fun LoginScreen(
     onClick: CallbackEvent<TokenResponse>
 ) {
     val loginState by remember { mutableStateOf(LoginState()) }
-    var selectedOrgName by remember { mutableStateOf("") }
+    var selectedOrgExtId by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    var expanded by remember { mutableStateOf(false) }
-    var filtered by remember(orgs) { mutableStateOf(orgs) }
-    val isEnabled = remember {( true
-        /*loginState.email.isNotBlank()*/ /*&&
-        loginState.password.isNotBlank()*/ /*&&
-        selectedOrgName.isNotBlank()*/ /*&&
-        orgs.any { it.name == selectedOrgName }*/
+    val isEnabled = remember {(
+        loginState.email.isNotBlank() &&
+        loginState.password.isNotBlank() &&
+        selectedOrgExtId.isNotBlank()
     )}
     
     Column(
@@ -61,82 +61,34 @@ fun LoginScreen(
         }
         
         Column(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
+            EmailField(
                 value = loginState.email,
-                onValueChange = loginState::updateEmail,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.email_address),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                labelText = stringResource(Res.string.email_address),
+                onValueChanged = loginState::updateEmail
             )
             
-            OutlinedTextField(
+            PasswordField(
                 value = loginState.password,
-                onValueChange = loginState::updatePassword,
-                label = {
-                    Text(
-                        text = stringResource(Res.string.password),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                labelText = stringResource(Res.string.password),
+                onValueChanged = loginState::updatePassword,
             )
             
             Column(Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = selectedOrgName,
-                    onValueChange = {
-                        selectedOrgName = it
-                        filtered = orgs
-                            .filter { org -> org.name.contains(it, ignoreCase = true) }
-                            .sortedWith(
-                                compareBy<OrgData> { org -> org.name.removePrefix(it).length }
-                                    .thenBy { org -> org.name }
-                            )
-                    },
-                    label = {
-                        Text(
-                            text = stringResource(Res.string.organization_name),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .onFocusChanged { expanded = it.isFocused },
-                )
+                DropdownSearchBar(
+                    allItems = orgs,
+                    labelText = stringResource(Res.string.organization_name)
+                ) { selectedOrgExtId = it.externalId }
                 
-                Box(Modifier.fillMaxWidth()) {
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = loginState.rememberMe,
-                            onCheckedChange = loginState::updateRememberMe
-                        )
-                        
-                        Text(
-                            text = stringResource(Res.string.remember_me),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = loginState.rememberMe,
+                        onCheckedChange = loginState::updateRememberMe
+                    )
                     
-                    
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        filtered.forEach { org ->
-                            DropdownMenuItem(
-                                text = { Text(org.name) },
-                                onClick = { selectedOrgName = org.name }
-                            )
-                        }
-                    }
+                    Text(
+                        text = stringResource(Res.string.remember_me),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
             
@@ -151,7 +103,7 @@ fun LoginScreen(
                         scope.launch {
                             val tokens = loginBasic(
                                 loginState = loginState,
-                                orgExtId = orgs.find { it.name == selectedOrgName }!!.externalId,
+                                orgExtId = selectedOrgExtId,
                                 client = client
                             )
                             onClick(tokens)

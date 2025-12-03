@@ -15,9 +15,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.network.api.getAllRegCodes
 import com.smokinggunstudio.vezerfonal.network.api.getGroupData
 import com.smokinggunstudio.vezerfonal.network.api.getUserData
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
@@ -39,6 +41,7 @@ import moe.tlaster.precompose.navigation.NavHost
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.rememberNavigator
 import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 
 @Composable fun App() {
     VezerfonalTheme {
@@ -55,7 +58,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable fun NavigatorComposable() {
     val navigator = rememberNavigator()
     val scope = rememberCoroutineScope()
@@ -71,6 +73,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     }
     var token: String? by remember { mutableStateOf(null) }
     var orgs: List<OrgData> by remember { mutableStateOf(emptyList()) }
+    var regCodes: List<RegCodeData>? by remember { mutableStateOf(null) }
     
     LaunchedEffect(pendingRegisterState) {
         pendingRegisterState?.let { regState ->
@@ -106,13 +109,13 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                     orgs = data
                     navigator.go(NavTree.Login)
                 },
-                asdClickEvent = { navigator.go(NavTree.Test) }
+                /*asdClickEvent = { navigator.go(NavTree.Test) }*/
             ) else navigator.go(NavTree.Home)
         }
         
         screen(NavTree.Home) {
             if (token == null) return@screen
-            MainTabHost(token!!, navigator, client)
+            MainTabHost(token!!, navigator, client) { regCodes = it }
         }
         
         screen(NavTree.Register(1)) {
@@ -153,33 +156,61 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
         }
         
         screen(NavTree.AccountSettings) {
-            if (token == null) {
-                navigator.go(NavTree.Landing)
-                return@screen
-            }
+            if (token == null)
+                return@screen navigator.go(NavTree.Landing)
+            
             AccountSettingsScreen(client, token!!, tokenStorage) {
                 navigator.go(NavTree.Landing)
             }
         }
         
-        screen(NavTree.Test) { GroupScreen(emptyList()) }
+        screen(NavTree.AdminTools) {
+            AdminToolsScreen(
+                onUserManagementClick = { navigator.go(NavTree.UserManagement) },
+                onTagManagementClick = { navigator.go(NavTree.TagManagement) },
+                onRegistrationCodeManagementClick = { navigator.go(NavTree.RegCodeManagement) }
+            )
+        }
+        
+        screen(NavTree.RegCodeManagement) {
+            if (token == null)
+                return@screen navigator.go(NavTree.Landing)
+            
+            if (regCodes == null) return@screen
+            
+            RegCodeManagementScreen(
+                client = client,
+                accessToken = token!!,
+                registrationCodes = regCodes!!
+            )
+        }
+        
+        screen(NavTree.TagManagement) { }
+        
+        screen(NavTree.UserManagement) { }
+        
+        /*screen(NavTree.Test) { }*/
     }
 }
 
 @Composable private fun MainTabHost(
     accessToken: String,
     navigator: Navigator,
-    client: HttpClient
+    client: HttpClient,
+    returnRegCodes: CallbackEvent<List<RegCodeData>>
 ) {
-    var user: UserData? by remember { mutableStateOf(null) }
+    var user by remember { mutableStateOf<UserData?>(null) }
     var groups by remember { mutableStateOf<List<GroupData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
+    var regCodes by remember { mutableStateOf<List<RegCodeData>?>(null) }
     
     LaunchedEffect(Unit) {
         val u = getUserData(accessToken, client)
         val g = getGroupData(accessToken, client)
+        val r = getAllRegCodes(accessToken, client)
         user = u
         groups = g
+        regCodes = r
         loaded = true
     }
     
@@ -187,6 +218,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     
     if (user == null) error("UserData is null.")
     if (groups == null) error("GroupData is null.")
+    if (regCodes == null) error("RegCodes is null.")
+    
+    returnRegCodes(regCodes!!)
     
     val tabs = remember {
         buildList {
@@ -220,11 +254,11 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 Home -> HomePageScreen(accessToken, client) { isScrollEnabled = !it }
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
-                Group -> GroupScreen(groups!!, isSuperAdminLogIn = user!!.isSuperAdmin)
+                Group -> GroupScreen(client, accessToken, groups!!, user!!.isSuperAdmin)
                 Settings -> SettingsScreen(
                     onAccountSettingsClick = { navigator.go(NavTree.AccountSettings) },
                     isSuperAdminLogIn = user!!.isSuperAdmin,
-                    onAdminToolsClick = { },
+                    onAdminToolsClick = { navigator.go(NavTree.AdminTools) },
                     onArchiveClick = { },
                     onNotificationsClick = { },
                     onTOSClick = { },

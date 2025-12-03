@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OrgData(
+    override val name: String,
     val externalId: String,
-    val name: String
-)
+) : DTO

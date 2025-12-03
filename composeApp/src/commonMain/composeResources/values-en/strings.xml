@@ -125,4 +125,8 @@
     <string name="registration_code_management">Registration code management</string>
     <string name="tag_management">Tag management</string>
     <string name="create_reg_code">Create registration code</string>
+    <string name="create_group">Create Group</string>
+    <string name="group_name">Group name</string>
+    <string name="join">Join</string>
+    <string name="total_uses">Total uses</string>
 </resources>
