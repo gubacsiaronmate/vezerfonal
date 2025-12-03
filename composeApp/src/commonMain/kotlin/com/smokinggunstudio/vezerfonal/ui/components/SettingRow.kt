@@ -35,7 +35,7 @@ fun SettingRow(
     },
     onClick: ClickEvent = { }
 ) {
-    HorizontalDivider(modifier = Modifier.height(1.dp))
+    HorizontalDivider(modifier = Modifier.height(1.dp).padding(horizontal = 8.dp))
     Row(
         modifier = modifier.clickable(onClick = onClick),
         horizontalArrangement = horizontalArrangement,
