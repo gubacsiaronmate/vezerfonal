@@ -136,8 +136,7 @@ suspend fun GroupData.toGroup(
 }
 
 suspend fun RegCodeData.toRegCode(
-    orgId: Int,
-    mainDB: Database,
+    org: Organisation,
     context: CoroutineContext
 ) = withContext(context) {
     RegistrationCode(
@@ -145,6 +144,6 @@ suspend fun RegCodeData.toRegCode(
         code = code,
         totalUses = totalUses,
         remainingUses = remainingUses ?: totalUses,
-        organisation = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
+        organisation = org
     )
 }

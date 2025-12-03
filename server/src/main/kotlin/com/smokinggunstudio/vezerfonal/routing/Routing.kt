@@ -468,10 +468,8 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
                         
-                        val orgId = principal.org.id!!
-                        
                         val regCode = tryIncoming("Unable to receive code.")
-                        { call.receive<RegCodeData>().toRegCode(orgId, mainDB, context) } ?: return@post
+                        { call.receive<RegCodeData>().toRegCode(principal.org, context) } ?: return@post
                         
                         val success = tryInternal("Unable to insert reg code") {
                             RegistrationCodeRepository(mainDB)
