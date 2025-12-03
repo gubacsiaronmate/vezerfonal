@@ -37,5 +37,7 @@ object NetworkConstants {
         const val GET_ORGS = "/organisations"
         /** POST: /api/code/create */
         const val CREATE_CODE = "/api/code/create"
+        /** POST: /api/group/join */
+        const val JOIN_GROUP = "/api/group/join"
     }
 }
