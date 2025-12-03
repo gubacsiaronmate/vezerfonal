@@ -35,5 +35,7 @@ object NetworkConstants {
         const val CREATE_ORG = "/register/create-org"
         /** GET: /organisations -> [List]<[OrgData]> */
         const val GET_ORGS = "/organisations"
+        /** POST: /api/code/create */
+        const val CREATE_CODE = "/api/code/create"
     }
 }
