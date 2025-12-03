@@ -16,15 +16,12 @@ import kotlin.io.encoding.Base64
 fun configureBasicAuth(feature: AuthenticationConfig, mainDB: Database, context: CoroutineContext) {
     feature.basic("basic") {
         validate { credentials ->
-            val (rememberMe, externalId) = Base64
-                .decodeToByteString(
-                    source = receive<String>()
-                )
-                .toString()
-                .split("|")
-                .let {
-                    Pair(it.first().toBoolean(), it[1])
-                }
+            val data = Base64.decodeToByteString(receive<String>()).toByteArray().decodeToString()
+            val (rememberMe, externalId) =
+                data.let { Pair(it.substringBefore("|").toBoolean(), it.substringAfterLast("|")) }
+            
+            println("externalId: $externalId\n\nextId type: ${externalId::class}")
+            println("rememberMe: $rememberMe\n\nrememberMe type: ${rememberMe::class}")
             
             val org = OrganisationRepository(mainDB).getOrganisationByExternalId(externalId)
                 ?: error("Cannot resolve org by extId: $externalId")

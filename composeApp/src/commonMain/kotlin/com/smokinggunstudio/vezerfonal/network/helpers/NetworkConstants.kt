@@ -32,5 +32,7 @@ object NetworkConstants {
         const val LOGOUT = "/api/logout"
         
         const val CREATE_ORG = "/register/create-org"
+        
+        const val GET_ORGS = "/organisations"
     }
 }

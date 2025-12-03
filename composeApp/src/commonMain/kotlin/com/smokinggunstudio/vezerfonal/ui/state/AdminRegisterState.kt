@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.network.security.Bcrypt
 
 class AdminRegisterState : RegisterState {
     private val _orgName = mutableStateOf("")
@@ -23,7 +22,7 @@ class AdminRegisterState : RegisterState {
     override fun toUserData(): UserData = UserData(
         registrationCode = null,
         email = email,
-        password = Bcrypt.hashPassword(password),
+        password = password,
         name = name,
         identifier = identifier,
         isAnyAdmin = true,

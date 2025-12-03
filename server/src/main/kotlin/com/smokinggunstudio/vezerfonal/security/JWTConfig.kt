@@ -13,6 +13,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.name
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
@@ -45,7 +46,7 @@ object JWTConfig {
             true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
         
-        val orgName = db.config.defaultSchema!!.identifier
+        val orgName = (transaction { db.config.defaultSchema!!.identifier }).removePrefix("vezerfonal_org_")
         val orgId = OrganisationRepository(mainDB).getOrganisationByName(orgName)?.id
             ?: error("Cannot resolve organisation by name: $orgName")
         

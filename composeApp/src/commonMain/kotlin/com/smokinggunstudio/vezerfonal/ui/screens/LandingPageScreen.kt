@@ -19,16 +19,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
+import io.ktor.client.HttpClient
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LandingPageScreen(
+    client: HttpClient,
     onRegisterClick: ClickEvent,
     onLoginClick: CallbackEvent<List<OrgData>>,
     asdClickEvent: ClickEvent
@@ -36,11 +39,10 @@ fun LandingPageScreen(
     var loaded by remember { mutableStateOf(false) }
     var data by remember { mutableStateOf<List<OrgData>?>(null) }
     LaunchedEffect(Unit) {
-        val d = "asd"
-//        data = d
+        val d = getAllOrgsRequest(client)
+        data = d
         loaded = true
     }
-    val isEnabled by remember { mutableStateOf(loaded && data != null) }
     
     Column(
         modifier = Modifier
@@ -90,7 +92,7 @@ fun LandingPageScreen(
                 )
             }
             AnimatedButton(
-                enabled = isEnabled,
+                enabled = loaded,
                 onClick = { onLoginClick(data!!) },
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()

@@ -34,12 +34,12 @@ fun LoginScreen(
     val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     var filtered by remember(orgs) { mutableStateOf(orgs) }
-    var isEnabled by remember { mutableStateOf(
-        loginState.email.isNotBlank() &&
-        loginState.password.isNotBlank() &&
-        selectedOrgName.isNotBlank() &&
-        orgs.any { it.name == selectedOrgName }
-    ) }
+    val isEnabled = remember {( true
+        /*loginState.email.isNotBlank()*/ /*&&
+        loginState.password.isNotBlank()*/ /*&&
+        selectedOrgName.isNotBlank()*/ /*&&
+        orgs.any { it.name == selectedOrgName }*/
+    )}
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,

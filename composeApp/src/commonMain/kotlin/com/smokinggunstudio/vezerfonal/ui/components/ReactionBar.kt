@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
@@ -60,14 +61,15 @@ fun ReactionBar(
         modifier = Modifier
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(100)
+                shape = RoundedCornerShape(50)
             )
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceAround
     ) {
         repeat(8) { index ->
             val currentEmoji = buttonEmojis[index].value
             IconButton(
+                modifier = Modifier.align(Alignment.CenterVertically),
                 onClick = {
                     activeIndex.value = index
                     isPickerVisible.value = true

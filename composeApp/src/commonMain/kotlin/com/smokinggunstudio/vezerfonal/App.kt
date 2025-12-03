@@ -1,7 +1,6 @@
 package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -101,6 +100,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
             if (!loaded) return@screen
             
             if (token == null) LandingPageScreen(
+                client = client,
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
                 onLoginClick = { data ->
                     orgs = data
@@ -171,28 +171,28 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
     navigator: Navigator,
     client: HttpClient
 ) {
-    var userData: UserData? by remember { mutableStateOf(null) }
-    var groupData by remember { mutableStateOf<List<GroupData>?>(null) }
+    var user: UserData? by remember { mutableStateOf(null) }
+    var groups by remember { mutableStateOf<List<GroupData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
         val u = getUserData(accessToken, client)
         val g = getGroupData(accessToken, client)
-        userData = u
-        groupData = g
+        user = u
+        groups = g
         loaded = true
     }
     
     if (!loaded) return
     
-    if (userData == null) error("UserData is null.")
-    if (groupData == null) error("GroupData is null.")
+    if (user == null) error("UserData is null.")
+    if (groups == null) error("GroupData is null.")
     
     val tabs = remember {
         buildList {
             add(Home)
             add(Archive)
-            if (userData!!.isAnyAdmin) add(Send)
+            if (user!!.isAnyAdmin || user!!.isSuperAdmin) add(Send)
             add(Group)
             add(Settings)
         }
@@ -221,8 +221,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
                 Group -> {
-                    if (!userData!!.isSuperAdmin)
-                        GroupScreen(groupData!!)
+                    if (!user!!.isSuperAdmin)
+                        GroupScreen(groups!!)
                     else SuperAdminGroupScreen()
                 }
                 Settings -> SettingsScreen { navigator.go(NavTree.AccountSettings) }
