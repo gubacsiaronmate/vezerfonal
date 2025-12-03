@@ -11,7 +11,7 @@ fun SwipeableGroupCard(
     onDelete: () -> Unit,
     group: GroupData
 ) {
-    SwipeableActionItem({}, {}) {
-    
+    SwipeableActionItem(onEdit = onEdit, onDelete = onDelete) {
+        GroupCard(group.name, group.description)
     }
 }
