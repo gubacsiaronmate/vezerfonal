@@ -42,6 +42,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
     routing {
         get("/") { call.respondText("Hello") }
         
+        get("/organisations") {
+            val orgs = OrganisationRepository(mainDB)
+                .getOrganisations()
+                .map { it.toDTO() }
+            
+            call.respond(orgs)
+        }
+        
         route("/register") {
             var db: Database? = null
             
