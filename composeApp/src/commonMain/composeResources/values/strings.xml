@@ -122,4 +122,6 @@
     <string name="passwords_must_match">A jelszavaknak egyezniük kell</string>
     <string name="organization_name">Szervezet neve</string>
     <string name="join_group">Csatlakozás csoportba</string>
+    <string name="registration_code_management">Regisztrációs kódok kezelése</string>
+    <string name="tag_management">Címkék kezelése</string>
 </resources>

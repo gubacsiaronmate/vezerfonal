@@ -122,4 +122,6 @@
     <string name="passwords_must_match">Passwords must match</string>
     <string name="organization_name">Organization name</string>
     <string name="join_group">Join Group</string>
+    <string name="registration_code_management">Registration code management</string>
+    <string name="tag_management">Tag management</string>
 </resources>

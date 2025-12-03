@@ -25,6 +25,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
+@Preview
 @Composable
 fun SettingsScreen(
     onAccountSettingsClick: ClickEvent,
