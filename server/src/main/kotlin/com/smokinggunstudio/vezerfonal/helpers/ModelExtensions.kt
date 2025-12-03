@@ -144,7 +144,7 @@ suspend fun RegCodeData.toRegCode(
         id = null,
         code = code,
         totalUses = totalUses,
-        remainingUses = totalUses,
+        remainingUses = remainingUses ?: totalUses,
         organisation = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
     )
 }
