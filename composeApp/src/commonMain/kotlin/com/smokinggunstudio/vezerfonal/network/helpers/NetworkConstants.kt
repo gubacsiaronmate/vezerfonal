@@ -4,6 +4,7 @@ import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import io.ktor.http.HttpStatusCode
 
 object NetworkConstants {
@@ -25,14 +26,14 @@ object NetworkConstants {
         /** GET: /refresh */
         const val REFRESH_REQUEST = "/refresh"
         /** GET: /api/user-data -> userData: [UserData] */
-        const val GET_USER_DATA = "/api/user-data"
+        const val GET_USER_DATA = "/api/user/data"
         /** GET: /api/group-data -> groupData: [List]<[GroupData]> */
-        const val GET_GROUP_DATA = "/api/group-data"
+        const val GET_GROUP_DATA = "/api/group/data"
         /** GET: /api/logout */
         const val LOGOUT = "/api/logout"
-        
+        /** POST: /register/create-org */
         const val CREATE_ORG = "/register/create-org"
-        
+        /** GET: /organisations -> [List]<[OrgData]> */
         const val GET_ORGS = "/organisations"
     }
 }

@@ -236,6 +236,31 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     call.respond(HttpStatusCode.OK)
                 }
                 
+                get("/logout") {
+                    val principal = call.principal<AuthResponse>()
+                        ?: return@get call.respondText(
+                            "Unauthorized",
+                            status = HttpStatusCode.Unauthorized
+                        )
+                    
+                    val userId = principal.userId
+                    val db = principal.db
+                    
+                    val jrepo = JWTRepository(db)
+                    
+                    val success = tryInternal("Cannot log out user.") {
+                        jrepo.getJWTsByUserId(userId).map { jwt ->
+                            jrepo.modifyJWT(
+                                tokenId = jwt.id,
+                                property = JWTs.revoked,
+                                newValue = true
+                            )
+                        }.all { it }
+                    } ?: return@get
+                    
+                    if (success) call.respond(HttpStatusCode.OK)
+                }
+                
                 route("/messages") {
                     get("/subscribe") {
                         val principal = call.principal<AuthResponse>()
@@ -325,114 +350,93 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     }
                 }
                 
-                get("/user-data") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@get call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    
-                    val userId = principal.userId
-                    val db = principal.db
-                    
-                    val user = tryInternal("Unable to query users table.") {
-                        UserRepository(db).getUserById(userId)!!.apply {
-                            this.isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
-                        }.toDTO()
-                    } ?: return@get
-                    
-                    call.respond(user)
-                }
-                
-                get("/group-data") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@get call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    
-                    val userId = principal.userId
-                    val db = principal.db
-                    val user = UserRepository(db).getUserById(userId)!!
-                    
-                    val groups = tryInternal("Unable to get groups by member userId.") {
-                        GroupRepository(db).let {
-                            if (!user.isSuperAdmin)
-                                it.getAllGroupsByMemberUserId(userId)
-                            else it.getAllGroups()
-                        }.map { it.toDTO() }
-                    } ?: return@get
-                    
-                    call.respond(groups)
-                }
-                
-                get("/logout") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@get call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    
-                    val userId = principal.userId
-                    val db = principal.db
-                    
-                    val jrepo = JWTRepository(db)
-                    
-                    val success = tryInternal("Cannot log out user.") {
-                        jrepo.getJWTsByUserId(userId).map { jwt ->
-                            jrepo.modifyJWT(
-                                tokenId = jwt.id,
-                                property = JWTs.revoked,
-                                newValue = true
+                route("/user") {
+                    get("/data") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
                             )
-                        }.all { it }
-                    } ?: return@get
-                    
-                    if (success) call.respond(HttpStatusCode.OK)
+                        
+                        val userId = principal.userId
+                        val db = principal.db
+                        
+                        val user = tryInternal("Unable to query users table.") {
+                            UserRepository(db).getUserById(userId)!!.apply {
+                                this.isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
+                            }.toDTO()
+                        } ?: return@get
+                        
+                        call.respond(user)
+                    }
                 }
                 
-                post("/create-group") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@post call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    
-                    val db = principal.db
-                    
-                    val group = tryIncoming("Unable to receive group data.")
-                    { call.receive<GroupData>().toGroup(context, db) } ?: return@post
-                    
-                    val success = tryInternal("Unable to insert group.")
-                    { GroupRepository(db).insertGroup(group) } ?: return@post
-                    
-                    if (success) call.respond(HttpStatusCode.OK)
-                }
-                
-                post("/join-group") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@post call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
-                    
-                    val userId = principal.userId
-                    val db = principal.db
-                    
-                    val groupExtId = call.receive<String>()
-                    
-                    val group = tryInternal("Unable to find group with ext id: $groupExtId")
-                    { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
-                    
-                    val success = tryInternal("Unable to join group: ${group.displayName}.") {
-                        MembershipRepository(db)
-                            .insertMemberIntoGroup(
-                                newUserId = userId,
-                                newGroupId = group.id!!
+                route("/group") {
+                    get("/data") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
                             )
-                    } ?: return@post
+                        
+                        val userId = principal.userId
+                        val db = principal.db
+                        val user = UserRepository(db).getUserById(userId)!!
+                        
+                        val groups = tryInternal("Unable to get groups by member userId.") {
+                            GroupRepository(db).let {
+                                if (!user.isSuperAdmin)
+                                    it.getAllGroupsByMemberUserId(userId)
+                                else it.getAllGroups()
+                            }.map { it.toDTO() }
+                        } ?: return@get
+                        
+                        call.respond(groups)
+                    }
                     
-                    if (success) call.respond(HttpStatusCode.OK)
+                    post("/create") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@post call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val db = principal.db
+                        
+                        val group = tryIncoming("Unable to receive group data.")
+                        { call.receive<GroupData>().toGroup(context, db) } ?: return@post
+                        
+                        val success = tryInternal("Unable to insert group.")
+                        { GroupRepository(db).insertGroup(group) } ?: return@post
+                        
+                        if (success) call.respond(HttpStatusCode.OK)
+                    }
+                    
+                    post("/join") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@post call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val userId = principal.userId
+                        val db = principal.db
+                        
+                        val groupExtId = call.receive<String>()
+                        
+                        val group = tryInternal("Unable to find group with ext id: $groupExtId")
+                        { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
+                        
+                        val success = tryInternal("Unable to join group: ${group.displayName}.") {
+                            MembershipRepository(db)
+                                .insertMemberIntoGroup(
+                                    newUserId = userId,
+                                    newGroupId = group.id!!
+                                )
+                        } ?: return@post
+                        
+                        if (success) call.respond(HttpStatusCode.OK)
+                    }
                 }
             }
         }
