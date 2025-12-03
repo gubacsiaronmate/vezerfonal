@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.routing
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -433,6 +434,28 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                     newUserId = userId,
                                     newGroupId = group.id!!
                                 )
+                        } ?: return@post
+                        
+                        if (success) call.respond(HttpStatusCode.OK)
+                    }
+                }
+                
+                route("/code") {
+                    post("/create") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@post call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val orgId = principal.org.id!!
+                        
+                        val regCode = tryIncoming("Unable to receive code.")
+                        { call.receive<RegCodeData>().toRegCode(orgId, mainDB, context) } ?: return@post
+                        
+                        val success = tryInternal("Unable to insert reg code") {
+                            RegistrationCodeRepository(mainDB)
+                                .insertCode(regCode)
                         } ?: return@post
                         
                         if (success) call.respond(HttpStatusCode.OK)

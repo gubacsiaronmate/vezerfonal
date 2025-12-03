@@ -47,7 +47,7 @@ fun configureJWTAuth(feature: AuthenticationConfig, mainDB: Database, context: C
                     ); return@validate null
                 }
                 !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
-                else -> return@validate AuthResponse(user.id!!, db)
+                else -> return@validate AuthResponse(user.id!!, db, org)
             }
         }
     }
@@ -85,7 +85,7 @@ fun configureJWTAuth(feature: AuthenticationConfig, mainDB: Database, context: C
                     return@validate null
                 }
                 !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
-                else -> return@validate AuthResponse(user.id!!, db)
+                else -> return@validate AuthResponse(user.id!!, db, org)
             }
         }
     }

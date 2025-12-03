@@ -20,9 +20,6 @@ fun configureBasicAuth(feature: AuthenticationConfig, mainDB: Database, context:
             val (rememberMe, externalId) =
                 data.let { Pair(it.substringBefore("|").toBoolean(), it.substringAfterLast("|")) }
             
-            println("externalId: $externalId\n\nextId type: ${externalId::class}")
-            println("rememberMe: $rememberMe\n\nrememberMe type: ${rememberMe::class}")
-            
             val org = OrganisationRepository(mainDB).getOrganisationByExternalId(externalId)
                 ?: error("Cannot resolve org by extId: $externalId")
             
@@ -35,7 +32,7 @@ fun configureBasicAuth(feature: AuthenticationConfig, mainDB: Database, context:
             val isPasswordValid = verifyPassword(credentials.password, user.password)
             
             if (isPasswordValid)
-                AuthResponse(user.id!!, db, rememberMe)
+                AuthResponse(user.id!!, db, org, rememberMe)
             else null
         }
     }

@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.helpers
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
@@ -10,8 +11,10 @@ import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.Organisation
+import com.smokinggunstudio.vezerfonal.models.RegistrationCode
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
+import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.RegistrationCodeRepository
 import com.smokinggunstudio.vezerfonal.repositories.TagRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
@@ -129,5 +132,19 @@ suspend fun GroupData.toGroup(
         createdAt = null,
         updatedAt = null,
         deletedAt = null
+    )
+}
+
+suspend fun RegCodeData.toRegCode(
+    orgId: Int,
+    mainDB: Database,
+    context: CoroutineContext
+) = withContext(context) {
+    RegistrationCode(
+        id = null,
+        code = code,
+        totalUses = totalUses,
+        remainingUses = totalUses,
+        organisation = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
     )
 }
