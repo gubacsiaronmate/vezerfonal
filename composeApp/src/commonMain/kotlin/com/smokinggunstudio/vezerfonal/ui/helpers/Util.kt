@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import moe.tlaster.precompose.navigation.Navigator
 import moe.tlaster.precompose.navigation.RouteBuilder
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 fun Navigator.go(node: NavTree) = navigate(node.route)
 
@@ -26,3 +28,6 @@ fun String.isValidEmail(): Boolean {
 }
 
 fun String.capitalize(): String = replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
+@OptIn(ExperimentalUuidApi::class)
+fun genRegCode() = Uuid.random().toString().replace("-","").substring(0..7)

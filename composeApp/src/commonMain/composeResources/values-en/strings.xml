@@ -124,4 +124,5 @@
     <string name="join_group">Join Group</string>
     <string name="registration_code_management">Registration code management</string>
     <string name="tag_management">Tag management</string>
+    <string name="create_reg_code">Create registration code</string>
 </resources>
