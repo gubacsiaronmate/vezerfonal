@@ -34,14 +34,18 @@ fun AdminToolsScreen(
     onTagManagementClick: ClickEvent,
     onRegistrationCodeManagementClick: ClickEvent
 ) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(color = MaterialTheme.colorScheme.surface)
-        .padding(8.dp)) {
-        Text(text = stringResource(Res.string.admin_tools),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.surface)
+            .padding(8.dp)
+    ) {
+        Text(
+            text = stringResource(Res.string.admin_tools),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(8.dp))
+            modifier = Modifier.padding(8.dp)
+        )
         SettingRow(
             imageVector = Icons.Outlined.Person,
             text = stringResource(Res.string.user_management),

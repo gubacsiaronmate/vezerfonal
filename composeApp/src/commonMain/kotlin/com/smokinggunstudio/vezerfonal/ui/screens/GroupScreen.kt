@@ -15,6 +15,7 @@ import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.ui.components.GroupCard
+import com.smokinggunstudio.vezerfonal.ui.components.SwipeableGroupCard
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -22,7 +23,8 @@ import vezerfonal.composeapp.generated.resources.groups
 import vezerfonal.composeapp.generated.resources.join_group
 
 @Composable fun GroupScreen(
-    groupData: List<GroupData>
+    groupData: List<GroupData>,
+    isSuperAdminLogIn: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -63,7 +65,13 @@ import vezerfonal.composeapp.generated.resources.join_group
         }
         Spacer(Modifier.height(16.dp))
         groupData.forEach { group ->
-            GroupCard(group.name, group.description)
+            if (isSuperAdminLogIn)
+                SwipeableGroupCard(
+                    onEdit = { },
+                    onDelete = { },
+                    group = group
+                )
+            else GroupCard(group.name, group.description)
         }
     }
 }

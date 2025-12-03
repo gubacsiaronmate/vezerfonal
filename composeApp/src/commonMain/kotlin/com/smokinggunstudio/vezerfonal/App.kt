@@ -220,11 +220,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                 Home -> HomePageScreen(accessToken, client) { isScrollEnabled = !it }
                 Archive -> ArchiveScreen()
                 Send -> WriteMessageScreen()
-                Group -> {
-                    if (!user!!.isSuperAdmin)
-                        GroupScreen(groups!!)
-                    else SuperAdminGroupScreen()
-                }
+                Group -> GroupScreen(groups!!, isSuperAdminLogIn = user!!.isSuperAdmin)
                 Settings -> SettingsScreen(
                     onAccountSettingsClick = { navigator.go(NavTree.AccountSettings) },
                     isSuperAdminLogIn = user!!.isSuperAdmin,

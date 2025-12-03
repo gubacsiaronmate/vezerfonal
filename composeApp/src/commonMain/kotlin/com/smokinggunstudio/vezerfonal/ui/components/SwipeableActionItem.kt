@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SwipeableActionItem(
-    onEdit: () -> Unit,
+    isEditable: Boolean,
+    onEdit: () -> Unit = { },
     onDelete: () -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -29,10 +30,12 @@ fun SwipeableActionItem(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                if (isEditable) {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                    Spacer(Modifier.width(8.dp))
                 }
-                Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete")
                 }
