@@ -8,7 +8,6 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
-import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.JWTs
@@ -25,8 +24,6 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.reflect.instanceOf
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
@@ -179,7 +176,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         status = HttpStatusCode.Unauthorized
                     )
                 
-                val userId = principal.userId
+                val userId = principal.user.id!!
                 val db = principal.db
                 
                 val accessToken = tryInternal("Cannot generate jwt")
@@ -201,7 +198,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         status = HttpStatusCode.Unauthorized
                     )
                 
-                    val userId = principal.userId
+                    val userId = principal.user.id!!
                     val db = principal.db
                     
                     val activeTokens = JWTRepository(db).getActiveJWTsByUserId(userId).latestPair()
@@ -244,7 +241,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                             status = HttpStatusCode.Unauthorized
                         )
                     
-                    val userId = principal.userId
+                    val userId = principal.user.id!!
                     val db = principal.db
                     
                     val jrepo = JWTRepository(db)
@@ -269,7 +266,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
-                        val userId = principal.userId
+                        val userId = principal.user.id!!
                         
                         call.response.cacheControl(CacheControl.NoCache(null))
                         call.respondTextWriter(contentType = ContentType.Text.EventStream) {
@@ -292,7 +289,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val userId = principal.userId
+                        val userId = principal.user.id!!
                         val db = principal.db
                         
                         val amount = call.parameters["amount"]?.toIntOrNull()
@@ -310,7 +307,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val authorId = principal.userId
+                        val authorId = principal.user.id!!
                         val db = principal.db
                         
                         val message = tryInternal("Unable to receive message.")
@@ -359,7 +356,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val userId = principal.userId
+                        val userId = principal.user.id!!
                         val db = principal.db
                         
                         val user = tryInternal("Unable to query users table.") {
@@ -380,15 +377,13 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val userId = principal.userId
+                        val user = principal.user
                         val db = principal.db
-                        val user = UserRepository(db).getUserById(userId)!!
                         
                         val groups = tryInternal("Unable to get groups by member userId.") {
                             GroupRepository(db).let {
-                                if (!user.isSuperAdmin)
-                                    it.getAllGroupsByMemberUserId(userId)
-                                else it.getAllGroups()
+                                if (user.isSuperAdmin) it.getAllGroups()
+                                else it.getAllGroupsByMemberUserId(user.id!!)
                             }.map { it.toDTO() }
                         } ?: return@get
                         
@@ -401,6 +396,9 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
+                        
+                        if (!principal.user.isSuperAdmin)
+                            call.respond(HttpStatusCode.Unauthorized)
                         
                         val db = principal.db
                         
@@ -420,7 +418,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 status = HttpStatusCode.Unauthorized
                             )
                         
-                        val userId = principal.userId
+                        val userId = principal.user.id!!
                         val db = principal.db
                         
                         val groupExtId = call.receive<String>()
@@ -441,12 +439,34 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 }
                 
                 route("/code") {
+                    get {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        if (!principal.user.isSuperAdmin)
+                            call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val codes = tryInternal("Unable to get codes.") {
+                            RegistrationCodeRepository(mainDB)
+                                .getAllCodes()
+                                .map { it.toDTO() }
+                        } ?: return@get
+                        
+                        call.respond(codes)
+                    }
+                    
                     post("/create") {
                         val principal = call.principal<AuthResponse>()
                             ?: return@post call.respondText(
                                 "Unauthorized",
                                 status = HttpStatusCode.Unauthorized
                             )
+                        
+                        if (!principal.user.isSuperAdmin)
+                            call.respond(HttpStatusCode.Unauthorized)
                         
                         val orgId = principal.org.id!!
                         

@@ -32,7 +32,7 @@ fun configureBasicAuth(feature: AuthenticationConfig, mainDB: Database, context:
             val isPasswordValid = verifyPassword(credentials.password, user.password)
             
             if (isPasswordValid)
-                AuthResponse(user.id!!, db, org, rememberMe)
+                AuthResponse(user, db, org, rememberMe)
             else null
         }
     }
