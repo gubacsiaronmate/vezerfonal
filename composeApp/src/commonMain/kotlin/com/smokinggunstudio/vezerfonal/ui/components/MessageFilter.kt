@@ -129,6 +129,9 @@ fun MessageFilter(
                 )
             }
         )
-        HorizontallyScrollableTagSelect(state.tagSelectionState, tabOpenedCallback)
+        HorizontallyScrollableTagSelect(
+            state = state.tagSelectionState,
+            tabOpenedCallback = tabOpenedCallback
+        )
     }
 }

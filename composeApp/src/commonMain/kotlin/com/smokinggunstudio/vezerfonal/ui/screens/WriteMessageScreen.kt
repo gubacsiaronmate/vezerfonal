@@ -41,21 +41,17 @@ fun WriteMessageScreen() {
     var isIndividualTabOpened by remember { mutableStateOf(true) }
     
     Column(
-        verticalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
         Text(
             text = stringResource(Res.string.to),
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .padding(8.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             style = MaterialTheme.typography.titleLarge
         )
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -85,9 +81,8 @@ fun WriteMessageScreen() {
         
         Box {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
@@ -143,17 +138,14 @@ fun WriteMessageScreen() {
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(8.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                     HorizontallyScrollableTagSelect(tagSelectionState) { _ -> }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        modifier = Modifier.fillMaxWidth().padding(4.dp),
                         onClick = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
                     ) {
                         Image(
                             imageVector = Icons.AutoMirrored.Filled.Send,

@@ -32,8 +32,8 @@ import vezerfonal.composeapp.generated.resources.join_group
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(Res.string.groups),

@@ -1,12 +1,14 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Article
-import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.outlined.AdminPanelSettings
+import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
@@ -17,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -24,45 +27,58 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun SettingsScreen(
-    onClickEvent: ClickEvent
+    onAccountSettingsClick: ClickEvent,
+    isSuperAdminLogIn: Boolean,
+    onAdminToolsClick: ClickEvent,
+    onArchiveClick: ClickEvent,
+    onNotificationsClick: ClickEvent,
+    onTOSClick: ClickEvent,
+    onLanguageClick: ClickEvent,
+    isInDarkTheme: Boolean = isSystemInDarkTheme(),
+    onThemeSwitchClick: CallbackEvent<Boolean>
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        SettingsNameCard(onClickEvent)
+        SettingsNameCard(onAccountSettingsClick)
+        if (isSuperAdminLogIn)
+            SettingRow(
+                imageVector = Icons.Outlined.AdminPanelSettings,
+                text = stringResource(Res.string.admin_tools),
+                onClick = onAdminToolsClick
+            )
         SettingRow(
-            imageVector = Icons.Default.Archive,
+            imageVector = Icons.Outlined.Archive,
             text = stringResource(Res.string.archive),
+            onClick = onArchiveClick
         )
         SettingRow(
             imageVector = Icons.Outlined.Notifications,
-            text = stringResource(Res.string.notifications)
+            text = stringResource(Res.string.notifications),
+            onClick = onNotificationsClick
         )
         SettingRow(
             imageVector = Icons.AutoMirrored.Outlined.Article,
-            text = stringResource(Res.string.terms_of_service)
+            text = stringResource(Res.string.terms_of_service),
+            onClick = onTOSClick
         )
         SettingRow(
             imageVector = Icons.Outlined.Language,
-            text = stringResource(Res.string.language)
+            text = stringResource(Res.string.language),
+            onClick = onLanguageClick
         )
         SettingRow(
             imageVector = Icons.Outlined.DarkMode,
             text = stringResource(Res.string.dark_mode),
             trailing = @Composable {
                 Switch(
-                    checked = true,
-                    onCheckedChange = {},
+                    checked = isInDarkTheme,
+                    onCheckedChange = { onThemeSwitchClick(it) },
                     modifier = Modifier.height(24.dp)
                 )
             }
         )
     }
-}
-
-@Preview
-@Composable fun SettingsPreview() {
-    SettingsScreen {  }
 }

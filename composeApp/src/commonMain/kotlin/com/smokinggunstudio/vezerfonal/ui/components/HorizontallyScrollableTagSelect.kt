@@ -38,10 +38,11 @@ import vezerfonal.composeapp.generated.resources.tags
 @Composable
 fun HorizontallyScrollableTagSelect(
     state: TagSelectionState,
-    tabOpenedCallback: CallbackEvent<Boolean>
+    modifier: Modifier = Modifier,
+    tabOpenedCallback: CallbackEvent<Boolean>,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
     ) {
@@ -58,7 +59,7 @@ fun HorizontallyScrollableTagSelect(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
                     .width(90.dp)
             ) {
                 Row(

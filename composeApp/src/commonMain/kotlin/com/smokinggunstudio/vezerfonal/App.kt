@@ -225,7 +225,16 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
                         GroupScreen(groups!!)
                     else SuperAdminGroupScreen()
                 }
-                Settings -> SettingsScreen { navigator.go(NavTree.AccountSettings) }
+                Settings -> SettingsScreen(
+                    onAccountSettingsClick = { navigator.go(NavTree.AccountSettings) },
+                    isSuperAdminLogIn = user!!.isSuperAdmin,
+                    onAdminToolsClick = { },
+                    onArchiveClick = { },
+                    onNotificationsClick = { },
+                    onTOSClick = { },
+                    onLanguageClick = { },
+                    onThemeSwitchClick = { },
+                )
             }
         }
     }
