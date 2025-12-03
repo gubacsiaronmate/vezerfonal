@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.helpers.EmojiPicker
@@ -59,17 +61,17 @@ fun ReactionBar(
 
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(50)
-            )
-            .fillMaxWidth(),
+            ),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         repeat(8) { index ->
             val currentEmoji = buttonEmojis[index].value
             IconButton(
-                modifier = Modifier.align(Alignment.CenterVertically),
+                modifier = Modifier.width(32.dp),
                 onClick = {
                     activeIndex.value = index
                     isPickerVisible.value = true
