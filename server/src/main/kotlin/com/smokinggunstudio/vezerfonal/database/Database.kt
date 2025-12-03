@@ -4,6 +4,7 @@ import com.smokinggunstudio.vezerfonal.helpers.makeArrayOfTable
 import com.smokinggunstudio.vezerfonal.objects.*
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.core.Schema
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
@@ -31,29 +32,36 @@ private val orgTables = makeArrayOfTable(
 var MainDB: Database? = null
 val OrgDBs: MutableMap<String, Database> = mutableMapOf()
 
-private var mainDbUrlBase: String = ""
-private var mainDbUsername: String = ""
-private var mainDbPassword: String = ""
+private var dbUrl: String = ""
+private var dbUsername: String = ""
+private var dbPassword: String = ""
 
-suspend fun configureDatabase(urlBase: String, username: String, password: String, context: CoroutineContext) =
+private fun connect(schema: String? = null): Database = Database.connect(
+    driver = "org.postgresql.Driver",
+    url = dbUrl,
+    user = dbUsername,
+    password = dbPassword,
+    databaseConfig = DatabaseConfig {
+        defaultMaxAttempts = 3
+        defaultSchema = schema?.let { Schema(it) }
+    }
+)
+
+suspend fun configureDatabase(url: String, username: String, password: String, context: CoroutineContext) =
     withContext(context) {
-        val url = urlBase + "vezerfonal_main"
-        
         try {
-            val db = Database.connect(
-                driver = "org.postgresql.Driver",
-                url = url,
-                user = username,
-                password = password,
-                databaseConfig = DatabaseConfig { defaultMaxAttempts = 3 }
-            )
+            dbUrl = url
+            dbUsername = username
+            dbPassword = password
             
-            mainDbUrlBase = urlBase
-            mainDbUsername = username
-            mainDbPassword = password
+            val db = connect("vezerfonal_main")
             
             transaction(db) {
-                exec(stmt = "SET search_path = vezerfonal_main;")
+                exec("SHOW search_path;") { rs ->
+                    if (rs.next())
+                        if (rs.getString(1) != "vezerfonal_main")
+                            error("I give up")
+                }
                 val statements = MigrationUtils.statementsRequiredForDatabaseMigration(*mainTables)
                 
                 statements.forEach(::exec)
@@ -66,26 +74,20 @@ suspend fun configureDatabase(urlBase: String, username: String, password: Strin
         }
     }
 
+private class NoDBGotWithSchemaNameException : Exception()
+
 suspend fun ensureOrgDB(name: String, context: CoroutineContext): Database? =
     withContext(context) {
         val escapedName = name.filter { it.isLetter() }
         val schemaName = "vezerfonal_org_$escapedName"
-        val url = mainDbUrlBase + schemaName
         
         if (OrgDBs.containsKey(escapedName)) OrgDBs[escapedName]
         
         try {
-            val db = Database.connect(
-                driver = "org.postgresql.Driver",
-                url = url,
-                user = mainDbUsername,
-                password = mainDbPassword,
-                databaseConfig = DatabaseConfig { defaultMaxAttempts = 3 },
-            )
+            val db = connect(schemaName)
             
             transaction(db) {
-                exec(stmt = "CREATE SCHEMA IF NOT EXISTS $schemaName;")
-                exec(stmt = "SET search_path = $schemaName;")
+                exec("CREATE SCHEMA IF NOT EXISTS $schemaName;")
                 
                 exec(
                     """SELECT 1
@@ -113,9 +115,7 @@ suspend fun ensureOrgDB(name: String, context: CoroutineContext): Database? =
                         )
                 }
                 
-                val statements = MigrationUtils.statementsRequiredForDatabaseMigration(
-                    *orgTables
-                )
+                val statements = MigrationUtils.statementsRequiredForDatabaseMigration(*orgTables)
                 
                 statements.forEach(::exec)
             }
@@ -124,7 +124,7 @@ suspend fun ensureOrgDB(name: String, context: CoroutineContext): Database? =
             
             return@withContext db
         } catch (e: Exception) {
-            System.err.println("Unable to connect to org database at url: $url\nError: ${e.message}")
+            System.err.println("Unable to connect to org database at url: $dbUrl?currentSchema=$schemaName\nError: ${e.message}")
             return@withContext null
         }
     }

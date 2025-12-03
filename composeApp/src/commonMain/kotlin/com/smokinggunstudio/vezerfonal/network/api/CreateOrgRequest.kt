@@ -16,5 +16,5 @@ suspend fun createOrgRequest(
             NetworkConstants.Endpoints.CREATE_ORG
         ) { setBody(org) }
             .status == HttpStatusCode.OK
-    } catch (_: Exception) { false }
+    } catch (e: Exception) { e.printStackTrace(); false }
 }

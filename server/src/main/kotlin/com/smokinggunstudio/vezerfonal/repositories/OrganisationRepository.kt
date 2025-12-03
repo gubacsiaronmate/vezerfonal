@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.helpers.toSingle
+import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
 import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.objects.Organisations
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -30,7 +30,7 @@ class OrganisationRepository(val db: Database) {
     suspend fun getOrganisationByCondition(
         condition: SQLCondition
     ): Organisation? = suspendTransaction(db) {
-        Organisations.select(condition).toSingle()?.toOrg()
+        Organisations.select(condition).singleOrNull()?.toOrg()
     }
     
     suspend fun getOrganisationsByCondition(
@@ -65,7 +65,8 @@ class OrganisationRepository(val db: Database) {
     ): Boolean = suspendTransaction(db) {
         if (!doesOrgExist(org.externalId))
             Organisations.insert {
-            
+                it[name] = org.name
+                it[externalId] = org.externalId
             }.insertedCount == 1
         else false
     }

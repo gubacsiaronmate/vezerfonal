@@ -1,6 +1,5 @@
 package com.smokinggunstudio.vezerfonal.network.helpers
 
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.checkAccessTokenValidity
 import com.smokinggunstudio.vezerfonal.network.api.refreshTokens

@@ -1,9 +1,8 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
-import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.helpers.toSingle
+import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import org.jetbrains.exposed.v1.core.Column
@@ -41,7 +40,7 @@ class JWTRepository(val db: Database) {
     ): JWTModel? = suspendTransaction(db) {
         JWTs
             .select(condition)
-            .toSingle()
+            .singleOrNull()
             ?.toJWTModel()
     }
     

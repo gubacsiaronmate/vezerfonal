@@ -4,6 +4,7 @@ import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.datetime
 import org.jetbrains.exposed.v1.json.jsonb
 
@@ -22,8 +23,8 @@ object Messages : Table("message") {
         deserialize = { str: String -> Json.decodeFromString<List<String>>(str) },
     ).nullable()
     
-    val createdAt = datetime("created_at").default(LocalDateTime.now())
-    val updatedAt = datetime("updated_at").default(LocalDateTime.now())
+    val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
+    val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     val deletedAt = datetime("deleted_at").nullable()
     
     override val primaryKey = PrimaryKey(id)

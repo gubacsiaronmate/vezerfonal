@@ -10,15 +10,12 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toKotlinLocalDateTime
 import org.jetbrains.exposed.v1.core.FieldSet
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.core.statements.DeleteStatement.Companion.where
 import org.jetbrains.exposed.v1.jdbc.Query
 import java.util.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 suspend inline fun <T> RoutingContext.trial(
     onErrorMessage: String,
@@ -104,4 +101,4 @@ inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
 inline fun <reified T : Table> makeArrayOfTable(vararg items: T): Array<T> = arrayOf(*items)
 
-fun Query.toSingle(): ResultRow? = toList().ifNotEmpty()?.single()
+fun Query.singleOrNull(): ResultRow? = toList().ifNotEmpty()?.single()

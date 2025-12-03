@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal.database.triggers
 
 import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.helpers.toSingle
+import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
@@ -37,7 +37,7 @@ private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(
 suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransaction(db) {
     val default = Groups
         .select { Groups.displayName eq "default" }
-        .toSingle()
+        .singleOrNull()
         ?.toGroup(db)
     
     suspend fun addToGroup(
@@ -51,7 +51,7 @@ suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransact
     }
     
     suspend fun getSuperAdminId(): Int = suspendTransaction(db) {
-        Users.select { Users.isSuperAdmin eq true }.toSingle()!![Users.id]
+        Users.select { Users.isSuperAdmin eq true }.singleOrNull()!![Users.id]
     }
     
     suspend fun createDefaultGroup(): Int = suspendTransaction(db) {
