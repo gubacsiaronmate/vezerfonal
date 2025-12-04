@@ -19,11 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
-import com.smokinggunstudio.vezerfonal.ui.components.FilterApplyCancelButtons
-import com.smokinggunstudio.vezerfonal.ui.components.FilterButton
-import com.smokinggunstudio.vezerfonal.ui.components.ListItem
-import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
-import com.smokinggunstudio.vezerfonal.ui.components.TagSelect
+import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
@@ -138,8 +134,10 @@ fun HomePageScreen(
             
             if (isTagSelectTabOpened)
                 TagSelect(
-                    messageFilterState.tagSelectionState
-                ) { isTagSelectTabOpened = false }
+                    state = messageFilterState.tagSelectionState,
+                    onCancelClick = { isTagSelectTabOpened = false },
+                    onApplyClick = { }
+                )
         }
     }
 }
