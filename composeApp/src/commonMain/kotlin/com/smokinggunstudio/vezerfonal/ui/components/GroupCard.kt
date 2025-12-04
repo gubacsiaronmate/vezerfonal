@@ -50,9 +50,6 @@ fun GroupCard(
                 )
             }
         }
-        Image(imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant))
     }
 }
 

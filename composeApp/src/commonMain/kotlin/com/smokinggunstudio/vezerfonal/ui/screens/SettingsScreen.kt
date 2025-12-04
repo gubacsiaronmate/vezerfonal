@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -40,7 +41,8 @@ fun SettingsScreen(
     onTOSClick: ClickEvent,
     onLanguageClick: ClickEvent,
     isInDarkTheme: Boolean,
-    onThemeSwitchClick: CallbackEvent<Boolean>
+    onThemeSwitchClick: CallbackEvent<Boolean>,
+    user: UserData
 ) {
     var checked by remember { mutableStateOf(isInDarkTheme) }
     
@@ -49,7 +51,10 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        SettingsNameCard(onAccountSettingsClick)
+        SettingsNameCard(
+            onAccountSettingsClick,
+            user = user
+        )
         if (isSuperAdminLogIn)
             SettingRow(
                 imageVector = Icons.Outlined.AdminPanelSettings,

@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
@@ -30,7 +32,9 @@ fun AccountSettingsScreen(
     client: HttpClient,
     accessToken: String,
     tokenStorage: TokenStorage,
-    onLogOutClick: ClickEvent
+    onLogOutClick: ClickEvent,
+    onChangePasswordClick: ClickEvent,
+    user: UserData
 ) {
     val scope = rememberCoroutineScope()
     
@@ -39,10 +43,13 @@ fun AccountSettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        AccountSettingsNameCard()
+        AccountSettingsNameCard(
+            user = user
+        )
         SettingRow(
             imageVector = Icons.Default.Password,
             text = stringResource(Res.string.change_password),
+            modifier = Modifier.clickable(onClick = onChangePasswordClick)
         )
         SettingRow(
             imageVector = Icons.Outlined.Shield,
