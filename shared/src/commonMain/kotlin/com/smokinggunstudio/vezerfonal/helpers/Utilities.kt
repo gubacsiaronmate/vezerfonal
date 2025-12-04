@@ -25,3 +25,7 @@ fun LocalDateTime.toFloat(): Float = toInstant().epochSeconds.toFloat()
 
 @OptIn(ExperimentalUuidApi::class)
 fun getExtId(): String = Uuid.random().toString().split("-").joinToString("").substring(0..15)
+
+typealias Identifier = String
+
+typealias ExternalId = String

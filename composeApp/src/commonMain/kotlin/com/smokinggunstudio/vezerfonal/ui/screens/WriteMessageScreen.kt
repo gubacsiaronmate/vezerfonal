@@ -89,8 +89,8 @@ fun WriteMessageScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
-                    value = state.subject,
-                    onValueChange = state::updateSubject,
+                    value = state.title,
+                    onValueChange = state::updateTitle,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -106,8 +106,8 @@ fun WriteMessageScreen() {
                     singleLine = true,
                 )
                 OutlinedTextField(
-                    value = state.message,
-                    onValueChange = state::updateMessage,
+                    value = state.content,
+                    onValueChange = state::updateContent,
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(0.6F)
@@ -129,11 +129,9 @@ fun WriteMessageScreen() {
                     horizontalAlignment = Alignment.Start
                 ) {
                     ReactionBar { emoji ->
-                        if (state.reactions.contains(emoji)) {
+                        if (state.availableReactions.contains(emoji))
                             state.removeReaction(emoji)
-                        } else {
-                            state.addReaction(emoji)
-                        }
+                        else state.addReaction(emoji)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -165,9 +163,21 @@ fun WriteMessageScreen() {
                 }
             }
             
-            if (isGroupTabOpened) GroupSelect(groupSelectionState) { isGroupTabOpened = false }
-            if (isTagSelectTabOpened) TagSelect(tagSelectionState) { isTagSelectTabOpened = false }
-            if (isIndividualTabOpened) IndividualSelect(userSelectionState) { isIndividualTabOpened = false }
+            if (isGroupTabOpened) GroupSelect(
+                state = groupSelectionState,
+                onCancelClick = { isGroupTabOpened = false },
+                onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
+            )
+            if (isTagSelectTabOpened) TagSelect(
+                state = tagSelectionState,
+                onCancelClick = { isTagSelectTabOpened = false },
+                onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
+            )
+            if (isIndividualTabOpened) IndividualSelect(
+                state = userSelectionState,
+                onCancelClick = { isIndividualTabOpened = false },
+                onApplyClick = { users ->  }
+            )
         }
     }
 }

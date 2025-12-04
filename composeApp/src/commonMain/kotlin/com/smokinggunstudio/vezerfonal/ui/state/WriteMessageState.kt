@@ -1,38 +1,76 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.helpers.ExternalId
+import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import kotlin.collections.emptyList
 
 class WriteMessageState {
-    private val _subject = mutableStateOf("")
-    val subject: String get() = _subject.value
+    private val _title = mutableStateOf("")
+    val title: String get() = _title.value
     
-    private val _message = mutableStateOf("")
-    val message: String get() = _message.value
+    private val _author = mutableStateOf("")
+    val author: Identifier get() = _author.value
     
-    private val _reactions = mutableStateOf<List<String?>>(emptyList())
-    val reactions: List<String?> get() = _reactions.value
+    private val _content = mutableStateOf("")
+    val content: String get() = _content.value
     
     private val _isUrgent = mutableStateOf(false)
     val isUrgent: Boolean get() = _isUrgent.value
+    
+    private val _tags = mutableStateOf<List<String>>(emptyList())
+    val tags: List<String> get() = _tags.value
+    
+    private val _status = mutableStateOf("")
+    val status: String get() = _status.value
+
+    private val _userIdentifiers = mutableStateOf<List<String>>(emptyList())
+    val userIdentifiers: List<String> get() = _userIdentifiers.value
+    
+    private val _availableReactions = mutableStateOf<List<String>>(emptyList())
+    val availableReactions: List<String> get() = _availableReactions.value
+    
+    private val _groups = mutableStateOf<List<ExternalId>>(emptyList())
+    val groups: List<ExternalId> get() = _groups.value
+
+    
+    fun updateAuthor(newAuthor: String) {
+        _author.value = newAuthor
+    }
     
     fun updateUrgency(newValue: Boolean) {
         _isUrgent.value = newValue
     }
     
-    fun addReaction(newReaction: String) {
-        _reactions.value += newReaction
+    fun updateTitle(newTitle: String) {
+        _title.value = newTitle
+    }
+    
+    fun updateContent(newContent: String) {
+        _content.value = newContent
+    }
+    
+    fun updateTags(newTags: List<String>) {
+        _tags.value = newTags
+    }
+    
+    fun updateStatus(newStatus: String) {
+        _status.value = newStatus
+    }
+    
+    fun updateUserIdentifiers(newIdentifiers: List<String>) {
+        _userIdentifiers.value = newIdentifiers
+    }
+    
+    fun updateGroups(newGroups: List<ExternalId>) {
+        _groups.value = newGroups
+    }
+    
+    fun addReaction(reaction: String) {
+        _availableReactions.value += reaction
     }
     
     fun removeReaction(reaction: String) {
-        _reactions.value = _reactions.value.filter { it != reaction }
-    }
-    
-    fun updateSubject(newSubject: String) {
-        _subject.value = newSubject
-    }
-    
-    fun updateMessage(newMessage: String) {
-        _message.value = newMessage
+        _availableReactions.value = _availableReactions.value.filter { it != reaction }
     }
 }

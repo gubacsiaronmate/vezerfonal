@@ -102,11 +102,15 @@ fun RegCodeManagementScreen(
             }
         }
         
-        if (isCreateRegCodeOpened)
-            CreateRegCodeDialog(
-                client = client,
-                accessToken = accessToken,
-                onCancelClick = { isCreateRegCodeOpened = false }
-            ) { regCodes += it }
+        Column(modifier = Modifier
+            .fillMaxSize(),
+            verticalArrangement = Arrangement.Center){
+            if (isCreateRegCodeOpened)
+                CreateRegCodeDialog(
+                    client = client,
+                    accessToken = accessToken,
+                    onCancelClick = { isCreateRegCodeOpened = false }
+                ) { regCodes += it }
+        }
     }
 }

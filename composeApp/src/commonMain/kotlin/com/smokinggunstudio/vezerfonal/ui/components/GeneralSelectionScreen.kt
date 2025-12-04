@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
@@ -30,7 +31,8 @@ import vezerfonal.composeapp.generated.resources.cancel
 @Composable
 internal inline fun <reified T : DTO> GeneralSelectionScreen(
     state: SelectionState<T>,
-    noinline onCancelClick: ClickEvent
+    noinline onCancelClick: ClickEvent,
+    onApplyClick: CallbackEvent<List<T>>
 ) {
     val searchBarState by remember { mutableStateOf(SearchBarState()) }
     
@@ -51,8 +53,8 @@ internal inline fun <reified T : DTO> GeneralSelectionScreen(
                 }
             }
         )
-        Box{
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Box(modifier = Modifier.weight(1F)){
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
                 state.visibleItems.forEach {
                     key(it.name) {
                         SelectionListItem(
@@ -69,12 +71,11 @@ internal inline fun <reified T : DTO> GeneralSelectionScreen(
                     .height(56.dp)
                     .align(Alignment.BottomCenter)
                     .background(color = MaterialTheme.colorScheme.surface),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(
                     modifier = Modifier
-                        .width(160.dp)
-                        .height(48.dp),
+                        .width(160.dp),
                     onClick = onCancelClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
@@ -86,7 +87,7 @@ internal inline fun <reified T : DTO> GeneralSelectionScreen(
                 Button(
                     modifier = Modifier
                         .width(160.dp),
-                    onClick = {},
+                    onClick = { onApplyClick(state.selectedItems) },
                 ) {
                     Text(
                         text = stringResource(Res.string.applyStr),

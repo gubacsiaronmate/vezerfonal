@@ -146,18 +146,22 @@ import vezerfonal.composeapp.generated.resources.join_group
             }
         }
         
-        if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
-            CreateGroupDialog(
-                client = client,
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center){
+            if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
+                CreateGroupDialog(
+                    client = client,
+                    accessToken = accessToken,
+                    users = users!!,
+                    onCancelClick = { isCreatePopUpOn = false }
+                ) { groups += it }
+            
+            if (isJoinPopUpOn) JoinGroupDialog(
                 accessToken = accessToken,
-                users = users!!,
-                onCancelClick = { isCreatePopUpOn = false }
+                client = client,
+                { isJoinPopUpOn = false }
             ) { groups += it }
-        
-        if (isJoinPopUpOn) JoinGroupDialog(
-            accessToken = accessToken,
-            client = client,
-            { isJoinPopUpOn = false }
-        ) { groups += it }
+        }
     }
 }
