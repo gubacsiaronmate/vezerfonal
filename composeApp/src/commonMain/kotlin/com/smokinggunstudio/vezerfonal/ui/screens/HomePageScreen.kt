@@ -2,36 +2,34 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Filter
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
-import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.network.api.getMessages
+import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.FilterApplyCancelButtons
 import com.smokinggunstudio.vezerfonal.ui.components.FilterButton
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
 import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
+import com.smokinggunstudio.vezerfonal.ui.components.TagSelect
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.filter
 import vezerfonal.composeapp.generated.resources.spiralgraphic
 import vezerfonal.composeapp.generated.resources.vezerfonal
 import kotlin.uuid.ExperimentalUuidApi
@@ -43,9 +41,23 @@ fun HomePageScreen(
     client: HttpClient,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
-    val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
+    var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var isTagSelectTabOpened by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        isLoading = true
+        messages = getMessages(100, client, accessToken)
+        isLoading = false
+        
+        subscribeToMessages(
+            client = client,
+            accessToken = accessToken,
+            onMessage = { messages += it }
+        )
+    }
     
     Column(
         modifier = Modifier
@@ -95,10 +107,9 @@ fun HomePageScreen(
                 onCancel = { isFilterOpened = false }
             )
         }
-        HorizontalDivider(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-        )
+        
+        if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+        else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
         
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -106,22 +117,29 @@ fun HomePageScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                for (i in 0..10) {
-                    ListItem(
-                        title = "Pelda$i",
-                        author = "PeldaAuthor$i",
-                        onClick = {}
-                    )
+                LazyColumn(modifier = Modifier.weight(1F)) {
+                    items(messages.reversed()) { message ->
+                        ListItem(
+                            title = message.title,
+                            author = message.author.name,
+                            onClick = {}
+                        )
+                    }
                 }
             }
             
             if (isFilterOpened)
                 MessageFilter(
                     state = messageFilterState,
-                    tabOpenedCallback = {  },
+                    tabOpenedClick = { isTagSelectTabOpened = true },
                     modifier = Modifier.align(Alignment.TopCenter)
                 ) { scrollLockedBySliderCallback(it && isFilterOpened) }
             else scrollLockedBySliderCallback(false)
+            
+            if (isTagSelectTabOpened)
+                TagSelect(
+                    messageFilterState.tagSelectionState
+                ) { isTagSelectTabOpened = false }
         }
     }
 }

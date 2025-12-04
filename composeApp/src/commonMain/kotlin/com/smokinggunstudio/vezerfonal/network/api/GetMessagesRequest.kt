@@ -1,15 +1,17 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import com.smokinggunstudio.vezerfonal.data.GroupData
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 
-suspend fun getAllGroupsUserIsAdminOf(
+suspend fun getMessages(
+    amount: Int,
+    client: HttpClient,
     accessToken: String,
-    client: HttpClient
-): List<GroupData> =
-    client.get(NetworkConstants.Endpoints.GET_ALL_GROUPS_USER_IS_ADMIN_OF) {
+): List<MessageData> {
+    return client.get(NetworkConstants.Endpoints.GET_MESSAGES + amount) {
         bearerAuth(accessToken)
-    }.body()
+    }.body<List<MessageData>>()
+}

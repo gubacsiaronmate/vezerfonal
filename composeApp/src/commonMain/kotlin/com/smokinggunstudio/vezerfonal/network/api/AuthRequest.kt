@@ -1,13 +1,9 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
-import com.smokinggunstudio.vezerfonal.network.helpers.addTokenAuthHeader
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.headers
-import io.ktor.http.HeadersBuilder
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 
 /**
  * @param accessToken used to request access and authorize
@@ -18,7 +14,7 @@ import io.ktor.http.HttpStatusCode
 suspend fun checkAccessTokenValidity(accessToken: String, client: HttpClient): Boolean {
     return try {
         client.get(NetworkConstants.Endpoints.AUTH_CHECKER) {
-            headers.addTokenAuthHeader(accessToken)
+            bearerAuth(accessToken)
         }.status == HttpStatusCode.OK
     } catch (_: Exception) { false }
 }

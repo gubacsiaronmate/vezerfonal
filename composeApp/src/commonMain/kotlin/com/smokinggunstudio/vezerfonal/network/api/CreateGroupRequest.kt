@@ -2,11 +2,9 @@ package com.smokinggunstudio.vezerfonal.network.api
 
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
-import com.smokinggunstudio.vezerfonal.network.helpers.addTokenAuthHeader
-import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.HttpStatusCode
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 
 suspend fun createGroup(
     client: HttpClient,
@@ -14,6 +12,6 @@ suspend fun createGroup(
     groupData: GroupData,
 ): Boolean = try {
     client.post(NetworkConstants.Endpoints.CREATE_GROUP) {
-        headers.addTokenAuthHeader(accessToken); setBody(groupData)
+        bearerAuth(accessToken); setBody(groupData)
     }.status == HttpStatusCode.OK
 } catch (_: Exception) { false }
