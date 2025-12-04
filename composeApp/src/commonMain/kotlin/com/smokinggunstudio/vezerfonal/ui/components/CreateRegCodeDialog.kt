@@ -34,7 +34,7 @@ fun CreateRegCodeDialog(
     onCreatedRegCode: CallbackEvent<RegCodeData>
 ) {
     val scope = rememberCoroutineScope()
-    var totalUses by remember { mutableStateOf(0) }
+    var totalUses by remember { mutableStateOf("") }
     
     CreateDialog(
         titleText = stringResource(Res.string.create_reg_code),
@@ -42,8 +42,8 @@ fun CreateRegCodeDialog(
         onCreateClick = {
             val regCode = RegCodeData(
                 code = genRegCode(),
-                totalUses = totalUses,
-                remainingUses = totalUses
+                totalUses = totalUses.ifBlank { "1" }.toInt(),
+                remainingUses = totalUses.ifBlank { "1" }.toInt()
             )
             scope.launch {
                 if (
@@ -53,13 +53,13 @@ fun CreateRegCodeDialog(
                         regCode = regCode
                     )
                 ) onCreatedRegCode(regCode)
+                onCancelClick()
             }
-            onCancelClick()
         }
     ) {
         OutlinedTextField(
-            value = totalUses.toString(),
-            onValueChange = { totalUses = it.toInt() },
+            value = totalUses,
+            onValueChange = { totalUses = it },
             label = { Text(stringResource(Res.string.total_uses)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,

@@ -35,11 +35,6 @@ fun LoginScreen(
     val loginState by remember { mutableStateOf(LoginState()) }
     var selectedOrgExtId by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    val isEnabled = remember {(
-        loginState.email.isNotBlank() &&
-        loginState.password.isNotBlank() &&
-        selectedOrgExtId.isNotBlank()
-    )}
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -98,7 +93,11 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 AnimatedButton(
-                    enabled = isEnabled,
+                    enabled = (
+                        loginState.email.isNotBlank() &&
+                        loginState.password.isNotBlank() &&
+                        selectedOrgExtId.isNotBlank()
+                    ),
                     onClick = {
                         scope.launch {
                             val tokens = loginBasic(

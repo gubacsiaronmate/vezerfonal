@@ -51,11 +51,11 @@ import vezerfonal.composeapp.generated.resources.join_group
     var users by remember { mutableStateOf<List<UserData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     
-    LaunchedEffect(Unit) {
+    if (isSuperAdminLogIn) LaunchedEffect(Unit) {
         val d = getAllUsers(accessToken, client)
         users = d
         loaded = true
-    }
+    } else loaded = true
     
     Box(
         modifier = Modifier
@@ -151,13 +151,13 @@ import vezerfonal.composeapp.generated.resources.join_group
                 client = client,
                 accessToken = accessToken,
                 users = users!!,
-                onCancelClick = { isCreatePopUpOn = false },
-                onCreatedGroup = { groups += it }
-            )
+                onCancelClick = { isCreatePopUpOn = false }
+            ) { groups += it }
         
         if (isJoinPopUpOn) JoinGroupDialog(
             accessToken = accessToken,
             client = client,
-        ) { isJoinPopUpOn = false }
+            { isJoinPopUpOn = false }
+        ) { groups += it }
     }
 }

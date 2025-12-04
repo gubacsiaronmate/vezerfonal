@@ -52,15 +52,14 @@ fun RegCodeManagementScreen(
     var isCreateRegCodeOpened by remember { mutableStateOf(false) }
     
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.surface)
+            .padding(8.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(

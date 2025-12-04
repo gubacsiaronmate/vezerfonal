@@ -15,6 +15,10 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
@@ -35,9 +39,11 @@ fun SettingsScreen(
     onNotificationsClick: ClickEvent,
     onTOSClick: ClickEvent,
     onLanguageClick: ClickEvent,
-    isInDarkTheme: Boolean = isSystemInDarkTheme(),
+    isInDarkTheme: Boolean,
     onThemeSwitchClick: CallbackEvent<Boolean>
 ) {
+    var checked by remember { mutableStateOf(isInDarkTheme) }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,8 +81,8 @@ fun SettingsScreen(
             text = stringResource(Res.string.dark_mode),
             trailing = @Composable {
                 Switch(
-                    checked = isInDarkTheme,
-                    onCheckedChange = { onThemeSwitchClick(it) },
+                    checked = checked,
+                    onCheckedChange = { checked = it; onThemeSwitchClick(it) },
                     modifier = Modifier.height(24.dp)
                 )
             }

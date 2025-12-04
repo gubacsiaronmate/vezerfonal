@@ -60,7 +60,7 @@ internal inline fun <reified T : DTO> DropdownSearchBar(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(horizontal = 4.dp)
                 .onFocusChanged { expanded = it.isFocused },
         )
         

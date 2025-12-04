@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.database.triggers
 
+import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
@@ -60,6 +61,7 @@ suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransact
             it[displayName] = "default"
             it[description] = ""
             it[groupAdminId] = adminId
+            it[externalId] = getExtId()
         }[Groups.id]
     }
     

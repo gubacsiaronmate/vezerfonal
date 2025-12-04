@@ -453,9 +453,34 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                     newUserId = userId,
                                     newGroupId = group.id!!
                                 )
-                        } ?: return@post
+                        } ?: return@post println("Unable to join group: ${group.displayName}.")
                         
-                        if (success) call.respond(HttpStatusCode.OK)
+                        if (success) call.respond(group.toDTO())
+                    }
+                    
+                    get("/extId") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respondText(
+                                "Unauthorized",
+                                status = HttpStatusCode.Unauthorized
+                            )
+                        
+                        val extId = call.receive<String>()
+                        
+                        val db = principal.db
+                        val userId = principal.user.id!!
+                        
+                        val group = tryInternal("Unable to get group by ext id: $extId") {
+                            val grepo = GroupRepository(db)
+                            val g = grepo
+                                .getGroupByExtId(extId)
+                            val ugs = grepo
+                                .getAllGroupsByMemberUserId(userId)
+                            if (g != null && g in ugs) g
+                            else null
+                        } ?: return@get
+                        
+                        call.respond(group)
                     }
                 }
                 

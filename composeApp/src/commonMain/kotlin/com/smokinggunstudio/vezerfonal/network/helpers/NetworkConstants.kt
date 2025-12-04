@@ -45,5 +45,7 @@ object NetworkConstants {
         const val CREATE_GROUP = "/api/groups/create"
         
         const val GET_ALL_REG_CODES = "/api/codes/all"
+        
+        const val GET_GROUP_BY_EXT_ID = "/api/groups/extId"
     }
 }

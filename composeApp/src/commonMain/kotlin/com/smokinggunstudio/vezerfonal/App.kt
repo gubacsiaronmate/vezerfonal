@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -44,7 +45,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 
 @Composable fun App() {
-    VezerfonalTheme {
+    var darkModeState by remember { mutableStateOf<Boolean?>(null) }
+    VezerfonalTheme(darkTheme = darkModeState ?: isSystemInDarkTheme()) {
         PreComposeApp {
             Surface(
                 modifier = Modifier
@@ -52,13 +54,16 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                     .background(color = MaterialTheme.colorScheme.surface)
                     .statusBarsPadding()
                     .navigationBarsPadding()
-            ) { NavigatorComposable() }
+            ) { NavigatorComposable(darkModeState) { darkModeState = it; println("$it\n$darkModeState") } }
         }
     }
 }
 
 
-@Composable fun NavigatorComposable() {
+@Composable fun NavigatorComposable(
+    isDarkMode: Boolean?,
+    darkModeStateCallback: CallbackEvent<Boolean>
+) {
     val navigator = rememberNavigator()
     val scope = rememberCoroutineScope()
     var registerState by remember { mutableStateOf<RegisterState?>(null) }
@@ -115,7 +120,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
         
         screen(NavTree.Home) {
             if (token == null) return@screen
-            MainTabHost(token!!, navigator, client) { regCodes = it }
+            MainTabHost(token!!, navigator, client, isDarkMode, darkModeStateCallback) { regCodes = it }
         }
         
         screen(NavTree.Register(1)) {
@@ -197,6 +202,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     accessToken: String,
     navigator: Navigator,
     client: HttpClient,
+    isDarkMode: Boolean?,
+    darkModeStateSwitch: CallbackEvent<Boolean>,
     returnRegCodes: CallbackEvent<List<RegCodeData>>
 ) {
     var user by remember { mutableStateOf<UserData?>(null) }
@@ -207,7 +214,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     LaunchedEffect(Unit) {
         val u = getUserData(accessToken, client)
         val g = getGroupData(accessToken, client)
-        val r = getAllRegCodes(accessToken, client)
+        val r = if (u.isSuperAdmin)
+            getAllRegCodes(accessToken, client)
+        else null
         user = u
         groups = g
         regCodes = r
@@ -218,9 +227,10 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     
     if (user == null) error("UserData is null.")
     if (groups == null) error("GroupData is null.")
-    if (regCodes == null) error("RegCodes is null.")
+    if (user!!.isSuperAdmin && regCodes == null)
+        error("RegCodes is null.")
     
-    returnRegCodes(regCodes!!)
+    if (user!!.isSuperAdmin) returnRegCodes(regCodes!!)
     
     val tabs = remember {
         buildList {
@@ -256,6 +266,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                 Send -> WriteMessageScreen()
                 Group -> GroupScreen(client, accessToken, groups!!, user!!.isSuperAdmin)
                 Settings -> SettingsScreen(
+                    isInDarkTheme = isDarkMode ?: isSystemInDarkTheme(),
                     onAccountSettingsClick = { navigator.go(NavTree.AccountSettings) },
                     isSuperAdminLogIn = user!!.isSuperAdmin,
                     onAdminToolsClick = { navigator.go(NavTree.AdminTools) },
@@ -263,7 +274,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                     onNotificationsClick = { },
                     onTOSClick = { },
                     onLanguageClick = { },
-                    onThemeSwitchClick = { },
+                    onThemeSwitchClick = darkModeStateSwitch,
                 )
             }
         }
