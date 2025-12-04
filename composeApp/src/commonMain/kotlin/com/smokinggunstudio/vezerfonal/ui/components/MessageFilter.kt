@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -28,7 +29,7 @@ import kotlin.time.ExperimentalTime
 @Preview
 fun MessageFilter(
     state: MessageFilterState,
-    tabOpenedCallback: CallbackEvent<Boolean>,
+    tabOpenedCallback: ClickEvent,
     modifier: Modifier = Modifier,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {

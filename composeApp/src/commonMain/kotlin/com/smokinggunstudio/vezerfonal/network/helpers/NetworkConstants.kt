@@ -47,5 +47,11 @@ object NetworkConstants {
         const val GET_ALL_REG_CODES = "/api/codes/all"
         
         const val GET_GROUP_BY_EXT_ID = "/api/groups/extId"
+        
+        const val GET_ALL_GROUPS_USER_IS_ADMIN_OF = ""
+        
+        const val GET_USERS_BY_IDENTIFIER_LIST = ""
+        
+        const val GET_ALL_TAGS = ""
     }
 }

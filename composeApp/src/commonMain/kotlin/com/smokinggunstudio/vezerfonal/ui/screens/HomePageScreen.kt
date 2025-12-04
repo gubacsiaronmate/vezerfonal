@@ -118,7 +118,7 @@ fun HomePageScreen(
             if (isFilterOpened)
                 MessageFilter(
                     state = messageFilterState,
-                    tabOpenedCallback = { _ -> },
+                    tabOpenedCallback = {  },
                     modifier = Modifier.align(Alignment.TopCenter)
                 ) { scrollLockedBySliderCallback(it && isFilterOpened) }
             else scrollLockedBySliderCallback(false)

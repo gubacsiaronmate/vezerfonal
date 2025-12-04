@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
 import com.smokinggunstudio.vezerfonal.ui.state.SelectionState
@@ -29,6 +30,7 @@ import vezerfonal.composeapp.generated.resources.cancel
 @Composable
 internal inline fun <reified T : DTO> GeneralSelectionScreen(
     state: SelectionState<T>,
+    noinline onCancelClick: ClickEvent
 ) {
     val searchBarState by remember { mutableStateOf(SearchBarState()) }
     
@@ -73,7 +75,7 @@ internal inline fun <reified T : DTO> GeneralSelectionScreen(
                     modifier = Modifier
                         .width(160.dp)
                         .height(48.dp),
-                    onClick = {},
+                    onClick = onCancelClick,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Text(

@@ -20,8 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.GroupSelect
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagSelect
+import com.smokinggunstudio.vezerfonal.ui.components.IndividualSelect
 import com.smokinggunstudio.vezerfonal.ui.components.ReactionBar
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientSelectButton
+import com.smokinggunstudio.vezerfonal.ui.components.TagSelect
 import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
 import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
 import com.smokinggunstudio.vezerfonal.ui.state.UserSelectionState
@@ -38,7 +40,8 @@ fun WriteMessageScreen() {
     val groupSelectionState = remember { GroupSelectionState() }
     val userSelectionState = remember { UserSelectionState() }
     val tagSelectionState = remember { TagSelectionState() }
-    var isIndividualTabOpened by remember { mutableStateOf(true) }
+    var isIndividualTabOpened by remember { mutableStateOf(false) }
+    var isTagSelectTabOpened by remember { mutableStateOf(false) }
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -57,11 +60,11 @@ fun WriteMessageScreen() {
         ) {
             RecipientSelectButton(
                 text = stringResource(Res.string.groups),
-                onClick = { isGroupTabOpened = it }
+                onClick = { isGroupTabOpened = true }
             )
             RecipientSelectButton(
                 text = stringResource(Res.string.individuals),
-                onClick = { isIndividualTabOpened = it }
+                onClick = { isIndividualTabOpened = true }
             )
             IconToggleButton(
                 checked = state.isUrgent,
@@ -140,7 +143,7 @@ fun WriteMessageScreen() {
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
-                    HorizontallyScrollableTagSelect(tagSelectionState) { _ -> }
+                    HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -162,7 +165,9 @@ fun WriteMessageScreen() {
                 }
             }
             
-            if (isGroupTabOpened) GroupSelect(groupSelectionState)
+            if (isGroupTabOpened) GroupSelect(groupSelectionState) { isGroupTabOpened = false }
+            if (isTagSelectTabOpened) TagSelect(tagSelectionState) { isTagSelectTabOpened = false }
+            if (isIndividualTabOpened) IndividualSelect(userSelectionState) { isIndividualTabOpened = false }
         }
     }
 }

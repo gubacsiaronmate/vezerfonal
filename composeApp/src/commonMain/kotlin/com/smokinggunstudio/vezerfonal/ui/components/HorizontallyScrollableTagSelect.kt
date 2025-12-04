@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -39,7 +40,7 @@ import vezerfonal.composeapp.generated.resources.tags
 fun HorizontallyScrollableTagSelect(
     state: TagSelectionState,
     modifier: Modifier = Modifier,
-    tabOpenedCallback: CallbackEvent<Boolean>,
+    tabOpenedCallback: ClickEvent,
 ) {
     Row(
         modifier = modifier
@@ -77,7 +78,7 @@ fun HorizontallyScrollableTagSelect(
             }
         }
         Button(
-            onClick = { tabOpenedCallback(true) },
+            onClick = tabOpenedCallback,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             modifier = Modifier.padding(8.dp)
         ) {
