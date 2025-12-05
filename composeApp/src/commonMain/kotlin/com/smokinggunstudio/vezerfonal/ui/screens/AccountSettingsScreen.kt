@@ -29,12 +29,12 @@ import vezerfonal.composeapp.generated.resources.*
 @Preview
 @Composable
 fun AccountSettingsScreen(
+    user: UserData,
     client: HttpClient,
     accessToken: String,
     tokenStorage: TokenStorage,
     onLogOutClick: ClickEvent,
     onChangePasswordClick: ClickEvent,
-    user: UserData
 ) {
     val scope = rememberCoroutineScope()
     
@@ -49,7 +49,7 @@ fun AccountSettingsScreen(
         SettingRow(
             imageVector = Icons.Default.Password,
             text = stringResource(Res.string.change_password),
-            modifier = Modifier.clickable(onClick = onChangePasswordClick)
+            onClick = onChangePasswordClick
         )
         SettingRow(
             imageVector = Icons.Outlined.Shield,

@@ -129,4 +129,5 @@
     <string name="group_name">Csoport neve</string>
     <string name="join">Csatlakozás</string>
     <string name="total_uses">Max használhatóság</string>
+    <string name="status">Státusz</string>
 </resources>

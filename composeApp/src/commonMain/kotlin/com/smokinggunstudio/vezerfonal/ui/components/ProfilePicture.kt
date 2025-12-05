@@ -25,7 +25,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
     var data: FileData? by remember { mutableStateOf(null) }
     
     Column(
@@ -55,9 +54,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
                         contentDescription = null,
                         contentScale = ContentScale.Crop
                     )
-                }
-                
-                if (data == null) Image(
+                } ?: Image(
                     imageVector = Icons.Filled.Person,
                     contentDescription = null,
                 )

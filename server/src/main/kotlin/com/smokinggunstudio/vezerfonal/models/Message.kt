@@ -25,7 +25,7 @@ data class Message(
     
     fun toDTO(): MessageData = MessageData(
         title = title,
-        author = author.displayName,
+        author = author.toDTO(),
         content = content,
         isUrgent = isUrgent,
         tags = tags.map { tag -> tag.tagName },

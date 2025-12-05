@@ -10,8 +10,6 @@ suspend fun getMessages(
     amount: Int,
     client: HttpClient,
     accessToken: String,
-): List<MessageData> {
-    return client.get(NetworkConstants.Endpoints.GET_MESSAGES + amount) {
-        bearerAuth(accessToken)
-    }.body<List<MessageData>>()
-}
+): List<MessageData> =
+    client.get(NetworkConstants.Endpoints.GET_MESSAGES + amount)
+    { bearerAuth(accessToken) }.body()

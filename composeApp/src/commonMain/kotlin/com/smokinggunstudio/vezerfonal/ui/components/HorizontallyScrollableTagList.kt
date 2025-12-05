@@ -17,29 +17,38 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun HorizontallyScrollableTagList(
     tags: List<String>
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .horizontalScroll(rememberScrollState())
-        .padding(horizontal = 16.dp)
-        .padding(bottom = 8.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         tags.forEach { tag ->
-            Row(modifier = Modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(50)
-                )
-                .padding(horizontal =  12.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp))
-            {
-                Text(tag,
+            Row(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(50),
+                    )
+                    .padding(horizontal =  12.dp, vertical = 6.dp),
+            ) {
+                Text(
+                    text = tag,
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun Asd() {
+    HorizontallyScrollableTagList((0..12).map { "Test Tag $it" })
 }

@@ -33,6 +33,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Preview
 @Composable
 fun SettingsScreen(
+    username: String,
     onAccountSettingsClick: ClickEvent,
     isSuperAdminLogIn: Boolean,
     onAdminToolsClick: ClickEvent,
@@ -42,7 +43,6 @@ fun SettingsScreen(
     onLanguageClick: ClickEvent,
     isInDarkTheme: Boolean,
     onThemeSwitchClick: CallbackEvent<Boolean>,
-    user: UserData
 ) {
     var checked by remember { mutableStateOf(isInDarkTheme) }
     
@@ -51,36 +51,39 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        SettingsNameCard(
-            onAccountSettingsClick,
-            user = user
-        )
+        SettingsNameCard(username, onAccountSettingsClick)
+        
         if (isSuperAdminLogIn)
             SettingRow(
                 imageVector = Icons.Outlined.AdminPanelSettings,
                 text = stringResource(Res.string.admin_tools),
                 onClick = onAdminToolsClick
             )
+        
         SettingRow(
             imageVector = Icons.Outlined.Archive,
             text = stringResource(Res.string.archive),
             onClick = onArchiveClick
         )
+        
         SettingRow(
             imageVector = Icons.Outlined.Notifications,
             text = stringResource(Res.string.notifications),
             onClick = onNotificationsClick
         )
+        
         SettingRow(
             imageVector = Icons.AutoMirrored.Outlined.Article,
             text = stringResource(Res.string.terms_of_service),
             onClick = onTOSClick
         )
+        
         SettingRow(
             imageVector = Icons.Outlined.Language,
             text = stringResource(Res.string.language),
             onClick = onLanguageClick
         )
+        
         SettingRow(
             imageVector = Icons.Outlined.DarkMode,
             text = stringResource(Res.string.dark_mode),

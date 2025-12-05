@@ -262,10 +262,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 route("/messages") {
                     get("/subscribe") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         val userId = principal.user.id!!
                         
                         call.response.cacheControl(CacheControl.NoCache(null))
@@ -284,10 +281,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     get("/{amount}") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
                         val userId = principal.user.id!!
                         val db = principal.db
@@ -302,10 +296,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     post("/send") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
                         
                         val authorId = principal.user.id!!
                         val db = principal.db
@@ -351,10 +342,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 route("/users") {
                     get("/data") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
                         val userId = principal.user.id!!
                         val db = principal.db
@@ -370,10 +358,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     get("/all") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
@@ -388,15 +373,29 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         call.respond(users)
                     }
+                    
+                    post("/by-identifier-list") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val db = principal.db
+                        val identifiers = call.receive<List<Identifier>>()
+                        
+                        val users = tryInternal("Unable to get any user.") {
+                            identifiers.map {
+                                UserRepository(db)
+                                    .getUserByIdentifier(it)
+                            }.filter { it != null }.map { it!!.toDTO() }
+                        } ?: return@post
+                        
+                        call.respond(users)
+                    }
                 }
                 
                 route("/groups") {
                     get("/data") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
                         val user = principal.user
                         val db = principal.db
@@ -411,12 +410,25 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         call.respond(groups)
                     }
                     
+                    get("/im-admin-of") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val adminId = principal.user.id!!
+                        val db = principal.db
+                        
+                        val groups = tryInternal("Unable to get groups.") {
+                            GroupRepository(db)
+                                .getGroupsByAdminId(adminId)
+                                .map { it.toDTO() }
+                        } ?: return@get
+                        
+                        call.respond(groups)
+                    }
+                    
                     post("/create") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
                         
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
@@ -434,15 +446,13 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     post("/join") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
                         
                         val userId = principal.user.id!!
                         val db = principal.db
                         
-                        val groupExtId = call.receive<String>()
+                        val groupExtId = tryIncoming("Unable to receive extId.")
+                        { call.receive<String>() } ?: return@post
                         
                         val group = tryInternal("Unable to find group with ext id: $groupExtId")
                         { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
@@ -460,12 +470,10 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     get("/extId") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
-                        val extId = call.receive<String>()
+                        val extId = tryIncoming("Unable to receive extId.")
+                        { call.receive<String>() } ?: return@get
                         
                         val db = principal.db
                         val userId = principal.user.id!!
@@ -487,10 +495,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 route("/codes") {
                     get("/all") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
@@ -506,10 +511,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     
                     post("/create") {
                         val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respondText(
-                                "Unauthorized",
-                                status = HttpStatusCode.Unauthorized
-                            )
+                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
                         
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
@@ -523,6 +525,43 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         } ?: return@post
                         
                         if (success) call.respond(HttpStatusCode.OK)
+                    }
+                    
+                    delete("/delete") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+                        
+                        if (!principal.user.isSuperAdmin)
+                            call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val db = principal.db
+                        
+                        val code = tryIncoming("Unable to receive code.")
+                        { call.receive<String>() } ?: return@delete
+                        
+                        val success = tryInternal("Unable to delete code.") {
+                            RegistrationCodeRepository(db)
+                                .deleteCode(code)
+                        } ?: return@delete
+                        
+                        if (success) call.respond(HttpStatusCode.OK)
+                    }
+                }
+                
+                route("/tags") {
+                    get("/all") {
+                        val principal = call.principal<AuthResponse>()
+                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+                        
+                        val db = principal.db
+                        
+                        val tags = tryInternal("Unable to get any tag.") {
+                            TagRepository(db)
+                                .getAllTags()
+                                .map { it.toDTO() }
+                        } ?: return@get
+                        
+                        call.respond(tags)
                     }
                 }
             }

@@ -1,6 +1,8 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import kotlin.collections.emptyList
@@ -8,9 +10,6 @@ import kotlin.collections.emptyList
 class WriteMessageState {
     private val _title = mutableStateOf("")
     val title: String get() = _title.value
-    
-    private val _author = mutableStateOf("")
-    val author: Identifier get() = _author.value
     
     private val _content = mutableStateOf("")
     val content: String get() = _content.value
@@ -32,11 +31,7 @@ class WriteMessageState {
     
     private val _groups = mutableStateOf<List<ExternalId>>(emptyList())
     val groups: List<ExternalId> get() = _groups.value
-
     
-    fun updateAuthor(newAuthor: String) {
-        _author.value = newAuthor
-    }
     
     fun updateUrgency(newValue: Boolean) {
         _isUrgent.value = newValue
@@ -72,5 +67,28 @@ class WriteMessageState {
     
     fun removeReaction(reaction: String) {
         _availableReactions.value = _availableReactions.value.filter { it != reaction }
+    }
+    
+    fun toMessageData(author: UserData) = MessageData(
+        title = title,
+        author = author,
+        content = content,
+        isUrgent = isUrgent,
+        tags = tags,
+        status = null,
+        userIdentifiers = userIdentifiers,
+        availableReactions = availableReactions,
+        groups = groups
+    )
+    
+    fun clear() {
+        _title.value = ""
+        _content.value = ""
+        _isUrgent.value = false
+        _tags.value = emptyList()
+        _status.value = ""
+        _userIdentifiers.value = emptyList()
+        _availableReactions.value = emptyList()
+        _groups.value = emptyList()
     }
 }

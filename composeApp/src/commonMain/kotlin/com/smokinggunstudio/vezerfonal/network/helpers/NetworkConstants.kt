@@ -46,11 +46,11 @@ object NetworkConstants {
         
         const val GET_ALL_REG_CODES = "/api/codes/all"
         
-        const val GET_ALL_GROUPS_USER_IS_ADMIN_OF = ""
+        const val GET_ALL_GROUPS_USER_IS_ADMIN_OF = "/api/groups/im-admin-of"
         
-        const val GET_USERS_BY_IDENTIFIER_LIST = ""
+        const val GET_USERS_BY_IDENTIFIER_LIST = "/api/users/by-identifier-list"
         
-        const val GET_ALL_TAGS = ""
+        const val GET_ALL_TAGS = "/api/tags/all"
         
         const val SUBSCRIBE_TO_MESSAGES = "/api/messages/subscribe"
     }

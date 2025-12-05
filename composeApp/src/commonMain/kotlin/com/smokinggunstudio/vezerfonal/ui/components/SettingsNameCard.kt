@@ -22,8 +22,8 @@ import vezerfonal.composeapp.generated.resources.name
 @Preview(showBackground = true)
 @Composable
 fun SettingsNameCard(
+    username: String,
     onClickEvent: ClickEvent,
-    user: UserData
 ) {
     Row(
         modifier = Modifier
@@ -47,7 +47,7 @@ fun SettingsNameCard(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = user.name,
+                    text = username,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     modifier = Modifier

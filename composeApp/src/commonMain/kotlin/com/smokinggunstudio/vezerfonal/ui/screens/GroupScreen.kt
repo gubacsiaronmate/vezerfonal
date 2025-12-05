@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.network.api.createGroup
 import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
 import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
@@ -41,6 +42,7 @@ import vezerfonal.composeapp.generated.resources.join_group
 @Composable fun GroupScreen(
     client: HttpClient,
     accessToken: String,
+    myIdentifier: Identifier,
     groupData: List<GroupData>,
     isSuperAdminLogIn: Boolean = false
 ) {
@@ -115,12 +117,14 @@ import vezerfonal.composeapp.generated.resources.join_group
                                 // TODO: Add logic to delete group
                             }
                         },
-                        group = group
+                        group = group,
+                        myIdentifier = myIdentifier
                     )
                 else GroupCard(
                     name = group.name,
                     extId = group.externalId,
-                    description = group.description
+                    description = group.description,
+                    amITheAdmin = group.adminIdentifier == myIdentifier
                 )
             }
         }

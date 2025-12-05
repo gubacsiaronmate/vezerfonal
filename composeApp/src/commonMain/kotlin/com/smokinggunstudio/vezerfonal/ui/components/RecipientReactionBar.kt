@@ -11,58 +11,50 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun RecipientReactionBar(
     reactions: List<String>,
-    onReactionSelected: (String?) -> Unit
+    onReactionSelected: CallbackEvent<String>
 ) {
-    val selected: MutableState<String?> = remember { mutableStateOf(null) }
-    
     Row(
         modifier = Modifier
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(100)
+                shape = RoundedCornerShape(50)
             )
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 8.dp)
+            .padding(top = 8.dp)
+            .padding(bottom = 4.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         reactions.forEach { emoji ->
-            val isSelected = selected.value == emoji
-            val bgColor =
-                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                else MaterialTheme.colorScheme.surfaceContainer
-            
             Text(
                 text = emoji,
                 fontSize = 24.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .background(
-                        color = bgColor,
-                        shape = RoundedCornerShape(100)
-                    )
                     .padding(8.dp)
-                    .clickable {
-                        if (isSelected) {
-                            selected.value = null
-                            onReactionSelected(null)
-                        } else {
-                            selected.value = emoji
-                            onReactionSelected(emoji)
-                        }
-                    }
+                    .clickable { onReactionSelected(emoji) }
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun Asd() {
+    RecipientReactionBar(
+        listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒")
+    ) {}
 }

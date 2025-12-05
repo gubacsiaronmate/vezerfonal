@@ -14,18 +14,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun RecipientSelectButton(
     text: String,
-    onClick: CallbackEvent<Boolean>
+    selectedAmount: Int,
+    onClick: ClickEvent
 ) {
-    val isOpened by remember { mutableStateOf(false) }
-    
     Button(
-        onClick = { onClick(isOpened) },
+        onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(
@@ -45,6 +45,10 @@ fun RecipientSelectButton(
             VerticalDivider(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
+            )
+            Text(
+                text = selectedAmount.toString(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

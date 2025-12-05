@@ -10,6 +10,5 @@ suspend fun getAllGroupsUserIsAdminOf(
     accessToken: String,
     client: HttpClient
 ): List<GroupData> =
-    client.get(NetworkConstants.Endpoints.GET_ALL_GROUPS_USER_IS_ADMIN_OF) {
-        bearerAuth(accessToken)
-    }.body()
+    client.get(NetworkConstants.Endpoints.GET_ALL_GROUPS_USER_IS_ADMIN_OF)
+    { bearerAuth(accessToken) }.body()
