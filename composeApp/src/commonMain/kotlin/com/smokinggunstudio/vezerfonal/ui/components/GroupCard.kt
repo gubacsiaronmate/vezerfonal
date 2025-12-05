@@ -30,32 +30,35 @@ fun GroupCard(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween)
     {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.fillMaxWidth()) {
             Image(
                 imageVector = Icons.Filled.Groups2,
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
             )
-            Column {
-                Text(
-                    text = "$name: ($extId)",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                )
-                Text(
-                    text = description,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                    .padding(start = 16.dp)
-                )
+            Row(modifier = Modifier.fillMaxWidth(0.9F)){
+                Column {
+                    Text(
+                        text = "$name: ($extId)",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                    )
+                    Text(
+                        text = description,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                    )
+                }
             }
             if (amITheAdmin)
                 Icon(
                     imageVector = Icons.Outlined.Shield,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.weight(1F, true)
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
         }
     }
@@ -68,6 +71,6 @@ fun GroupCardPreview() {
         name = "Group Card",
         extId = "6546asd",
         description = "This is a description",
-        false
+        true
     )
 }
