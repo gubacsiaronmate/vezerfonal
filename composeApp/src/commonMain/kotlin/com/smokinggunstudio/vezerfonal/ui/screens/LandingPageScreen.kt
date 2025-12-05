@@ -31,19 +31,9 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LandingPageScreen(
-    client: HttpClient,
     onRegisterClick: ClickEvent,
-    onLoginClick: CallbackEvent<List<OrgData>>,
-    /*asdClickEvent: ClickEvent*/
+    onLoginClick: ClickEvent,
 ) {
-    var loaded by remember { mutableStateOf(false) }
-    var data by remember { mutableStateOf<List<OrgData>?>(null) }
-    LaunchedEffect(Unit) {
-        val d = getAllOrgsRequest(client)
-        data = d
-        loaded = true
-    }
-    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -95,8 +85,7 @@ fun LandingPageScreen(
                 )
             }
             AnimatedButton(
-                enabled = loaded,
-                onClick = { onLoginClick(data!!) },
+                onClick = onLoginClick,
                 shape = ShapeModifier.ROUNDED.toShape(),
                 modifier = Modifier.fillMaxWidth()
             ) {

@@ -349,7 +349,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         val user = tryInternal("Unable to query users table.") {
                             UserRepository(db).getUserById(userId)!!.apply {
-                                this.isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
+                                isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
                             }.toDTO()
                         } ?: return@get
                         
@@ -421,7 +421,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                             GroupRepository(db)
                                 .getGroupsByAdminId(adminId)
                                 .map { it.toDTO() }
-                        } ?: return@get
+                        } ?: return@get println("\n\n\n\n\n\n\n\n\n\ngroups was null.\n\n\n\n\n\n\n\n\n\n")
                         
                         call.respond(groups)
                     }

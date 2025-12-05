@@ -72,7 +72,8 @@ suspend fun MessageData.toMessage(
     var user: User? = null
     
     val users = userIdentifiers.orEmpty().map { urepo.getUserByIdentifier(it)!! }
-    val groups = groups.orEmpty().map { grepo.getExactGroupByNameAndAdminIdentifier(it.name, it.adminIdentifier)!! }
+    val groupData = groups.orEmpty().map { grepo.getGroupByExtId(it)!! }
+    val groups = groupData.map { grepo.getExactGroupByNameAndAdminIdentifier(it.displayName, it.admin.identifier)!! }
     val allGroupUsers = groups.flatMap { group -> group.members.map { it.user } }
     val combinedUsers = users + allGroupUsers
     

@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.OrgData
@@ -21,10 +20,10 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.getAllGroupsUserIsAdminOf
+import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.network.api.getAllRegCodes
 import com.smokinggunstudio.vezerfonal.network.api.getGroupData
 import com.smokinggunstudio.vezerfonal.network.api.getUserData
-import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
@@ -56,7 +55,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                     .background(color = MaterialTheme.colorScheme.surface)
                     .statusBarsPadding()
                     .navigationBarsPadding()
-            ) { NavigatorComposable(darkModeState) { darkModeState = it; println("$it\n$darkModeState") } }
+            ) { NavigatorComposable(darkModeState) { darkModeState = it } }
         }
     }
 }
@@ -68,7 +67,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 ) {
     val navigator = rememberNavigator()
     val scope = rememberCoroutineScope()
-    var registerState by remember { mutableStateOf<RegisterState?>(null) }
+    lateinit var registerState: RegisterState
     var pendingRegisterState by remember {  mutableStateOf<RegisterState?>(null) }
     val client = createHttpClient()
     val tokenStorage = remember {
@@ -79,9 +78,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
         }
     }
     var token: String? by remember { mutableStateOf(null) }
-    var orgs: List<OrgData> by remember { mutableStateOf(emptyList()) }
-    var regCodes: List<RegCodeData>? by remember { mutableStateOf(null) }
-    var user: UserData? by remember { mutableStateOf(null) }
+    lateinit var orgs: List<OrgData>/* by remember { mutableStateOf(emptyList()) }*/
+    lateinit var regCodes: List<RegCodeData>/*? by remember { mutableStateOf(null) }*/
+    lateinit var user: UserData/*? by remember { mutableStateOf(null) }*/
     
     LaunchedEffect(pendingRegisterState) {
         pendingRegisterState?.let { regState ->
@@ -90,7 +89,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                 is NonAdminRegisterState -> navigator.go(NavTree.Register(2))
                 is AdminRegisterState -> navigator.go(NavTree.CreateOrg)
                 else -> error(
-                    "handleOnClickCallback: registerState has a weird type: { ${registerState!!::class.simpleName} } or value: { $registerState }"
+                    "handleOnClickCallback: registerState has a weird type: { ${registerState::class.simpleName} } or value: { $registerState }"
                 )
             }
         }
@@ -104,21 +103,20 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
             
             LaunchedEffect(Unit) {
                 val t = getAccessToken(tokenStorage, client)
+                val o = getAllOrgsRequest(client)
                 token = t
+                orgs = o
                 loaded = true
             }
             
             if (!loaded) return@screen
             
-            if (token == null) LandingPageScreen(
-                client = client,
+            if (token != null) navigator.go(NavTree.Home)
+            
+            LandingPageScreen(
                 onRegisterClick = { navigator.go(NavTree.Register(1)) },
-                onLoginClick = { data ->
-                    orgs = data
-                    navigator.go(NavTree.Login)
-                },
-                /*asdClickEvent = { navigator.go(NavTree.Test) }*/
-            ) else navigator.go(NavTree.Home)
+                onLoginClick = { navigator.go(NavTree.Login) },
+            )
         }
         
         screen(NavTree.Home) {
@@ -139,26 +137,17 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
         }
         
         screen(NavTree.CreateOrg) {
-            if (registerState == null)
-                error("CreateOrg.route: RegisterState cannot be null.")
-            
             CreateOrganizationScreen(
                 registerState as AdminRegisterState, client
             ) { navigator.go(NavTree.Register(2)) }
         }
         
         screen(NavTree.Register(2)) {
-            if (registerState == null)
-                error("Register2.route: RegisterState cannot be null.")
-            
-            CredentialsRegisterScreen(registerState!!) { navigator.go(NavTree.Register(3)) }
+            CredentialsRegisterScreen(registerState) { navigator.go(NavTree.Register(3)) }
         }
         
         screen(NavTree.Register(3)) {
-            if (registerState == null)
-                error("Register2.route: RegisterState cannot be null.")
-            
-            ProfileCreationScreen(registerState!!, tokenStorage, client) { navigator.go(NavTree.Home) }
+            ProfileCreationScreen(registerState, tokenStorage, client) { navigator.go(NavTree.Home) }
         }
         
         screen(NavTree.Login) {
@@ -176,7 +165,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
                 return@screen navigator.go(NavTree.Landing)
             
             AccountSettingsScreen(
-                user = user!!,
+                user = user,
                 client = client,
                 accessToken = token!!,
                 tokenStorage = tokenStorage,
@@ -197,12 +186,10 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
             if (token == null)
                 return@screen navigator.go(NavTree.Landing)
             
-            if (regCodes == null) return@screen
-            
             RegCodeManagementScreen(
                 client = client,
                 accessToken = token!!,
-                registrationCodes = regCodes!!
+                registrationCodes = regCodes
             )
         }
         
@@ -211,8 +198,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
         screen(NavTree.UserManagement) { }
         
         screen(NavTree.ChangePassword) { ChangePasswordScreen() }
-        
-        /*screen(NavTree.Test) { }*/
     }
 }
 
@@ -225,40 +210,33 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     returnRegCodes: CallbackEvent<List<RegCodeData>>,
     returnUser: CallbackEvent<UserData>
 ) {
+    var loaded by remember { mutableStateOf(false) }
     var user by remember { mutableStateOf<UserData?>(null) }
     var groups by remember { mutableStateOf<List<GroupData>?>(null) }
-    var loaded by remember { mutableStateOf(false) }
     var regCodes by remember { mutableStateOf<List<RegCodeData>?>(null) }
     var guiao by remember { mutableStateOf<List<GroupData>?>(null) }
     
     LaunchedEffect(Unit) {
-        val u = getUserData(accessToken, client)
-        val g = getGroupData(accessToken, client)
-        val r = if (u.isSuperAdmin)
-            getAllRegCodes(accessToken, client)
-        else null
-        val gao = if (u.isAnyAdmin)
-            getAllGroupsUserIsAdminOf(accessToken, client)
-        else null
-        user = u
-        groups = g
-        regCodes = r
-        guiao = gao
+        user = getUserData(accessToken, client)
+        
+        groups = getGroupData(accessToken, client)
+        
+        if (user!!.isSuperAdmin)
+            regCodes = getAllRegCodes(accessToken, client)
+        
+        if (user!!.isAnyAdmin)
+            guiao = getAllGroupsUserIsAdminOf(accessToken, client)
+            
         loaded = true
     }
     
     if (!loaded) return
     
-    if (user == null) error("UserData is null.")
-    if (groups == null) error("GroupData is null.")
-    if (user!!.isSuperAdmin && regCodes == null)
-        error("RegCodes is null.")
-    if (user!!.isAnyAdmin && guiao == null)
-        error("GUIAO is null.")
-    
     if (user!!.isSuperAdmin)
         returnRegCodes(regCodes!!)
     returnUser(user!!)
+    
+    println(guiao)
     
     val tabs = remember {
         buildList {
@@ -270,12 +248,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
         }
     }
     
-    val pagerState = rememberPagerState { tabs.size }
     val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState { tabs.size }
     var isScrollEnabled by remember { mutableStateOf(true) }
-    
-    
-    
     
     Scaffold(
         bottomBar = {
