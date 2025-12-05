@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.data
 
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,7 +15,8 @@ data class MessageData(
     val status: MessageStatus?,
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
-    val groups: List<ExternalId>?
+    val groups: List<ExternalId>?,
+    val sentAt: String?
 ) {
     init {
         require(availableReactions == null || availableReactions.size < 9)

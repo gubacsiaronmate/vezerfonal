@@ -53,10 +53,9 @@ class TagRepository(val db: Database) {
     suspend fun getTagsByMessageId(
         id: Int,
     ): List<Tag> = suspendTransaction(db) {
-        getTagsByCondition {
-            (MessageTagConnection.messageId eq id) and
-                    (MessageTag.id eq MessageTagConnection.tagId)
-        }
+        (MessageTag innerJoin MessageTagConnection)
+            .select { MessageTagConnection.messageId eq id }
+            .map { it.toTag() }
     }
     
     suspend fun doesTagExist(

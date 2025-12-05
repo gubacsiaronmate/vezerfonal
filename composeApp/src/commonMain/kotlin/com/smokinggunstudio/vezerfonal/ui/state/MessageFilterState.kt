@@ -7,7 +7,7 @@ import com.smokinggunstudio.vezerfonal.helpers.toInstant
 import kotlinx.datetime.LocalDateTime
 
 class MessageFilterState {
-    private val _earliestMessageUnixTime = mutableStateOf(1731379200F)
+    private val _earliestMessageUnixTime = mutableStateOf(0F)
     val earliestMessageUnixTime get() = _earliestMessageUnixTime.value
     
     val latestMessageUnixTime

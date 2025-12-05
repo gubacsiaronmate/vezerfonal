@@ -78,7 +78,8 @@ class WriteMessageState {
         status = null,
         userIdentifiers = userIdentifiers,
         availableReactions = availableReactions,
-        groups = groups
+        groups = groups,
+        sentAt = null
     )
     
     fun clear() {

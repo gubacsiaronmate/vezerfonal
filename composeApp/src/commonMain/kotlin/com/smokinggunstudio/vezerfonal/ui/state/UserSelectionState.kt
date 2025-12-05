@@ -4,18 +4,17 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.UserData
 
 class UserSelectionState : SelectionState<UserData> {
-    private var _allItems: List<UserData> = emptyList()
-    override val allItems: List<UserData>
-        get() = _allItems
+    private var _allItems = mutableStateOf<List<UserData>>(emptyList())
+    override val allItems: List<UserData> get() = _allItems.value
     
     override var visibleItems: List<UserData> = allItems
     
     private val _users = mutableStateOf<List<UserData>>(emptyList())
-    override val selectedItems: List<UserData>
-        get() = _users.value
+    override val selectedItems: List<UserData> get() = _users.value
     
     override fun loadAllItems(items: List<UserData>) {
-        _allItems = items
+        _allItems.value = items
+        visibleItems = items
     }
     
     override fun addItem(item: UserData) {

@@ -38,35 +38,22 @@ fun WriteMessageScreen(
     user: UserData,
     client: HttpClient,
     accessToken: String,
-    guiao: List<GroupData>
+    guiao: List<GroupData>,
+    userList: List<UserData>,
+    tagList: List<TagData>
 ) {
     val scope = rememberCoroutineScope()
     val state = remember { WriteMessageState() }
     var isGroupTabOpened by remember { mutableStateOf(false) }
+    var isIndividualTabOpened by remember { mutableStateOf(false) }
+    var isTagSelectTabOpened by remember { mutableStateOf(false) }
     val groupSelectionState = remember { GroupSelectionState() }
     val userSelectionState = remember { UserSelectionState() }
     val tagSelectionState = remember { TagSelectionState() }
-    var isIndividualTabOpened by remember { mutableStateOf(false) }
-    var isTagSelectTabOpened by remember { mutableStateOf(false) }
-    var userList by remember { mutableStateOf<List<UserData>>(emptyList()) }
-    var tagList by remember { mutableStateOf<List<TagData>>(emptyList()) }
-    
-    val job = scope.launch {
-        userList = getUsersByIdentifierList(
-            guiao
-                .map { it.members }
-                .flatten(),
-            accessToken,
-            client
-        )
-        tagList = getAllTags(accessToken, client)
-    }
     
     groupSelectionState.loadAllItems(guiao)
-    if (job.isCompleted) {
-        userSelectionState.loadAllItems(userList)
-        tagSelectionState.loadAllItems(tagList)
-    }
+    userSelectionState.loadAllItems(userList)
+    tagSelectionState.loadAllItems(tagList)
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -200,21 +187,24 @@ fun WriteMessageScreen(
                 }
             }
             
-            if (isGroupTabOpened) GroupSelect(
-                state = groupSelectionState,
-                onCancelClick = { isGroupTabOpened = false },
-                onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
-            )
-            if (isTagSelectTabOpened) TagSelect(
-                state = tagSelectionState,
-                onCancelClick = { isTagSelectTabOpened = false },
-                onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
-            )
-            if (isIndividualTabOpened) IndividualSelect(
-                state = userSelectionState,
-                onCancelClick = { isIndividualTabOpened = false },
-                onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.identifier }) }
-            )
+            if (isGroupTabOpened && !isIndividualTabOpened && !isTagSelectTabOpened)
+                GroupSelect(
+                    state = groupSelectionState,
+                    onCancelClick = { isGroupTabOpened = false },
+                    onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
+                )
+            if (isTagSelectTabOpened && !isGroupTabOpened && !isIndividualTabOpened)
+                TagSelect(
+                    state = tagSelectionState,
+                    onCancelClick = { isTagSelectTabOpened = false },
+                    onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
+                )
+            if (isIndividualTabOpened && !isGroupTabOpened && !isTagSelectTabOpened)
+                IndividualSelect(
+                    state = userSelectionState,
+                    onCancelClick = { isIndividualTabOpened = false },
+                    onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.identifier }) }
+                )
         }
     }
 }

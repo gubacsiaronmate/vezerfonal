@@ -13,6 +13,7 @@ sealed class NavTree(val hasParameters: Boolean) {
     data object RegCodeManagement : NavTree(false) { override fun getParameter(): String = "" }
     data object TagManagement : NavTree(false) { override fun getParameter(): String = "" }
     data object UserManagement : NavTree(false) { override fun getParameter(): String = "" }
+    data object ViewMessage : NavTree(false) { override fun getParameter(): String = "" }
     data object Test : NavTree(false) { override fun getParameter(): String = "" }
     data object ChangePassword : NavTree(false) { override fun getParameter(): String = "" }
 }

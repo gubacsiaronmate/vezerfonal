@@ -4,9 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.TagData
 
 class TagSelectionState : SelectionState<TagData> {
-    private var _allItems = emptyList<TagData>()
-    override val allItems: List<TagData>
-        get() = _allItems
+    private var _allItems = mutableStateOf<List<TagData>>(emptyList())
+    override val allItems: List<TagData> get() = _allItems.value
     
     override var visibleItems: List<TagData> = allItems
     
@@ -15,7 +14,8 @@ class TagSelectionState : SelectionState<TagData> {
         get() = _tags.value
     
     override fun loadAllItems(items: List<TagData>) {
-        _allItems = items
+        _allItems.value = items
+        visibleItems = items
     }
     
     override fun addItem(item: TagData) {

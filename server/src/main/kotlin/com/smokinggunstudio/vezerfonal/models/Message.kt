@@ -2,7 +2,9 @@ package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.format
 
 data class Message(
     val id: Int?,
@@ -32,6 +34,7 @@ data class Message(
         status = status,
         userIdentifiers = null,
         availableReactions = availableReactions,
-        groups = null
+        groups = null,
+        sentAt = (createdAt ?: LocalDateTime.now()).toString()
     )
 }

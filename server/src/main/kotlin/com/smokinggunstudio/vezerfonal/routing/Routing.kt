@@ -289,7 +289,11 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val amount = call.parameters["amount"]?.toIntOrNull()
                             ?: return@get
                         
-                        val messages = MessageRepository(db).getMessagesBySenderUserId(userId, limit = amount).map { it.toDTO() }
+                        val messages = tryInternal("Unable to get messages.") {
+                            MessageRepository(db)
+                                .getMessagesByRecipientUserId(userId, limit = amount)
+                                .map { it.toDTO() }
+                        } ?: return@get
                         
                         call.respond(messages)
                     }
@@ -308,7 +312,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                             db = db
                         ) } ?: return@post
                         
-                        val success = tryInternal("Unable to insert message.")
+                        val (id, success) = tryInternal("Unable to insert message.")
                         { MessageRepository(db).insertMessage(message) } ?: return@post
                         
                         if (!success) call.respondText(
@@ -321,12 +325,17 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val recipients: List<User> = (message.user?.let { listOf(it) }
                             ?: message.group!!.members.map { it.user }) + message.author
                         
+                        val insertedMessage = tryInternal("Unable to get message.") {
+                            MessageRepository(db)
+                                .getMessageById(id)
+                        } ?: return@post
+                        
                         val interactionSuccess = tryInternal("Unable to insert all interactions.")
                         { recipients.map { user ->
                             InteractionInfoRepository(db)
                                 .insertInteraction(
                                     InteractionInfo(
-                                        message = message,
+                                        message = insertedMessage,
                                         user = user,
                                         type = InteractionType.status,
                                         status = message.status,

@@ -36,9 +36,10 @@ dependencies {
     // default imports
     implementation(projects.shared)
     implementation(libs.logback)
-    implementation(libs.ktor.serverCore)
+    implementation(libs.ktor.server.core)
     implementation(libs.ktor.serverNetty)
     implementation(libs.ktor.server.request.validation)
+    implementation(libs.ktor.server.sse)
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
 }

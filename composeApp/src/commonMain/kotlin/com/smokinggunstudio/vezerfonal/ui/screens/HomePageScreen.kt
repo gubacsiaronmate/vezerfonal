@@ -21,8 +21,13 @@ import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.between
+import com.smokinggunstudio.vezerfonal.ui.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -35,6 +40,7 @@ import kotlin.uuid.ExperimentalUuidApi
 fun HomePageScreen(
     accessToken: String,
     client: HttpClient,
+    onMessageClick: CallbackEvent<MessageData>,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     var isFilterOpened by remember { mutableStateOf(false) }
@@ -42,11 +48,15 @@ fun HomePageScreen(
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
+    var filtered by remember(messages) { mutableStateOf(messages) }
     
     LaunchedEffect(Unit) {
         isLoading = true
         messages = getMessages(100, client, accessToken)
+        filtered = messages
         isLoading = false
+        
+        messageFilterState.setEarliestMessageUnixTime(LocalDateTime.parse(messages.minByOrNull { LocalDateTime.parse(it.sentAt!!) }!!.sentAt!!))
         
         subscribeToMessages(
             client = client,
@@ -99,8 +109,36 @@ fun HomePageScreen(
         ) {
             if (!isFilterOpened) FilterButton { isFilterOpened = true }
             else FilterApplyCancelButtons(
-                onApply = { _ -> isFilterOpened = false },
-                onCancel = { isFilterOpened = false }
+                onApply = {
+                    filtered = messages.filter { message ->
+                        val dateMatch = if (messageFilterState.selectedStartDate > 0 && messageFilterState.selectedEndDate > 0) {
+                            LocalDateTime.parse(message.sentAt!!).between(
+                                start = messageFilterState.selectedStartDate.toLocalDateTime(),
+                                end = messageFilterState.selectedEndDate.toLocalDateTime()
+                            )
+                        } else true
+                        
+                        val senderMatch = if (messageFilterState.senderName.isNotEmpty()) {
+                            message.author.name.contains(messageFilterState.senderName, ignoreCase = true)
+                        } else true
+                        
+                        val urgentMatch =
+                            if (messageFilterState.isImportant)
+                                message.isUrgent else true
+                        
+                        val searchMatch = if (messageFilterState.searchQuery.isNotEmpty()) {
+                            message.title.contains(messageFilterState.searchQuery, ignoreCase = true)
+                                    || message.content.contains(messageFilterState.searchQuery, ignoreCase = true)
+                        } else true
+                        
+                        dateMatch && senderMatch && urgentMatch && searchMatch
+                    }
+                    isFilterOpened = false
+                },
+                onCancel = {
+                    filtered = messages
+                    isFilterOpened = false
+                }
             )
         }
         
@@ -114,11 +152,11 @@ fun HomePageScreen(
                     .verticalScroll(rememberScrollState())
             ) {
                 LazyColumn(modifier = Modifier.weight(1F)) {
-                    items(messages.reversed()) { message ->
+                    items(filtered.reversed()) { message ->
                         ListItem(
                             title = message.title,
                             author = message.author.name,
-                            onClick = {}
+                            onClick = { onMessageClick(message) }
                         )
                     }
                 }

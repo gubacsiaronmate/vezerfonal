@@ -4,18 +4,17 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.GroupData
 
 class GroupSelectionState : SelectionState<GroupData> {
-    private var _allItems: List<GroupData> = emptyList()
-    override val allItems: List<GroupData>
-        get() = _allItems
+    private var _allItems = mutableStateOf<List<GroupData>>(emptyList())
+    override val allItems: List<GroupData> get() = _allItems.value
     
     override var visibleItems: List<GroupData> = allItems
     
     private val _groups = mutableStateOf<List<GroupData>>(emptyList())
-    override val selectedItems: List<GroupData>
-        get() = _groups.value
+    override val selectedItems: List<GroupData> get() = _groups.value
     
     override fun loadAllItems(items: List<GroupData>) {
-        _allItems = items
+        _allItems.value = items
+        visibleItems = items
     }
     
     override fun addItem(item: GroupData) {

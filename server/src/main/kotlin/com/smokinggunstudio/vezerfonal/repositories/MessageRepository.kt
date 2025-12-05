@@ -105,8 +105,9 @@ class MessageRepository(val db: Database) {
     
     suspend fun getMessagesByRecipientUserId(
         id: Int,
+        limit: Int? = null
     ): List<Message> = suspendTransaction(db) {
-        getMessagesByCondition {
+        getMessagesByCondition(limit) {
             (Messages.userId eq id) or
                     (Messages.groupId inList UserGroupConnection
                         .select { UserGroupConnection.userId eq id }
@@ -125,7 +126,7 @@ class MessageRepository(val db: Database) {
     
     suspend fun insertMessage(
         message: Message,
-    ): Boolean = suspendTransaction(db) {
+    ): Pair<Int, Boolean> = suspendTransaction(db) {
         val trepo = TagRepository(db)
         
         val statement = Messages.insert {
@@ -144,6 +145,6 @@ class MessageRepository(val db: Database) {
             tagIds = tagIds
         )
         
-        statement.insertedCount == 1
+        Pair(statement[Messages.id], statement.insertedCount == 1)
     }
 }

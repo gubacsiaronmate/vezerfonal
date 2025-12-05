@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,7 @@ import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -44,6 +46,7 @@ import vezerfonal.composeapp.generated.resources.status
 fun MessageViewScreen(
     message: MessageData
 ) {
+    val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
     
     Column(
@@ -116,7 +119,11 @@ fun MessageViewScreen(
                 availableReactions = message.availableReactions,
                 modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
                 onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp }
-            ) {}
+            ) {
+                scope.launch {
+                
+                }
+            }
         }
     }
 }
@@ -142,7 +149,8 @@ private fun Asd1() {
             status = MessageStatus.received,
             userIdentifiers = null,
             availableReactions = listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒"),
-            groups = null
+            groups = null,
+            sentAt = null
         )
     )
 }
@@ -168,7 +176,8 @@ private fun Asd2() {
             status = MessageStatus.received,
             userIdentifiers = null,
             availableReactions = null,
-            groups = null
+            groups = null,
+            sentAt = null
         )
     )
 }

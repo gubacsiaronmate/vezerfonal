@@ -21,7 +21,7 @@ import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.clear
 
 @Composable fun FilterApplyCancelButtons(
-    onApply: CallbackEvent<Boolean>,
+    onApply: ClickEvent,
     onCancel: ClickEvent
 ) {
     val height = 32.dp
@@ -59,7 +59,7 @@ import vezerfonal.composeapp.generated.resources.clear
             Text(text = stringResource(Res.string.clear))
         }
         Button(
-            onClick = { onApply(false) },
+            onClick = onApply,
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.secondary,
