@@ -1,10 +1,6 @@
 package com.smokinggunstudio.vezerfonal.routing
 
-import com.smokinggunstudio.vezerfonal.data.GroupData
-import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.data.OrgData
-import com.smokinggunstudio.vezerfonal.data.RegCodeData
-import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.data.*
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
