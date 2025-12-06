@@ -10,6 +10,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,10 +23,13 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 
 @Composable fun NavBarButton(
     text: String,
+    selected: Boolean,
     icon: ImageVector,
     modifier: Modifier = Modifier,
     onClick: ClickEvent
 ) {
+    var displayText by remember { mutableStateOf(text) }
+    
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -37,9 +44,15 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = text,
+            text = displayText,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            onTextLayout = { result ->
+                displayText =
+                    if (selected) text
+                    else if (!selected || result.lineCount > 1)
+                    "${text.substring(0..2)}..." else text
+            }
         )
     }
 }

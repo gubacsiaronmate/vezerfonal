@@ -130,4 +130,6 @@
     <string name="join">Csatlakozás</string>
     <string name="total_uses">Max használhatóság</string>
     <string name="status">Státusz</string>
+    <string name="start">Start</string>
+    <string name="end">Vége</string>
 </resources>

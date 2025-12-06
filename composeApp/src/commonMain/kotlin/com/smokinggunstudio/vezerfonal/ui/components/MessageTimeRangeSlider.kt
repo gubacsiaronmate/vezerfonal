@@ -14,8 +14,14 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Velocity
+import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import kotlinx.datetime.Instant
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.end
+import vezerfonal.composeapp.generated.resources.start
 
 @Preview
 @Composable
@@ -25,7 +31,10 @@ fun MessageTimeRangeSlider(
     valueRange: ClosedFloatingPointRange<Float>,
     initialRange: ClosedFloatingPointRange<Float> = valueRange,
     steps: Int = 0,
-    formatLabel: (Float) -> String = { it.toString() },
+    formatLabel: (Float) -> String = { ts: Float ->
+        val local = Instant.fromEpochSeconds(ts.toLong()).toLocalDateTime()
+        "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+    },
     onRangeSelected: (ClosedFloatingPointRange<Float>) -> Unit,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
@@ -58,6 +67,6 @@ fun MessageTimeRangeSlider(
                 }
             }
         )
-        Text(text = "From ${formatLabel(sliderPosition.start)} to ${formatLabel(sliderPosition.endInclusive)}")
+        Text(text = "${stringResource(Res.string.start)}: ${formatLabel(sliderPosition.start)}\n${stringResource(Res.string.end)}: ${formatLabel(sliderPosition.endInclusive)}")
     }
 }

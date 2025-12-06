@@ -23,6 +23,10 @@ fun Instant.toLocalDateTime(): LocalDateTime = toLocalDateTime(TimeZone.currentS
 
 fun LocalDateTime.toFloat(): Float = toInstant().epochSeconds.toFloat()
 
+fun LocalDateTime.toLong(): Long = toInstant().epochSeconds
+
+fun Long.toInstant(): Instant = Instant.fromEpochSeconds(this)
+
 @OptIn(ExperimentalUuidApi::class)
 fun getExtId(): String = Uuid.random().toString().split("-").joinToString("").substring(0..15)
 

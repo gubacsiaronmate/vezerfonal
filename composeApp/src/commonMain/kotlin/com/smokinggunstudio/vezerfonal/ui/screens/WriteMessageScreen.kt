@@ -3,6 +3,8 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Error
@@ -55,9 +57,13 @@ fun WriteMessageScreen(
     userSelectionState.loadAllItems(userList)
     tagSelectionState.loadAllItems(tagList)
     
+    
+    
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = stringResource(Res.string.to),

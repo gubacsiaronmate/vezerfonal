@@ -4,10 +4,12 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.toFloat
 import com.smokinggunstudio.vezerfonal.helpers.toInstant
+import com.smokinggunstudio.vezerfonal.helpers.toLong
 import kotlinx.datetime.LocalDateTime
+import kotlin.math.floor
 
 class MessageFilterState {
-    private val _earliestMessageUnixTime = mutableStateOf(0F)
+    private val _earliestMessageUnixTime = mutableStateOf(0L)
     val earliestMessageUnixTime get() = _earliestMessageUnixTime.value
     
     val latestMessageUnixTime
@@ -34,7 +36,12 @@ class MessageFilterState {
     val tagSelectionState = mutableStateOf(TagSelectionState()).value
     
     fun setEarliestMessageUnixTime(newUnixTime: LocalDateTime?) {
-        _earliestMessageUnixTime.value = newUnixTime?.toFloat() ?: 1769904000F
+        val feb12026 = 1769904000L
+        val nowInSeconds = LocalDateTime.now().toInstant().toEpochMilliseconds() / 1000
+        
+        _earliestMessageUnixTime.value = newUnixTime?.toLong()
+            ?: if (nowInSeconds < feb12026)
+                nowInSeconds - (60 * 10) else feb12026
     }
     
     fun updateSelectedStartDate(newValue: Long) {

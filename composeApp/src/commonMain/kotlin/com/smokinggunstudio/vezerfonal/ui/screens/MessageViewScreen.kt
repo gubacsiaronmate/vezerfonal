@@ -50,6 +50,9 @@ fun MessageViewScreen(
 ) {
     val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
+    val statusString = """${stringResource(Res.string.status)}:
+        |${message.status?.toString()?.capitalize()
+        ?: MessageStatus.received.toString().capitalize()}""".trimMargin()
     
     Column(
         modifier = Modifier
@@ -58,48 +61,56 @@ fun MessageViewScreen(
         .background(color = MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.Top,
         ) {
-            Text(
-                text = message.title,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.headlineLarge
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    maxLines = 1,
+                    text = message.title,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth(.5F),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+                
+                Icon(
+                    imageVector =
+                        if (message.isUrgent) Icons.Filled.Error
+                        else Icons.Outlined.ErrorOutline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                )
+            }
             
             Row(
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text(
+                        maxLines = 1,
                         text = message.author.name,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "${stringResource(Res.string.status)}: ${message.status.toString().capitalize()}",
+                        text = statusString,
+                        maxLines = 1,
                         fontWeight = FontWeight.Medium,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                Icon(
-                    imageVector =
-                        if (message.isUrgent) Icons.Filled.Error
-                        else Icons.Outlined.ErrorOutline,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                )
             }
         }
         

@@ -1,7 +1,10 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -33,7 +36,8 @@ fun MessageFilter(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface),
+            .background(color = MaterialTheme.colorScheme.surface)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         OutlinedTextField(
@@ -60,12 +64,7 @@ fun MessageFilter(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             MessageTimeRangeSlider(
-                valueRange = state.earliestMessageUnixTime..state.latestMessageUnixTime,
-                formatLabel = { ts: Float ->
-                    val instant = Instant.fromEpochSeconds(ts.toLong())
-                    val local = instant.toLocalDateTime()
-                    "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
-                },
+                valueRange = state.earliestMessageUnixTime.toFloat()..state.latestMessageUnixTime,
                 onRangeSelected = { range ->
                     state.updateSelectedStartDate(range.start.toLong())
                     state.updateSelectedEndDate(range.endInclusive.toLong())

@@ -130,4 +130,6 @@
     <string name="join">Join</string>
     <string name="total_uses">Total uses</string>
     <string name="status">Status</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
 </resources>
