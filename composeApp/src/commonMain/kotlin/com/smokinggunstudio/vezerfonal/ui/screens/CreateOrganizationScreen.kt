@@ -73,8 +73,7 @@ fun CreateOrganizationScreen(
                         OrgData(
                             externalId = getExtId(),
                             name = state.orgName
-                        ),
-                        client
+                        ), client
                     )) onClick()
                 }
             }

@@ -4,34 +4,21 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.CreateOrganizationScreen
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import io.ktor.client.HttpClient
 
-class CreateOrg(
-    val client: HttpClient,
-    val isDarkMode: Boolean?,
-    val tokenStorage: TokenStorage,
-    val registerState: AdminRegisterState,
-    val darkModeStateCallback: CallbackEvent<Boolean>
-) : Screen {
+data class CreateOrg(val registerState: AdminRegisterState) : Screen {
     @Composable
     override fun Content() {
+        val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         
         CreateOrganizationScreen(registerState, client) {
-            navigator.push(
-                Register(
-                    page = 2,
-                    client = client,
-                    isDarkMode = isDarkMode,
-                    regState = registerState,
-                    tokenStorage = tokenStorage,
-                    darkModeStateCallback = darkModeStateCallback
-                )
-            )
+            navigator.push(Register(2, registerState))
         }
     }
 }

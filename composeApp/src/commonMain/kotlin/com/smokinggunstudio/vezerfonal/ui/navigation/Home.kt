@@ -2,15 +2,21 @@ package com.smokinggunstudio.vezerfonal.ui.navigation
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalDarkModeState
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
@@ -25,17 +31,15 @@ import com.smokinggunstudio.vezerfonal.ui.screens.*
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 
-class Home(
+data class Home(
     val accessToken: String,
-    val client: HttpClient,
-    val isDarkMode: Boolean?,
-    val tokenStorage: TokenStorage,
-    val darkModeStateSwitch: CallbackEvent<Boolean>,
 ) : Screen {
     @Composable
     @OptIn(ExperimentalFoundationApi::class)
     override fun Content() {
+        val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
+        val darkModeState = LocalDarkModeState.current
         var loaded by remember { mutableStateOf(false) }
         var user by remember { mutableStateOf<UserData?>(null) }
         var groups by remember { mutableStateOf<List<GroupData>?>(null) }
@@ -69,7 +73,10 @@ class Home(
             loaded = true
         }
         
-        if (!loaded) return
+        if (!loaded) {
+            Box(Modifier.fillMaxSize()) { CircularProgressIndicator(Modifier.align(Alignment.Center)) }
+            return
+        }
         
         val tabs = remember {
             buildList {
@@ -111,34 +118,15 @@ class Home(
                     Group -> GroupScreen(client, accessToken, user!!.identifier, groups!!, user!!.isSuperAdmin)
                     Settings -> SettingsScreen(
                         user = user!!,
-                        isInDarkTheme = isDarkMode ?: isSystemInDarkTheme(),
-                        onAccountSettingsClick = {
-                            navigator.push(
-                                AccountSettings(
-                                    token = accessToken,
-                                    user = user!!,
-                                    client = client,
-                                    isDarkMode = isDarkMode,
-                                    tokenStorage = tokenStorage,
-                                    darkModeStateCallback = darkModeStateSwitch
-                                )
-                            )
-                        },
+                        isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
+                        onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user!!)) },
                         isSuperAdminLogIn = user!!.isSuperAdmin,
-                        onAdminToolsClick = {
-                            navigator.push(
-                                AdminTools(
-                                    token = accessToken,
-                                    client = client,
-                                    regCodes = regCodes
-                                )
-                            )
-                        },
+                        onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
                         onArchiveClick = { },
                         onNotificationsClick = { },
                         onTOSClick = { },
                         onLanguageClick = { },
-                        onThemeSwitchClick = darkModeStateSwitch,
+                        onThemeSwitchClick = { darkModeState.value = it },
                     )
                 }
             }

@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.ui.screens.AdminToolsScreen
 import io.ktor.client.HttpClient
 
-class AdminTools(
+data class AdminTools(
     val token: String,
-    val client: HttpClient,
     val regCodes: List<RegCodeData>
 ) : Screen {
     @Composable
@@ -21,13 +21,7 @@ class AdminTools(
             onUserManagementClick = { navigator.push(UserManagement) },
             onTagManagementClick = { navigator.push(TagManagement) },
             onRegistrationCodeManagementClick = {
-                navigator.push(
-                    RegCodeManagement(
-                        token = token,
-                        client = client,
-                        regCodes = regCodes
-                    )
-                )
+                navigator.push(RegCodeManagement(token, regCodes))
             }
         )
     }

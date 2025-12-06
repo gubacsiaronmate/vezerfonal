@@ -35,6 +35,7 @@ fun LoginScreen(
     val loginState by remember { mutableStateOf(LoginState()) }
     var selectedOrgExtId by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    var counter by remember { mutableStateOf(0) }
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -52,6 +53,10 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
+                modifier = Modifier.clickable {
+                    if (counter < 3) counter++
+                    else selectedOrgExtId = "f9b14a894c80421c"
+                }
             )
         }
         

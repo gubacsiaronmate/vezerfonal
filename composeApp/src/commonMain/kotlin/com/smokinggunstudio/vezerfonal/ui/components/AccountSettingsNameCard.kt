@@ -26,7 +26,6 @@ import vezerfonal.composeapp.generated.resources.name
 import vezerfonal.composeapp.generated.resources.reveal_email
 import vezerfonal.composeapp.generated.resources.reveal_id
 
-@Preview(showBackground = true)
 @Composable
 fun AccountSettingsNameCard(
     user: UserData

@@ -64,7 +64,7 @@ fun MessageFilter(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             MessageTimeRangeSlider(
-                valueRange = state.earliestMessageUnixTime.toFloat()..state.latestMessageUnixTime,
+                valueRange = state.earliestMessageUnixTime..state.latestMessageUnixTime,
                 onRangeSelected = { range ->
                     state.updateSelectedStartDate(range.start.toLong())
                     state.updateSelectedEndDate(range.endInclusive.toLong())

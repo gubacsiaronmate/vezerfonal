@@ -1,9 +1,17 @@
 package com.smokinggunstudio.vezerfonal.ui.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalDarkModeState
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
@@ -15,19 +23,17 @@ import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import io.ktor.client.HttpClient
 
-class Landing(
-    val isDarkMode: Boolean?,
-    val darkModeStateCallback: CallbackEvent<Boolean>
-) : Screen {
+data object Landing : Screen {
     @Composable
     override fun Content() {
+        val client = LocalHttpClient.current
+        val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
-        val client = createHttpClient()
-        val tokenStorage = remember { TokenStorage() }
         var token: String? by remember { mutableStateOf(null) }
         var loaded by remember { mutableStateOf(false) }
-        lateinit var orgs: List<OrgData>
+        var orgs by remember { mutableStateOf<List<OrgData>>(emptyList()) }
         
         LaunchedEffect(Unit) {
             val t = getAccessToken(tokenStorage, client)
@@ -37,42 +43,19 @@ class Landing(
             loaded = true
         }
         
-        if (!loaded) return
+        if (!loaded) {
+            Box(Modifier.fillMaxSize()) { CircularProgressIndicator(Modifier.align(Alignment.Center)) }
+            return
+        }
         
-        if (token != null) navigator.replaceAll(
-            Home(
-                accessToken = token!!,
-                client = client,
-                isDarkMode = isDarkMode,
-                tokenStorage = tokenStorage,
-                darkModeStateSwitch = darkModeStateCallback
-            )
-        )
+        if (token != null) {
+            LaunchedEffect(token) { navigator.replaceAll(Home(token!!)) }
+            return
+        }
         
         LandingPageScreen(
-            onRegisterClick = {
-                navigator.push(
-                    Register(
-                        page = 1,
-                        client = client,
-                        isDarkMode = isDarkMode,
-                        regState = null,
-                        tokenStorage = tokenStorage,
-                        darkModeStateCallback = darkModeStateCallback
-                    )
-                )
-            },
-            onLoginClick = {
-                navigator.push(
-                    Login(
-                        client = client,
-                        orgs = orgs,
-                        tokenStorage = tokenStorage,
-                        isDarkMode = isDarkMode,
-                        darkModeStateCallback = darkModeStateCallback
-                    )
-                )
-            },
+            onRegisterClick = { navigator.push(Register(1, null)) },
+            onLoginClick = { navigator.push(Login(orgs)) },
         )
     }
 }

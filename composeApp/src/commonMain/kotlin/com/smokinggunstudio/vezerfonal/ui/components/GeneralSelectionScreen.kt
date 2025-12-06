@@ -26,9 +26,8 @@ import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.cancel
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal inline fun <reified T : DTO> GeneralSelectionScreen(
     state: SelectionState<T>,
     noinline onCancelClick: ClickEvent,
