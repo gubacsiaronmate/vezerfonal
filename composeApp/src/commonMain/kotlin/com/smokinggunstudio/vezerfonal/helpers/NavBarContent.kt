@@ -16,14 +16,6 @@ sealed class NavBarContent {
     data object Group: NavBarContent()
     data object Settings: NavBarContent()
     
-    @Composable fun label(): String = when (this) {
-        Home -> stringResource(Res.string.home).capitalize()
-        Archive -> stringResource(Res.string.archive).capitalize()
-        Send -> stringResource(Res.string.message).capitalize()
-        Group -> stringResource(Res.string.groups).capitalize()
-        Settings -> stringResource(Res.string.settings).capitalize()
-    }
-    
     fun icon(filled: Boolean): ImageVector =
         if (filled) when (this) {
             Home -> Icons.Filled.Home

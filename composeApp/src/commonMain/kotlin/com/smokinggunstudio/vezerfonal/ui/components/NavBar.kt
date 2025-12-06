@@ -23,7 +23,7 @@ fun NavBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -31,8 +31,6 @@ fun NavBar(
            val selected = i == currentIndex
            
            NavBarButton(
-               text = tab.label(),
-               selected = selected,
                icon = tab.icon(selected)
            ) { onTabSelected(i) }
        } 

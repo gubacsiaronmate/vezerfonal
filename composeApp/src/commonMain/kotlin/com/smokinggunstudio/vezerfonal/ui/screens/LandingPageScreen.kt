@@ -51,8 +51,7 @@ fun LandingPageScreen(
             contentDescription = "Landing Page Image",
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.6F)
-                /*.clickable(onClick = asdClickEvent),*/
+                .fillMaxHeight(0.5F)
         )
         
         Column(
@@ -68,7 +67,7 @@ fun LandingPageScreen(
             )
         }
         Column(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(1/3F + .1F),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(.4F),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             AnimatedButton(

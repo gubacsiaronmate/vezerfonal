@@ -63,7 +63,6 @@ fun WriteMessageScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
-            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = stringResource(Res.string.to),
@@ -145,7 +144,8 @@ fun WriteMessageScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        .padding(top = 12.dp)
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.Start
                 ) {
                     ReactionBar { emoji ->
@@ -154,13 +154,6 @@ fun WriteMessageScreen(
                         else state.addReaction(emoji)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = stringResource(Res.string.tags),
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
                     HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(

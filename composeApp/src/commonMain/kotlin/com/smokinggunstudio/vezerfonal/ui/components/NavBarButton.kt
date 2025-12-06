@@ -22,17 +22,13 @@ import androidx.compose.ui.unit.sp
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 
 @Composable fun NavBarButton(
-    text: String,
-    selected: Boolean,
     icon: ImageVector,
     modifier: Modifier = Modifier,
     onClick: ClickEvent
 ) {
-    var displayText by remember { mutableStateOf(text) }
-    
     Column(
         modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 4.dp)
             .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -40,19 +36,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = displayText,
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            onTextLayout = { result ->
-                displayText =
-                    if (selected) text
-                    else if (!selected || result.lineCount > 1)
-                    "${text.substring(0..2)}..." else text
-            }
+            modifier = Modifier.size(32.dp),
+            tint = MaterialTheme.colorScheme.onSurface
         )
     }
 }
