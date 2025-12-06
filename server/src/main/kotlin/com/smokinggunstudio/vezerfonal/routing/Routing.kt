@@ -201,9 +201,13 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     val userId = principal.user.id!!
                     val db = principal.db
                     
-                    val activeTokens = JWTRepository(db).getActiveJWTsByUserId(userId).latestPair()
+                    val jrepo = JWTRepository(db)
+                    val activeTokens = jrepo.getActiveJWTsByUserId(userId).latestPair()
                     
-                    if (activeTokens != null) return@post call.respond(activeTokens)
+                    if (activeTokens != null) tryInternal("Unable to invalidate old tokens.") {
+                        jrepo.invalidateToken(activeTokens.accessToken)
+                        activeTokens.refreshToken?.let { jrepo.invalidateToken(it) }
+                    }
                     
                     val accessToken = tryInternal("Cannot generate jwt")
                     { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@post

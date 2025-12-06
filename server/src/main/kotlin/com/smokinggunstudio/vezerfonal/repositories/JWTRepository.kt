@@ -100,4 +100,14 @@ class JWTRepository(val db: Database) {
             } == 1
         else false
     }
+    
+    suspend fun invalidateToken(
+        tokenId: String
+    ): Boolean = suspendTransaction(db) {
+        modifyJWT(
+            tokenId = tokenId,
+            property = JWTs.revoked,
+            newValue = true
+        )
+    }
 }
