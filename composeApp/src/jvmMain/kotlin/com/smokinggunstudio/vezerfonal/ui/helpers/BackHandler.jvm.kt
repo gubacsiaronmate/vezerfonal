@@ -3,7 +3,7 @@ package com.smokinggunstudio.vezerfonal.ui.helpers
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
-import moe.tlaster.precompose.navigation.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 import java.awt.KeyboardFocusManager
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
@@ -12,7 +12,7 @@ import kotlin.system.exitProcess
 actual object BackHandler {
     @Composable
     actual fun Bind(navigator: Navigator) {
-        val canGoBack = navigator.canGoBack.collectAsState(initial = false).value
+        val canGoBack = !navigator.isEmpty
         DisposableEffect(Unit) {
             val dispatcher = KeyEventDispatcher { e ->
                 if (e.id == KeyEvent.KEY_PRESSED) {
@@ -24,7 +24,7 @@ actual object BackHandler {
                         else -> false
                     }
                     if (isBackKey) {
-                        if (canGoBack) navigator.goBack() else exitProcess(0)
+                        if (canGoBack) navigator.pop() else exitProcess(0)
                         true
                     } else false
                 } else false

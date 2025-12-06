@@ -11,11 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
 import io.ktor.client.*
@@ -25,9 +27,8 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun ProfileCreationScreen(
     registerState: RegisterState,
-    tokenStorage: TokenStorage,
     client: HttpClient,
-    onClick: ClickEvent
+    onClick: CallbackEvent<TokenResponse>
 ) {
     var areTermsAccepted by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
@@ -95,25 +96,23 @@ import vezerfonal.composeapp.generated.resources.*
             }
             
             AnimatedButton(
-                onClick = {
-                    scope.launch { 
-                        val tokens = if (data == null) throw NullPointerException("Profile picture cannot be null.")
-                        else registerBasic(
-                            userData = registerState.toUserData(),
-                            rememberMe = rememberMe,
-                            fileData = data!!,
-                            client = client
-                        )
-                        tokenStorage.saveTokens(tokens)
-                        onClick()
-                    }
-                },
                 enabled = (
                     registerState.identifier.isNotBlank()
                     && registerState.name.isNotBlank()
                     && areTermsAccepted
                     && data != null
                 ),
+                onClick = {
+                    scope.launch {
+                        val tokens = registerBasic(
+                            userData = registerState.toUserData(),
+                            rememberMe = rememberMe,
+                            fileData = data!!,
+                            client = client
+                        )
+                        onClick(tokens)
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)

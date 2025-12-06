@@ -33,7 +33,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Preview
 @Composable
 fun SettingsScreen(
-    username: String,
+    user: UserData,
     onAccountSettingsClick: ClickEvent,
     isSuperAdminLogIn: Boolean,
     onAdminToolsClick: ClickEvent,
@@ -51,7 +51,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        SettingsNameCard(username, onAccountSettingsClick)
+        SettingsNameCard(user.name, onAccountSettingsClick)
         
         if (isSuperAdminLogIn)
             SettingRow(

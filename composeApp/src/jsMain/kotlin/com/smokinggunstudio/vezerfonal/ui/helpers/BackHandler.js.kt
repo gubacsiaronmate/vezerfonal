@@ -4,21 +4,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberUpdatedState
+import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.browser.window
-import moe.tlaster.precompose.navigation.Navigator
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 
 actual object BackHandler {
     @Composable
     actual fun Bind(navigator: Navigator) {
-        val canGoBack = navigator.canGoBack.collectAsState(initial = false).value
+        val canGoBack = !navigator.isEmpty
         val canGoBackState = rememberUpdatedState(canGoBack)
 
         DisposableEffect(Unit) {
             val onPopState: (Event) -> Unit = {
                 if (canGoBackState.value) {
-                    navigator.goBack()
+                    navigator.pop()
                     // Re-push a state to keep the user on the SPA and handle future backs
                     window.history.pushState(null, "", window.location.href)
                 } else {
@@ -36,7 +36,7 @@ actual object BackHandler {
                             (ke.altKey && ke.key == "ArrowLeft")
                     if (backKey) {
                         ke.preventDefault()
-                        if (canGoBackState.value) navigator.goBack() else window.close()
+                        if (canGoBackState.value) navigator.pop() else window.close()
                     }
                 }
             }

@@ -60,7 +60,6 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinxJson)
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
-            implementation(libs.precompose)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

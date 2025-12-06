@@ -14,6 +14,8 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.navigation.CreateOrg
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
@@ -24,7 +26,9 @@ import vezerfonal.composeapp.generated.resources.proceed
 import vezerfonal.composeapp.generated.resources.registration_code
 
 @Composable fun InitialRegisterScreen(
-    onClickCallback: CallbackEvent<RegisterState>,
+    onContinueClick: ClickEvent,
+    onCreateOrgClick: ClickEvent,
+    returnRegState: CallbackEvent<RegisterState>,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -60,7 +64,8 @@ import vezerfonal.composeapp.generated.resources.registration_code
             ) {
                 AnimatedButton(
                     onClick = {
-                        onClickCallback(nonAdminRegisterState)
+                        returnRegState(nonAdminRegisterState)
+                        onContinueClick()
                     },
                     enabled = nonAdminRegisterState.regCode.isNotBlank(),
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
@@ -78,7 +83,8 @@ import vezerfonal.composeapp.generated.resources.registration_code
                 
                 AnimatedButton(
                     onClick = {
-                        onClickCallback(AdminRegisterState())
+                        returnRegState(AdminRegisterState())
+                        onCreateOrgClick()
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {

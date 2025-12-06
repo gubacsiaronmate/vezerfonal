@@ -1,7 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.helpers
 
 import androidx.compose.runtime.Composable
-import moe.tlaster.precompose.navigation.Navigator
+import cafe.adriel.voyager.navigator.Navigator
 
 /**
  * Cross‑platform BackHandler facade.

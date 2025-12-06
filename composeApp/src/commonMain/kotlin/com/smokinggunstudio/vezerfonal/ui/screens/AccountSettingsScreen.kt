@@ -63,7 +63,6 @@ fun AccountSettingsScreen(
             imageVector = Icons.AutoMirrored.Outlined.Logout,
             text = stringResource(Res.string.log_out)
         ) {
-            println(accessToken)
             scope.launch {
                 logOutRequest(accessToken, client)
                 tokenStorage.clearTokens()

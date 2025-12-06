@@ -7,23 +7,9 @@ import com.smokinggunstudio.vezerfonal.helpers.toInstant
 import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
-import moe.tlaster.precompose.navigation.Navigator
-import moe.tlaster.precompose.navigation.RouteBuilder
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-
-fun Navigator.go(node: NavTree) = navigate(node.route)
-
-val NavTree.route: String
-    get() = when (hasParameters) {
-        false -> "/${this::class.simpleName!!.lowercase()}"
-        true -> "/${this::class.simpleName!!.lowercase()}/${getParameter()}"
-    }
-
-fun RouteBuilder.screen(route: NavTree, content: ComposableContent) {
-    scene(route.route) { content() }
-}
 
 @Composable expect fun FileData.toImageResource(): ImageBitmap
 
