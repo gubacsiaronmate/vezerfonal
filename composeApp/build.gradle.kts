@@ -52,6 +52,7 @@ kotlin {
         }
         
         commonMain.dependencies {
+            implementation(libs.voyager.navigator)
             implementation(libs.kotlinx.datetime)
             implementation(libs.multiplatformSettings)
             implementation(libs.ktor.client.core)

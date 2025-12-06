@@ -102,7 +102,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     
     BackHandler.Bind(navigator)
     
-    NavHost(navigator = navigator, initialRoute = NavTree.Landing.route) {
+    NavHost(navigator = navigator, initialRoute = Landing.route) {
         screen(NavTree.Landing) {
             var loaded by remember { mutableStateOf(false) }
             
