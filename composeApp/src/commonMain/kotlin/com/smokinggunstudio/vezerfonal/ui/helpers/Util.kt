@@ -43,3 +43,7 @@ fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean =
 /** MINUTES */
 @OptIn(ExperimentalTime::class)
 fun Long.toLocalDateTime(): LocalDateTime = Instant.fromEpochSeconds(this * 60).toLocalDateTime()
+
+fun String?.toLDTOrNull(): LocalDateTime? = this?.let { LocalDateTime.parse(it) }
+
+fun String.toLDT(): LocalDateTime = LocalDateTime.parse(this)

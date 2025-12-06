@@ -20,14 +20,10 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.between
-import com.smokinggunstudio.vezerfonal.ui.helpers.toLocalDateTime
+import com.smokinggunstudio.vezerfonal.ui.helpers.*
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -56,7 +52,14 @@ fun HomePageScreen(
         filtered = messages
         isLoading = false
         
-        messageFilterState.setEarliestMessageUnixTime(LocalDateTime.parse(messages.minByOrNull { LocalDateTime.parse(it.sentAt!!) }!!.sentAt!!))
+        messageFilterState.setEarliestMessageUnixTime(
+            messages
+                .minByOrNull {
+                    LocalDateTime.parse(it.sentAt)
+                }
+                ?.sentAt
+                .toLDTOrNull()
+        )
         
         subscribeToMessages(
             client = client,
@@ -112,7 +115,7 @@ fun HomePageScreen(
                 onApply = {
                     filtered = messages.filter { message ->
                         val dateMatch = if (messageFilterState.selectedStartDate > 0 && messageFilterState.selectedEndDate > 0) {
-                            LocalDateTime.parse(message.sentAt!!).between(
+                            message.sentAt.toLDT().between(
                                 start = messageFilterState.selectedStartDate.toLocalDateTime(),
                                 end = messageFilterState.selectedEndDate.toLocalDateTime()
                             )

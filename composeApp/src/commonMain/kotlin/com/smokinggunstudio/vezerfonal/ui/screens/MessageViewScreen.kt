@@ -33,10 +33,12 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -150,7 +152,7 @@ private fun Asd1() {
             userIdentifiers = null,
             availableReactions = listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒"),
             groups = null,
-            sentAt = null
+            sentAt = LocalDateTime.now().toString()
         )
     )
 }
@@ -177,7 +179,7 @@ private fun Asd2() {
             userIdentifiers = null,
             availableReactions = null,
             groups = null,
-            sentAt = null
+            sentAt = LocalDateTime.now().toString()
         )
     )
 }

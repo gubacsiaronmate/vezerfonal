@@ -228,8 +228,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
     var tagList by remember { mutableStateOf<List<TagData>>(emptyList()) }
     
     LaunchedEffect(Unit) {
-        println("\n\n\n\n\n$accessToken\n\n\n\n\n")
-        
         user = getUserData(accessToken, client)
         
         groups = getGroupData(accessToken, client)

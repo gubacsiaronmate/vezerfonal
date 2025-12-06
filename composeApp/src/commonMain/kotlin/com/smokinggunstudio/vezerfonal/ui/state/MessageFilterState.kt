@@ -33,8 +33,8 @@ class MessageFilterState {
     
     val tagSelectionState = mutableStateOf(TagSelectionState()).value
     
-    fun setEarliestMessageUnixTime(newUnixTime: LocalDateTime) {
-        _earliestMessageUnixTime.value = newUnixTime.toFloat()
+    fun setEarliestMessageUnixTime(newUnixTime: LocalDateTime?) {
+        _earliestMessageUnixTime.value = newUnixTime?.toFloat() ?: 1769904000F
     }
     
     fun updateSelectedStartDate(newValue: Long) {
