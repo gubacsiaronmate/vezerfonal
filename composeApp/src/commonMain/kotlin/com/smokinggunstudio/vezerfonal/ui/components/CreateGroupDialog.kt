@@ -63,9 +63,11 @@ import kotlin.collections.plus
                     groupData = group,
                     accessToken = accessToken,
                     client = client
-                )) onCreatedGroup(group)
+                )) {
+                    onCreatedGroup(group)
+                    onCancelClick()
+                }
             }
-            onCancelClick()
         }
     ) {
         OutlinedTextField(

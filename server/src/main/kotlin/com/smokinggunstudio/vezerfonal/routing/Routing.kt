@@ -22,6 +22,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(imageService: ImageService, mainDB: Database, context: CoroutineContext) {
@@ -39,6 +40,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         get("/organisations") {
             val orgs = OrganisationRepository(mainDB)
                 .getOrganisations()
+                .filter { it.id != 67 }
                 .map { it.toDTO() }
             
             call.respond(orgs)
@@ -511,10 +513,18 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         if (!principal.user.isSuperAdmin)
                             call.respond(HttpStatusCode.Unauthorized)
                         
+                        val db = principal.db
+                        
+                        val orgName = transaction {
+                            db.config.defaultSchema!!.identifier
+                        }.removePrefix("vezerfonal_org_").lowercase()
+                        
                         val codes = tryInternal("Unable to get codes.") {
                             RegistrationCodeRepository(mainDB)
                                 .getAllCodes()
-                                .map { it.toDTO() }
+                                .filter {
+                                    it.organisation.name.lowercase() != orgName
+                                }.map { it.toDTO() }
                         } ?: return@get
                         
                         call.respond(codes)

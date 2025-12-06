@@ -46,7 +46,7 @@ object JWTConfig {
             true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
         
-        val orgName = (transaction { db.config.defaultSchema!!.identifier }).removePrefix("vezerfonal_org_")
+        val orgName = transaction { db.config.defaultSchema!!.identifier }.removePrefix("vezerfonal_org_")
         val orgId = OrganisationRepository(mainDB).getOrganisationByName(orgName)?.id
             ?: error("Cannot resolve organisation by name: $orgName")
         
