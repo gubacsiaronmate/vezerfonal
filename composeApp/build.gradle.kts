@@ -7,12 +7,26 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    id("org.jetbrains.kotlin.native.cocoapods")
 }
 
 kotlin {
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
+        }
+    }
+    
+    cocoapods {
+        summary = "Shared module for iOS"
+        homepage = "https://example.com"
+        ios.deploymentTarget = "15.0"
+        
+        version = "1.0.0"   // << REQUIRED
+        
+        framework {
+            baseName = "ComposeApp"
+            isStatic = true
         }
     }
     
