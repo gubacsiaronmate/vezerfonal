@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.HttpClient
@@ -11,10 +12,10 @@ suspend fun createOrgRequest(
     org: OrgData,
     client: HttpClient
 ): Boolean {
-    return try {
-        client.post(
-            NetworkConstants.Endpoints.CREATE_ORG
-        ) { setBody(org) }
-            .status == HttpStatusCode.OK
-    } catch (e: Exception) { e.printStackTrace(); false }
+    val response = client
+        .post(NetworkConstants.Endpoints.CREATE_ORG) { setBody(org) }
+    
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else ok
 }

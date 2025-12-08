@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.*
 import io.ktor.client.request.*
@@ -12,9 +13,12 @@ import io.ktor.http.*
  * @return `true` if authorized otherwise `false`
  * */
 suspend fun checkAccessTokenValidity(accessToken: String, client: HttpClient): Boolean {
-    return try {
-        client.get(NetworkConstants.Endpoints.AUTH_CHECKER) {
+    val response = client
+        .get(NetworkConstants.Endpoints.AUTH_CHECKER) {
             bearerAuth(accessToken)
-        }.status == HttpStatusCode.OK
-    } catch (_: Exception) { false }
+        }
+    
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else ok
 }

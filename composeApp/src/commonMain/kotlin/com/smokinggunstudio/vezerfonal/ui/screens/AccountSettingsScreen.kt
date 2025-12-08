@@ -1,7 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
-import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent

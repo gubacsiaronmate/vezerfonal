@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.request.bearerAuth
@@ -13,6 +14,14 @@ suspend fun joinGroup(
     extId: String,
     accessToken: String,
     client: HttpClient
-): GroupData =
-    client.post(NetworkConstants.Endpoints.JOIN_GROUP)
-    { bearerAuth(accessToken); setBody(extId) }.body()
+): GroupData {
+    val response = client
+        .post(NetworkConstants.Endpoints.JOIN_GROUP) {
+            bearerAuth(accessToken)
+            setBody(extId)
+        }
+    
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else response.body()
+}

@@ -1,14 +1,23 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.http.HttpStatusCode
 
 suspend fun getAllRegCodes(
     accessToken: String,
     client: HttpClient,
-): List<RegCodeData> =
-    client.get(NetworkConstants.Endpoints.GET_ALL_REG_CODES)
-    { bearerAuth(accessToken) }.body()
+): List<RegCodeData> {
+    val response = client
+        .get(NetworkConstants.Endpoints.GET_ALL_REG_CODES) {
+            bearerAuth(accessToken)
+        }
+    
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else response.body()
+}

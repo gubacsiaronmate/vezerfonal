@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.network.helpers.Platform
@@ -13,8 +14,6 @@ import io.ktor.utils.io.core.*
 import kotlin.io.encoding.Base64
 
 suspend fun loginBasic(loginState: LoginState, orgExtId: String, client: HttpClient): TokenResponse {
-    val encodedCredentials = Base64.encode("${loginState.email}:${loginState.password}".toByteArray())
-    
     val rememberMe = when (Platform.type) {
         PlatformType.JS -> false
         PlatformType.Desktop -> false
@@ -24,12 +23,11 @@ suspend fun loginBasic(loginState: LoginState, orgExtId: String, client: HttpCli
     val body = Base64.encode("$rememberMe|$orgExtId".toByteArray())
     
     val response = client.post(NetworkConstants.Endpoints.LOGIN_BASIC) {
-        headers {
-            append(HttpHeaders.Authorization, "Basic $encodedCredentials")
-        }
-        
+        basicAuth(loginState.email, loginState.password)
         setBody(body)
     }
     
-    return response.body<TokenResponse>()
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else response.body()
 }

@@ -11,9 +11,10 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
-import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
+import com.smokinggunstudio.vezerfonal.network.api.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 
 data object Landing : Screen {
@@ -27,10 +28,15 @@ data object Landing : Screen {
         var orgs by remember { mutableStateOf<List<OrgData>>(emptyList()) }
         
         LaunchedEffect(Unit) {
-            val t = getAccessToken(tokenStorage, client)
             val o = getAllOrgsRequest(client)
-            token = t
             orgs = o
+            val t = try {
+                getAccessToken(tokenStorage, client)
+            } catch (_: UnauthorizedException) {
+                loaded = true
+                return@LaunchedEffect
+            }
+            token = t
             loaded = true
         }
         

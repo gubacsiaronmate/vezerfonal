@@ -132,4 +132,6 @@
     <string name="status">Státusz</string>
     <string name="start">Start</string>
     <string name="end">Vége</string>
+    <string name="error_happened">Hiba történt</string>
+    <string name="leave">Kilépés</string>
 </resources>

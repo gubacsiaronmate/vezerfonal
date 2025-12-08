@@ -132,4 +132,6 @@
     <string name="status">Status</string>
     <string name="start">Start</string>
     <string name="end">End</string>
+    <string name="error_happened">Something went wrong</string>
+    <string name="leave">Leave</string>
 </resources>

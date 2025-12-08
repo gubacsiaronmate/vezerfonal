@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
@@ -64,6 +65,7 @@ suspend fun registerBasic(
         }
     )
     
-    val tokens = response.body<TokenResponse>()
-    return tokens
+    val ok = response.status == HttpStatusCode.OK
+    return if (!ok) throw UnauthorizedException()
+    else response.body()
 }

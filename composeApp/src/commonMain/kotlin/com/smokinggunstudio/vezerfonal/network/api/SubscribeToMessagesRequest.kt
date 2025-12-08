@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -13,21 +14,23 @@ suspend fun subscribeToMessages(
     client: HttpClient,
     accessToken: String,
     onMessage: CallbackEvent<MessageData>,
-    onError: CallbackEvent<Throwable> = CallbackEvent { }
+    onError: CallbackEvent<Throwable> = CallbackEvent { throw it }
 ) {
     try {
-        client.prepareGet(NetworkConstants.Endpoints.SUBSCRIBE_TO_MESSAGES)
-        { bearerAuth(accessToken) }.execute { response ->
-            val channel = response.bodyAsChannel()
-            
-            while (!channel.isClosedForRead) {
-                val line = channel.readUTF8Line() ?: continue
+        client
+            .prepareGet(NetworkConstants.Endpoints.SUBSCRIBE_TO_MESSAGES) {
+                bearerAuth(accessToken)
+            }.execute { response ->
+                val channel = response.bodyAsChannel()
                 
-                if(line.isNotBlank()) try {
-                    val message = Json.decodeFromString<MessageData>(line)
-                    onMessage(message)
-                } catch (e: Exception) { onError(e) }
+                while (!channel.isClosedForRead) {
+                    val line = channel.readUTF8Line() ?: continue
+                    
+                    if(line.isNotBlank()) try {
+                        val message = Json.decodeFromString<MessageData>(line)
+                        onMessage(message)
+                    } catch (e: Exception) { onError(e) }
+                }
             }
-        }
     } catch (e: Exception) { onError(e) }
 }
