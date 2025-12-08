@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,12 +23,9 @@ import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
-import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.*
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.*
-import io.ktor.client.*
 import kotlinx.coroutines.launch
 
 data class Home(
@@ -74,7 +71,7 @@ data class Home(
         }
         
         if (!loaded) {
-            Box(Modifier.fillMaxSize()) { CircularProgressIndicator(Modifier.align(Alignment.Center)) }
+            Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
             return
         }
         
