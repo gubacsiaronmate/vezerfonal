@@ -2,28 +2,19 @@ package com.smokinggunstudio.vezerfonal.ui.navigation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.smokinggunstudio.vezerfonal.LocalDarkModeState
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
-import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
-import com.smokinggunstudio.vezerfonal.data.RegCodeData
-import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
-import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.network.helpers.getAccessToken
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
-import io.ktor.client.HttpClient
 
 data object Landing : Screen {
     @Composable
@@ -44,7 +35,7 @@ data object Landing : Screen {
         }
         
         if (!loaded) {
-            Box(Modifier.fillMaxSize()) { CircularProgressIndicator(Modifier.align(Alignment.Center)) }
+            Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
             return
         }
         
