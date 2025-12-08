@@ -54,18 +54,17 @@ fun RecipientReactionBottomPanel(
             availableReactions
                 ?.let { RecipientReactionBar(it, onReactionSelected) }
         Row {
-            availableReactions?.let {
-                IconButton(
-                    onClick = { isReactionBarVisible = !isReactionBarVisible; onIsReactionBarVisible(isReactionBarVisible) },
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .padding(start = 8.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                ) { Icon(Icons.Outlined.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-            }
+            if (availableReactions != null) IconButton(
+                onClick = { isReactionBarVisible = !isReactionBarVisible; onIsReactionBarVisible(isReactionBarVisible) },
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .padding(start = 8.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+            ) { Icon(Icons.Outlined.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
+            
             SlidingConfirmButton(8.dp, Modifier.height(64.dp)) {
                 isReactionBarVisible = false
             }
