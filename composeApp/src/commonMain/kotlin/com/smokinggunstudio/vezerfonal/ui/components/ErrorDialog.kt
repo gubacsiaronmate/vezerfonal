@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
@@ -21,9 +22,10 @@ import vezerfonal.composeapp.generated.resources.login
 @Composable fun ErrorDialog(
     errorMessage: String,
     navigator: Navigator,
-    isUnauthed: Boolean
+    isUnauthed: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    Dialog {
+    Dialog(modifier = modifier) {
         Text(
             text = stringResource(Res.string.error_happened),
             style = MaterialTheme.typography.titleLarge,

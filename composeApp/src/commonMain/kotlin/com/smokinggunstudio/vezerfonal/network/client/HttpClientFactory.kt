@@ -22,7 +22,9 @@ private fun HttpClientConfig<*>.installPlugins() {
         })
     }
     install(HttpTimeout) {
-        requestTimeoutMillis = 30000
+        requestTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+        socketTimeoutMillis = HttpTimeoutConfig.INFINITE_TIMEOUT_MS
+        requestTimeoutMillis = 30_000
     }
     defaultRequest {
         url(NetworkConstants.BASE_URL)

@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -10,12 +11,20 @@ import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import io.ktor.client.HttpClient
@@ -24,7 +33,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
-@Preview
 @Composable
 fun AccountSettingsScreen(
     user: UserData,
@@ -35,37 +43,50 @@ fun AccountSettingsScreen(
     onChangePasswordClick: ClickEvent,
 ) {
     val scope = rememberCoroutineScope()
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    val navigator = LocalNavigator.currentOrThrow
+    var error by remember { mutableStateOf<Throwable?>(null) }
+
+    Box(
+        modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ) {
-        AccountSettingsNameCard(
-            user = user
-        )
-        SettingRow(
-            imageVector = Icons.Default.Password,
-            text = stringResource(Res.string.change_password),
-            onClick = onChangePasswordClick
-        )
-        SettingRow(
-            imageVector = Icons.Outlined.Shield,
-            text = stringResource(Res.string.set_up_2fa)
-        )
-        SettingRow(
-            imageVector = Icons.Outlined.DeleteForever,
-            text = stringResource(Res.string.request_account_deletion)
-        )
-        SettingRow(
-            imageVector = Icons.AutoMirrored.Outlined.Logout,
-            text = stringResource(Res.string.log_out)
-        ) {
-            scope.launch {
-                logOutRequest(accessToken, client)
-                tokenStorage.clearTokens()
-                onLogOutClick()
+        Column {
+            AccountSettingsNameCard(
+                user = user
+            )
+            SettingRow(
+                imageVector = Icons.Default.Password,
+                text = stringResource(Res.string.change_password),
+                onClick = onChangePasswordClick
+            )
+            SettingRow(
+                imageVector = Icons.Outlined.Shield,
+                text = stringResource(Res.string.set_up_2fa)
+            )
+            SettingRow(
+                imageVector = Icons.Outlined.DeleteForever,
+                text = stringResource(Res.string.request_account_deletion)
+            )
+            SettingRow(
+                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                text = stringResource(Res.string.log_out)
+            ) {
+                try {
+                    scope.launch {
+                        logOutRequest(accessToken, client)
+                        tokenStorage.clearTokens()
+                        onLogOutClick()
+                    }
+                } catch (e: UnauthorizedException) {
+                    error = e
+                }
             }
         }
+
+        if (error != null) ErrorDialog(
+            errorMessage = error!!.message!!,
+            navigator = navigator,
+            isUnauthed = true
+        )
     }
 }

@@ -18,5 +18,5 @@ suspend fun logOutRequest(accessToken: String, client: HttpClient): Boolean {
     
     val ok = response.status == HttpStatusCode.OK
     return if (!ok) throw UnauthorizedException()
-    else response.body()
+    else ok
 }

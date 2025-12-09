@@ -395,10 +395,10 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val identifiers = call.receive<List<Identifier>>()
                         
                         val users = tryInternal("Unable to get any user.") {
-                            identifiers.map {
+                            identifiers.mapNotNull {
                                 UserRepository(db)
                                     .getUserByIdentifier(it)
-                            }.filter { it != null }.map { it!!.toDTO() }
+                            }.map { it.toDTO() }
                         } ?: return@post
                         
                         call.respond(users)

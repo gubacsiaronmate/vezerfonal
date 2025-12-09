@@ -33,3 +33,5 @@ fun getExtId(): String = Uuid.random().toString().split("-").joinToString("").su
 typealias Identifier = String
 
 typealias ExternalId = String
+
+inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }

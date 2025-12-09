@@ -5,6 +5,7 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
+import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.now
 import kotlinx.datetime.LocalDateTime
 import kotlin.collections.emptyList
@@ -79,7 +80,7 @@ class WriteMessageState {
         tags = tags,
         status = null,
         userIdentifiers = userIdentifiers,
-        availableReactions = availableReactions,
+        availableReactions = availableReactions.ifNotEmpty(),
         groups = groups,
         sentAt = LocalDateTime.now().toString()
     )

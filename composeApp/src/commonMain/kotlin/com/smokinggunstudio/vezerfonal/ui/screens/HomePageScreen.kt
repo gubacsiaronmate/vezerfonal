@@ -23,6 +23,11 @@ import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.*
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.ClientRequestException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -39,19 +44,21 @@ fun HomePageScreen(
     onMessageClick: CallbackEvent<MessageData>,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
+    val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var filtered by remember(messages) { mutableStateOf(messages) }
+    var timedOut by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
         isLoading = true
         messages = getMessages(100, client, accessToken)
         filtered = messages
         isLoading = false
-        
+
         messageFilterState.setEarliestMessageUnixTime(
             messages
                 .minByOrNull {
@@ -60,14 +67,23 @@ fun HomePageScreen(
                 ?.sentAt
                 .toLDTOrNull()
         )
-        
-        subscribeToMessages(
-            client = client,
-            accessToken = accessToken,
-            onMessage = { messages += it }
-        )
     }
-    
+
+    scope.launch {
+        while (timedOut) {
+            subscribeToMessages(
+                client = client,
+                accessToken = accessToken,
+                onMessage = { messages += it },
+                onError = { e ->
+                    if (e !is SocketTimeoutException) throw e
+                    else timedOut = true
+                }
+            )
+            delay(5000)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
