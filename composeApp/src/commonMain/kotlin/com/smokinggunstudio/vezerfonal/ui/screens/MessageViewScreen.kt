@@ -50,8 +50,8 @@ fun MessageViewScreen(
 ) {
     val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
-    val statusString = """${stringResource(Res.string.status)}:
-        |${(message.status ?: MessageStatus.received).toString().capitalize()}""".trimMargin()
+    val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
+    val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
     
     Column(
         modifier = Modifier
@@ -93,18 +93,13 @@ fun MessageViewScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(end = 8.dp)
-                ) {
-                    Text(
-                        maxLines = 1,
-                        text = message.author.name,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
+                Text(
+                    maxLines = 1,
+                    text = message.author.name,
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
                 Text(
                     text = statusString,
                     maxLines = 1,
