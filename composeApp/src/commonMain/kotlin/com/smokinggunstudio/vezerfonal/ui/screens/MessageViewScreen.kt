@@ -68,6 +68,7 @@ fun MessageViewScreen(
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     maxLines = 1,
@@ -89,8 +90,9 @@ fun MessageViewScreen(
             }
             
             Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     horizontalAlignment = Alignment.End,
@@ -103,14 +105,14 @@ fun MessageViewScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Text(
-                        text = statusString,
-                        maxLines = 1,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
                 }
+                Text(
+                    text = statusString,
+                    maxLines = 1,
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
             }
         }
         
