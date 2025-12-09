@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 enum class MessageStatus {
     sent,
     received,
-    read,
+    read;
+    
+    override fun toString(): String = name
 }
