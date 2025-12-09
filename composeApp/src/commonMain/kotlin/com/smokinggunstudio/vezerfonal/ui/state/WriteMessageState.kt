@@ -82,7 +82,8 @@ class WriteMessageState {
         userIdentifiers = userIdentifiers,
         availableReactions = availableReactions.ifNotEmpty(),
         groups = groups,
-        sentAt = LocalDateTime.now().toString()
+        sentAt = LocalDateTime.now().toString(),
+        reactedWith = null
     )
     
     fun clear() {

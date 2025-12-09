@@ -158,7 +158,8 @@ private fun Asd1() {
             userIdentifiers = null,
             availableReactions = listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒"),
             groups = null,
-            sentAt = LocalDateTime.now().toString()
+            sentAt = LocalDateTime.now().toString(),
+            reactedWith = null
         )
     )
 }
@@ -185,7 +186,8 @@ private fun Asd2() {
             userIdentifiers = null,
             availableReactions = null,
             groups = null,
-            sentAt = LocalDateTime.now().toString()
+            sentAt = LocalDateTime.now().toString(),
+            reactedWith = null
         )
     )
 }

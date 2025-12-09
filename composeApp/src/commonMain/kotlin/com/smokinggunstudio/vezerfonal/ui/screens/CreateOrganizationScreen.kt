@@ -11,19 +11,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.NotCreatedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
-import io.ktor.client.HttpClient
-import kotlinx.coroutines.coroutineScope
+import io.ktor.client.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create
 import vezerfonal.composeapp.generated.resources.create_organization
@@ -73,7 +70,11 @@ fun CreateOrganizationScreen(
                 try {
                     scope.launch {
                         if (createOrgRequest(
-                            OrgData.apply { externalId = getExtId(); name = state.orgName }, client
+                                org = OrgData(
+                                    externalId = getExtId(),
+                                    name = state.orgName
+                                ),
+                                client = client
                         )) onClick()
                     }
                 } catch (e: NotCreatedException) {
