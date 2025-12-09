@@ -51,8 +51,7 @@ fun MessageViewScreen(
     val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
     val statusString = """${stringResource(Res.string.status)}:
-        |${message.status?.toString()?.capitalize()
-        ?: MessageStatus.received.toString().capitalize()}""".trimMargin()
+        |${(message.status ?: MessageStatus.received).toString().capitalize()}""".trimMargin()
     
     Column(
         modifier = Modifier
