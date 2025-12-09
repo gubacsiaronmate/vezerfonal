@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 actual data class OrgData(
     actual override val name: String,
-    actual val externalId: String,
+    actual val externalId: String
 ) : DTO, Parcelable

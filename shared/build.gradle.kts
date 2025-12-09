@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinx.serialization)
-    id("kotlin-parcelize")
+    alias(libs.plugins.parcelize)
 }
 
 kotlin {
@@ -28,7 +28,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
-//            implementation(libs.bcrypt)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
