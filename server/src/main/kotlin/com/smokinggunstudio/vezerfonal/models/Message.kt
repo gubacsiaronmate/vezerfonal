@@ -25,7 +25,7 @@ data class Message(
         require((user == null) != (group == null)) { "Only one can and must be null." }
     }
     
-    fun toDTO(): MessageData = MessageData(
+    fun toDTO(reactedWith: String?): MessageData = MessageData(
         title = title,
         author = author.toDTO(),
         content = content,
@@ -35,6 +35,7 @@ data class Message(
         userIdentifiers = null,
         availableReactions = availableReactions,
         groups = null,
-        sentAt = (createdAt ?: LocalDateTime.now()).toString()
+        sentAt = (createdAt ?: LocalDateTime.now()).toString(),
+        reactedWith = reactedWith,
     )
 }

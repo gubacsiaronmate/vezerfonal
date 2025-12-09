@@ -27,7 +27,7 @@ object MessageHub {
             ?: message.group!!.members.map { it.user }
         
         recipients.forEach { user ->
-            userChannels[user.id]?.forEach { it.trySend(message.toDTO()) }
+            userChannels[user.id]?.forEach { it.trySend(message.toDTO(null)) }
         }
     }
 }

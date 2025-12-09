@@ -296,7 +296,11 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val messages = tryInternal("Unable to get messages.") {
                             MessageRepository(db)
                                 .getMessagesByRecipientUserId(userId, limit = amount)
-                                .map { it.toDTO() }
+                                .map { message ->
+                                    val interactions = InteractionInfoRepository(db)
+                                        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
+                                    message.toDTO(interactions.single { it.type == InteractionType.reaction }.reaction)
+                                }
                         } ?: return@get
                         
                         call.respond(messages)

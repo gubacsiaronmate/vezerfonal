@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -71,6 +72,16 @@ class InteractionInfoRepository(val db: Database) {
         id: Int,
     ): List<InteractionInfo> = suspendTransaction(db) {
         getInteractionInfosByCondition { MessageUserInteractions.messageId eq id }
+    }
+
+    suspend fun getInteractionInfosByMessageAndUserId(
+        messageId: Int,
+        userId: Int,
+    ): List<InteractionInfo> = suspendTransaction(db) {
+        getInteractionInfosByCondition {
+            (MessageUserInteractions.messageId eq messageId) and
+            (MessageUserInteractions.userId eq userId)
+        }
     }
     
     suspend fun getInteractionInfosByUserId(

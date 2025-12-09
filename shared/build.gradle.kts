@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinx.serialization)
+    id("kotlin-parcelize")
 }
 
 kotlin {
@@ -20,11 +21,6 @@ kotlin {
     jvm()
     
     js {
-        browser()
-    }
-    
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
         browser()
     }
     
@@ -45,7 +41,7 @@ kotlin {
     jvmToolchain(21)
     
     compilerOptions {
-        freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+        freeCompilerArgs.set(listOf("-Xcontext-parameters", "-Xexpect-actual-classes"))
     }
 }
 
