@@ -73,7 +73,6 @@ fun MessageViewScreen(
                     maxLines = 1,
                     text = message.title,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth(.5F),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.headlineLarge,
                 )
