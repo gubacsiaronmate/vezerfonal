@@ -11,7 +11,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.helpers.NotCreatedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
@@ -26,7 +29,6 @@ import vezerfonal.composeapp.generated.resources.create
 import vezerfonal.composeapp.generated.resources.create_organization
 import vezerfonal.composeapp.generated.resources.organization_name
 
-@Preview
 @Composable
 fun CreateOrganizationScreen(
     state: AdminRegisterState,
@@ -34,7 +36,7 @@ fun CreateOrganizationScreen(
     onClick: ClickEvent
 ) {
     val scope = rememberCoroutineScope()
-    
+
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,13 +70,14 @@ fun CreateOrganizationScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = {
-                scope.launch {
-                    if (createOrgRequest(
-                        OrgData(
-                            externalId = getExtId(),
-                            name = state.orgName
-                        ), client
-                    )) onClick()
+                try {
+                    scope.launch {
+                        if (createOrgRequest(
+                            OrgData.apply { externalId = getExtId(); name = state.orgName }, client
+                        )) onClick()
+                    }
+                } catch (e: NotCreatedException) {
+
                 }
             }
         ) { Text(text = stringResource(Res.string.create)) }

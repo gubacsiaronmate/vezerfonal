@@ -16,7 +16,9 @@ data class MessageData(
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
     val groups: List<ExternalId>?,
-    val sentAt: String
+    val sentAt: String,
+    val reactedWith: String?
+// ha empty str ("") akkor default react ha null akkor meg nincs reaction ha van X emoji benne akkor az a react
 ) {
     init {
         require(availableReactions == null || availableReactions.size < 9)

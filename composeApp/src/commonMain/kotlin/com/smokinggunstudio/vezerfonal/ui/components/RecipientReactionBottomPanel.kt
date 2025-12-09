@@ -36,6 +36,7 @@ fun RecipientReactionBottomPanel(
     onReactionSelected: CallbackEvent<String>
 ) {
     var isReactionBarVisible by remember { mutableStateOf(false) }
+    var selectedReaction by remember { mutableStateOf<String?>(null) }
     
     Column(
         modifier = modifier
@@ -52,7 +53,13 @@ fun RecipientReactionBottomPanel(
     ) {
         if (isReactionBarVisible)
             availableReactions
-                ?.let { RecipientReactionBar(it, onReactionSelected) }
+                ?.let { reactions ->
+                    RecipientReactionBar(reactions) {
+                        selectedReaction = it
+                        isReactionBarVisible = false
+                        onReactionSelected(it)
+                    }
+                }
         Row {
             if (!availableReactions.isNullOrEmpty()) IconButton(
                 onClick = { isReactionBarVisible = !isReactionBarVisible; onIsReactionBarVisible(isReactionBarVisible) },
@@ -63,8 +70,18 @@ fun RecipientReactionBottomPanel(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(8.dp)
                     )
-            ) { Icon(Icons.Outlined.AddReaction, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) }
-            
+            ) {
+                if (selectedReaction == null)
+                    Icon(
+                        imageVector = Icons.Outlined.AddReaction,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                else
+                    Text(
+                        text = selectedReaction!!,
+                    )
+            }
             SlidingConfirmButton(8.dp, Modifier.height(64.dp)) {
                 isReactionBarVisible = false
             }

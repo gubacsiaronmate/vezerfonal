@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 import org.jetbrains.compose.resources.stringResource
@@ -21,10 +23,11 @@ import vezerfonal.composeapp.generated.resources.login
 
 @Composable fun ErrorDialog(
     errorMessage: String,
-    navigator: Navigator,
     isUnauthed: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.currentOrThrow
+
     Dialog(modifier = modifier) {
         Text(
             text = stringResource(Res.string.error_happened),

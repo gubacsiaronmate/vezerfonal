@@ -83,10 +83,7 @@ fun AccountSettingsScreen(
             }
         }
 
-        if (error != null) ErrorDialog(
-            errorMessage = error!!.message!!,
-            navigator = navigator,
-            isUnauthed = true
-        )
+        if (error != null)
+            ErrorDialog(error!!.message!!, true)
     }
 }

@@ -27,7 +27,6 @@ import vezerfonal.composeapp.generated.resources.tag_management
 import vezerfonal.composeapp.generated.resources.tags
 import vezerfonal.composeapp.generated.resources.user_management
 
-@Preview(showBackground = true)
 @Composable
 fun AdminToolsScreen(
     onUserManagementClick: ClickEvent,
