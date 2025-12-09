@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 expect class OrgData: DTO {
     override val name: String
     val externalId: String
+
+    constructor(name: String, externalId: String)
 }

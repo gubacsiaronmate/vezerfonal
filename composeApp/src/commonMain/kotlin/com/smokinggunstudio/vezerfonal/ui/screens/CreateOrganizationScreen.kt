@@ -71,8 +71,8 @@ fun CreateOrganizationScreen(
                     scope.launch {
                         if (createOrgRequest(
                                 org = OrgData(
-                                    externalId = getExtId(),
-                                    name = state.orgName
+                                    name = state.orgName,
+                                    externalId = getExtId()
                                 ),
                                 client = client
                         )) onClick()

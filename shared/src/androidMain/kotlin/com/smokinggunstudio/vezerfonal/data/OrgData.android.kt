@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Parcelize
 @Serializable
-actual data class OrgData(
+actual data class OrgData actual constructor(
     actual override val name: String,
     actual val externalId: String
 ) : DTO, Parcelable
