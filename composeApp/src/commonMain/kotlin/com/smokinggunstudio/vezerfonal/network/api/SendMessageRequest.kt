@@ -1,6 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import com.smokinggunstudio.vezerfonal.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.HttpClient

@@ -1,6 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import com.smokinggunstudio.vezerfonal.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
