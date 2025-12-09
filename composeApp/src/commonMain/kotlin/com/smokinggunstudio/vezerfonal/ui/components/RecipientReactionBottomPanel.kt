@@ -54,7 +54,7 @@ fun RecipientReactionBottomPanel(
             availableReactions
                 ?.let { RecipientReactionBar(it, onReactionSelected) }
         Row {
-            if (availableReactions != null) IconButton(
+            if (!availableReactions.isNullOrEmpty()) IconButton(
                 onClick = { isReactionBarVisible = !isReactionBarVisible; onIsReactionBarVisible(isReactionBarVisible) },
                 modifier = Modifier
                     .padding(vertical = 8.dp)
