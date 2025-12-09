@@ -86,3 +86,9 @@ private fun Asd1() {
 private fun Asd2() {
     RecipientReactionBottomPanel(null, onIsReactionBarVisible = {}) {}
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun Asd3() {
+    RecipientReactionBottomPanel(emptyList(), onIsReactionBarVisible = {}) {}
+}
