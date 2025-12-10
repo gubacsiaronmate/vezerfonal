@@ -23,7 +23,6 @@ import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.end
 import vezerfonal.composeapp.generated.resources.start
 
-@Preview
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun MessageTimeRangeSlider(

@@ -67,4 +67,14 @@ class MessageFilterState {
     fun updateSearchQuery(newValue: String) {
         _searchQuery.value = newValue
     }
+    
+    fun clear() {
+        updateSelectedStartDate(earliestMessageUnixTime.toLong())
+        updateSelectedEndDate(latestMessageUnixTime.toLong())
+        updateSenderName("")
+        updateIsWaitingForAnswer(false)
+        updateIsImportant(false)
+        updateSearchQuery("")
+        tagSelectionState.clear()
+    }
 }

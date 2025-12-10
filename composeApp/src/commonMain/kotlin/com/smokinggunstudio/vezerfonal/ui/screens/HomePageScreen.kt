@@ -3,10 +3,6 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -24,8 +20,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.*
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import io.ktor.client.*
 import io.ktor.client.network.sockets.SocketTimeoutException
-import io.ktor.client.plugins.ClientRequestException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
@@ -121,66 +115,24 @@ fun HomePageScreen(
                 .height(1.dp)
         )
         
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            if (!isFilterOpened) FilterButton { isFilterOpened = true }
-            else FilterApplyCancelButtons(
-                onApply = {
-                    filtered = messages.filter { message ->
-                        val dateMatch = if (messageFilterState.selectedStartDate > 0 && messageFilterState.selectedEndDate > 0) {
-                            message.sentAt.toLDT().between(
-                                start = messageFilterState.selectedStartDate.toLocalDateTime(),
-                                end = messageFilterState.selectedEndDate.toLocalDateTime()
-                            )
-                        } else true
-                        
-                        val senderMatch = if (messageFilterState.senderName.isNotEmpty()) {
-                            message.author.name.contains(messageFilterState.senderName, ignoreCase = true)
-                        } else true
-                        
-                        val urgentMatch =
-                            if (messageFilterState.isImportant)
-                                message.isUrgent else true
-                        
-                        val searchMatch = if (messageFilterState.searchQuery.isNotEmpty()) {
-                            message.title.contains(messageFilterState.searchQuery, ignoreCase = true)
-                                    || message.content.contains(messageFilterState.searchQuery, ignoreCase = true)
-                        } else true
-                        
-                        dateMatch && senderMatch && urgentMatch && searchMatch
-                    }
-                    isFilterOpened = false
-                },
-                onCancel = {
-                    filtered = messages
-                    isFilterOpened = false
-                }
-            )
-        }
+        FilterRow(
+            onFilterOpened = { isFilterOpened = true },
+            onCompleted = {
+                filtered = it
+                isFilterOpened = false
+            },
+            isFilterOpened = isFilterOpened,
+            messages = messages,
+            messageFilterState = messageFilterState
+        )
         
         if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
         else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
         
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                LazyColumn(modifier = Modifier.weight(1F)) {
-                    items(filtered.reversed()) { message ->
-                        ListItem(
-                            title = message.title,
-                            author = message.author.name,
-                            onClick = { onMessageClick(message) }
-                        )
-                    }
-                }
-            }
-            
+        ScrollableMessageList(
+            messages = filtered,
+            onMessageClick = onMessageClick,
+        ) {
             if (isFilterOpened)
                 MessageFilter(
                     state = messageFilterState,
