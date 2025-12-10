@@ -20,7 +20,7 @@ import vezerfonal.composeapp.generated.resources.you_reacted_with
 
 @Composable
 fun DisabledBottomPanel(
-    reaction: String?
+    reaction: String
 ) {
     Column(
         modifier = Modifier
@@ -36,7 +36,7 @@ fun DisabledBottomPanel(
         verticalArrangement = Arrangement.Bottom
     )
     {
-        if (reaction != null) {
+        if (reaction.isNotEmpty()) {
             Button(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -61,11 +61,11 @@ fun DisabledBottomPanel(
 @Preview
 @Composable
 private fun Asd() {
-    DisabledBottomPanel(reaction = null)
+    DisabledBottomPanel(reaction = "")
 }
 
 @Preview
 @Composable
 private fun Asd2() {
-    DisabledBottomPanel(reaction = "asd")
+    DisabledBottomPanel(reaction = "\uD83D\uDE1B")
 }

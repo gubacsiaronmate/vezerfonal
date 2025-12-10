@@ -34,6 +34,7 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.now
+import com.smokinggunstudio.vezerfonal.ui.components.DisabledBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
@@ -122,8 +123,10 @@ fun MessageViewScreen(
                     modifier = Modifier.padding(16.dp).fillMaxHeight(),
                 )
             }
-            
-            RecipientReactionBottomPanel(
+
+            if (message.reactedWith != null)
+                DisabledBottomPanel(message.reactedWith!!)
+            else RecipientReactionBottomPanel(
                 availableReactions = message.availableReactions,
                 modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
                 onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp }
