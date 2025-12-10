@@ -299,7 +299,10 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                                 .map { message ->
                                     val interactions = InteractionInfoRepository(db)
                                         .getInteractionInfosByMessageAndUserId(message.id!!, userId)
-                                    message.toDTO(interactions.single { it.type == InteractionType.reaction }.reaction)
+                                    val reaction = try {
+                                        interactions.single { it.type == InteractionType.reaction }.reaction
+                                    } catch (_: Exception) { null }
+                                    message.toDTO(reaction)
                                 }
                         } ?: return@get
                         
