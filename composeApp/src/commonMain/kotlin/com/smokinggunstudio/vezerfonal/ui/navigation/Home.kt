@@ -9,6 +9,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +25,10 @@ import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
-import com.smokinggunstudio.vezerfonal.network.api.*
+import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.screens.*
 import kotlinx.coroutines.launch
 
@@ -34,97 +38,116 @@ data class Home(
     @Composable
     @OptIn(ExperimentalFoundationApi::class)
     override fun Content() {
+        val scope = rememberCoroutineScope()
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         val darkModeState = LocalDarkModeState.current
         var loaded by remember { mutableStateOf(false) }
-        var user by remember { mutableStateOf<UserData?>(null) }
-        var groups by remember { mutableStateOf<List<GroupData>?>(null) }
+        var isRefreshing by remember { mutableStateOf(false) }
+        var error by remember { mutableStateOf<Throwable?>(null) }
+        
+        lateinit var user: UserData
+        var groups by remember { mutableStateOf<List<GroupData>>(emptyList()) }
         var guiao by remember { mutableStateOf<List<GroupData>>(emptyList()) }
         var tagList by remember { mutableStateOf<List<TagData>>(emptyList()) }
         var userList by remember { mutableStateOf<List<UserData>>(emptyList()) }
         var regCodes by remember { mutableStateOf<List<RegCodeData>>(emptyList()) }
-        
-        LaunchedEffect(Unit) {
-            user = getUserData(accessToken, client)
-            
-            groups = getGroupData(accessToken, client)
-            
-            if (user!!.isSuperAdmin)
-                regCodes = getAllRegCodes(accessToken, client)
-            
-            if (user!!.isAnyAdmin)
-                guiao = getAllGroupsUserIsAdminOf(accessToken, client)
-            
-            userList = getUsersByIdentifierList(
-                guiao
-                    .map { it.members }
-                    .flatten()
-                    .distinct(),
-                accessToken,
-                client
-            )
-            
-            tagList = getAllTags(accessToken, client)
-            
+
+        suspend fun loadAll(force: Boolean = false) {
+            if (force) HomeCache.invalidate()
+            HomeCache.load(accessToken, client)
+
+            HomeCache.user.let {
+                if (it != null) user = it
+                else error = UnableToLoadException()
+            }
+            groups = HomeCache.groups
+            regCodes = HomeCache.regCodes
+            guiao = HomeCache.guiao
+            userList = HomeCache.userList
+            tagList = HomeCache.tagList
+
             loaded = true
         }
-        
-        if (!loaded) {
-            Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
-            return
+
+        LaunchedEffect(Unit) {
+            loadAll(force = false)
         }
-        
-        val tabs = remember {
-            buildList {
-                add(NavBarContent.Home)
-                add(Archive)
-                if (user!!.isAnyAdmin || user!!.isSuperAdmin) add(Send)
-                add(Group)
-                add(Settings)
+
+        val pullRefreshState = rememberPullToRefreshState()
+
+        PullToRefreshBox(
+            state = pullRefreshState,
+            isRefreshing = isRefreshing,
+            modifier = Modifier.fillMaxSize(),
+            onRefresh = {
+                scope.launch {
+                    isRefreshing = true
+                    loadAll(force = true)
+                    isRefreshing = false
+                }
+            },
+        ) {
+            if (!loaded) {
+                Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
+                return@PullToRefreshBox
             }
-        }
-        
-        val scope = rememberCoroutineScope()
-        val pagerState = rememberPagerState { tabs.size }
-        var isScrollEnabled by remember { mutableStateOf(true) }
-        
-        Scaffold(
-            bottomBar = {
-                NavBar(
-                    tabs = tabs,
-                    currentIndex = pagerState.currentPage,
-                    onTabSelected = { i -> scope.launch { pagerState.animateScrollToPage(i) } }
-                )
+
+            if (error != null)
+                return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
+                    ErrorDialog(error!!.message!!, false, Modifier.align(Alignment.Center))
+                }
+
+            val tabs = remember {
+                buildList {
+                    add(NavBarContent.Home)
+                    add(Archive)
+                    if (user.isAnyAdmin || user.isSuperAdmin) add(Send)
+                    add(Group)
+                    add(Settings)
+                }
             }
-        ) { paddingValues ->
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.padding(paddingValues),
-                userScrollEnabled = isScrollEnabled
-            ) { i ->
-                when (tabs[i]) {
-                    NavBarContent.Home -> HomePageScreen(
-                        accessToken = accessToken,
-                        client = client,
-                        onMessageClick = { navigator.push(ViewMessage(it)) },
-                        scrollLockedBySliderCallback = { isScrollEnabled = !it }
+
+            val pagerState = rememberPagerState { tabs.size }
+            var isScrollEnabled by remember { mutableStateOf(true) }
+
+            Scaffold(
+                bottomBar = {
+                    NavBar(
+                        tabs = tabs,
+                        currentIndex = pagerState.currentPage,
+                        onTabSelected = { i -> scope.launch { pagerState.animateScrollToPage(i) } }
                     )
-                    Archive -> ArchiveScreen()
-                    Send -> WriteMessageScreen(user!!, client, accessToken, guiao, userList, tagList)
-                    Group -> GroupScreen(client, accessToken, user!!.identifier, groups!!, user!!.isSuperAdmin)
-                    Settings -> SettingsScreen(
-                        user = user!!,
-                        isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
-                        onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user!!)) },
-                        isSuperAdminLogIn = user!!.isSuperAdmin,
-                        onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
-                        onArchiveClick = { },
-                        onNotificationsClick = { },
-                        onTOSClick = { },
-                        onLanguageClick = { },
-                        onThemeSwitchClick = { darkModeState.value = it },
-                    )
+                }
+            ) { paddingValues ->
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.padding(paddingValues),
+                    userScrollEnabled = isScrollEnabled
+                ) { i ->
+                    when (tabs[i]) {
+                        NavBarContent.Home -> HomePageScreen(
+                            accessToken = accessToken,
+                            client = client,
+                            onMessageClick = { navigator.push(ViewMessage(it)) },
+                            scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                        )
+                        Archive -> ArchiveScreen()
+                        Send -> WriteMessageScreen(user, client, accessToken, guiao, userList, tagList)
+                        Group -> GroupScreen(client, accessToken, user.identifier, groups, user.isSuperAdmin)
+                        Settings -> SettingsScreen(
+                            user = user,
+                            isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
+                            onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user)) },
+                            isSuperAdminLogIn = user.isSuperAdmin,
+                            onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
+                            onArchiveClick = { },
+                            onNotificationsClick = { },
+                            onTOSClick = { },
+                            onLanguageClick = { },
+                            onThemeSwitchClick = { darkModeState.value = it },
+                        )
+                    }
                 }
             }
         }

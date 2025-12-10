@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 import org.jetbrains.compose.resources.stringResource
@@ -41,6 +42,8 @@ import vezerfonal.composeapp.generated.resources.login
                 contentColor = MaterialTheme.colorScheme.onError
             ),
             onClick = {
+                HomeCache.invalidate()
+
                 if (navigator.lastItem != Landing)
                     if (isUnauthed)
                         navigator.replaceAll(Landing)
@@ -49,10 +52,9 @@ import vezerfonal.composeapp.generated.resources.login
                 else throw Exception("No way to reliably exit apps so just fail.")
             },
         ) {
-            if (isUnauthed)
+            if (isUnauthed && navigator.lastItem != Landing)
                 Text(stringResource(Res.string.login))
-            else
-                Text(stringResource(Res.string.leave))
+            else Text(stringResource(Res.string.leave))
         }
     }
 }

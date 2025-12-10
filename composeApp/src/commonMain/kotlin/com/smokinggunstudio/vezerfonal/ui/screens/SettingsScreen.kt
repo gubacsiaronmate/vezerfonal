@@ -26,11 +26,11 @@ import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
-@Preview
 @Composable
 fun SettingsScreen(
     user: UserData,
@@ -45,7 +45,7 @@ fun SettingsScreen(
     onThemeSwitchClick: CallbackEvent<Boolean>,
 ) {
     var checked by remember { mutableStateOf(isInDarkTheme) }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
