@@ -24,9 +24,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 @Composable
-@Preview
+@OptIn(ExperimentalTime::class)
 fun MessageFilter(
     state: MessageFilterState,
     tabOpenedClick: ClickEvent,
