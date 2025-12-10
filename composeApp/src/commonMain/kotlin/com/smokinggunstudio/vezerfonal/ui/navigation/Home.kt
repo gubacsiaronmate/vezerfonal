@@ -1,6 +1,5 @@
 package com.smokinggunstudio.vezerfonal.ui.navigation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +35,6 @@ data class Home(
     val accessToken: String,
 ) : Screen {
     @Composable
-    @OptIn(ExperimentalFoundationApi::class)
     override fun Content() {
         val scope = rememberCoroutineScope()
         val client = LocalHttpClient.current
@@ -46,7 +44,7 @@ data class Home(
         var isRefreshing by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<Throwable?>(null) }
         
-        lateinit var user: UserData
+        var user by remember { mutableStateOf<UserData?>(null) }
         var groups by remember { mutableStateOf<List<GroupData>>(emptyList()) }
         var guiao by remember { mutableStateOf<List<GroupData>>(emptyList()) }
         var tagList by remember { mutableStateOf<List<TagData>>(emptyList()) }
@@ -59,7 +57,7 @@ data class Home(
 
             HomeCache.user.let {
                 if (it != null) user = it
-                else error = UnableToLoadException()
+                else throw UnableToLoadException()
             }
             groups = HomeCache.groups
             regCodes = HomeCache.regCodes
@@ -71,7 +69,11 @@ data class Home(
         }
 
         LaunchedEffect(Unit) {
-            loadAll(force = false)
+            try {
+                loadAll(force = false)
+            } catch (e: UnableToLoadException) {
+                error = e
+            }
         }
 
         val pullRefreshState = rememberPullToRefreshState()
@@ -83,7 +85,11 @@ data class Home(
             onRefresh = {
                 scope.launch {
                     isRefreshing = true
-                    loadAll(force = true)
+                    try {
+                        loadAll(force = true)
+                    } catch (e: UnableToLoadException) {
+                        error = e
+                    }
                     isRefreshing = false
                 }
             },
@@ -93,16 +99,20 @@ data class Home(
                 return@PullToRefreshBox
             }
 
-            if (error != null)
+            if (error != null || user == null)
                 return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
-                    ErrorDialog(error!!.message!!, false, Modifier.align(Alignment.Center))
+                    ErrorDialog(
+                        errorMessage = error?.message ?: "User not found",
+                        isUnauthed = false,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
 
             val tabs = remember {
                 buildList {
                     add(NavBarContent.Home)
                     add(Archive)
-                    if (user.isAnyAdmin || user.isSuperAdmin) add(Send)
+                    if (user!!.isAnyAdmin || user!!.isSuperAdmin) add(Send)
                     add(Group)
                     add(Settings)
                 }
@@ -136,13 +146,13 @@ data class Home(
                             onMessageClick = { navigator.push(ViewMessage(it)) },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
-                        Send -> WriteMessageScreen(user, client, accessToken, guiao, userList, tagList)
-                        Group -> GroupScreen(client, accessToken, user.identifier, groups, user.isSuperAdmin)
+                        Send -> WriteMessageScreen(user!!, client, accessToken, guiao, userList, tagList)
+                        Group -> GroupScreen(client, accessToken, user!!.identifier, groups, user!!.isSuperAdmin)
                         Settings -> SettingsScreen(
-                            user = user,
+                            user = user!!,
                             isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
-                            onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user)) },
-                            isSuperAdminLogIn = user.isSuperAdmin,
+                            onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user!!)) },
+                            isSuperAdminLogIn = user!!.isSuperAdmin,
                             onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
                             onArchiveClick = { },
                             onNotificationsClick = { },
