@@ -132,7 +132,10 @@ data class Home(
                             onMessageClick = { navigator.push(ViewMessage(it)) },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
-                        Archive -> ArchiveScreen()
+                        Archive -> ArchiveScreen(
+                            onMessageClick = { navigator.push(ViewMessage(it)) },
+                            scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                        )
                         Send -> WriteMessageScreen(user, client, accessToken, guiao, userList, tagList)
                         Group -> GroupScreen(client, accessToken, user.identifier, groups, user.isSuperAdmin)
                         Settings -> SettingsScreen(
