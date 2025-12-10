@@ -40,4 +40,4 @@ typealias ExternalId = String
 
 inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
-inline fun <reified T : DTO> Map<String, Any?>.toDTO(): T = Json.decodeFromString<T>(Json.encodeToString(this))
+inline fun <reified T : DTO> String.toDTO(): T = Json.decodeFromString<T>(this)

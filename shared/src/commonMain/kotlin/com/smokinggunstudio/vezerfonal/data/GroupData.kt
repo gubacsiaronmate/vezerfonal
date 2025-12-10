@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.data
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class GroupData(
@@ -12,13 +13,7 @@ data class GroupData(
     val members: List<Identifier>,
     val adminIdentifier: Identifier
 ) : NamedDTO, DTO {
-    override fun toSerializable(): Map<String, Any> {
-        return mapOf(
-            "name" to name,
-            "externalId" to externalId,
-            "description" to description,
-            "members" to members,
-            "adminIdentifier" to adminIdentifier
-        )
+    override fun toSerialized(): String {
+        return Json.encodeToString(this)
     }
 }

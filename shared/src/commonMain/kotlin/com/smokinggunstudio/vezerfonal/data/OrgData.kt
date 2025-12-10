@@ -1,16 +1,14 @@
 package com.smokinggunstudio.vezerfonal.data
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class OrgData(
     override val name: String,
     val externalId: String
 ) : NamedDTO, DTO {
-    override fun toSerializable(): Map<String, Any?> {
-        return mapOf(
-            "name" to name,
-            "externalId" to externalId
-        )
+    override fun toSerialized(): String {
+        return Json.encodeToString(this)
     }
 }

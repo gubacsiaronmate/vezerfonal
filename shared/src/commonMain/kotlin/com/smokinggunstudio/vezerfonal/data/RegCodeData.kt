@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.data
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class RegCodeData(
@@ -8,11 +9,7 @@ data class RegCodeData(
     val totalUses: Int,
     val remainingUses: Int
 ) : DTO {
-    override fun toSerializable(): Map<String, Any?> {
-        return mapOf(
-            "code" to code,
-            "totalUses" to totalUses,
-            "remainingUses" to remainingUses
-        )
+    override fun toSerialized(): String {
+        return Json.encodeToString(this)
     }
 }

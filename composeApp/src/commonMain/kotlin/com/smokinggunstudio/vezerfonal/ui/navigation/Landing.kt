@@ -52,7 +52,7 @@ data object Landing : Screen {
         
         LandingPageScreen(
             onRegisterClick = { navigator.push(Register(1, null)) },
-            onLoginClick = { navigator.push(Login(orgs.map { it.toSerializable() })) },
+            onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
         )
     }
 }

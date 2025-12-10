@@ -13,7 +13,7 @@ import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
 data class Login(
-    val orgs: List<Map<String, Any?>>,
+    val orgs: List<String>,
 ) : Screen {
     @Composable
     override fun Content() {

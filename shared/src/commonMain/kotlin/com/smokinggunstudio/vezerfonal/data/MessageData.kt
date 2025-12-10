@@ -2,8 +2,8 @@ package com.smokinggunstudio.vezerfonal.data
 
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class MessageData(
@@ -20,21 +20,8 @@ data class MessageData(
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
 ) : DTO {
-    override fun toSerializable(): Map<String, Any?> {
-        return mapOf(
-            "title" to title,
-            "sentAt" to sentAt,
-            "content" to content,
-            "author" to author.toSerializable(),
-            "isUrgent" to isUrgent,
-            "tags" to tags,
-            "externalId" to externalId,
-            "reactedWith" to reactedWith,
-            "status" to status,
-            "groups" to groups,
-            "userIdentifiers" to userIdentifiers,
-            "availableReactions" to availableReactions,
-        )
+    override fun toSerialized(): String {
+        return Json.encodeToString(this)
     }
     
     init {

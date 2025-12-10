@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.data
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.jvm.JvmInline
 
 @Serializable
@@ -49,13 +50,7 @@ data class InteractionInfoData(
         recipientIdentifier = null,
     )
     
-    override fun toSerializable(): Map<String, Any?> {
-        return mapOf(
-            "messageExtId" to messageExtId,
-            "type" to type,
-            "status" to status,
-            "reaction" to reaction,
-            "recipientIdentifier" to recipientIdentifier,
-        )
+    override fun toSerialized(): String {
+        return Json.encodeToString(this)
     }
 }
