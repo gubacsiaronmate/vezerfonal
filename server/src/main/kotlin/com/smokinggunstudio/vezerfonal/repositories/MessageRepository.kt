@@ -38,6 +38,7 @@ class MessageRepository(val db: Database) {
                 availableReactions = this@toMessage[Messages.availableReactions],
                 status = null,
                 tags = selectedTags,
+                externalId = this@toMessage[Messages.externalId],
                 createdAt = this@toMessage[Messages.createdAt],
                 updatedAt = this@toMessage[Messages.updatedAt],
                 deletedAt = this@toMessage[Messages.deletedAt]
@@ -75,7 +76,15 @@ class MessageRepository(val db: Database) {
     
     suspend fun getMessageById(
         id: Int,
-    ): Message? = suspendTransaction(db) { getMessageByCondition { Messages.id eq id } }
+    ): Message? = suspendTransaction(db) {
+        getMessageByCondition { Messages.id eq id }
+    }
+    
+    suspend fun getMessageByExtId(
+        extId: String,
+    ): Message? = suspendTransaction(db) {
+        getMessageByCondition { Messages.externalId eq extId }
+    }
     
     suspend fun getMessagesByUserId(
         id: Int,
@@ -135,6 +144,7 @@ class MessageRepository(val db: Database) {
             it[title] = message.title
             it[content] = message.content
             it[isUrgent] = message.isUrgent
+            it[externalId] = message.externalId
             it[authorUserId] = message.author.id!!
             it[availableReactions] = message.availableReactions
         }

@@ -3,9 +3,14 @@ package com.smokinggunstudio.vezerfonal.data
 import kotlinx.serialization.Serializable
 
 @Serializable
-expect class OrgData: DTO {
-    override val name: String
+data class OrgData(
+    override val name: String,
     val externalId: String
-
-    constructor(name: String, externalId: String)
+) : NamedDTO, DTO {
+    override fun toSerializable(): Map<String, Any?> {
+        return mapOf(
+            "name" to name,
+            "externalId" to externalId
+        )
+    }
 }

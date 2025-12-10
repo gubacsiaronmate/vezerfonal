@@ -139,11 +139,11 @@ data class Home(
                         NavBarContent.Home -> HomePageScreen(
                             accessToken = accessToken,
                             client = client,
-                            onMessageClick = { navigator.push(ViewMessage(it)) },
+                            onMessageClick = { navigator.push(ViewMessage(accessToken, it)) },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
                         Archive -> ArchiveScreen(
-                            onMessageClick = { navigator.push(ViewMessage(it)) },
+                            onMessageClick = { navigator.push(ViewMessage(accessToken, it)) },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
                         Send -> WriteMessageScreen(user!!, client, accessToken, guiao, userList, tagList)

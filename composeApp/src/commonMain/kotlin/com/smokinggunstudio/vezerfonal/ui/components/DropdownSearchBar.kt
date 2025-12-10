@@ -1,11 +1,8 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -16,20 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.data.DTO
-import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.data.NamedDTO
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import org.jetbrains.compose.resources.stringResource
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.organization_name
-import vezerfonal.composeapp.generated.resources.remember_me
 
 @Composable
-internal inline fun <reified T : DTO> DropdownSearchBar(
+internal inline fun <reified T : NamedDTO> DropdownSearchBar(
     allItems: List<T>,
     labelText: String,
     onItemSelected: CallbackEvent<T>

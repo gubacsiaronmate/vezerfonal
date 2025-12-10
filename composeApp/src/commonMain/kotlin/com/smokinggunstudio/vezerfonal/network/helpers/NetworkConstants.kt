@@ -53,5 +53,7 @@ object NetworkConstants {
         const val GET_ALL_TAGS = "/api/tags/all"
         
         const val SUBSCRIBE_TO_MESSAGES = "/api/messages/subscribe"
+        
+        const val INTERACTIONS = "/api/messages/interactions"
     }
 }

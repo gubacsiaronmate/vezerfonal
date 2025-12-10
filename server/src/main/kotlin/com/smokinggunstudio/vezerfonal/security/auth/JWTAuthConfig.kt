@@ -14,8 +14,8 @@ import io.ktor.server.auth.jwt.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
-fun configureJWTAuth(feature: AuthenticationConfig, mainDB: Database, context: CoroutineContext) {
-    feature.jwt("jwt-access") {
+fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineContext) {
+    jwt("jwt-access") {
         verifier(JWTConfig.verifier)
         validate { credentials ->
             val token = request
@@ -52,7 +52,7 @@ fun configureJWTAuth(feature: AuthenticationConfig, mainDB: Database, context: C
         }
     }
     
-    feature.jwt("jwt-refresh") {
+    jwt("jwt-refresh") {
         verifier(JWTConfig.verifier)
         validate { credentials ->
             val token = request

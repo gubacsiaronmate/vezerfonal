@@ -29,9 +29,8 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
     install(ContentNegotiation) { json() }
     
     authentication {
-        configureBasicAuth(this, mainDB, context)
-        configureJWTAuth(this, mainDB, context)
-//        configureOAuth(this, context)
+        configureBasicAuth(mainDB, context)
+        configureJWTAuth(mainDB, context)
     }
     
     routing {
@@ -50,11 +49,15 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
             var db: Database? = null
             
             post("/create-org") {
-                val org = tryIncoming("Unable to receive organisation data.")
-                { call.receive<OrgData>().toOrganisation() } ?: return@post
+                val org = tryIncoming("Unable to receive organisation data.") {
+                    call
+                        .receive<OrgData>()
+                        .toOrganisation()
+                } ?: return@post
                 
-                val success = tryInternal("Unable to insert org to db.")
-                { OrganisationRepository(mainDB).insertOrg(org) } ?: return@post
+                val success = tryInternal("Unable to insert org to db.") {
+                    OrganisationRepository(mainDB).insertOrg(org)
+                } ?: return@post
                 
                 if (!success) return@post call.respond(HttpStatusCode.InternalServerError)
                 
@@ -67,8 +70,15 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
             }
             
             post("/basic") {
-                val pair = tryIncoming("Unable to receive user.")
-                { call.receive<UserData>().toUser(context, mainDB, db) } ?: return@post
+                val pair = tryIncoming("Unable to receive user.") {
+                    call
+                        .receive<UserData>()
+                        .toUser(
+                            context = context,
+                            mainDB = mainDB,
+                            db = db
+                        )
+                } ?: return@post
                 
                 if (db == null) db = pair.first
                 val user = pair.second
@@ -96,23 +106,20 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 
                 post("/metadata") {
                     userId = call.parameters["userId"]?.toIntOrNull()
-                        ?: run {
-                            call.respondText(
-                                "Invalid user ID",
-                                status = HttpStatusCode.BadRequest
-                            ); return@post
-                        }
+                        ?: return@post call.respondText(
+                            "Invalid user ID",
+                            status = HttpStatusCode.BadRequest
+                        )
                     
                     rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                        ?: run {
-                            call.respondText(
-                                "Invalid remember me parameter.",
-                                status = HttpStatusCode.BadRequest
-                            ); return@post
-                        }
+                        ?: return@post call.respondText(
+                            "Invalid remember me parameter.",
+                            status = HttpStatusCode.BadRequest
+                        )
                     
-                    metadata = tryIncoming("Unable to receive image metadata.")
-                    { call.receive<FileMetaData>() } ?: return@post
+                    metadata = tryIncoming("Unable to receive image metadata.") {
+                        call.receive<FileMetaData>()
+                    } ?: return@post
                     
                     call.respondText("Accepted", status = HttpStatusCode.Accepted)
                 }
@@ -127,8 +134,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                     val data = tryIncoming("Unable to receive image bytes.")
                     { call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L) } ?: return@post
                     
-                    val pfpURI = tryInternal("Failed to save image.")
-                    { imageService.saveImage(data, userId, context, extension = metadata.fileType) } ?: return@post
+                    val pfpURI = tryInternal("Failed to save image.") {
+                        imageService.saveImage(
+                            multipart = data,
+                            userId = userId,
+                            context = context,
+                            extension = metadata.fileType
+                        )
+                    } ?: return@post
                     
                     val urepo = UserRepository(db!!)
                     
@@ -146,11 +159,24 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         status = HttpStatusCode.InternalServerError
                     )
                     
-                    val accessToken = tryInternal("Cannot generate jwt.")
-                    { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@post
+                    val accessToken = tryInternal("Cannot generate jwt.") {
+                        JWTConfig.generateToken(
+                            userId = userId,
+                            context = context,
+                            db = db,
+                            mainDB = mainDB
+                        )
+                    } ?: return@post
                     
-                    val refreshToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@post
+                    val refreshToken = tryInternal("Cannot generate jwt") {
+                        JWTConfig.generateToken(
+                            userId = userId,
+                            context = context,
+                            db = db,
+                            mainDB = mainDB,
+                            isRefresh = true
+                        )
+                    } ?: return@post
                     
                     call.respond(
                         TokenResponse(
@@ -169,10 +195,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         authenticate("jwt-refresh") {
             get("/refresh") {
                 val principal = call.principal<AuthResponse>()
-                    ?: return@get call.respondText(
-                        "Unauthorized",
-                        status = HttpStatusCode.Unauthorized
-                    )
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
                 
                 val userId = principal.user.id!!
                 val db = principal.db
@@ -191,10 +214,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
             authenticate("basic") {
                 post("/basic") {
                     val principal = call.principal<AuthResponse>()
-                    ?: return@post call.respondText(
-                        "Unauthorized",
-                        status = HttpStatusCode.Unauthorized
-                    )
+                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 
                     val userId = principal.user.id!!
                     val db = principal.db
@@ -209,11 +229,24 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                             }
                         }
                     
-                    val accessToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@post
+                    val accessToken = tryInternal("Cannot generate jwt") {
+                        JWTConfig.generateToken(
+                            userId = userId,
+                            context = context,
+                            db = db,
+                            mainDB = mainDB
+                        )
+                    } ?: return@post
                     
-                    val refreshToken = tryInternal("Cannot generate jwt")
-                    { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@post
+                    val refreshToken = tryInternal("Cannot generate jwt") {
+                        JWTConfig.generateToken(
+                            userId = userId,
+                            context = context,
+                            db = db,
+                            mainDB = mainDB,
+                            isRefresh = true
+                        )
+                    } ?: return@post
                     
                     val newToken = TokenResponse(
                         accessToken,
@@ -230,20 +263,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
             route("/api") {
                 get {
                     call.principal<AuthResponse>()
-                        ?: return@get call.respondText(
-                            text = "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
+                        ?: return@get call.respond(HttpStatusCode.Unauthorized)
                     
                     call.respond(HttpStatusCode.OK)
                 }
                 
                 get("/logout") {
                     val principal = call.principal<AuthResponse>()
-                        ?: return@get call.respondText(
-                            "Unauthorized",
-                            status = HttpStatusCode.Unauthorized
-                        )
+                        ?: return@get call.respond(HttpStatusCode.Unauthorized)
                     
                     val userId = principal.user.id!!
                     val db = principal.db
@@ -313,18 +340,18 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val principal = call.principal<AuthResponse>()
                             ?: return@post call.respond(HttpStatusCode.Unauthorized)
                         
-                        val authorId = principal.user.id!!
                         val db = principal.db
                         
-                        val message = tryInternal("Unable to receive message.")
-                        { call.receive<MessageData>().toMessage(
-                            authorId = authorId,
-                            context = context,
-                            db = db
-                        ) } ?: return@post
+                        val message = tryInternal("Unable to receive message.") {
+                            call
+                                .receive<MessageData>()
+                                .toMessage(context, db)
+                        } ?: return@post
                         
-                        val (id, success) = tryInternal("Unable to insert message.")
-                        { MessageRepository(db).insertMessage(message) } ?: return@post
+                        val (id, success) = tryInternal("Unable to insert message.") {
+                            MessageRepository(db)
+                                .insertMessage(message)
+                        } ?: return@post
                         
                         if (!success) call.respondText(
                             text = "Message already sent.",
@@ -333,29 +360,55 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         MessageHub.broadcast(message, context)
                         
-                        val recipients: List<User> = (message.user?.let { listOf(it) }
-                            ?: message.group!!.members.map { it.user }) + message.author
+                        val recipients: List<User> = message.user?.let { listOf(it) }
+                            ?: message.group!!.members.map { it.user }
                         
                         val insertedMessage = tryInternal("Unable to get message.") {
                             MessageRepository(db)
                                 .getMessageById(id)
                         } ?: return@post
                         
-                        val interactionSuccess = tryInternal("Unable to insert all interactions.")
-                        { recipients.map { user ->
-                            InteractionInfoRepository(db)
-                                .insertInteraction(
-                                    InteractionInfo(
-                                        message = insertedMessage,
-                                        user = user,
-                                        type = InteractionType.status,
-                                        status = message.status,
+                        val interactionSuccess = tryInternal("Unable to insert all interactions.") {
+                            recipients.map { user ->
+                                InteractionInfoRepository(db)
+                                    .insertInteraction(
+                                        InteractionInfo(
+                                            message = insertedMessage,
+                                            user = user,
+                                            type = InteractionType.status,
+                                            status = message.status,
+                                        )
                                     )
-                                )
-                        } } ?: return@post
+                            }
+                        } ?: return@post
                         
                         if (interactionSuccess.all { it }) call.respond(HttpStatusCode.OK)
                         else call.respond(HttpStatusCode.InternalServerError)
+                    }
+
+                    route("/interactions") {
+                        route("/reaction") {
+                            post("/send") {
+                                val principal = call.principal<AuthResponse>()
+                                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                                
+                                val user = principal.user
+                                val db = principal.db
+                                
+                                val interaction = tryIncoming("Unable to receive interaction.") {
+                                    call
+                                        .receive<InteractionInfoData>()
+                                        .toInteractionInfo(user, db, context)
+                                } ?: return@post
+                                
+                                val success = tryInternal("Unable to save interaction.") {
+                                    InteractionInfoRepository(db)
+                                        .insertInteraction(interaction)
+                                } ?: return@post
+                                
+                                if (success) call.respond(HttpStatusCode.OK)
+                            }
+                        }
                     }
                 }
                 
@@ -441,7 +494,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                             GroupRepository(db)
                                 .getGroupsByAdminId(adminId)
                                 .map { it.toDTO() }
-                        } ?: return@get println("\n\n\n\n\n\n\n\n\n\ngroups was null.\n\n\n\n\n\n\n\n\n\n")
+                        } ?: return@get
                         
                         call.respond(groups)
                     }
@@ -471,8 +524,9 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val userId = principal.user.id!!
                         val db = principal.db
                         
-                        val groupExtId = tryIncoming("Unable to receive extId.")
-                        { call.receive<String>() } ?: return@post
+                        val groupExtId = tryIncoming("Unable to receive extId.") {
+                            call.receive<String>()
+                        } ?: return@post
                         
                         val group = tryInternal("Unable to find group with ext id: $groupExtId")
                         { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
@@ -492,8 +546,9 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         val principal = call.principal<AuthResponse>()
                             ?: return@get call.respond(HttpStatusCode.Unauthorized)
                         
-                        val extId = tryIncoming("Unable to receive extId.")
-                        { call.receive<String>() } ?: return@get
+                        val extId = tryIncoming("Unable to receive extId.") {
+                            call.receive<String>()
+                        } ?: return@get
                         
                         val db = principal.db
                         val userId = principal.user.id!!
@@ -564,8 +619,9 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                         
                         val db = principal.db
                         
-                        val code = tryIncoming("Unable to receive code.")
-                        { call.receive<String>() } ?: return@delete
+                        val code = tryIncoming("Unable to receive code.") {
+                            call.receive<String>()
+                        } ?: return@delete
                         
                         val success = tryInternal("Unable to delete code.") {
                             RegistrationCodeRepository(db)

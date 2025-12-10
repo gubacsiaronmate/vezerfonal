@@ -57,7 +57,6 @@ fun RecipientReactionBottomPanel(
                     RecipientReactionBar(reactions) {
                         selectedReaction = it
                         isReactionBarVisible = false
-                        onReactionSelected(it)
                     }
                 }
         Row {
@@ -84,6 +83,7 @@ fun RecipientReactionBottomPanel(
             }
             SlidingConfirmButton(8.dp, Modifier.height(64.dp)) {
                 isReactionBarVisible = false
+                onReactionSelected(selectedReaction ?: "")
             }
         }
     }

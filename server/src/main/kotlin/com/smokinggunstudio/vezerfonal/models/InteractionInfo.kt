@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.models
 
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import kotlinx.datetime.LocalDateTime
@@ -11,7 +12,7 @@ data class InteractionInfo(
     val type: InteractionType,
     val status: MessageStatus?,
     val reaction: String?,
-    val actor: User?,
+    val recipient: User?,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
     val deletedAt: LocalDateTime?
@@ -28,7 +29,7 @@ data class InteractionInfo(
         type = type,
         status = status ?: MessageStatus.sent,
         reaction = null,
-        actor = null,
+        recipient = null,
         createdAt = null,
         updatedAt = null,
         deletedAt = null
@@ -46,7 +47,7 @@ data class InteractionInfo(
         type = type,
         status = null,
         reaction = reaction,
-        actor = null,
+        recipient = null,
         createdAt = null,
         updatedAt = null,
         deletedAt = null
@@ -56,7 +57,7 @@ data class InteractionInfo(
         message: Message,
         user: User,
         type: InteractionType,
-        actor: User
+        recipient: User
     ) : this(
         id = null,
         message = message,
@@ -64,7 +65,7 @@ data class InteractionInfo(
         type = type,
         status = null,
         reaction = null,
-        actor = actor,
+        recipient = recipient,
         createdAt = null,
         updatedAt = null,
         deletedAt = null
@@ -81,9 +82,17 @@ data class InteractionInfo(
         type = type,
         status = null,
         reaction = null,
-        actor = null,
+        recipient = null,
         createdAt = null,
         updatedAt = null,
         deletedAt = null
+    )
+    
+    fun toDTO() = InteractionInfoData(
+        messageExtId = message.externalId,
+        type = type,
+        status = status,
+        reaction = reaction,
+        recipientIdentifier = recipient?.identifier,
     )
 }

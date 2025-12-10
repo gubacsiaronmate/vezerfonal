@@ -20,7 +20,7 @@ class InteractionInfoRepository(val db: Database) {
             
             val message = MessageRepository(db).getMessageById(this@toInteractionInfo[MessageUserInteractions.messageId])!!
             val user = urepo.getUserById(this@toInteractionInfo[MessageUserInteractions.userId])!!
-            val actor = this@toInteractionInfo[MessageUserInteractions.actorUserId]?.let { urepo.getUserById(it) }
+            val recipient = this@toInteractionInfo[MessageUserInteractions.recipientUserId]?.let { urepo.getUserById(it) }
             
             InteractionInfo(
                 id = this@toInteractionInfo[MessageUserInteractions.id],
@@ -29,7 +29,7 @@ class InteractionInfoRepository(val db: Database) {
                 type = this@toInteractionInfo[MessageUserInteractions.type],
                 status = this@toInteractionInfo[MessageUserInteractions.status],
                 reaction = this@toInteractionInfo[MessageUserInteractions.reaction],
-                actor = actor,
+                recipient = recipient,
                 createdAt = this@toInteractionInfo[MessageUserInteractions.createdAt],
                 updatedAt = this@toInteractionInfo[MessageUserInteractions.updatedAt],
                 deletedAt = this@toInteractionInfo[MessageUserInteractions.deletedAt]
@@ -93,14 +93,14 @@ class InteractionInfoRepository(val db: Database) {
     suspend fun insertInteraction(
         interaction: InteractionInfo,
     ): Boolean = suspendTransaction(db) {
-        val actorUserID = interaction.actor?.identifier?.let { UserRepository(db).getUserByIdentifier(it)?.id }
+        val actorUserID = interaction.recipient?.identifier?.let { UserRepository(db).getUserByIdentifier(it)?.id }
         MessageUserInteractions.insert {
             it[messageId] = interaction.message.id!!
             it[userId] = interaction.user.id!!
             it[type] = interaction.type
             it[status] = interaction.status
             it[reaction] = interaction.reaction
-            it[actorUserId] = actorUserID
+            it[recipientUserId] = actorUserID
         }.insertedCount == 1
     }
 }

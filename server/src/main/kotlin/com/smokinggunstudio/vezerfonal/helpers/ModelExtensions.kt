@@ -1,19 +1,23 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.GroupData
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Group
+import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.models.RegistrationCode
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
+import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
 import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.RegistrationCodeRepository
 import com.smokinggunstudio.vezerfonal.repositories.TagRepository
@@ -58,14 +62,13 @@ suspend fun UserData.toUser(
 }
 
 suspend fun MessageData.toMessage(
-    authorId: Int,
     context: CoroutineContext,
     db: Database
 ): Message = withContext(context) {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
-    val author = urepo.getUserById(authorId) ?: error("")
+    val author = urepo.getUserByIdentifier(author.identifier)!!
     val tagList = tags.map { tagName -> TagRepository(db).getTagByName(tagName) ?: error("Tag is not available.") }
     
     var group: Group? = null
@@ -94,6 +97,7 @@ suspend fun MessageData.toMessage(
         availableReactions = availableReactions,
         status = status ?: MessageStatus.sent,
         tags = tagList,
+        externalId = externalId,
         createdAt = null,
         updatedAt = null,
         deletedAt = null
@@ -147,4 +151,43 @@ suspend fun RegCodeData.toRegCode(
         remainingUses = remainingUses,
         organisation = org
     )
+}
+
+suspend fun InteractionInfoData.toInteractionInfo(
+    user: User,
+    db: Database,
+    context: CoroutineContext
+) = withContext(context) {
+    val urepo = UserRepository(db)
+    val mrepo = MessageRepository(db)
+    
+    val message = mrepo.getMessageByExtId(messageExtId)!!
+    val recipient = recipientIdentifier
+        ?.let { urepo.getUserByIdentifier(it) }
+    
+    when (type) {
+        InteractionType.status -> InteractionInfo(
+            message = message,
+            user = user,
+            type = type,
+            status = status,
+        )
+        InteractionType.reaction -> InteractionInfo(
+            message = message,
+            user = user,
+            type = type,
+            reaction = reaction!!
+        )
+        InteractionType.nudge -> InteractionInfo(
+            message = message,
+            user = user,
+            type = type,
+            recipient = recipient!!
+        )
+        InteractionType.archive -> InteractionInfo(
+            message = message,
+            user = user,
+            type = type,
+        )
+    }
 }

@@ -17,6 +17,7 @@ object Messages : Table("message") {
     val content = text("content")
     val isUrgent = bool("is_urgent").default(false)
     val authorUserId = integer("author_user_id").references(Users.id)
+    val externalId = char("external_id", 16).uniqueIndex()
     val availableReactions = jsonb(
         name = "available_reactions",
         serialize = { list: List<String> -> Json.encodeToString(list) },

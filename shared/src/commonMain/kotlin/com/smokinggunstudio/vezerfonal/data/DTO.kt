@@ -1,5 +1,5 @@
 package com.smokinggunstudio.vezerfonal.data
 
-import kotlinx.serialization.Serializable
-
-interface DTO { val name: String }
+interface DTO {
+    fun toSerializable(): Map<String, Any?>
+}

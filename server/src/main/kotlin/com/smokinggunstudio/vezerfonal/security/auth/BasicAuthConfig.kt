@@ -13,8 +13,8 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 import kotlin.io.encoding.Base64
 
-fun configureBasicAuth(feature: AuthenticationConfig, mainDB: Database, context: CoroutineContext) {
-    feature.basic("basic") {
+fun AuthenticationConfig.configureBasicAuth(mainDB: Database, context: CoroutineContext) {
+    basic("basic") {
         validate { credentials ->
             val data = Base64.decodeToByteString(receive<String>()).toByteArray().decodeToString()
             val (rememberMe, externalId) =

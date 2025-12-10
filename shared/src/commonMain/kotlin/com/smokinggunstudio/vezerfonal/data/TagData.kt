@@ -5,4 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TagData(
     override val name: String
-) : DTO
+) : NamedDTO, DTO {
+    override fun toSerializable(): Map<String, Any?> {
+        return mapOf("name" to name)
+    }
+}

@@ -30,14 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.now
+import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.DisabledBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -47,12 +51,15 @@ import vezerfonal.composeapp.generated.resources.status
 
 @Composable
 fun MessageViewScreen(
+    client: HttpClient,
+    accessToken: String,
     message: MessageData
 ) {
     val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
     val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
+    var selectedReaction by remember { mutableStateOf<String?>(null) }
     
     Column(
         modifier = Modifier
@@ -124,73 +131,27 @@ fun MessageViewScreen(
                 )
             }
 
-            if (message.reactedWith != null)
-                DisabledBottomPanel(message.reactedWith!!)
+            if (message.reactedWith != null || selectedReaction != null)
+                DisabledBottomPanel(
+                    reaction = message.reactedWith ?: selectedReaction!!,
+                    modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
+                )
             else RecipientReactionBottomPanel(
                 availableReactions = message.availableReactions,
                 modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
-                onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp }
+                onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
             ) {
+                selectedReaction = it
                 scope.launch {
-                
+                    val interaction = InteractionInfoData(
+                        messageExtId = message.externalId,
+                        type = InteractionType.reaction,
+                        reaction = it
+                    )
+                    
+                    sendInteraction(accessToken, interaction, client)
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun Asd1() {
-    MessageViewScreen(
-        MessageData(
-            title = "Test Title",
-            content = "Test Content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc faucibus rhoncus orci. Suspendisse potenti. Vestibulum bibendum arcu a mattis porta. Donec arcu diam, egestas eget risus vel, scelerisque venenatis augue. Vivamus aliquam urna neque, in laoreet eros feugiat in. Praesent faucibus risus sed purus finibus lacinia. Quisque vel felis eget mauris euismod condimentum id vel libero. Nunc pellentesque erat at malesuada efficitur. Nunc elit enim, commodo vel efficitur non, convallis eget est. Proin risus massa, convallis eu facilisis nec, interdum quis ante. Phasellus at elit a eros interdum facilisis. Cras ac suscipit nulla. Cras bibendum vestibulum elit vitae tristique. Sed cursus ullamcorper sem a egestas. Integer vitae blandit nunc. Aliquam auctor neque in congue egestas. Nullam eget finibus odio, ac luctus nunc. Curabitur vitae enim a enim elementum tristique sit amet sit amet ante. Maecenas sit amet libero sem.",
-            author = UserData(
-                registrationCode = null,
-                email = "",
-                password = null,
-                name = "Test Author",
-                identifier = "",
-                isAnyAdmin = true,
-                isSuperAdmin = false
-            ),
-            tags = (0..12).map { "Test Tag $it" },
-            isUrgent = true,
-            status = MessageStatus.received,
-            userIdentifiers = null,
-            availableReactions = listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒"),
-            groups = null,
-            sentAt = LocalDateTime.now().toString(),
-            reactedWith = null
-        )
-    )
-}
-
-@Preview
-@Composable
-private fun Asd2() {
-    MessageViewScreen(
-        MessageData(
-            title = "Test Title",
-            content = "Test Content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc faucibus rhoncus orci. Suspendisse potenti. Vestibulum bibendum arcu a mattis porta. Donec arcu diam, egestas eget risus vel, scelerisque venenatis augue. Vivamus aliquam urna neque, in laoreet eros feugiat in. Praesent faucibus risus sed purus finibus lacinia. Quisque vel felis eget mauris euismod condimentum id vel libero. Nunc pellentesque erat at malesuada efficitur. Nunc elit enim, commodo vel efficitur non, convallis eget est. Proin risus massa, convallis eu facilisis nec, interdum quis ante. Phasellus at elit a eros interdum facilisis. Cras ac suscipit nulla. Cras bibendum vestibulum elit vitae tristique. Sed cursus ullamcorper sem a egestas. Integer vitae blandit nunc. Aliquam auctor neque in congue egestas. Nullam eget finibus odio, ac luctus nunc. Curabitur vitae enim a enim elementum tristique sit amet sit amet ante. Maecenas sit amet libero sem.",
-            author = UserData(
-                registrationCode = null,
-                email = "",
-                password = null,
-                name = "Test Author",
-                identifier = "",
-                isAnyAdmin = true,
-                isSuperAdmin = false
-            ),
-            tags = (0..12).map { "Test Tag $it" },
-            isUrgent = false,
-            status = MessageStatus.received,
-            userIdentifiers = null,
-            availableReactions = null,
-            groups = null,
-            sentAt = LocalDateTime.now().toString(),
-            reactedWith = null
-        )
-    )
 }

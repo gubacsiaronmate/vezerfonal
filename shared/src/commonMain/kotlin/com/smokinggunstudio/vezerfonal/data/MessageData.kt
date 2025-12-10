@@ -8,18 +8,35 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MessageData(
     val title: String,
-    val author: UserData,
+    val sentAt: String,
     val content: String,
+    val author: UserData,
     val isUrgent: Boolean,
     val tags: List<String>,
+    val externalId: String,
+    val reactedWith: String?,
     val status: MessageStatus?,
+    val groups: List<ExternalId>?,
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
-    val groups: List<ExternalId>?,
-    val sentAt: String,
-    val reactedWith: String?
-// ha empty str ("") akkor default react ha null akkor meg nincs reaction ha van X emoji benne akkor az a react
-) {
+) : DTO {
+    override fun toSerializable(): Map<String, Any?> {
+        return mapOf(
+            "title" to title,
+            "sentAt" to sentAt,
+            "content" to content,
+            "author" to author.toSerializable(),
+            "isUrgent" to isUrgent,
+            "tags" to tags,
+            "externalId" to externalId,
+            "reactedWith" to reactedWith,
+            "status" to status,
+            "groups" to groups,
+            "userIdentifiers" to userIdentifiers,
+            "availableReactions" to availableReactions,
+        )
+    }
+    
     init {
         require(availableReactions == null || availableReactions.size < 9)
     }

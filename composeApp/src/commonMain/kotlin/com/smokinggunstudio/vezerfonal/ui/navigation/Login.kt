@@ -8,14 +8,12 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.data.OrgData
-import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 
 data class Login(
-    val orgs: List<OrgData>,
+    val orgs: List<Map<String, Any?>>,
 ) : Screen {
     @Composable
     override fun Content() {
@@ -24,7 +22,7 @@ data class Login(
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
-        LoginScreen(client, orgs) { newTokens ->
+        LoginScreen(client, orgs.map { it.toDTO<OrgData>() }) { newTokens ->
             navigator.push(Home(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }
         }

@@ -11,4 +11,14 @@ data class GroupData(
     val description: String,
     val members: List<Identifier>,
     val adminIdentifier: Identifier
-) : DTO
+) : NamedDTO, DTO {
+    override fun toSerializable(): Map<String, Any> {
+        return mapOf(
+            "name" to name,
+            "externalId" to externalId,
+            "description" to description,
+            "members" to members,
+            "adminIdentifier" to adminIdentifier
+        )
+    }
+}

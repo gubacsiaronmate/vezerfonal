@@ -20,10 +20,11 @@ import vezerfonal.composeapp.generated.resources.you_reacted_with
 
 @Composable
 fun DisabledBottomPanel(
-    reaction: String
+    reaction: String,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = ShapeModifier.TOP_ROUNDED.toShape()

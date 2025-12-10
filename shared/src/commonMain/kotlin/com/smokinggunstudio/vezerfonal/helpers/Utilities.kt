@@ -1,6 +1,10 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import com.smokinggunstudio.vezerfonal.data.DTO
+import com.smokinggunstudio.vezerfonal.data.OrgData
 import kotlinx.datetime.*
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -35,3 +39,5 @@ typealias Identifier = String
 typealias ExternalId = String
 
 inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
+
+inline fun <reified T : DTO> Map<String, Any?>.toDTO(): T = Json.decodeFromString<T>(Json.encodeToString(this))

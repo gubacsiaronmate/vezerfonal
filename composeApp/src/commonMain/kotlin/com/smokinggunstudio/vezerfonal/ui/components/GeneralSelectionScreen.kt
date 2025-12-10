@@ -13,7 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.data.DTO
+import com.smokinggunstudio.vezerfonal.data.NamedDTO
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
@@ -21,14 +21,13 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
 import com.smokinggunstudio.vezerfonal.ui.state.SelectionState
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.cancel
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-internal inline fun <reified T : DTO> GeneralSelectionScreen(
+internal inline fun <reified T : NamedDTO> GeneralSelectionScreen(
     state: SelectionState<T>,
     noinline onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<T>>

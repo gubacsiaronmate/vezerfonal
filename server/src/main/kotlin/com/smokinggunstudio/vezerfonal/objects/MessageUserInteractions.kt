@@ -3,8 +3,6 @@ package com.smokinggunstudio.vezerfonal.objects
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.PGEnum
-import com.smokinggunstudio.vezerfonal.helpers.now
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.datetime.CurrentDateTime
 import org.jetbrains.exposed.v1.datetime.datetime
@@ -27,15 +25,11 @@ object MessageUserInteractions : Table("message_user_interactions") {
         toDb = { PGEnum("message_status", it) }
     ).nullable()
     val reaction = varchar("reaction", 255).nullable()
-    val actorUserId = integer("actor_user_id").references(Users.id).nullable()
+    val recipientUserId = integer("recipient_user_id").references(Users.id).nullable()
     
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     val deletedAt = datetime("deleted_at").nullable()
-    
-    init {
-        uniqueIndex(messageId, userId)
-    }
     
     override val primaryKey = PrimaryKey(id)
 }

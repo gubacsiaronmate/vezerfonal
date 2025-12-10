@@ -34,7 +34,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
-@Preview(showBackground = true)
 @Composable
 fun WriteMessageScreen(
     user: UserData,

@@ -11,4 +11,14 @@ data class UserData(
     val identifier: String,
     val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
-) : DTO
+) : NamedDTO, DTO {
+    override fun toSerializable(): Map<String, Any?> {
+        return mapOf(
+            "registrationCode" to registrationCode,
+            "email" to email,
+            "password" to password,
+            "isAnyAdmin" to isAnyAdmin,
+            "isSuperAdmin" to isSuperAdmin,
+        )
+    }
+}
