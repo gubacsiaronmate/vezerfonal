@@ -1,7 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,13 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
-import kotlinx.datetime.Instant
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
 
@@ -62,8 +58,12 @@ fun MessageFilter(
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
+            val fullRange = state.earliestMessageUnixTime..state.latestMessageUnixTime
+            val selectedRange = state.selectedStartDate.toFloat()..state.selectedEndDate.toFloat()
+            val isFullRange = state.selectedStartDate == 0L && state.selectedEndDate == 0L
             MessageTimeRangeSlider(
-                valueRange = state.earliestMessageUnixTime..state.latestMessageUnixTime,
+                initialRange = if (isFullRange) fullRange else selectedRange,
+                valueRange = fullRange,
                 onRangeSelected = { range ->
                     state.updateSelectedStartDate(range.start.toLong())
                     state.updateSelectedEndDate(range.endInclusive.toLong())

@@ -24,11 +24,10 @@ fun String.capitalize(): String = replaceFirstChar { if (it.isLowerCase()) it.ti
 fun genRegCode() = Uuid.random().toString().replace("-","").substring(0..7)
 
 fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean =
-    start.toInstant() < this.toInstant() && this.toInstant() < end.toInstant()
+    start.toInstant() <= this.toInstant() && this.toInstant() <= end.toInstant()
 
-/** MINUTES */
 @OptIn(ExperimentalTime::class)
-fun Long.toLocalDateTime(): LocalDateTime = Instant.fromEpochSeconds(this * 60).toLocalDateTime()
+fun Long.toLocalDateTime(): LocalDateTime = Instant.fromEpochSeconds(this).toLocalDateTime()
 
 fun String?.toLDTOrNull(): LocalDateTime? = this?.let { LocalDateTime.parse(it) }
 

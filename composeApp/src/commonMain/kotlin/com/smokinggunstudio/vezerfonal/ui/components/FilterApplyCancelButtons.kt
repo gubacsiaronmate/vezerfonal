@@ -59,7 +59,7 @@ import vezerfonal.composeapp.generated.resources.clear
                 modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
-        VerticalDivider(Modifier.height(height), color = MaterialTheme.colorScheme.onSurface)
+        CustomVerticalDivider(Modifier.height(height), color = MaterialTheme.colorScheme.onSurface)
         Button(
             onClick = onApply,
             modifier = Modifier
