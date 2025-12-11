@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun SwipeableRegCodeCard(
     onDelete: () -> Unit,

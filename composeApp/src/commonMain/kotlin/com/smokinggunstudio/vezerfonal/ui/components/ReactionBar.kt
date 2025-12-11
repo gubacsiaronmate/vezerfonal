@@ -27,7 +27,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.helpers.EmojiPicker
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun ReactionBar(
     onClick: CallbackEvent<String>

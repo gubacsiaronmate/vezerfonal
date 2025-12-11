@@ -7,7 +7,6 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview
 @Composable
 fun GroupSelect(
     state: GroupSelectionState,

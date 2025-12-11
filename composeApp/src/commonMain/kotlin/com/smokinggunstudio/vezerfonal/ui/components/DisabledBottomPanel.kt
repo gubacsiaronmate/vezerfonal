@@ -58,15 +58,3 @@ fun DisabledBottomPanel(
         }
     }
 }
-
-@Preview
-@Composable
-private fun Asd() {
-    DisabledBottomPanel(reaction = "")
-}
-
-@Preview
-@Composable
-private fun Asd2() {
-    DisabledBottomPanel(reaction = "\uD83D\uDE1B")
-}

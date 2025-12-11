@@ -18,7 +18,6 @@ import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview(showBackground = true)
 @Composable fun ProfilePicture(
     size: Dp = 120.dp,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,

@@ -88,24 +88,3 @@ fun RecipientReactionBottomPanel(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-private fun Asd1() {
-    RecipientReactionBottomPanel(
-        listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒"),
-        onIsReactionBarVisible = {}
-    ) {}
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Asd2() {
-    RecipientReactionBottomPanel(null, onIsReactionBarVisible = {}) {}
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Asd3() {
-    RecipientReactionBottomPanel(emptyList(), onIsReactionBarVisible = {}) {}
-}

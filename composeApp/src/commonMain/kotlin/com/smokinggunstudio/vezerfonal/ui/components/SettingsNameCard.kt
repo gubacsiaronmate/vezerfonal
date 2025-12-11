@@ -19,7 +19,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.name
 
-@Preview(showBackground = true)
 @Composable
 fun SettingsNameCard(
     username: String,

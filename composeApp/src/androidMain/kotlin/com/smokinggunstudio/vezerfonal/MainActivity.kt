@@ -28,9 +28,3 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 }
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
-}

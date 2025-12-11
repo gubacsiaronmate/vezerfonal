@@ -63,14 +63,3 @@ fun GroupCard(
         }
     }
 }
-
-@Preview
-@Composable
-fun GroupCardPreview() {
-    GroupCard(
-        name = "Group Card",
-        extId = "6546asd",
-        description = "This is a description",
-        true
-    )
-}

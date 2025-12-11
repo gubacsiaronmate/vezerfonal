@@ -50,11 +50,3 @@ fun RecipientReactionBar(
         }
     }
 }
-
-@Preview
-@Composable
-private fun Asd() {
-    RecipientReactionBar(
-        listOf("👍", "❤️", "🔥", "👏", "😂", "😒", "😒", "😒")
-    ) {}
-}

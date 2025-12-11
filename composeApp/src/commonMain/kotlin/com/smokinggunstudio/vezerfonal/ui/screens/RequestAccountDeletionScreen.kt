@@ -30,7 +30,6 @@ import vezerfonal.composeapp.generated.resources.cancel
 import vezerfonal.composeapp.generated.resources.delete_my_account
 import vezerfonal.composeapp.generated.resources.request_account_deletion
 
-@Preview
 @Composable
 fun RequestAccountDeletionScreen() {
     Column(

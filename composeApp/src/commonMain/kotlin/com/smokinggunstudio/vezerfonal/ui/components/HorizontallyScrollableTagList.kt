@@ -46,9 +46,3 @@ fun HorizontallyScrollableTagList(
         }
     }
 }
-
-@Preview
-@Composable
-private fun Asd() {
-    HorizontallyScrollableTagList((0..12).map { "Test Tag $it" })
-}
