@@ -1,0 +1,14 @@
+package com.smokinggunstudio.vezerfonal.routing.api
+
+import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.auth.principal
+import io.ktor.server.response.respond
+import io.ktor.server.routing.RoutingContext
+
+suspend fun RoutingContext.apiGetRoute() {
+    call.principal<AuthResponse>()
+        ?: return call.respond(HttpStatusCode.Unauthorized)
+    
+    call.respond(HttpStatusCode.OK)
+}

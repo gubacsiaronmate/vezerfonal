@@ -1,28 +1,25 @@
 package com.smokinggunstudio.vezerfonal.routing
 
-import com.smokinggunstudio.vezerfonal.data.*
-import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
-import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
-import com.smokinggunstudio.vezerfonal.models.InteractionInfo
-import com.smokinggunstudio.vezerfonal.models.User
-import com.smokinggunstudio.vezerfonal.objects.JWTs
-import com.smokinggunstudio.vezerfonal.objects.Users
-import com.smokinggunstudio.vezerfonal.repositories.*
-import com.smokinggunstudio.vezerfonal.security.JWTConfig
+import com.smokinggunstudio.vezerfonal.routing.api.codeRoute
+import com.smokinggunstudio.vezerfonal.routing.api.apiGetRoute
+import com.smokinggunstudio.vezerfonal.routing.api.groupRoute
+import com.smokinggunstudio.vezerfonal.routing.api.logoutRoute
+import com.smokinggunstudio.vezerfonal.routing.api.messageRoute
+import com.smokinggunstudio.vezerfonal.routing.api.tagRoute
+import com.smokinggunstudio.vezerfonal.routing.api.userRoute
+import com.smokinggunstudio.vezerfonal.routing.auth.jwtRefresh
+import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
+import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(imageService: ImageService, mainDB: Database, context: CoroutineContext) {
@@ -37,617 +34,46 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         get("/") { call.respondText("Hello") }
         
         get("/organisations") {
-            val orgs = OrganisationRepository(mainDB)
-                .getOrganisations()
-                .filter { it.id != 67 }
-                .map { it.toDTO() }
-            
-            call.respond(orgs)
+            organisationRoute(mainDB)
         }
         
         route("/register") {
-            var db: Database? = null
-            
-            post("/create-org") {
-                val org = tryIncoming("Unable to receive organisation data.") {
-                    call
-                        .receive<OrgData>()
-                        .toOrganisation()
-                } ?: return@post
-                
-                val success = tryInternal("Unable to insert org to db.") {
-                    OrganisationRepository(mainDB).insertOrg(org)
-                } ?: return@post
-                
-                if (!success) return@post call.respond(HttpStatusCode.InternalServerError)
-                
-                val orgDB = ensureOrgDB(org.name, context)
-                    ?: return@post call.respond(HttpStatusCode.InternalServerError)
-                
-                db = orgDB
-                
-                call.respond(HttpStatusCode.OK)
-            }
-            
-            post("/basic") {
-                val pair = tryIncoming("Unable to receive user.") {
-                    call
-                        .receive<UserData>()
-                        .toUser(
-                            context = context,
-                            mainDB = mainDB,
-                            db = db
-                        )
-                } ?: return@post
-                
-                if (db == null) db = pair.first
-                val user = pair.second
-                
-                val urepo = UserRepository(db)
-                
-                val insertSuccess = tryInternal("Failed to insert user.")
-                { urepo.insertUser(user) } ?: return@post
-                
-                if (insertSuccess) {
-                    val user = urepo.getUserByIdentifier(user.identifier)
-                        ?: error("Cannot get user by identifier.")
-                    val userId = user.id ?: error("Cannot get user id.")
-                    call.respondText("$userId", status = HttpStatusCode.Created)
-                } else call.respondText(
-                    "Failed to insert user into the database.",
-                    status = HttpStatusCode.InternalServerError
-                )
-            }
-            
-            route("/basic/pfp/{userId}/{rememberMe}") {
-                var userId: Int? = null
-                var rememberMe: Boolean? = null
-                var metadata: FileMetaData? = null
-                
-                post("/metadata") {
-                    userId = call.parameters["userId"]?.toIntOrNull()
-                        ?: return@post call.respondText(
-                            "Invalid user ID",
-                            status = HttpStatusCode.BadRequest
-                        )
-                    
-                    rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                        ?: return@post call.respondText(
-                            "Invalid remember me parameter.",
-                            status = HttpStatusCode.BadRequest
-                        )
-                    
-                    metadata = tryIncoming("Unable to receive image metadata.") {
-                        call.receive<FileMetaData>()
-                    } ?: return@post
-                    
-                    call.respondText("Accepted", status = HttpStatusCode.Accepted)
-                }
-                
-                post("/filedata") {
-                    when {
-                        userId == null -> error("User Id cannot be null.")
-                        metadata == null -> error("Metadata cannot be null.")
-                        rememberMe == null -> error("Remember Me cannot be null.")
-                    }
-                    
-                    val data = tryIncoming("Unable to receive image bytes.")
-                    { call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L) } ?: return@post
-                    
-                    val pfpURI = tryInternal("Failed to save image.") {
-                        imageService.saveImage(
-                            multipart = data,
-                            userId = userId,
-                            context = context,
-                            extension = metadata.fileType
-                        )
-                    } ?: return@post
-                    
-                    val urepo = UserRepository(db!!)
-                    
-                    val updateSuccess = tryInternal("Failed to add picture to user.")
-                    {
-                        urepo.modifyUser(
-                            userId = userId,
-                            property = Users.profilePicURI,
-                            newValue = pfpURI,
-                        )
-                    } ?: return@post
-                    
-                    if (!updateSuccess) call.respondText(
-                        "Failed to save picture to database.",
-                        status = HttpStatusCode.InternalServerError
-                    )
-                    
-                    val accessToken = tryInternal("Cannot generate jwt.") {
-                        JWTConfig.generateToken(
-                            userId = userId,
-                            context = context,
-                            db = db,
-                            mainDB = mainDB
-                        )
-                    } ?: return@post
-                    
-                    val refreshToken = tryInternal("Cannot generate jwt") {
-                        JWTConfig.generateToken(
-                            userId = userId,
-                            context = context,
-                            db = db,
-                            mainDB = mainDB,
-                            isRefresh = true
-                        )
-                    } ?: return@post
-                    
-                    call.respond(
-                        TokenResponse(
-                            accessToken,
-                            if (rememberMe)
-                                refreshToken
-                            else null // "No token for you :("
-                        )
-                    )
-                }
-            }
-            
-            // TODO? maybe: route("/oauth") { }
+            registerRoute(imageService, context, mainDB)
         }
         
         authenticate("jwt-refresh") {
             get("/refresh") {
-                val principal = call.principal<AuthResponse>()
-                    ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                
-                val userId = principal.user.id!!
-                val db = principal.db
-                
-                val accessToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(userId, context, db, mainDB) } ?: return@get
-                
-                val refreshToken = tryInternal("Cannot generate jwt")
-                { JWTConfig.generateToken(userId, context, db, mainDB, isRefresh = true) } ?: return@get
-                
-                call.respond(TokenResponse(accessToken, refreshToken))
+                jwtRefresh(context, mainDB)
             }
         }
         
-        route("/login") {
-            authenticate("basic") {
-                post("/basic") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                
-                    val userId = principal.user.id!!
-                    val db = principal.db
-                    
-                    val jrepo = JWTRepository(db)
-                    val activeTokens = jrepo.getActiveJWTsByUserId(userId)
-                    
-                    if (activeTokens.isNotEmpty())
-                        tryInternal("Unable to invalidate old tokens.") {
-                            activeTokens.forEach { token ->
-                                jrepo.invalidateToken(token.id)
-                            }
-                        }
-                    
-                    val accessToken = tryInternal("Cannot generate jwt") {
-                        JWTConfig.generateToken(
-                            userId = userId,
-                            context = context,
-                            db = db,
-                            mainDB = mainDB
-                        )
-                    } ?: return@post
-                    
-                    val refreshToken = tryInternal("Cannot generate jwt") {
-                        JWTConfig.generateToken(
-                            userId = userId,
-                            context = context,
-                            db = db,
-                            mainDB = mainDB,
-                            isRefresh = true
-                        )
-                    } ?: return@post
-                    
-                    val newToken = TokenResponse(
-                        accessToken,
-                        if (principal.rememberMe) refreshToken
-                        else null // "No token for you :("
-                    )
-                    
-                    call.respond(newToken)
-                }
+        authenticate("basic") {
+            route("/login") {
+                loginRoute(context, mainDB)
             }
         }
         
         authenticate("jwt-access") {
             route("/api") {
-                get {
-                    call.principal<AuthResponse>()
-                        ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                    
-                    call.respond(HttpStatusCode.OK)
-                }
+                get(RoutingContext::apiGetRoute)
                 
-                get("/logout") {
-                    val principal = call.principal<AuthResponse>()
-                        ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                    
-                    val userId = principal.user.id!!
-                    val db = principal.db
-                    
-                    val jrepo = JWTRepository(db)
-                    
-                    val success = tryInternal("Cannot log out user.") {
-                        jrepo.getJWTsByUserId(userId).map { jwt ->
-                            jrepo.modifyJWT(
-                                tokenId = jwt.id,
-                                property = JWTs.revoked,
-                                newValue = true
-                            )
-                        }.all { it }
-                    } ?: return@get
-                    
-                    if (success) call.respond(HttpStatusCode.OK)
-                }
+                get("/logout", RoutingContext::logoutRoute)
                 
                 route("/messages") {
-                    get("/subscribe") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        val userId = principal.user.id!!
-                        
-                        call.response.cacheControl(CacheControl.NoCache(null))
-                        call.respondTextWriter(contentType = ContentType.Text.EventStream) {
-                            val channel = MessageHub.subscribe(userId)
-                            try {
-                                for (message in channel) {
-                                    write(Json.encodeToString(message) + "\n\n")
-                                    flush()
-                                }
-                            } finally {
-                                MessageHub.unsubscribe(userId, channel)
-                            }
-                        }
-                    }
-                    
-                    get("/{amount}") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val userId = principal.user.id!!
-                        val db = principal.db
-                        
-                        val amount = call.parameters["amount"]?.toIntOrNull()
-                            ?: return@get
-                        
-                        val messages = tryInternal("Unable to get messages.") {
-                            MessageRepository(db)
-                                .getMessagesByRecipientUserId(userId, limit = amount)
-                                .map { message ->
-                                    val interactions = InteractionInfoRepository(db)
-                                        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
-                                    val reaction = try {
-                                        interactions.single { it.type == InteractionType.reaction }.reaction
-                                    } catch (_: Exception) { null }
-                                    message.toDTO(reaction)
-                                }
-                        } ?: return@get
-                        
-                        call.respond(messages)
-                    }
-                    
-                    post("/send") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val message = tryInternal("Unable to receive message.") {
-                            call
-                                .receive<MessageData>()
-                                .toMessage(context, db)
-                        } ?: return@post
-                        
-                        val (id, success) = tryInternal("Unable to insert message.") {
-                            MessageRepository(db)
-                                .insertMessage(message)
-                        } ?: return@post
-                        
-                        if (!success) call.respondText(
-                            text = "Message already sent.",
-                            status = HttpStatusCode.TooManyRequests
-                        )
-                        
-                        MessageHub.broadcast(message, context)
-                        
-                        val recipients: List<User> = message.user?.let { listOf(it) }
-                            ?: message.group!!.members.map { it.user }
-                        
-                        val insertedMessage = tryInternal("Unable to get message.") {
-                            MessageRepository(db)
-                                .getMessageById(id)
-                        } ?: return@post
-                        
-                        val interactionSuccess = tryInternal("Unable to insert all interactions.") {
-                            recipients.map { user ->
-                                InteractionInfoRepository(db)
-                                    .insertInteraction(
-                                        InteractionInfo(
-                                            message = insertedMessage,
-                                            user = user,
-                                            type = InteractionType.status,
-                                            status = message.status,
-                                        )
-                                    )
-                            }
-                        } ?: return@post
-                        
-                        if (interactionSuccess.all { it }) call.respond(HttpStatusCode.OK)
-                        else call.respond(HttpStatusCode.InternalServerError)
-                    }
-
-                    route("/interactions") {
-                        route("/reaction") {
-                            post("/send") {
-                                val principal = call.principal<AuthResponse>()
-                                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                                
-                                val user = principal.user
-                                val db = principal.db
-                                
-                                val interaction = tryIncoming("Unable to receive interaction.") {
-                                    call
-                                        .receive<InteractionInfoData>()
-                                        .toInteractionInfo(user, db, context)
-                                } ?: return@post
-                                
-                                val success = tryInternal("Unable to save interaction.") {
-                                    InteractionInfoRepository(db)
-                                        .insertInteraction(interaction)
-                                } ?: return@post
-                                
-                                if (success) call.respond(HttpStatusCode.OK)
-                            }
-                        }
-                    }
+                    messageRoute(context)
                 }
                 
-                route("/users") {
-                    get("/data") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val userId = principal.user.id!!
-                        val db = principal.db
-                        
-                        val user = tryInternal("Unable to query users table.") {
-                            UserRepository(db).getUserById(userId)!!.apply {
-                                isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
-                            }.toDTO()
-                        } ?: return@get
-                        
-                        call.respond(user)
-                    }
-                    
-                    get("/all") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        if (!principal.user.isSuperAdmin)
-                            call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val users = tryInternal("Unable to get users.") {
-                            UserRepository(db)
-                                .getAllUsers()
-                                .map { it.toDTO() }
-                        } ?: return@get
-                        
-                        call.respond(users)
-                    }
-                    
-                    post("/by-identifier-list") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        val identifiers = call.receive<List<Identifier>>()
-                        
-                        val users = tryInternal("Unable to get any user.") {
-                            identifiers.mapNotNull {
-                                UserRepository(db)
-                                    .getUserByIdentifier(it)
-                            }.map { it.toDTO() }
-                        } ?: return@post
-                        
-                        call.respond(users)
-                    }
-                }
+                route("/users", Route::userRoute)
                 
                 route("/groups") {
-                    get("/data") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val user = principal.user
-                        val db = principal.db
-                        
-                        val groups = tryInternal("Unable to get groups by member userId.") {
-                            GroupRepository(db).let {
-                                if (user.isSuperAdmin) it.getAllGroups()
-                                else it.getAllGroupsByMemberUserId(user.id!!)
-                            }.map { it.toDTO() }
-                        } ?: return@get
-                        
-                        call.respond(groups)
-                    }
-                    
-                    get("/im-admin-of") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val adminId = principal.user.id!!
-                        val db = principal.db
-                        
-                        val groups = tryInternal("Unable to get groups.") {
-                            GroupRepository(db)
-                                .getGroupsByAdminId(adminId)
-                                .map { it.toDTO() }
-                        } ?: return@get
-                        
-                        call.respond(groups)
-                    }
-                    
-                    post("/create") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                        
-                        if (!principal.user.isSuperAdmin)
-                            call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val group = tryIncoming("Unable to receive group data.")
-                        { call.receive<GroupData>().toGroup(context, db) } ?: return@post
-                        
-                        val success = tryInternal("Unable to insert group.")
-                        { GroupRepository(db).insertGroup(group) } ?: return@post
-                        
-                        if (success) call.respond(HttpStatusCode.OK)
-                    }
-                    
-                    post("/join") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val userId = principal.user.id!!
-                        val db = principal.db
-                        
-                        val groupExtId = tryIncoming("Unable to receive extId.") {
-                            call.receive<String>()
-                        } ?: return@post
-                        
-                        val group = tryInternal("Unable to find group with ext id: $groupExtId")
-                        { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
-                        
-                        val success = tryInternal("Unable to join group: ${group.displayName}.") {
-                            MembershipRepository(db)
-                                .insertMemberIntoGroup(
-                                    newUserId = userId,
-                                    newGroupId = group.id!!
-                                )
-                        } ?: return@post println("Unable to join group: ${group.displayName}.")
-                        
-                        if (success) call.respond(group.toDTO())
-                    }
-                    
-                    get("/extId") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val extId = tryIncoming("Unable to receive extId.") {
-                            call.receive<String>()
-                        } ?: return@get
-                        
-                        val db = principal.db
-                        val userId = principal.user.id!!
-                        
-                        val group = tryInternal("Unable to get group by ext id: $extId") {
-                            val grepo = GroupRepository(db)
-                            val g = grepo
-                                .getGroupByExtId(extId)
-                            val ugs = grepo
-                                .getAllGroupsByMemberUserId(userId)
-                            if (g != null && g in ugs) g
-                            else null
-                        } ?: return@get
-                        
-                        call.respond(group)
-                    }
+                    groupRoute(context)
                 }
                 
                 route("/codes") {
-                    get("/all") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        if (!principal.user.isSuperAdmin)
-                            call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val orgName = transaction {
-                            db.config.defaultSchema!!.identifier
-                        }.removePrefix("vezerfonal_org_").lowercase()
-                        
-                        val codes = tryInternal("Unable to get codes.") {
-                            RegistrationCodeRepository(mainDB)
-                                .getAllCodes()
-                                .filter {
-                                    it.organisation.name.lowercase() != orgName
-                                }.map { it.toDTO() }
-                        } ?: return@get
-                        
-                        call.respond(codes)
-                    }
-                    
-                    post("/create") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                        
-                        if (!principal.user.isSuperAdmin)
-                            call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val regCode = tryIncoming("Unable to receive code.")
-                        { call.receive<RegCodeData>().toRegCode(principal.org, context) } ?: return@post
-                        
-                        val success = tryInternal("Unable to insert reg code") {
-                            RegistrationCodeRepository(mainDB)
-                                .insertCode(regCode)
-                        } ?: return@post
-                        
-                        if (success) call.respond(HttpStatusCode.OK)
-                    }
-                    
-                    delete("/delete") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-                        
-                        if (!principal.user.isSuperAdmin)
-                            call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val code = tryIncoming("Unable to receive code.") {
-                            call.receive<String>()
-                        } ?: return@delete
-                        
-                        val success = tryInternal("Unable to delete code.") {
-                            RegistrationCodeRepository(db)
-                                .deleteCode(code)
-                        } ?: return@delete
-                        
-                        if (success) call.respond(HttpStatusCode.OK)
-                    }
+                    codeRoute(context, mainDB)
                 }
                 
-                route("/tags") {
-                    get("/all") {
-                        val principal = call.principal<AuthResponse>()
-                            ?: return@get call.respond(HttpStatusCode.Unauthorized)
-                        
-                        val db = principal.db
-                        
-                        val tags = tryInternal("Unable to get any tag.") {
-                            TagRepository(db)
-                                .getAllTags()
-                                .map { it.toDTO() }
-                        } ?: return@get
-                        
-                        call.respond(tags)
-                    }
-                }
+                route("/tags", Route::tagRoute)
             }
         }
     }
