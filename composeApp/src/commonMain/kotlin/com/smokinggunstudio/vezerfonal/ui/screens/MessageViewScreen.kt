@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +17,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,11 +49,13 @@ import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagLi
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import io.ktor.client.HttpClient
+import io.ktor.client.request.invoke
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.archive
 import vezerfonal.composeapp.generated.resources.status
 
 @Composable
@@ -63,105 +70,149 @@ fun MessageViewScreen(
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
     var selectedReaction by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf<Throwable?>(null)}
+    var moreShowing by remember { mutableStateOf(false) }
     
-    Box(Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .background(color = MaterialTheme.colorScheme.surface),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalArrangement = Arrangement.Top,
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        maxLines = 1,
-                        text = message.title,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.headlineLarge,
-                    )
-                    
+                IconButton({ moreShowing = true }) {
                     Icon(
-                        imageVector =
-                            if (message.isUrgent) Icons.Filled.Error
-                            else Icons.Outlined.ErrorOutline,
+                        imageVector = Icons.Outlined.MoreVert,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
-                }
-                
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        maxLines = 1,
-                        text = message.author.name,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = statusString,
-                        maxLines = 1,
-                        fontWeight = FontWeight.Medium,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-            }
-            
-            HorizontallyScrollableTagList(message.tags)
-            
-            HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
-            
-            Box(Modifier.fillMaxSize()) {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Text(
-                        text = message.content,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp).fillMaxHeight(),
-                    )
-                }
-                
-                if (message.reactedWith != null || selectedReaction != null)
-                    DisabledBottomPanel(
-                        reaction = message.reactedWith ?: selectedReaction!!,
-                        modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
-                    )
-                else RecipientReactionBottomPanel(
-                    availableReactions = message.availableReactions,
-                    modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
-                    onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
-                ) {
-                    selectedReaction = it
-                    try {
-                        scope.launch {
-                            val interaction = InteractionInfoData(
-                                messageExtId = message.externalId,
-                                type = InteractionType.reaction,
-                                reaction = it
-                            )
-                            
-                            sendInteraction(accessToken, interaction, client)
-                        }
-                    } catch (e: UnauthorizedException) {
-                        error = e
-                    }
                 }
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, true)
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            if (moreShowing)
+                Column(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .align(Alignment.TopEnd)
+                        .clickable {
+                            try {
+                                scope.launch {
+                                    sendInteraction(
+                                        accessToken,
+                                        InteractionInfoData(
+                                            messageExtId = message.externalId,
+                                            type = InteractionType.archive,
+                                        ),
+                                        client
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                error = e
+                            }
+                        }
+                ) {
+                    Text(stringResource(Res.string.archive))
+                }
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
+                    .clickable { moreShowing = false }
+                    .background(color = MaterialTheme.colorScheme.surface),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    verticalArrangement = Arrangement.Top,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            maxLines = 1,
+                            text = message.title,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.headlineLarge,
+                        )
+                        
+                        Icon(
+                            imageVector =
+                                if (message.isUrgent) Icons.Filled.Error
+                                else Icons.Outlined.ErrorOutline,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                        )
+                    }
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            maxLines = 1,
+                            text = message.author.name,
+                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = statusString,
+                            maxLines = 1,
+                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+                
+                HorizontallyScrollableTagList(message.tags)
+                
+                HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
+                
+                Box(Modifier.fillMaxSize()) {
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
+                        Text(
+                            text = message.content,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp).fillMaxHeight(),
+                        )
+                    }
+                    
+                    if (message.reactedWith != null || selectedReaction != null)
+                        DisabledBottomPanel(
+                            reaction = message.reactedWith ?: selectedReaction!!,
+                            modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
+                        )
+                    else RecipientReactionBottomPanel(
+                        availableReactions = message.availableReactions,
+                        modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
+                        onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
+                    ) {
+                        selectedReaction = it
+                        try {
+                            scope.launch {
+                                val interaction = InteractionInfoData(
+                                    messageExtId = message.externalId,
+                                    type = InteractionType.reaction,
+                                    reaction = it
+                                )
+                                
+                                sendInteraction(accessToken, interaction, client)
+                            }
+                        } catch (e: UnauthorizedException) {
+                            error = e
+                        }
+                    }
+                }
+            }
+            if (error != null) ErrorDialog(error!!.message!!, true)
+        }
     }
 }

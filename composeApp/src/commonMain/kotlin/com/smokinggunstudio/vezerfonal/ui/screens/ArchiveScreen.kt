@@ -39,16 +39,13 @@ import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable fun ArchiveScreen(
+    messages: List<MessageData>,
     onMessageClick: CallbackEvent<MessageData>,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
-    val scope = rememberCoroutineScope()
-    var timedOut by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
-    var messages by remember { mutableStateOf<List<MessageData>>(emptyList())}
     var filtered by remember(messages) { mutableStateOf<List<MessageData>>(emptyList())}
     
     Column(

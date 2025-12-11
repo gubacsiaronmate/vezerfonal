@@ -1,15 +1,18 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
+import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 
@@ -121,6 +124,21 @@ class MessageRepository(val db: Database) {
                     (Messages.groupId inList UserGroupConnection
                         .select { UserGroupConnection.userId eq id }
                         .map { it[UserGroupConnection.groupId] })
+        }
+    }
+    
+    suspend fun getArchivedMessagesByRecipientUserId(
+        id: Int,
+        limit: Int? = null
+    ): List<Message> = suspendTransaction(db) {
+        getMessagesByCondition(limit) {
+            ((Messages.userId eq id) or
+            (Messages.groupId inList UserGroupConnection
+                .select { UserGroupConnection.userId eq id }
+                .map { it[UserGroupConnection.groupId] })) and
+            (Messages.id inSubQuery MessageUserInteractions
+                .select(MessageUserInteractions.messageId)
+                .where { MessageUserInteractions.type eq InteractionType.archive })
         }
     }
     

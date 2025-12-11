@@ -1,33 +1,29 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import androidx.compose.foundation.interaction.Interaction
-import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
-import com.smokinggunstudio.vezerfonal.helpers.unaryPlus
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.request.get
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 
-suspend fun sendInteraction(
+suspend fun getArchivedMessages(
+    amount: Int,
+    client: HttpClient,
     accessToken: String,
-    interaction: InteractionInfoData,
-    client: HttpClient
-): Boolean {
-    val url = "${NetworkConstants.Endpoints.INTERACTIONS}/${interaction.type.name.lowercase()}/send"
-    
+): List<MessageData> {
     val response = client
-        .post(url) {
+        .get(NetworkConstants.Endpoints.GET_ARCHIVED + amount) {
             bearerAuth(accessToken)
-            setBody(interaction)
         }
     
     val auth = response.status == HttpStatusCode.Unauthorized
     val ok = response.status == HttpStatusCode.OK
     return if (!ok) throw UnableToLoadException()
     else if (auth) throw UnauthorizedException()
-    else ok
+    else response.body()
 }

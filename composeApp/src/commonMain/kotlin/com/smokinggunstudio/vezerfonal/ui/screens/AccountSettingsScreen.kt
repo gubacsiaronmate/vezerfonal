@@ -43,7 +43,6 @@ fun AccountSettingsScreen(
     onChangePasswordClick: ClickEvent,
 ) {
     val scope = rememberCoroutineScope()
-    val navigator = LocalNavigator.currentOrThrow
     var error by remember { mutableStateOf<Throwable?>(null) }
 
     Box(
@@ -83,7 +82,6 @@ fun AccountSettingsScreen(
             }
         }
 
-        if (error != null)
-            ErrorDialog(error!!.message!!, true)
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

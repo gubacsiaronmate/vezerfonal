@@ -1,12 +1,14 @@
 package com.smokinggunstudio.vezerfonal.ui.helpers
 
 import com.smokinggunstudio.vezerfonal.data.GroupData
+import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.network.api.getAllGroupsUserIsAdminOf
 import com.smokinggunstudio.vezerfonal.network.api.getAllRegCodes
 import com.smokinggunstudio.vezerfonal.network.api.getAllTags
+import com.smokinggunstudio.vezerfonal.network.api.getArchivedMessages
 import com.smokinggunstudio.vezerfonal.network.api.getGroupData
 import com.smokinggunstudio.vezerfonal.network.api.getUserData
 import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
@@ -21,6 +23,7 @@ object HomeCache {
     var guiao: List<GroupData> = emptyList()
     var userList: List<UserData> = emptyList()
     var tagList: List<TagData> = emptyList()
+    var archived: List<MessageData> = emptyList()
 
     suspend fun load(accessToken: String, client: HttpClient) {
         if (loaded) return
@@ -41,6 +44,8 @@ object HomeCache {
         )
 
         tagList = getAllTags(accessToken, client)
+        
+        archived = getArchivedMessages(-1, client, accessToken)
 
         loaded = true
     }

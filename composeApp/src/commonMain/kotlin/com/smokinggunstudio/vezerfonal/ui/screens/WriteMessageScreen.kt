@@ -58,8 +58,6 @@ fun WriteMessageScreen(
     userSelectionState.loadAllItems(userList)
     tagSelectionState.loadAllItems(tagList)
     
-    
-    
     Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier

@@ -55,5 +55,7 @@ object NetworkConstants {
         const val SUBSCRIBE_TO_MESSAGES = "/api/messages/subscribe"
         
         const val INTERACTIONS = "/api/messages/interactions"
+        
+        const val GET_ARCHIVED = "/api/messages/archived/"
     }
 }

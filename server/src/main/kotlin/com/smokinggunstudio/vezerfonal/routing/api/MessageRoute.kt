@@ -3,29 +3,16 @@ package com.smokinggunstudio.vezerfonal.routing.api
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
-import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
-import com.smokinggunstudio.vezerfonal.helpers.MessageHub
-import com.smokinggunstudio.vezerfonal.helpers.toInteractionInfo
-import com.smokinggunstudio.vezerfonal.helpers.toMessage
-import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
-import com.smokinggunstudio.vezerfonal.helpers.tryInternal
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
-import io.ktor.http.CacheControl
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.principal
-import io.ktor.server.request.receive
-import io.ktor.server.response.cacheControl
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.response.respondTextWriter
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
+import io.ktor.http.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
@@ -125,6 +112,31 @@ fun Route.messageRoute(context: CoroutineContext) {
         else call.respond(HttpStatusCode.InternalServerError)
     }
     
+    get("/archived/{amount}") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        
+        val amount = call.parameters["amount"]?.toIntOrNull { if (it == -1) null else it }
+        
+        val db = principal.db
+        val userId = principal.user.id!!
+        
+        val messages = tryInternal("Unable to get messages") {
+            MessageRepository(db)
+                .getArchivedMessagesByRecipientUserId(userId, limit = amount)
+                .map { message ->
+                    val interactions = InteractionInfoRepository(db)
+                        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
+                    val reaction = try {
+                        interactions.single { it.type == InteractionType.reaction }.reaction
+                    } catch (_: Exception) { null }
+                    message.toDTO(reaction)
+                }
+        } ?: return@get
+        
+        call.respond(messages)
+    }
+    
     route("/interactions") {
         route("/reaction") {
             post("/send") {
@@ -144,6 +156,33 @@ fun Route.messageRoute(context: CoroutineContext) {
                     InteractionInfoRepository(db)
                         .insertInteraction(interaction)
                 } ?: return@post
+                
+                if (success) call.respond(HttpStatusCode.OK)
+            }
+        }
+        
+        route("/archive") {
+            post("/send") {
+                val principal = call.principal<AuthResponse>()
+                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
+                
+                val extId = call.receive<String>()
+                val user = principal.user
+                val db = principal.db
+                
+                val success = tryInternal("Unable to insert interaction.") {
+                    val message = MessageRepository(db)
+                        .getMessageByExtId(extId)!!
+                    
+                    InteractionInfoRepository(db)
+                        .insertInteraction(
+                            InteractionInfo(
+                                message = message,
+                                user = user,
+                                type = InteractionType.archive,
+                            )
+                        )
+                } ?: return@post call.respond(HttpStatusCode.InternalServerError)
                 
                 if (success) call.respond(HttpStatusCode.OK)
             }
