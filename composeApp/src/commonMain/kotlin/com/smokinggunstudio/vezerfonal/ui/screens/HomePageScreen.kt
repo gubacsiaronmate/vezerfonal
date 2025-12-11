@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
@@ -46,10 +47,15 @@ fun HomePageScreen(
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var filtered by remember(messages) { mutableStateOf(messages) }
     var timedOut by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
     LaunchedEffect(Unit) {
         isLoading = true
-        messages = getMessages(100, client, accessToken)
+        try {
+            messages = getMessages(100, client, accessToken)
+        } catch (e: Exception) {
+            error = e
+        }
         filtered = messages
         isLoading = false
 
@@ -62,91 +68,98 @@ fun HomePageScreen(
                 .toLDTOrNull()
         )
     }
-
-    scope.launch {
-        while (timedOut) {
-            subscribeToMessages(
-                client = client,
-                accessToken = accessToken,
-                onMessage = { messages += it },
-                onError = { e ->
-                    if (e !is SocketTimeoutException) throw e
-                    else timedOut = true
-                }
-            )
-            delay(5000)
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            Text(
-                stringResource(Res.string.vezerfonal),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-        
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-        )
-        
-        Image(
-            painter = painterResource(Res.drawable.spiralgraphic),
-            contentDescription = "Home Page Image",
-            modifier = Modifier.fillMaxWidth()
-                .height(210.dp),
-            contentScale = ContentScale.FillWidth
-        )
-        
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-        )
-        
-        FilterRow(
-            onFilterOpened = { isFilterOpened = true },
-            onCompleted = {
-                filtered = it
-                isFilterOpened = false
-            },
-            isFilterOpened = isFilterOpened,
-            messages = messages,
-            messageFilterState = messageFilterState
-        )
-        
-        if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-        else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
-        
-        ScrollableMessageList(
-            messages = filtered,
-            onMessageClick = onMessageClick,
-        ) {
-            if (isFilterOpened)
-                MessageFilter(
-                    state = messageFilterState,
-                    tabOpenedClick = { isTagSelectTabOpened = true },
-                    modifier = Modifier.align(Alignment.TopCenter)
-                ) { scrollLockedBySliderCallback(it && isFilterOpened) }
-            else scrollLockedBySliderCallback(false)
-            
-            if (isTagSelectTabOpened)
-                TagSelect(
-                    state = messageFilterState.tagSelectionState,
-                    onCancelClick = { isTagSelectTabOpened = false },
-                    onApplyClick = { }
+    
+    try {
+        scope.launch {
+            while (timedOut) {
+                subscribeToMessages(
+                    client = client,
+                    accessToken = accessToken,
+                    onMessage = { messages += it },
+                    onError = { e ->
+                        if (e !is SocketTimeoutException) throw e
+                        else timedOut = true
+                    }
                 )
+                delay(5000)
+            }
         }
+    } catch (e: UnauthorizedException) {
+        error = e
+    }
+    
+    Box(Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    stringResource(Res.string.vezerfonal),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
+            
+            Image(
+                painter = painterResource(Res.drawable.spiralgraphic),
+                contentDescription = "Home Page Image",
+                modifier = Modifier.fillMaxWidth()
+                    .height(210.dp),
+                contentScale = ContentScale.FillWidth
+            )
+            
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
+            
+            FilterRow(
+                onFilterOpened = { isFilterOpened = true },
+                onCompleted = {
+                    filtered = it
+                    isFilterOpened = false
+                },
+                isFilterOpened = isFilterOpened,
+                messages = messages,
+                messageFilterState = messageFilterState
+            )
+            
+            if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+            else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+            
+            ScrollableMessageList(
+                messages = filtered,
+                onMessageClick = onMessageClick,
+            ) {
+                if (isFilterOpened)
+                    MessageFilter(
+                        state = messageFilterState,
+                        tabOpenedClick = { isTagSelectTabOpened = true },
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    ) { scrollLockedBySliderCallback(it && isFilterOpened) }
+                else scrollLockedBySliderCallback(false)
+                
+                if (isTagSelectTabOpened)
+                    TagSelect(
+                        state = messageFilterState.tagSelectionState,
+                        onCancelClick = { isTagSelectTabOpened = false },
+                        onApplyClick = { }
+                    )
+            }
+        }
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

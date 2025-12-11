@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getAllTags
 import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import com.smokinggunstudio.vezerfonal.network.api.sendMessage
@@ -51,6 +52,7 @@ fun WriteMessageScreen(
     val groupSelectionState = remember { GroupSelectionState() }
     val userSelectionState = remember { UserSelectionState() }
     val tagSelectionState = remember { TagSelectionState() }
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
     groupSelectionState.loadAllItems(guiao)
     userSelectionState.loadAllItems(userList)
@@ -58,151 +60,158 @@ fun WriteMessageScreen(
     
     
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Text(
-            text = stringResource(Res.string.to),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            RecipientSelectButton(
-                text = stringResource(Res.string.groups),
-                selectedAmount = state.groups.size,
-                onClick = { isGroupTabOpened = true }
+            Text(
+                text = stringResource(Res.string.to),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.titleLarge
             )
-            RecipientSelectButton(
-                text = stringResource(Res.string.individuals),
-                selectedAmount = state.userIdentifiers.size,
-                onClick = { isIndividualTabOpened = true }
-            )
-            IconToggleButton(
-                checked = state.isUrgent,
-                onCheckedChange = state::updateUrgency
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Image(
-                    imageVector = if (!state.isUrgent)
-                        Icons.Outlined.ErrorOutline
-                    else Icons.Filled.Error,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier
-                        .size(32.dp)
+                RecipientSelectButton(
+                    text = stringResource(Res.string.groups),
+                    selectedAmount = state.groups.size,
+                    onClick = { isGroupTabOpened = true }
                 )
-            }
-        }
-        
-        Box {
-            Column(
-                modifier = Modifier.fillMaxSize()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                OutlinedTextField(
-                    value = state.title,
-                    onValueChange = state::updateTitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            horizontal = 8.dp,
-                            vertical = 4.dp
-                        ),
-                    label = {
-                        Text(
-                            text = stringResource(Res.string.subject),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    singleLine = true,
+                RecipientSelectButton(
+                    text = stringResource(Res.string.individuals),
+                    selectedAmount = state.userIdentifiers.size,
+                    onClick = { isIndividualTabOpened = true }
                 )
-                OutlinedTextField(
-                    value = state.content,
-                    onValueChange = state::updateContent,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.6F)
-                        .padding(
-                            horizontal = 8.dp,
-                            vertical = 4.dp
-                        ),
-                    label = {
-                        Text(
-                            text = stringResource(Res.string.message),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                )
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.Start
+                IconToggleButton(
+                    checked = state.isUrgent,
+                    onCheckedChange = state::updateUrgency
                 ) {
-                    ReactionBar { emoji ->
-                        if (state.availableReactions.contains(emoji))
-                            state.removeReaction(emoji)
-                        else state.addReaction(emoji)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                        modifier = Modifier.fillMaxWidth().padding(4.dp),
-                        onClick = {
-                            scope.launch {
-                                val message = state.toMessageData(user)
-                                sendMessage(
-                                    client = client,
-                                    message = message,
-                                    accessToken = accessToken,
-                                )
-                                state.clear()
-                            }
-                        },
-                    ) {
-                        Image(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        )
-                        Text(
-                            text = stringResource(Res.string.send),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = MaterialTheme.typography.titleMedium.fontSize
-                        )
-                    }
+                    Image(
+                        imageVector = if (!state.isUrgent)
+                            Icons.Outlined.ErrorOutline
+                        else Icons.Filled.Error,
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier
+                            .size(32.dp)
+                    )
                 }
             }
             
-            if (isGroupTabOpened && !isIndividualTabOpened && !isTagSelectTabOpened)
-                GroupSelect(
-                    state = groupSelectionState,
-                    onCancelClick = { isGroupTabOpened = false },
-                    onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
-                )
-            if (isTagSelectTabOpened && !isGroupTabOpened && !isIndividualTabOpened)
-                TagSelect(
-                    state = tagSelectionState,
-                    onCancelClick = { isTagSelectTabOpened = false },
-                    onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
-                )
-            if (isIndividualTabOpened && !isGroupTabOpened && !isTagSelectTabOpened)
-                IndividualSelect(
-                    state = userSelectionState,
-                    onCancelClick = { isIndividualTabOpened = false },
-                    onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.identifier }) }
-                )
+            Box {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = state.title,
+                        onValueChange = state::updateTitle,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 4.dp
+                            ),
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.subject),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = state.content,
+                        onValueChange = state::updateContent,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.6F)
+                            .padding(
+                                horizontal = 8.dp,
+                                vertical = 4.dp
+                            ),
+                        label = {
+                            Text(
+                                text = stringResource(Res.string.message),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        ReactionBar { emoji ->
+                            if (state.availableReactions.contains(emoji))
+                                state.removeReaction(emoji)
+                            else state.addReaction(emoji)
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Button(
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            modifier = Modifier.fillMaxWidth().padding(4.dp),
+                            onClick = {
+                                try {
+                                    scope.launch {
+                                        val message = state.toMessageData(user)
+                                        sendMessage(
+                                            client = client,
+                                            message = message,
+                                            accessToken = accessToken,
+                                        )
+                                        state.clear()
+                                    }
+                                } catch (e: UnauthorizedException) {
+                                    error = e
+                                }
+                            },
+                        ) {
+                            Image(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            )
+                            Text(
+                                text = stringResource(Res.string.send),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontSize = MaterialTheme.typography.titleMedium.fontSize
+                            )
+                        }
+                    }
+                }
+                
+                if (isGroupTabOpened && !isIndividualTabOpened && !isTagSelectTabOpened)
+                    GroupSelect(
+                        state = groupSelectionState,
+                        onCancelClick = { isGroupTabOpened = false },
+                        onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
+                    )
+                if (isTagSelectTabOpened && !isGroupTabOpened && !isIndividualTabOpened)
+                    TagSelect(
+                        state = tagSelectionState,
+                        onCancelClick = { isTagSelectTabOpened = false },
+                        onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
+                    )
+                if (isIndividualTabOpened && !isGroupTabOpened && !isTagSelectTabOpened)
+                    IndividualSelect(
+                        state = userSelectionState,
+                        onCancelClick = { isIndividualTabOpened = false },
+                        onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.identifier }) }
+                    )
+            }
         }
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

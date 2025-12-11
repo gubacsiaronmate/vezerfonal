@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -30,42 +32,50 @@ fun JoinGroupDialog(
 ) {
     val scope = rememberCoroutineScope()
     var groupExtId by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<Throwable?>(null)}
     
-    Dialog {
-        Text(
-            text = stringResource(Res.string.join_group),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.align(Alignment.Start)
-        )
-        
-        OutlinedTextField(
-            value = groupExtId,
-            onValueChange = { groupExtId = it },
-            label = { Text(stringResource(Res.string.group_name)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-        )
-        
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onCancelClick) { Text(stringResource(Res.string.cancel)) }
-            Button({
-                scope.launch {
-                    val group = joinGroup(
-                        extId = groupExtId,
-                        accessToken = accessToken,
-                        client = client
-                    )
-                    onGroupJoined(group)
-                    onCancelClick()
-                }
-            }) { Text(stringResource(Res.string.join)) }
+    Box(Modifier.fillMaxSize()) {
+        Dialog {
+            Text(
+                text = stringResource(Res.string.join_group),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            
+            OutlinedTextField(
+                value = groupExtId,
+                onValueChange = { groupExtId = it },
+                label = { Text(stringResource(Res.string.group_name)) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onCancelClick) { Text(stringResource(Res.string.cancel)) }
+                Button({
+                    try {
+                        scope.launch {
+                            val group = joinGroup(
+                                extId = groupExtId,
+                                accessToken = accessToken,
+                                client = client
+                            )
+                            onGroupJoined(group)
+                            onCancelClick()
+                        }
+                    } catch (e: Exception) {
+                        error = e
+                    }
+                }) { Text(stringResource(Res.string.join)) }
+            }
         }
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

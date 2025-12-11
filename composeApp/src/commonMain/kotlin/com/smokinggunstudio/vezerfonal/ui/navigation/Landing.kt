@@ -15,6 +15,7 @@ import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.network.api.getAccessToken
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 
 data object Landing : Screen {
@@ -26,9 +27,15 @@ data object Landing : Screen {
         var token: String? by remember { mutableStateOf(null) }
         var loaded by remember { mutableStateOf(false) }
         var orgs by remember { mutableStateOf<List<OrgData>>(emptyList()) }
+        var error by remember { mutableStateOf<Throwable?>(null)}
         
         LaunchedEffect(Unit) {
-            val o = getAllOrgsRequest(client)
+            val o = try {
+                getAllOrgsRequest(client)
+            } catch (e: Exception) {
+                error = e
+                return@LaunchedEffect
+            }
             orgs = o
             val t = try {
                 getAccessToken(tokenStorage, client)
@@ -40,19 +47,26 @@ data object Landing : Screen {
             loaded = true
         }
         
-        if (!loaded) {
-            Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
-            return
+        Box(Modifier.fillMaxSize()) {
+            if (!loaded) {
+                Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
+                return
+            }
+            
+            if (token != null) {
+                LaunchedEffect(token) { navigator.replaceAll(Home(token!!)) }
+                return
+            }
+            
+            LandingPageScreen(
+                onRegisterClick = { navigator.push(Register(1, null)) },
+                onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
+            )
+            
+            if (error != null) {
+                ErrorDialog(error!!.message!!, false)
+                return
+            }
         }
-        
-        if (token != null) {
-            LaunchedEffect(token) { navigator.replaceAll(Home(token!!)) }
-            return
-        }
-        
-        LandingPageScreen(
-            onRegisterClick = { navigator.push(Register(1, null)) },
-            onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
-        )
     }
 }

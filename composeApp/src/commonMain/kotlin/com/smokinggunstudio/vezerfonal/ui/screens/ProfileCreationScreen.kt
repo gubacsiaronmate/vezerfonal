@@ -12,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -34,89 +36,105 @@ import vezerfonal.composeapp.generated.resources.*
     var rememberMe by remember { mutableStateOf(false) }
     var data: FileData? by remember { mutableStateOf(null) }
     val scope = rememberCoroutineScope()
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
-    Column(
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 8.dp),
-    ) {
-        RegisterText()
-        
-        Column(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = registerState.identifier,
-                onValueChange = { registerState.updateIdentifier(it) },
-                label = { Text(stringResource(Res.string.identifier),
-                    color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
-            )
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 8.dp),
+        ) {
+            RegisterText()
             
-            OutlinedTextField(
-                value = registerState.name,
-                onValueChange = { registerState.updateName(it) },
-                label = { Text(stringResource(Res.string.display_name),
-                    color = MaterialTheme.colorScheme.onSurface) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
-            )
-            
-            PfpSetter(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onFilePickCallBack = { data = it }
-            )
-            
-            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = areTermsAccepted,
-                        onCheckedChange = { areTermsAccepted = it; }
-                    )
-                    Text(
-                        text = stringResource(Res.string.accept_terms),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = registerState.identifier,
+                    onValueChange = { registerState.updateIdentifier(it) },
+                    label = {
+                        Text(
+                            stringResource(Res.string.identifier),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+                
+                OutlinedTextField(
+                    value = registerState.name,
+                    onValueChange = { registerState.updateName(it) },
+                    label = {
+                        Text(
+                            stringResource(Res.string.display_name),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+                
+                PfpSetter(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onFilePickCallBack = { data = it }
+                )
+                
+                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = areTermsAccepted,
+                            onCheckedChange = { areTermsAccepted = it; }
+                        )
+                        Text(
+                            text = stringResource(Res.string.accept_terms),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = rememberMe,
+                            onCheckedChange = { rememberMe = it; }
+                        )
+                        Text(
+                            text = stringResource(Res.string.remember_me),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
                 
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = rememberMe,
-                        onCheckedChange = { rememberMe = it; }
-                    )
-                    Text(
-                        text = stringResource(Res.string.remember_me),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
+                AnimatedButton(
+                    enabled = (
+                            registerState.identifier.isNotBlank()
+                                    && registerState.name.isNotBlank()
+                                    && areTermsAccepted
+                                    && data != null
+                            ),
+                    onClick = {
+                        try {
+                            scope.launch {
+                                val tokens = registerBasic(
+                                    userData = registerState.toUserData(),
+                                    rememberMe = rememberMe,
+                                    fileData = data!!,
+                                    client = client
+                                )
+                                onClick(tokens)
+                            }
+                        } catch (e: UnauthorizedException) {
+                            error = e
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) { Text(stringResource(Res.string.create_account)) }
             }
-            
-            AnimatedButton(
-                enabled = (
-                    registerState.identifier.isNotBlank()
-                    && registerState.name.isNotBlank()
-                    && areTermsAccepted
-                    && data != null
-                ),
-                onClick = {
-                    scope.launch {
-                        val tokens = registerBasic(
-                            userData = registerState.toUserData(),
-                            rememberMe = rememberMe,
-                            fileData = data!!,
-                            client = client
-                        )
-                        onClick(tokens)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) { Text(stringResource(Res.string.create_account)) }
         }
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

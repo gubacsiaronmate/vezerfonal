@@ -14,11 +14,7 @@ suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): Stri
     else when(savedTokens.refreshToken) {
         null -> throw UnauthorizedException()
         else -> {
-            val tokens = try {
-                refreshTokens(savedTokens.refreshToken!!, client)
-            } catch (e: UnauthorizedException) {
-                throw e
-            }
+            val tokens = refreshTokens(savedTokens.refreshToken!!, client)
             tokenStorage.saveTokens(tokens)
             tokens.accessToken
         }

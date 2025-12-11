@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -19,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createGroup
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -45,53 +48,63 @@ import kotlin.collections.plus
     var groupName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var adminIdentifier by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<Throwable?>(null)}
     
-    CreateDialog(
-        titleText = stringResource(Res.string.create_group),
-        onCancelClick = onCancelClick,
-        onCreateClick = {
-            val group = GroupData(
-                name = groupName,
-                externalId = getExtId(),
-                description = description,
-                members = emptyList(),
-                adminIdentifier = adminIdentifier
-            )
-            
-            scope.launch {
-                if (createGroup(
-                    groupData = group,
-                    accessToken = accessToken,
-                    client = client
-                )) {
-                    onCreatedGroup(group)
-                    onCancelClick()
+    Box(Modifier.fillMaxSize()) {
+        CreateDialog(
+            titleText = stringResource(Res.string.create_group),
+            onCancelClick = onCancelClick,
+            onCreateClick = {
+                val group = GroupData(
+                    name = groupName,
+                    externalId = getExtId(),
+                    description = description,
+                    members = emptyList(),
+                    adminIdentifier = adminIdentifier
+                )
+                
+                try {
+                    scope.launch {
+                        if (createGroup(
+                                groupData = group,
+                                accessToken = accessToken,
+                                client = client
+                            )
+                        ) {
+                            onCreatedGroup(group)
+                            onCancelClick()
+                        }
+                    }
+                } catch (e: UnauthorizedException) {
+                    error = e
                 }
             }
+        ) {
+            OutlinedTextField(
+                value = groupName,
+                onValueChange = { groupName = it },
+                label = { Text(stringResource(Res.string.group_name)) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            )
+            
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text(stringResource(Res.string.group_name)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            )
+            
+            DropdownSearchBar(
+                allItems = users,
+                labelText = stringResource(Res.string.name)
+            ) { adminIdentifier = it.identifier }
         }
-    ) {
-        OutlinedTextField(
-            value = groupName,
-            onValueChange = { groupName = it },
-            label = { Text(stringResource(Res.string.group_name)) },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-        )
         
-        OutlinedTextField(
-            value = description,
-            onValueChange = { description = it },
-            label = { Text(stringResource(Res.string.group_name)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-        )
-        
-        DropdownSearchBar(
-            allItems = users,
-            labelText = stringResource(Res.string.name)
-        ) { adminIdentifier = it.identifier }
+        if (error != null) ErrorDialog(error!!.message!!, true)
     }
 }

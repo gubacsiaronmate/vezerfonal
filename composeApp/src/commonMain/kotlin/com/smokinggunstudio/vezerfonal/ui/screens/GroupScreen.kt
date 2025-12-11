@@ -14,8 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
 import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.GroupCard
 import com.smokinggunstudio.vezerfonal.ui.components.JoinGroupDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SwipeableGroupCard
@@ -39,9 +41,15 @@ import vezerfonal.composeapp.generated.resources.join_group
     var isJoinPopUpOn by remember { mutableStateOf(false) }
     var users by remember { mutableStateOf<List<UserData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
     if (isSuperAdminLogIn) LaunchedEffect(Unit) {
-        val d = getAllUsers(accessToken, client)
+        val d = try {
+            getAllUsers(accessToken, client)
+        } catch (e: UnauthorizedException) {
+            error = e
+            return@LaunchedEffect
+        }
         users = d
         loaded = true
     } else loaded = true
@@ -139,7 +147,8 @@ import vezerfonal.composeapp.generated.resources.join_group
         
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center){
+            verticalArrangement = Arrangement.Center
+        ){
             if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
                 CreateGroupDialog(
                     client = client,
@@ -153,6 +162,8 @@ import vezerfonal.composeapp.generated.resources.join_group
                 client = client,
                 { isJoinPopUpOn = false }
             ) { groups += it }
+            
+            if (error != null) ErrorDialog(error!!.message!!, true)
         }
     }
 }
