@@ -1,13 +1,7 @@
 package com.smokinggunstudio.vezerfonal.routing
 
-import com.smokinggunstudio.vezerfonal.helpers.*
-import com.smokinggunstudio.vezerfonal.routing.api.codeRoute
-import com.smokinggunstudio.vezerfonal.routing.api.apiGetRoute
-import com.smokinggunstudio.vezerfonal.routing.api.groupRoute
-import com.smokinggunstudio.vezerfonal.routing.api.logoutRoute
-import com.smokinggunstudio.vezerfonal.routing.api.messageRoute
-import com.smokinggunstudio.vezerfonal.routing.api.tagRoute
-import com.smokinggunstudio.vezerfonal.routing.api.userRoute
+import com.smokinggunstudio.vezerfonal.helpers.ImageService
+import com.smokinggunstudio.vezerfonal.routing.api.*
 import com.smokinggunstudio.vezerfonal.routing.auth.jwtRefresh
 import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
 import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
