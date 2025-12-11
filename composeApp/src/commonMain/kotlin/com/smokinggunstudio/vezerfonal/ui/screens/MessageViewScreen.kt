@@ -89,31 +89,6 @@ fun MessageViewScreen(
         }
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (moreShowing)
-                Column(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .align(Alignment.TopEnd)
-                        .clickable {
-                            try {
-                                scope.launch {
-                                    sendInteraction(
-                                        accessToken,
-                                        InteractionInfoData(
-                                            messageExtId = message.externalId,
-                                            type = InteractionType.archive,
-                                        ),
-                                        client
-                                    )
-                                }
-                            } catch (e: Exception) {
-                                error = e
-                            }
-                        }
-                ) {
-                    Text(stringResource(Res.string.archive))
-                }
-            
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -122,56 +97,83 @@ fun MessageViewScreen(
                     .background(color = MaterialTheme.colorScheme.surface),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalArrangement = Arrangement.Top,
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                Box(Modifier.fillMaxWidth()) {
+                    if (moreShowing)
+                        Column(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .align(Alignment.TopEnd)
+                                .clickable {
+                                    scope.launch {
+                                        try {
+                                            sendInteraction(
+                                                accessToken,
+                                                InteractionInfoData(
+                                                    messageExtId = message.externalId,
+                                                    type = InteractionType.archive,
+                                                ),
+                                                client
+                                            )
+                                        } catch (e: Exception) {
+                                            error = e
+                                        }
+                                    }
+                                }
+                        ) {
+                            Text(stringResource(Res.string.archive))
+                        }
+                    
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalArrangement = Arrangement.Top,
                     ) {
-                        Text(
-                            maxLines = 1,
-                            text = message.title,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.headlineLarge,
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                maxLines = 1,
+                                text = message.title,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.headlineLarge,
+                            )
+                            
+                            Icon(
+                                imageVector =
+                                    if (message.isUrgent) Icons.Filled.Error
+                                    else Icons.Outlined.ErrorOutline,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                            )
+                        }
                         
-                        Icon(
-                            imageVector =
-                                if (message.isUrgent) Icons.Filled.Error
-                                else Icons.Outlined.ErrorOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                maxLines = 1,
+                                text = message.author.name,
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = statusString,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                     }
                     
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            maxLines = 1,
-                            text = message.author.name,
-                            fontWeight = FontWeight.Medium,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = statusString,
-                            maxLines = 1,
-                            fontWeight = FontWeight.Medium,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
+                    HorizontallyScrollableTagList(message.tags)
                 }
-                
-                HorizontallyScrollableTagList(message.tags)
                 
                 HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
                 
@@ -212,7 +214,7 @@ fun MessageViewScreen(
                     }
                 }
             }
-            if (error != null) ErrorDialog(error!!.message!!, true)
+            if (error != null) ErrorDialog(error!!.message!!, error is UnauthorizedException)
         }
     }
 }

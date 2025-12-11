@@ -11,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -25,6 +26,12 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
     }
     
     routing {
+        route("{...}") {
+            handle {
+            
+            }
+        }
+        
         get("/") { call.respondText("Hello") }
         
         get("/organisations") {
