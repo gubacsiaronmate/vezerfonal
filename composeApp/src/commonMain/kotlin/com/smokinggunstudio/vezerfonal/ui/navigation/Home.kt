@@ -25,6 +25,7 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
@@ -71,7 +72,7 @@ data class Home(
         LaunchedEffect(Unit) {
             try {
                 loadAll(force = false)
-            } catch (e: UnableToLoadException) {
+            } catch (e: Exception) {
                 error = e
             }
         }
@@ -87,7 +88,7 @@ data class Home(
                     isRefreshing = true
                     try {
                         loadAll(force = true)
-                    } catch (e: UnableToLoadException) {
+                    } catch (e: Exception) {
                         error = e
                     }
                     isRefreshing = false
@@ -103,7 +104,7 @@ data class Home(
                 return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
                     ErrorDialog(
                         errorMessage = error?.message ?: "User not found",
-                        isUnauthed = false,
+                        isUnauthed = error is UnauthorizedException,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
