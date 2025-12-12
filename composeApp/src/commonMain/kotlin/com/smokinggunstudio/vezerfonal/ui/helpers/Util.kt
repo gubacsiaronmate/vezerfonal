@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.toInstant
 import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -23,6 +23,7 @@ fun String.capitalize(): String = replaceFirstChar { if (it.isLowerCase()) it.ti
 @OptIn(ExperimentalUuidApi::class)
 fun genRegCode() = Uuid.random().toString().replace("-","").substring(0..7)
 
+@OptIn(ExperimentalTime::class)
 fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean =
     start.toInstant() <= this.toInstant() && this.toInstant() <= end.toInstant()
 

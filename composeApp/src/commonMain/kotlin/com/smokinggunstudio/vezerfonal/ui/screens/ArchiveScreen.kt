@@ -65,6 +65,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
         )
         HorizontalDivider()
         ScrollableMessageList(
+            client = ,
             messages = filtered,
             onMessageClick = onMessageClick,
         ) {

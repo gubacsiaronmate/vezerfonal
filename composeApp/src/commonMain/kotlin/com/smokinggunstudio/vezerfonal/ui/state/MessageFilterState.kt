@@ -7,6 +7,7 @@ import com.smokinggunstudio.vezerfonal.helpers.toInstant
 import com.smokinggunstudio.vezerfonal.helpers.toLong
 import kotlinx.datetime.LocalDateTime
 import kotlin.math.floor
+import kotlin.time.ExperimentalTime
 
 class MessageFilterState {
     private val _earliestMessageUnixTime = mutableStateOf(0F)
@@ -35,6 +36,7 @@ class MessageFilterState {
     
     val tagSelectionState = mutableStateOf(TagSelectionState()).value
     
+    @OptIn(ExperimentalTime::class)
     fun setEarliestMessageUnixTime(newUnixTime: LocalDateTime?) {
         val nowInSeconds = LocalDateTime
             .now().toInstant()

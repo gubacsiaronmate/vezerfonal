@@ -1,30 +1,23 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.Velocity
 import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import kotlinx.datetime.Instant
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.end
 import vezerfonal.composeapp.generated.resources.start
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 fun MessageTimeRangeSlider(
     modifier: Modifier = Modifier,
     valueRange: ClosedFloatingPointRange<Float>,
