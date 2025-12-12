@@ -65,9 +65,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
         )
         HorizontalDivider()
         ScrollableMessageList(
-            client = ,
+            isSwipeable = false,
             messages = filtered,
             onMessageClick = onMessageClick,
+            onArchive = {}
         ) {
             if (isFilterOpened)
                 MessageFilter(

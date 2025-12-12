@@ -12,9 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
+import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.*
@@ -141,8 +144,25 @@ fun HomePageScreen(
             else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
             
             ScrollableMessageList(
+                isSwipeable = true,
                 messages = filtered,
                 onMessageClick = onMessageClick,
+                onArchive = { message ->
+                    scope.launch {
+                        try {
+                            sendInteraction(
+                                accessToken,
+                                InteractionInfoData(
+                                    messageExtId = message.externalId,
+                                    type = InteractionType.archive,
+                                ),
+                                client
+                            )
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                    }
+                }
             ) {
                 if (isFilterOpened)
                     MessageFilter(

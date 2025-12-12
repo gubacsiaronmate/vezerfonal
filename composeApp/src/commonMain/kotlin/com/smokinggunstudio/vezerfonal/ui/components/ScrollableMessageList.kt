@@ -27,16 +27,12 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 
 @Composable fun ScrollableMessageList(
-    client: HttpClient,
-    accessToken: String,
+    isSwipeable: Boolean,
     messages: List<MessageData>,
     onMessageClick: CallbackEvent<MessageData>,
+    onArchive: CallbackEvent<MessageData>,
     popUpContent: @Composable BoxScope.() -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-    var error by remember { mutableStateOf<Throwable?>(null) }
-    var isTagSelectTabOpened by remember { mutableStateOf(false) }
-    
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -45,28 +41,20 @@ import kotlinx.coroutines.launch
         ) {
             LazyColumn(modifier = Modifier.weight(1F)) {
                 items(messages.reversed()) { message ->
-                    SwipeToArchiveRow({
-                        scope.launch {
-                            try {
-                                sendInteraction(
-                                    accessToken,
-                                    InteractionInfoData(
-                                        messageExtId = message.externalId,
-                                        type = InteractionType.archive,
-                                    ),
-                                    client
-                                )
-                            } catch (e: Exception) {
-                                error = e
-                            }
+                    if (isSwipeable)
+                        SwipeToArchiveRow({ onArchive(message) }) {
+                            ListItem(
+                                title = message.title,
+                                author = message.author.name,
+                                onClick = { onMessageClick(message) }
+                            )
                         }
-                    }) {
+                    else
                         ListItem(
                             title = message.title,
                             author = message.author.name,
                             onClick = { onMessageClick(message) }
                         )
-                    }
                 }
             }
         }
