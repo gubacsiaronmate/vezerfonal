@@ -141,7 +141,7 @@ fun HomePageScreen(
             )
             
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            else HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+            else HorizontalDivider(Modifier.height(1.dp))
             
             ScrollableMessageList(
                 isSwipeable = true,
@@ -183,6 +183,11 @@ fun HomePageScreen(
                     )
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, error is UnauthorizedException)
+        if (error != null)
+            ErrorDialog(
+                errorMessage = error!!.message!!,
+                isUnauthed = error is UnauthorizedException,
+                modifier = Modifier.align(Alignment.Center)
+            )
     }
 }
