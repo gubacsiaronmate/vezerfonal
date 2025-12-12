@@ -172,7 +172,8 @@ fun Route.messageRoute(context: CoroutineContext) {
                 
                 val success = tryInternal("Unable to insert interaction.") {
                     val message = MessageRepository(db)
-                        .getMessageByExtId(extId)!!
+                        .getMessageByExtId(extId)
+                        ?: return@tryInternal null
                     
                     InteractionInfoRepository(db)
                         .insertInteraction(
