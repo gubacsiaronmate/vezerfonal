@@ -34,8 +34,10 @@ import com.smokinggunstudio.vezerfonal.ui.components.TagSelect
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.between
 import com.smokinggunstudio.vezerfonal.ui.helpers.toLDT
+import com.smokinggunstudio.vezerfonal.ui.helpers.toLDTOrNull
 import com.smokinggunstudio.vezerfonal.ui.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable fun ArchiveScreen(
@@ -47,6 +49,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
     val messageFilterState = remember { MessageFilterState() }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var filtered by remember(messages) { mutableStateOf<List<MessageData>>(emptyList())}
+    
+    messageFilterState.setEarliestMessageUnixTime(
+        messages
+            .minByOrNull {
+                LocalDateTime.parse(it.sentAt)
+            }
+            ?.sentAt
+            .toLDTOrNull()
+    )
     
     Column(
         modifier = Modifier

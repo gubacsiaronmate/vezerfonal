@@ -48,7 +48,7 @@ fun Route.messageRoute(context: CoroutineContext) {
         
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
-                .getMessagesByRecipientUserId(userId, limit = amount)
+                .getNonArchivedMessagesByRecipientUserId(userId, limit = amount)
                 .map { message ->
                     val interactions = InteractionInfoRepository(db)
                         .getInteractionInfosByMessageAndUserId(message.id!!, userId)

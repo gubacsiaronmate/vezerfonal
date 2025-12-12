@@ -127,6 +127,21 @@ class MessageRepository(val db: Database) {
         }
     }
     
+    suspend fun getNonArchivedMessagesByRecipientUserId(
+        id: Int,
+        limit: Int? = null
+    ): List<Message> = suspendTransaction(db) {
+        getMessagesByCondition(limit) {
+            (Messages.userId eq id) or
+            (Messages.groupId inList UserGroupConnection
+                .select { UserGroupConnection.userId eq id }
+                .map { it[UserGroupConnection.groupId] }) and
+            (Messages.id notInSubQuery MessageUserInteractions
+                .select(MessageUserInteractions.messageId)
+                .where { MessageUserInteractions.type eq InteractionType.archive })
+        }
+    }
+    
     suspend fun getArchivedMessagesByRecipientUserId(
         id: Int,
         limit: Int? = null
