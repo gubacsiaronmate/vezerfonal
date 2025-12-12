@@ -166,23 +166,17 @@ fun Route.messageRoute(context: CoroutineContext) {
                 val principal = call.principal<AuthResponse>()
                     ?: return@post call.respond(HttpStatusCode.Unauthorized)
                 
-                val extId = call.receive<String>()
                 val user = principal.user
                 val db = principal.db
+                val interaction = tryIncoming("Unable to receive interaction.") {
+                    call
+                        .receive<InteractionInfoData>()
+                        .toInteractionInfo(user, db, context)
+                } ?: return@post call.respond(HttpStatusCode.InternalServerError)
                 
                 val success = tryInternal("Unable to insert interaction.") {
-                    val message = MessageRepository(db)
-                        .getMessageByExtId(extId)
-                        ?: return@tryInternal null
-                    
                     InteractionInfoRepository(db)
-                        .insertInteraction(
-                            InteractionInfo(
-                                message = message,
-                                user = user,
-                                type = InteractionType.archive,
-                            )
-                        )
+                        .insertInteraction(interaction)
                 } ?: return@post call.respond(HttpStatusCode.InternalServerError)
                 
                 if (success) call.respond(HttpStatusCode.OK)

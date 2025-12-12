@@ -161,6 +161,9 @@ fun HomePageScreen(
                         } catch (e: Exception) {
                             error = e
                         }
+                        
+                        filtered = filtered.filter { it != message }
+                        HomeCache.invalidate()
                     }
                 }
             ) {
