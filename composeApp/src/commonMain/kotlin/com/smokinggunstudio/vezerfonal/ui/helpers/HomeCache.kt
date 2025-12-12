@@ -23,7 +23,6 @@ object HomeCache {
     var guiao: List<GroupData> = emptyList()
     var userList: List<UserData> = emptyList()
     var tagList: List<TagData> = emptyList()
-    var archived: List<MessageData> = emptyList()
 
     suspend fun load(accessToken: String, client: HttpClient) {
         if (loaded) return
@@ -45,8 +44,6 @@ object HomeCache {
 
         tagList = getAllTags(accessToken, client)
         
-        archived = getArchivedMessages(-1, client, accessToken)
-
         loaded = true
     }
 

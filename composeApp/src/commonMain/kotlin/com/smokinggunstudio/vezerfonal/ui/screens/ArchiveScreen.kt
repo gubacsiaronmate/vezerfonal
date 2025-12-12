@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.network.api.getArchivedMessages
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.FilterApplyCancelButtons
@@ -64,7 +65,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
     LaunchedEffect(Unit) {
         isLoading = true
         try {
-            messages = getMessages(100, client, accessToken)
+            messages = getArchivedMessages(-1, client, accessToken)
         } catch (e: Exception) {
             error = e
         }

@@ -52,7 +52,6 @@ data class Home(
         var tagList by remember { mutableStateOf<List<TagData>>(emptyList()) }
         var userList by remember { mutableStateOf<List<UserData>>(emptyList()) }
         var regCodes by remember { mutableStateOf<List<RegCodeData>>(emptyList()) }
-        var archived by remember { mutableStateOf<List<MessageData>>(emptyList()) }
 
         suspend fun loadAll(force: Boolean = false) {
             if (force) HomeCache.invalidate()
@@ -67,7 +66,6 @@ data class Home(
             guiao = HomeCache.guiao
             userList = HomeCache.userList
             tagList = HomeCache.tagList
-            archived = HomeCache.archived
 
             loaded = true
         }
@@ -147,7 +145,8 @@ data class Home(
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
                         Archive -> ArchiveScreen(
-                            messages = archived,
+                            client = client,
+                            accessToken = accessToken,
                             onMessageClick = { navigator.push(ViewMessage(accessToken, it)) },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
