@@ -138,4 +138,5 @@
     <string name="request_sent">Request sent</string>
     <string name="code">Code</string>
     <string name="enter_code">Please enter the code sent to your e-mail address</string>
+    <string name="sent_messages">Sent messages</string>
 </resources>
