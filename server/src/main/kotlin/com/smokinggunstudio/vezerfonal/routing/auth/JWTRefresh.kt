@@ -17,12 +17,12 @@ suspend fun RoutingContext.jwtRefresh(
     val principal = call.principal<AuthResponse>()
         ?: return call.respond(HttpStatusCode.Unauthorized)
     
-    val userId = principal.user.id!!
+    val user = principal.user
     val db = principal.db
     
     val accessToken = tryInternal("Cannot generate jwt") {
         JWTConfig.generateToken(
-            userId = userId,
+            userExtId = user.identifier,
             db = db,
             mainDB = mainDB
         )
@@ -30,7 +30,7 @@ suspend fun RoutingContext.jwtRefresh(
     
     val refreshToken = tryInternal("Cannot generate jwt") {
         JWTConfig.generateToken(
-            userId = userId,
+            userExtId = user.identifier,
             db = db,
             mainDB = mainDB,
             isRefresh = true

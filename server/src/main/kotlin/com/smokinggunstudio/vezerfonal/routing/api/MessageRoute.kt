@@ -43,8 +43,7 @@ fun Route.messageRoute() {
         val userId = principal.user.id!!
         val db = principal.db
         
-        val amount = call.parameters["amount"]?.toIntOrNull()
-            ?: return@get
+        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
         
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
@@ -58,6 +57,35 @@ fun Route.messageRoute() {
                     message.toDTO(reaction)
                 }
         } ?: return@get
+        
+        call.respond(messages)
+    }
+    
+    get("/sent/{amount}") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        
+        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
+        
+        val user = principal.user
+        
+        if (user.isAnyAdmin != true)
+            return@get call.respond(HttpStatusCode.Forbidden)
+        
+        val db = principal.db
+        
+        val messages = tryInternal("Unable to get messages.") {
+            MessageRepository(db)
+                .getMessagesBySenderUserId(user.id!!, limit = amount)
+                .map { message ->
+                    val interactions = InteractionInfoRepository(db)
+                        .getInteractionInfosByMessageAndUserId(message.id!!, user.id)
+                    val reaction = try {
+                        interactions.single { it.type == InteractionType.reaction }.reaction
+                    } catch (_: Exception) { null }
+                    message.toDTO(reaction)
+                }
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
     }
@@ -116,7 +144,7 @@ fun Route.messageRoute() {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
-        val amount = call.parameters["amount"]?.toIntOrNull { if (it == -1) null else it }
+        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
         
         val db = principal.db
         val userId = principal.user.id!!
