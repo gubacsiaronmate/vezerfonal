@@ -31,7 +31,9 @@ fun SentMessageBottomSheet() {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-        
+        repeat(40) {
+            SentMsgBottomSheetRow()
+        }
         }
     }
 }
