@@ -60,7 +60,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
     val messageFilterState = remember { MessageFilterState() }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
-    var filtered by remember(messages) { mutableStateOf<List<MessageData>>(emptyList())}
+    var filtered by remember(messages) { mutableStateOf(messages)}
     
     LaunchedEffect(Unit) {
         isLoading = true

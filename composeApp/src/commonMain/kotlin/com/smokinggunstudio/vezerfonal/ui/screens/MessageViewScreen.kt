@@ -39,6 +39,7 @@ import vezerfonal.composeapp.generated.resources.status
 fun MessageViewScreen(
     client: HttpClient,
     accessToken: String,
+    isArchived: Boolean,
     message: MessageData
 ) {
     val scope = rememberCoroutineScope()
@@ -121,7 +122,7 @@ fun MessageViewScreen(
                     )
                 }
                 
-                if (message.reactedWith != null || selectedReaction != null)
+                if ((message.reactedWith != null || selectedReaction != null) || isArchived)
                     DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction!!,
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
