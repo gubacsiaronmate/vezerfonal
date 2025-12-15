@@ -59,13 +59,15 @@ import vezerfonal.composeapp.generated.resources.*
             PasswordField(
                 value = registerState.password,
                 labelText = stringResource(Res.string.password),
-                onValueChanged = registerState::updatePassword
+                onValueChanged = registerState::updatePassword,
+                supportingText = stringResource(Res.string.password_must_be_at_least_8_characters_long)
             )
             
             PasswordField(
                 value = confirmPassword.value,
                 labelText = stringResource(Res.string.confirm_password),
                 onValueChanged = { confirmPassword.value = it },
+                supportingText = stringResource(Res.string.passwords_must_match)
             )
             
             Column(

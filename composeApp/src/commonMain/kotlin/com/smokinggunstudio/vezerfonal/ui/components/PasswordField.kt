@@ -31,6 +31,7 @@ import vezerfonal.composeapp.generated.resources.password
 fun PasswordField(
     value: String,
     labelText: String,
+    supportingText: String = "",
     onValueChanged: (String) -> Unit,
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -40,6 +41,7 @@ fun PasswordField(
         onValueChange = onValueChanged,
         label = { Text(labelText, color = MaterialTheme.colorScheme.onSurface) },
         singleLine = true,
+        supportingText = { Text(supportingText, color = MaterialTheme.colorScheme.onSurface) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(

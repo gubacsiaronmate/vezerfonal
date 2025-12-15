@@ -136,4 +136,6 @@
     <string name="leave">Kilépés</string>
     <string name="marked_as_read">Megjelölve olvasottként</string>
     <string name="request_sent">Kérelem elküldve</string>
+    <string name="code">Kód</string>
+    <string name="enter_code">Kérjük, add meg a kódot, amit e-mailben küldtünk</string>
 </resources>
