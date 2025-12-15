@@ -36,7 +36,6 @@ fun Route.loginRoute(context: CoroutineContext, mainDB: Database) {
         val accessToken = tryInternal("Cannot generate jwt") {
             JWTConfig.generateToken(
                 userId = userId,
-                context = context,
                 db = db,
                 mainDB = mainDB
             )
@@ -45,7 +44,6 @@ fun Route.loginRoute(context: CoroutineContext, mainDB: Database) {
         val refreshToken = tryInternal("Cannot generate jwt") {
             JWTConfig.generateToken(
                 userId = userId,
-                context = context,
                 db = db,
                 mainDB = mainDB,
                 isRefresh = true

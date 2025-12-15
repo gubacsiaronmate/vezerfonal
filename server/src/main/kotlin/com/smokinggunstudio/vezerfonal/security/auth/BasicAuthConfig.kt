@@ -7,7 +7,6 @@ import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import com.smokinggunstudio.vezerfonal.security.verifyPassword
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
-import kotlinx.io.bytestring.decode
 import kotlinx.io.bytestring.decodeToByteString
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
@@ -23,7 +22,7 @@ fun AuthenticationConfig.configureBasicAuth(mainDB: Database, context: Coroutine
             val org = OrganisationRepository(mainDB).getOrganisationByExternalId(externalId)
                 ?: error("Cannot resolve org by extId: $externalId")
             
-            val db = ensureOrgDB(org.name, context)
+            val db = ensureOrgDB(org.name)
                 ?: error("")
             
             val user = UserRepository(db).getUserByEmail(credentials.name)

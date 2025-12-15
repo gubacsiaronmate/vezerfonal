@@ -28,7 +28,7 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineCo
             val orgId = credentials.payload.getClaim("orgId").asInt()
             
             val org = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
-            val db = ensureOrgDB(org.name, context)
+            val db = ensureOrgDB(org.name)
                 ?: error("Cannot resolve db for org: ${org.name}")
             
             val user = UserRepository(db).getUserById(userId)
@@ -65,7 +65,7 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineCo
             val orgId = credentials.payload.getClaim("orgId").asInt()
             
             val org = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
-            val db = ensureOrgDB(org.name, context)
+            val db = ensureOrgDB(org.name)
                 ?: error("Cannot resolve db for org: ${org.name}")
             
             val user = UserRepository(db).getUserById(userId)

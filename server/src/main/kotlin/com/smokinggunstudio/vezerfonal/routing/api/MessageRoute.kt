@@ -71,7 +71,7 @@ fun Route.messageRoute(context: CoroutineContext) {
         val message = tryInternal("Unable to receive message.") {
             call
                 .receive<MessageData>()
-                .toMessage(context, db)
+                .toMessage(db)
         } ?: return@post
         
         val (id, success) = tryInternal("Unable to insert message.") {
@@ -149,7 +149,7 @@ fun Route.messageRoute(context: CoroutineContext) {
                 val interaction = tryIncoming("Unable to receive interaction.") {
                     call
                         .receive<InteractionInfoData>()
-                        .toInteractionInfo(user, db, context)
+                        .toInteractionInfo(user, db)
                 } ?: return@post
                 
                 val success = tryInternal("Unable to save interaction.") {
@@ -171,7 +171,7 @@ fun Route.messageRoute(context: CoroutineContext) {
                 val interaction = tryIncoming("Unable to receive interaction.") {
                     call
                         .receive<InteractionInfoData>()
-                        .toInteractionInfo(user, db, context)
+                        .toInteractionInfo(user, db)
                 } ?: return@post call.respond(HttpStatusCode.InternalServerError)
                 
                 val success = tryInternal("Unable to insert interaction.") {

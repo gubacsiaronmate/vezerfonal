@@ -7,6 +7,7 @@ import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
 import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -28,7 +29,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
     routing {
         route("{...}") {
             handle {
-            
+                call.respondText("Nigger stop sending requests.", status = HttpStatusCode.BadRequest)
             }
         }
         
@@ -44,7 +45,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         
         authenticate("jwt-refresh") {
             get("/refresh") {
-                jwtRefresh(context, mainDB)
+                jwtRefresh(mainDB)
             }
         }
         

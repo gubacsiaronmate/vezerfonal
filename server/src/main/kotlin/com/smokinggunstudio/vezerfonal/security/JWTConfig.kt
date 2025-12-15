@@ -39,7 +39,12 @@ object JWTConfig {
         .build()
     
     @OptIn(ExperimentalTime::class)
-    suspend fun generateToken(userId: Int, context: CoroutineContext, db: Database, mainDB: Database, isRefresh: Boolean = false): String = withContext(context) {
+    suspend fun generateToken(
+        userId: Int,
+        db: Database,
+        mainDB: Database,
+        isRefresh: Boolean = false
+    ): String {
         val tokenId = UUID.randomUUID().toString()
         val expiresAt = when (isRefresh) {
             false -> Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_IN_MS)
@@ -71,6 +76,7 @@ object JWTConfig {
             )
         )
         
-        return@withContext if (success) jwt else throw IllegalArgumentException("Unable to insert token into database.")
+        return if (success) jwt
+        else error("Unable to insert token into database.")
     }
 }

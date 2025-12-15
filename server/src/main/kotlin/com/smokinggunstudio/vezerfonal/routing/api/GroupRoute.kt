@@ -60,7 +60,7 @@ fun Route.groupRoute(context: CoroutineContext) {
         val db = principal.db
         
         val group = tryIncoming("Unable to receive group data.")
-        { call.receive<GroupData>().toGroup(context, db) } ?: return@post
+        { call.receive<GroupData>().toGroup(db) } ?: return@post
         
         val success = tryInternal("Unable to insert group.")
         { GroupRepository(db).insertGroup(group) } ?: return@post

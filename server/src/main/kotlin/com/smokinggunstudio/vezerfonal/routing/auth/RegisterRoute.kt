@@ -45,7 +45,7 @@ fun Route.registerRoute(
         
         if (!success) return@post call.respond(HttpStatusCode.InternalServerError)
         
-        val orgDB = ensureOrgDB(org.name, context)
+        val orgDB = ensureOrgDB(org.name)
             ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         db = orgDB
@@ -58,11 +58,7 @@ fun Route.registerRoute(
             val pair = tryIncoming("Unable to receive user.") {
                 call
                     .receive<UserData>()
-                    .toUser(
-                        context = context,
-                        mainDB = mainDB,
-                        db = db
-                    )
+                    .toUser(mainDB, db)
             } ?: return@post
             
             if (db == null) db = pair.first
@@ -147,7 +143,6 @@ fun Route.registerRoute(
                 val accessToken = tryInternal("Cannot generate jwt.") {
                     JWTConfig.generateToken(
                         userId = userId,
-                        context = context,
                         db = db,
                         mainDB = mainDB
                     )
@@ -156,7 +151,6 @@ fun Route.registerRoute(
                 val refreshToken = tryInternal("Cannot generate jwt") {
                     JWTConfig.generateToken(
                         userId = userId,
-                        context = context,
                         db = db,
                         mainDB = mainDB,
                         isRefresh = true

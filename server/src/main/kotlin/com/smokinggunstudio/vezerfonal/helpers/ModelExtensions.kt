@@ -18,7 +18,6 @@ import com.smokinggunstudio.vezerfonal.models.RegistrationCode
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
-import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.RegistrationCodeRepository
 import com.smokinggunstudio.vezerfonal.repositories.TagRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
@@ -28,22 +27,21 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
 suspend fun UserData.toUser(
-    context: CoroutineContext,
     mainDB: Database,
     db: Database? = null
-): Pair<Database, User> = withContext(context) {
+): Pair<Database, User> {
     val db: Database = suspend getDB@{
         val code = registrationCode?.let {
             RegistrationCodeRepository(mainDB).getCodeByCode(it)
                 ?: error("Registration code not found")
         } ?: return@getDB db!!
-        ensureOrgDB(code.organisation.name, context)
+        ensureOrgDB(code.organisation.name)
             ?: error("Could not resolve database for organisation: ${code.organisation.name}")
     }()
     
     
     
-    Pair(
+    return Pair(
         db,
         User(
             email = email,
@@ -61,23 +59,34 @@ suspend fun UserData.toUser(
     )
 }
 
-suspend fun MessageData.toMessage(
-    context: CoroutineContext,
-    db: Database
-): Message = withContext(context) {
+suspend fun MessageData.toMessage(db: Database): Message {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
     val author = urepo.getUserByIdentifier(author.identifier)!!
-    val tagList = tags.map { tagName -> TagRepository(db).getTagByName(tagName) ?: error("Tag is not available.") }
+    val tagList = tags.map { tagName ->
+        TagRepository(db)
+            .getTagByName(tagName)
+            ?: error("Tag is not available.")
+    }
     
     var group: Group? = null
     var user: User? = null
     
-    val users = userIdentifiers.orEmpty().map { urepo.getUserByIdentifier(it)!! }
-    val groupData = groups.orEmpty().map { grepo.getGroupByExtId(it)!! }
-    val groups = groupData.map { grepo.getExactGroupByNameAndAdminIdentifier(it.displayName, it.admin.identifier)!! }
-    val allGroupUsers = groups.flatMap { group -> group.members.map { it.user } }
+    val users = userIdentifiers
+        .orEmpty()
+        .map { urepo.getUserByIdentifier(it)!! }
+    val groupData = groups
+        .orEmpty()
+        .map { grepo.getGroupByExtId(it)!! }
+    val groups = groupData.map {
+        grepo.getExactGroupByNameAndAdminIdentifier(
+            name = it.displayName,
+            identifier = it.admin.identifier
+        )!!
+    }
+    val allGroupUsers = groups
+        .flatMap { group -> group.members.map { it.user } }
     val combinedUsers = users + allGroupUsers
     
     when(combinedUsers.size) {
@@ -86,7 +95,7 @@ suspend fun MessageData.toMessage(
         else -> group = grepo.createInternalGroup(combinedUsers)
     }
     
-    Message(
+    return Message(
         id = null,
         user = user,
         group = group,
@@ -113,9 +122,8 @@ fun OrgData.toOrganisation() =
     )
 
 suspend fun GroupData.toGroup(
-    context: CoroutineContext,
     db: Database
-): Group = withContext(context) {
+): Group {
     val urepo = UserRepository(db)
     val admin = urepo.getUserByIdentifier(adminIdentifier)!!
     val memberships = members.map { identifier ->
@@ -126,7 +134,7 @@ suspend fun GroupData.toGroup(
         )
     }
     
-    Group(
+    return Group(
         id = null,
         displayName = name,
         description = description,
@@ -140,10 +148,7 @@ suspend fun GroupData.toGroup(
     )
 }
 
-suspend fun RegCodeData.toRegCode(
-    org: Organisation,
-    context: CoroutineContext
-) = withContext(context) {
+fun RegCodeData.toRegCode(org: Organisation) =
     RegistrationCode(
         id = null,
         code = code,
@@ -151,13 +156,8 @@ suspend fun RegCodeData.toRegCode(
         remainingUses = remainingUses,
         organisation = org
     )
-}
 
-suspend fun InteractionInfoData.toInteractionInfo(
-    user: User,
-    db: Database,
-    context: CoroutineContext
-) = withContext(context) {
+suspend fun InteractionInfoData.toInteractionInfo(user: User, db: Database): InteractionInfo {
     val urepo = UserRepository(db)
     val mrepo = MessageRepository(db)
     
@@ -165,7 +165,7 @@ suspend fun InteractionInfoData.toInteractionInfo(
     val recipient = recipientIdentifier
         ?.let { urepo.getUserByIdentifier(it) }
     
-    when (type) {
+    return when (type) {
         InteractionType.status -> InteractionInfo(
             message = message,
             user = user,

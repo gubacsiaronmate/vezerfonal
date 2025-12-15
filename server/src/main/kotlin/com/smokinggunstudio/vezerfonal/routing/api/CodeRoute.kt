@@ -54,7 +54,7 @@ fun Route.codeRoute(
             call.respond(HttpStatusCode.Unauthorized)
         
         val regCode = tryIncoming("Unable to receive code.")
-        { call.receive<RegCodeData>().toRegCode(principal.org, context) } ?: return@post
+        { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post
         
         val success = tryInternal("Unable to insert reg code") {
             RegistrationCodeRepository(mainDB)
