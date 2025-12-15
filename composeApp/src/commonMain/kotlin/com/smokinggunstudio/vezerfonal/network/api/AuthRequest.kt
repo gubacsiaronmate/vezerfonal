@@ -18,7 +18,5 @@ suspend fun checkAccessTokenValidity(accessToken: String, client: HttpClient): B
             bearerAuth(accessToken)
         }
     
-    val ok = response.status == HttpStatusCode.OK
-    return if (!ok) throw UnauthorizedException()
-    else ok
+    return response.status == HttpStatusCode.OK
 }

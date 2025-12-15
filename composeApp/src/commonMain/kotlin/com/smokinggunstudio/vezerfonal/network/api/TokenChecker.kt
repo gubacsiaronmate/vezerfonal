@@ -20,10 +20,6 @@ suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): Stri
         throw UnauthorizedException()
     
     val tokens = refreshTokens(savedTokens.refreshToken!!, client)
-    withContext(Dispatchers.Default) {
-        async {
-            tokenStorage.saveTokens(tokens)
-        }
-    }
+    tokenStorage.saveTokens(tokens)
     return tokens.accessToken
 }
