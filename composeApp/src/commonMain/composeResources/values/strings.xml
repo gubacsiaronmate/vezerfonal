@@ -135,4 +135,5 @@
     <string name="error_happened">Hiba történt</string>
     <string name="leave">Kilépés</string>
     <string name="marked_as_read">Megjelölve olvasottként</string>
+    <string name="request_sent">Kérelem elküldve</string>
 </resources>
