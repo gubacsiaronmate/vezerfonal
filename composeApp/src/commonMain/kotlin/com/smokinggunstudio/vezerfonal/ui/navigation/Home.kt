@@ -19,7 +19,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalDarkModeState
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
-import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
@@ -146,7 +145,8 @@ data class Home(
                                     ViewMessage(
                                         accessToken = accessToken,
                                         isArchived = false,
-                                        message = it.toSerialized()
+                                        message = it.toSerialized(),
+                                        isSenderView = false,
                                     )
                                 )
                             },
@@ -160,7 +160,8 @@ data class Home(
                                     ViewMessage(
                                         accessToken = accessToken,
                                         isArchived = true,
-                                        message = it.toSerialized()
+                                        message = it.toSerialized(),
+                                        isSenderView = false,
                                     )
                                 )
                             },
@@ -178,7 +179,24 @@ data class Home(
                             onTOSClick = { },
                             onLanguageClick = { },
                             onThemeSwitchClick = { darkModeState.value = it },
-                            onSentMessagesClick = {}
+                            onSentMessagesClick = {
+                                navigator.push(
+                                    SentMessages(
+                                        accessToken = accessToken,
+                                        onMessageClick = {
+                                            navigator.push(
+                                                ViewMessage(
+                                                    accessToken = accessToken,
+                                                    isArchived = true,
+                                                    message = it.toSerialized(),
+                                                    isSenderView = false,
+                                                )
+                                            )
+                                        },
+                                        scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                                    )
+                                )
+                            }
                         )
                     }
                 }

@@ -40,7 +40,8 @@ fun MessageViewScreen(
     client: HttpClient,
     accessToken: String,
     isArchived: Boolean,
-    message: MessageData
+    message: MessageData,
+    isSenderView: Boolean,
 ) {
     val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
@@ -122,29 +123,33 @@ fun MessageViewScreen(
                     )
                 }
                 
-                if ((message.reactedWith != null || selectedReaction != null) || isArchived)
-                    DisabledBottomPanel(
+                val isDisabled = (message.reactedWith != null || selectedReaction != null) || isArchived
+                
+                when {
+                    isSenderView -> {}
+                    isDisabled -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction!!,
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                     )
-                else RecipientReactionBottomPanel(
-                    availableReactions = message.availableReactions,
-                    modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
-                    onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
-                ) {
-                    selectedReaction = it
-                    try {
-                        scope.launch {
-                            val interaction = InteractionInfoData(
-                                messageExtId = message.externalId,
-                                type = InteractionType.reaction,
-                                reaction = it
-                            )
-                            
-                            sendInteraction(accessToken, interaction, client)
+                    else -> RecipientReactionBottomPanel(
+                        availableReactions = message.availableReactions,
+                        modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
+                        onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
+                    ) {
+                        selectedReaction = it
+                        try {
+                            scope.launch {
+                                val interaction = InteractionInfoData(
+                                    messageExtId = message.externalId,
+                                    type = InteractionType.reaction,
+                                    reaction = it
+                                )
+                                
+                                sendInteraction(accessToken, interaction, client)
+                            }
+                        } catch (e: UnauthorizedException) {
+                            error = e
                         }
-                    } catch (e: UnauthorizedException) {
-                        error = e
                     }
                 }
             }
