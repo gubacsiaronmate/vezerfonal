@@ -15,15 +15,27 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() = runBlocking {
-    val url: String? = environment.config.propertyOrNull("ktor.database.url")?.getString()
-    val username: String? = environment.config.propertyOrNull("ktor.database.username")?.getString()
-    val password: String? = environment.config.propertyOrNull("ktor.database.password")?.getString()
-    val pfpDirectories = environment.config.propertyOrNull("ktor.application.directories.pfps")?.getString()
-    val context = Dispatchers.IO
-    val imageService = if (pfpDirectories != null) ImageService(pfpDirectories)
-    else throw NoSuchFieldException("Unable to get path to pictures directory: No such environment variable.")
+    val url: String =
+        environment.config
+            .propertyOrNull("ktor.database.url")?.getString()
+        ?: error("Ktor database not initialized")
     
-    if (url != null && username != null && password != null)
-        async(context) { configureDatabase(url, username, password, context) }.await()
-    configureRouting(imageService, MainDB!!, context)
+    val username: String =
+        environment.config
+            .propertyOrNull("ktor.database.username")?.getString()
+        ?: error("Ktor database not initialized")
+    
+    val password: String =
+        environment.config
+            .propertyOrNull("ktor.database.password")?.getString()
+        ?: error("Ktor database not initialized")
+    
+    val pfpDirectories =
+        environment.config.propertyOrNull("ktor.application.directories.pfps")?.getString()
+        ?: throw NoSuchFieldException("Unable to get path to pictures directory: No such environment variable.")
+    
+    val imageService = ImageService(pfpDirectories)
+    
+    configureDatabase(url, username, password)
+    configureRouting(imageService, MainDB!!)
 }

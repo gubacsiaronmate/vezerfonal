@@ -18,10 +18,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
-fun Route.codeRoute(
-    context: CoroutineContext,
-    mainDB: Database
-) {
+fun Route.codeRoute(mainDB: Database) {
     get("/all") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)

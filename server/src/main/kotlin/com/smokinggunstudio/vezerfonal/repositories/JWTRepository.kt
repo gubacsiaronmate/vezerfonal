@@ -110,4 +110,19 @@ class JWTRepository(val db: Database) {
             newValue = true
         )
     }
+    
+    suspend fun invalidateAllTokensByUserId(
+        userId: Int
+    ): Boolean = suspendTransaction(db) {
+        JWTs.update({ JWTs.userId eq userId }) {
+            it[revoked] = true
+        } > 0
+    }
+    
+    suspend fun invalidateAllTokens(): Boolean =
+        suspendTransaction(db) {
+            JWTs.update {
+                it[revoked] = true
+            } > 0
+        }
 }

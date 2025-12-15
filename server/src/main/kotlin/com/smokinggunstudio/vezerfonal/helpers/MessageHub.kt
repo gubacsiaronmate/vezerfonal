@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.helpers
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -22,12 +23,14 @@ object MessageHub {
         channel.close()
     }
     
-    suspend fun broadcast(message: Message, context: CoroutineContext) = withContext(context) {
+    suspend fun broadcast(message: Message) = withContext(Dispatchers.IO) {
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }
         
         recipients.forEach { user ->
-            userChannels[user.id]?.forEach { it.trySend(message.toDTO(null)) }
+            userChannels[user.id]?.forEach {
+                it.trySend(message.toDTO(null))
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlin.coroutines.CoroutineContext
 
-fun Route.groupRoute(context: CoroutineContext) {
+fun Route.groupRoute() {
     get("/data") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)

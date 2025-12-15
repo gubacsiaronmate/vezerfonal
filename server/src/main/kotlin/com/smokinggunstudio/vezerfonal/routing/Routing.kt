@@ -8,39 +8,34 @@ import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
 import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.Configuration
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.receive
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
-fun Application.configureRouting(imageService: ImageService, mainDB: Database, context: CoroutineContext) {
-    install(ContentNegotiation) { json() }
+fun Application.configureRouting(
+    imageService: ImageService,
+    mainDB: Database
+) {
+    install(ContentNegotiation, Configuration::json)
     
     authentication {
-        configureBasicAuth(mainDB, context)
-        configureJWTAuth(mainDB, context)
+        configureBasicAuth(mainDB)
+        configureJWTAuth(mainDB)
     }
     
     routing {
-        route("{...}") {
-            handle {
-                call.respondText("Nigger stop sending requests.", status = HttpStatusCode.BadRequest)
-            }
-        }
-        
-        get("/") { call.respondText("Hello") }
-        
         get("/organisations") {
             organisationRoute(mainDB)
         }
         
         route("/register") {
-            registerRoute(imageService, context, mainDB)
+            registerRoute(imageService, mainDB)
         }
         
         authenticate("jwt-refresh") {
@@ -51,7 +46,7 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
         
         authenticate("basic") {
             route("/login") {
-                loginRoute(context, mainDB)
+                loginRoute(mainDB)
             }
         }
         
@@ -61,18 +56,14 @@ fun Application.configureRouting(imageService: ImageService, mainDB: Database, c
                 
                 get("/logout", RoutingContext::logoutRoute)
                 
-                route("/messages") {
-                    messageRoute(context)
-                }
+                route("/messages", Route::messageRoute)
                 
                 route("/users", Route::userRoute)
                 
-                route("/groups") {
-                    groupRoute(context)
-                }
+                route("/groups", Route::groupRoute)
                 
                 route("/codes") {
-                    codeRoute(context, mainDB)
+                    codeRoute(mainDB)
                 }
                 
                 route("/tags", Route::tagRoute)

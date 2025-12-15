@@ -27,7 +27,6 @@ import kotlin.coroutines.CoroutineContext
 
 fun Route.registerRoute(
     imageService: ImageService,
-    context: CoroutineContext,
     mainDB: Database,
 ) {
     var db: Database? = null
@@ -80,13 +79,13 @@ fun Route.registerRoute(
             )
         }
         
-        route("/pfp/{userId}/{rememberMe}") {
-            var userId: Int? = null
+        route("/pfp/{userExtId}/{rememberMe}") {
+            var userExtId: String? = null
             var rememberMe: Boolean? = null
             var metadata: FileMetaData? = null
             
             post("/metadata") {
-                userId = call.parameters["userId"]?.toIntOrNull()
+                userExtId = call.parameters["userExtId"]
                     ?: return@post call.respondText(
                         "Invalid user ID",
                         status = HttpStatusCode.BadRequest
@@ -107,29 +106,30 @@ fun Route.registerRoute(
             
             post("/filedata") {
                 when {
-                    userId == null -> error("User Id cannot be null.")
+                    userExtId == null -> error("User Ext Id cannot be null.")
                     metadata == null -> error("Metadata cannot be null.")
                     rememberMe == null -> error("Remember Me cannot be null.")
                 }
                 
-                val data = tryIncoming("Unable to receive image bytes.")
-                { call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L) } ?: return@post
+                val urepo = UserRepository(db!!)
+                val user = urepo.getUserByIdentifier(userExtId)
+                    ?: error("Cannot get user by identifier.")
+                
+                val data = tryIncoming("Unable to receive image bytes.") {
+                    call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L)
+                } ?: return@post
                 
                 val pfpURI = tryInternal("Failed to save image.") {
                     imageService.saveImage(
                         multipart = data,
-                        userId = userId,
-                        context = context,
+                        userId = user.id!!,
                         extension = metadata.fileType
                     )
                 } ?: return@post
                 
-                val urepo = UserRepository(db!!)
-                
-                val updateSuccess = tryInternal("Failed to add picture to user.")
-                {
+                val updateSuccess = tryInternal("Failed to add picture to user.") {
                     urepo.modifyUser(
-                        userId = userId,
+                        userId = user.id!!,
                         property = Users.profilePicURI,
                         newValue = pfpURI,
                     )
@@ -142,29 +142,24 @@ fun Route.registerRoute(
                 
                 val accessToken = tryInternal("Cannot generate jwt.") {
                     JWTConfig.generateToken(
-                        userId = userId,
+                        userExtId = user.identifier,
                         db = db,
                         mainDB = mainDB
                     )
                 } ?: return@post
                 
-                val refreshToken = tryInternal("Cannot generate jwt") {
-                    JWTConfig.generateToken(
-                        userId = userId,
-                        db = db,
-                        mainDB = mainDB,
-                        isRefresh = true
-                    )
-                } ?: return@post
+                val refreshToken = if (rememberMe)
+                    tryInternal("Cannot generate jwt") {
+                        JWTConfig.generateToken(
+                            userExtId = user.identifier,
+                            db = db,
+                            mainDB = mainDB,
+                            isRefresh = true
+                        )
+                    }
+                else null // "No token for you :("
                 
-                call.respond(
-                    TokenResponse(
-                        accessToken,
-                        if (rememberMe)
-                            refreshToken
-                        else null // "No token for you :("
-                    )
-                )
+                call.respond(TokenResponse(accessToken, refreshToken))
             }
         }
     }

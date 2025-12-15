@@ -48,32 +48,36 @@ private fun connect(schema: String? = null): Database = Database.connect(
     }
 )
 
-suspend fun configureDatabase(url: String, username: String, password: String, context: CoroutineContext) =
-    withContext(context) {
-        try {
-            dbUrl = url
-            dbUsername = username
-            dbPassword = password
-            
-            val db = connect("vezerfonal_main")
-            
-            transaction(db) {
-                exec("SHOW search_path;") { rs ->
-                    if (rs.next())
-                        if (rs.getString(1) != "vezerfonal_main")
-                            error("I give up")
-                }
-                val statements = MigrationUtils.statementsRequiredForDatabaseMigration(*mainTables)
-                
-                statements.forEach(::exec)
+fun configureDatabase(
+    url: String,
+    username: String,
+    password: String,
+) {
+    try {
+        dbUrl = url
+        dbUsername = username
+        dbPassword = password
+        
+        val db = connect("vezerfonal_main")
+        
+        transaction(db) {
+            exec("SHOW search_path;") { rs ->
+                if (rs.next())
+                    if (rs.getString(1) != "vezerfonal_main")
+                        error("I give up")
             }
+            val statements = MigrationUtils
+                .statementsRequiredForDatabaseMigration(*mainTables)
             
-            MainDB = db
-        } catch (e: Exception) {
-            System.err.println("Unable to connect to database at url: $url\nError: ${e.message}")
-            exitProcess(1)
+            statements.forEach(::exec)
         }
+        
+        MainDB = db
+    } catch (e: Exception) {
+        System.err.println("Unable to connect to database at url: $url\nError: ${e.message}")
+        exitProcess(1)
     }
+}
 
 suspend fun ensureOrgDB(name: String): Database? {
     val escapedName = name.filter { it.isLetter() }

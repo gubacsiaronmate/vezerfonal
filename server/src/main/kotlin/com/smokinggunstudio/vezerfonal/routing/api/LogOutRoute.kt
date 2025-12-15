@@ -19,16 +19,9 @@ suspend fun RoutingContext.logoutRoute() {
     val userId = principal.user.id!!
     val db = principal.db
     
-    val jrepo = JWTRepository(db)
-    
     val success = tryInternal("Cannot log out user.") {
-        jrepo.getJWTsByUserId(userId).map { jwt ->
-            jrepo.modifyJWT(
-                tokenId = jwt.id,
-                property = JWTs.revoked,
-                newValue = true
-            )
-        }.all { it }
+        JWTRepository(db)
+            .invalidateAllTokensByUserId(userId)
     } ?: return
     
     if (success) call.respond(HttpStatusCode.OK)

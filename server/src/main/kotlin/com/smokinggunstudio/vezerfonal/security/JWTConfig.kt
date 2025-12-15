@@ -3,21 +3,15 @@ package com.smokinggunstudio.vezerfonal.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinLDT
 import com.smokinggunstudio.vezerfonal.models.JWTModel
-import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
 import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.name
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
-import kotlin.time.toKotlinInstant
 
 object JWTConfig {
     private val SECRET by lazy {
@@ -40,7 +34,7 @@ object JWTConfig {
     
     @OptIn(ExperimentalTime::class)
     suspend fun generateToken(
-        userId: Int,
+        userExtId: String,
         db: Database,
         mainDB: Database,
         isRefresh: Boolean = false
@@ -51,30 +45,44 @@ object JWTConfig {
             true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
         
-        val orgName = transaction { db.config.defaultSchema!!.identifier }.removePrefix("vezerfonal_org_")
-        val orgId = OrganisationRepository(mainDB).getOrganisationByName(orgName)?.id
+        val orgName =
+            transaction {
+                db.config.defaultSchema!!.identifier
+            }.removePrefix("vezerfonal_org_")
+        
+        val orgExtId = OrganisationRepository(mainDB)
+            .getOrganisationByName(orgName)?.externalId
             ?: error("Cannot resolve organisation by name: $orgName")
         
         val jwt = JWT.create()
             .withSubject("Authentication")
             .withIssuer(ISSUER)
             .withAudience(AUDIENCE)
-            .withClaim("userId", userId)
+            .withClaim("userExtId", userExtId)
             .withClaim("tokenId", tokenId)
-            .withClaim("orgId", orgId)
+            .withClaim("orgExtId", orgExtId)
             .withExpiresAt(expiresAt)
             .sign(algorithm)
         
-        val success = JWTRepository(db).insertJWT(
-            JWTModel(
-                id = tokenId,
-                tokenHash = hashLongString(jwt),
-                isRefresh = isRefresh,
-                user = UserRepository(db).getUserById(userId)!!,
-                revoked = false,
-                expiresAt = expiresAt.toInstant().toKotlinInstant().toLocalDateTime(TimeZone.currentSystemDefault())
+        val user = UserRepository(db)
+            .getUserByIdentifier(userExtId)
+            ?: error("Cannot resolve user by id: $userExtId")
+        
+        val success = with(JWTRepository(db)) {
+            val insertSuccess = insertJWT(
+                JWTModel(
+                    id = tokenId,
+                    tokenHash = hashLongString(jwt),
+                    isRefresh = isRefresh,
+                    user = user,
+                    revoked = false,
+                    expiresAt = expiresAt.toKotlinLDT()
+                )
             )
-        )
+            
+            return@with if (!insertSuccess) false
+            else invalidateAllTokensByUserId(user.id!!)
+        }
         
         return if (success) jwt
         else error("Unable to insert token into database.")

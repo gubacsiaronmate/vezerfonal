@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.helpers
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.utils.io.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.io.readByteArray
 import java.io.File
@@ -22,9 +23,8 @@ class ImageService(
     suspend fun saveImage(
         multipart: MultiPartData,
         userId: Int,
-        context: CoroutineContext,
         extension: String = "jpg"
-    ): String = withContext(context) {
+    ): String = withContext(Dispatchers.IO) {
         var savedFileName = "nofile"
         
         multipart.forEachPart { part ->
@@ -52,9 +52,8 @@ class ImageService(
     suspend fun saveImageBytes(
         bytes: ByteArray,
         userId: Int,
-        context: CoroutineContext,
         extension: String = "jpg"
-    ): String = withContext(context) {
+    ): String = withContext(Dispatchers.IO) {
         val savedFileName = buildString {
             + "user_${userId}_"
             + UUID.randomUUID().toString()

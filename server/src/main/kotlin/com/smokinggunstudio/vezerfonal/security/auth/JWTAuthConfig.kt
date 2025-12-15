@@ -14,7 +14,7 @@ import io.ktor.server.auth.jwt.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.coroutines.CoroutineContext
 
-fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineContext) {
+fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
     jwt("jwt-access") {
         verifier(JWTConfig.verifier)
         validate { credentials ->
@@ -23,31 +23,34 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineCo
                 ?.removePrefix("Bearer ")
                 ?.trim()
                 ?: return@validate null
-            val userId = credentials.payload.getClaim("userId").asInt()
+            
+            val userExtId = credentials.payload.getClaim("userExtId").asString()
             val tokenId = credentials.payload.getClaim("tokenId").asString()
-            val orgId = credentials.payload.getClaim("orgId").asInt()
+            val orgExtId = credentials.payload.getClaim("orgExtId").asString()
             
-            val org = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
+            val org = OrganisationRepository(mainDB)
+                .getOrganisationByExternalId(orgExtId)
+                ?: return@validate null
+            
             val db = ensureOrgDB(org.name)
-                ?: error("Cannot resolve db for org: ${org.name}")
+                ?: return@validate null
             
-            val user = UserRepository(db).getUserById(userId)
+            val user = UserRepository(db)
+                .getUserByIdentifier(userExtId)
+                ?: return@validate null
+            
             val jrepo = JWTRepository(db)
             val jwt = jrepo.getJWTById(tokenId)
-            when {
-                user == null -> return@validate null
-                jwt == null -> return@validate null
-                jwt.revoked -> return@validate null
-                jwt.isRefresh -> return@validate null
-                jwt.expiresAt.isExpired() -> {
-                    jrepo.modifyJWT(
-                        tokenId = jwt.id,
-                        property = JWTs.revoked,
-                        newValue = true,
-                    ); return@validate null
-                }
-                !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
-                else -> return@validate AuthResponse(user, db, org)
+                ?: return@validate null
+            
+            if (jwt.expiresAt.isExpired())
+                jrepo.modifyJWT(jwt.id, JWTs.revoked, true)
+            
+            return@validate when {
+                jwt.revoked -> null
+                jwt.isRefresh -> null
+                !verifyLongStringHash(token, jwt.tokenHash) -> null
+                else -> AuthResponse(user, db, org)
             }
         }
     }
@@ -60,32 +63,34 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database, context: CoroutineCo
                 ?.removePrefix("Bearer ")
                 ?.trim()
                 ?: return@validate null
-            val userId = credentials.payload.getClaim("userId").asInt()
+            
+            val userExtId = credentials.payload.getClaim("userExtId").asString()
             val tokenId = credentials.payload.getClaim("tokenId").asString()
-            val orgId = credentials.payload.getClaim("orgId").asInt()
+            val orgExtId = credentials.payload.getClaim("orgExtId").asString()
             
-            val org = OrganisationRepository(mainDB).getOrganisationById(orgId)!!
+            val org = OrganisationRepository(mainDB)
+                .getOrganisationByExternalId(orgExtId)
+                ?: return@validate null
+            
             val db = ensureOrgDB(org.name)
-                ?: error("Cannot resolve db for org: ${org.name}")
+                ?: return@validate null
             
-            val user = UserRepository(db).getUserById(userId)
+            val user = UserRepository(db)
+                .getUserByIdentifier(userExtId)
+                ?: return@validate null
+            
             val jrepo = JWTRepository(db)
             val jwt = jrepo.getJWTById(tokenId)
-            when {
-                user == null -> return@validate null
-                jwt == null -> return@validate null
-                jwt.revoked -> return@validate null
-                !jwt.isRefresh -> return@validate null
-                jwt.expiresAt.isExpired() -> {
-                    jrepo.modifyJWT(
-                        tokenId = jwt.id,
-                        property = JWTs.revoked,
-                        newValue = true,
-                    )
-                    return@validate null
-                }
-                !verifyLongStringHash(token, jwt.tokenHash) -> return@validate null
-                else -> return@validate AuthResponse(user, db, org)
+                ?: return@validate null
+            
+            if (jwt.expiresAt.isExpired())
+                jrepo.modifyJWT(jwt.id, JWTs.revoked, true)
+            
+            return@validate when {
+                jwt.revoked -> null
+                !jwt.isRefresh -> null
+                !verifyLongStringHash(token, jwt.tokenHash) -> null
+                else -> AuthResponse(user, db, org)
             }
         }
     }

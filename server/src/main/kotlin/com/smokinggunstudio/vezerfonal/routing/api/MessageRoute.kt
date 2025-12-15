@@ -16,7 +16,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
-fun Route.messageRoute(context: CoroutineContext) {
+fun Route.messageRoute() {
     get("/subscribe") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
@@ -84,7 +84,7 @@ fun Route.messageRoute(context: CoroutineContext) {
             status = HttpStatusCode.TooManyRequests
         )
         
-        MessageHub.broadcast(message, context)
+        MessageHub.broadcast(message)
         
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }

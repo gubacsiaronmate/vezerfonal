@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.FieldSet
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Query
@@ -102,3 +103,6 @@ inline fun <reified T : Table> makeArrayOfTable(vararg items: T): Array<T> = arr
 fun Query.singleOrNull(): ResultRow? = toList().ifNotEmpty()?.single()
 
 inline fun String.toIntOrNull(predicate: (Int) -> Int?): Int? = toIntOrNull()?.let(predicate)
+
+@OptIn(ExperimentalTime::class)
+fun Date.toKotlinLDT(): LocalDateTime = toInstant().toKotlinInstant().toLocalDateTime()
