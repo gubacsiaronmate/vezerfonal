@@ -21,5 +21,6 @@ class ChangePasswordState {
     }
     
     fun updateConfirmPassword(newPassword: String) {
+        _confirmPassword.value = newPassword
     }
 }

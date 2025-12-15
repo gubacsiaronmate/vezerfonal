@@ -136,4 +136,6 @@
     <string name="leave">Leave</string>
     <string name="marked_as_read">Marked as read</string>
     <string name="request_sent">Request sent</string>
+    <string name="code">Code</string>
+    <string name="enter_code">Please enter the code sent to your e-mail address</string>
 </resources>

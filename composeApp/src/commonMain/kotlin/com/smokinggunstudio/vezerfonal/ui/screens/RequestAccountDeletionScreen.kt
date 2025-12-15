@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.DismissibleSnackBar
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
@@ -39,6 +41,7 @@ import vezerfonal.composeapp.generated.resources.request_account_deletion
 @Composable
 fun RequestAccountDeletionScreen() {
     var isSnackBarVisible by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     Box{
         Column(
             modifier = Modifier
@@ -77,7 +80,11 @@ fun RequestAccountDeletionScreen() {
                     fontWeight = FontWeight.Bold
                 )
                 Button(
-                    onClick = {},
+                    onClick = {
+                        scope.launch{
+                            isSnackBarVisible = true
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -93,7 +100,11 @@ fun RequestAccountDeletionScreen() {
                     }
                 }
                 Button(
-                    onClick = {},
+                    onClick = {
+                        scope.launch {
+                            isSnackBarVisible = true
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
