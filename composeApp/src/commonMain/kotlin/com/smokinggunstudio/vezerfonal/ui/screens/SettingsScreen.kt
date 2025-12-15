@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Outbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
@@ -35,12 +36,12 @@ import vezerfonal.composeapp.generated.resources.*
 fun SettingsScreen(
     user: UserData,
     onAccountSettingsClick: ClickEvent,
-    isSuperAdminLogIn: Boolean,
     onAdminToolsClick: ClickEvent,
     onArchiveClick: ClickEvent,
     onNotificationsClick: ClickEvent,
     onTOSClick: ClickEvent,
     onLanguageClick: ClickEvent,
+    onSentMessagesClick: ClickEvent,
     isInDarkTheme: Boolean,
     onThemeSwitchClick: CallbackEvent<Boolean>,
 ) {
@@ -53,11 +54,18 @@ fun SettingsScreen(
     ) {
         SettingsNameCard(user.name, onAccountSettingsClick)
         
-        if (isSuperAdminLogIn)
+        if (user.isSuperAdmin)
             SettingRow(
                 imageVector = Icons.Outlined.AdminPanelSettings,
                 text = stringResource(Res.string.admin_tools),
                 onClick = onAdminToolsClick
+            )
+        
+        if (user.isAnyAdmin)
+            SettingRow(
+                imageVector = Icons.Outlined.Outbox,
+                text = stringResource(Res.string.sent_messages),
+                onClick = onSentMessagesClick
             )
         
         SettingRow(

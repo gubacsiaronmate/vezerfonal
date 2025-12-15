@@ -138,4 +138,5 @@
     <string name="request_sent">Kérelem elküldve</string>
     <string name="code">Kód</string>
     <string name="enter_code">Kérjük, add meg a kódot, amit e-mailben küldtünk</string>
+    <string name="sent_messages">Elküldött üzenetek</string>
 </resources>

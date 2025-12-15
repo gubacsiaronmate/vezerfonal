@@ -172,13 +172,13 @@ data class Home(
                             user = user!!,
                             isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
                             onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user!!)) },
-                            isSuperAdminLogIn = user!!.isSuperAdmin,
                             onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
                             onArchiveClick = { },
                             onNotificationsClick = { },
                             onTOSClick = { },
                             onLanguageClick = { },
                             onThemeSwitchClick = { darkModeState.value = it },
+                            onSentMessagesClick = {}
                         )
                     }
                 }
