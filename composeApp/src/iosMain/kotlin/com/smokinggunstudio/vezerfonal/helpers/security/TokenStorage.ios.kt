@@ -13,10 +13,12 @@ actual class TokenStorage {
     
     actual suspend fun getTokens(): TokenResponse? {
         val access = kVault.string("access_token")
+            ?: return null
+        
         val refresh = kVault.string("refresh_token")
-        return if (access != null && refresh != null)
-            TokenResponse(access, refresh)
-        else null
+            ?: return null
+        
+        return TokenResponse(access, refresh)
     }
     
     actual suspend fun clearTokens(): Boolean = kVault.clear()

@@ -9,7 +9,7 @@ import androidx.compose.runtime.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 
 @Composable fun DismissibleSnackBar(visibility: Boolean = true, content: ComposableContent) {
-    var visible by remember { mutableStateOf(visibility) }
+    var visible by remember(visibility) { mutableStateOf(visibility) }
     
     if (visible) Snackbar(
         content = content,

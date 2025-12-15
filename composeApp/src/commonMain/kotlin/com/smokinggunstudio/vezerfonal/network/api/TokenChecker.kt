@@ -3,6 +3,9 @@ package com.smokinggunstudio.vezerfonal.network.api
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import io.ktor.client.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 
 suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): String {
     val savedTokens = tokenStorage.getTokens()
@@ -10,13 +13,17 @@ suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): Stri
     
     val isAccessTokenValid = checkAccessTokenValidity(savedTokens.accessToken, client)
     
-    return if(isAccessTokenValid) savedTokens.accessToken
-    else when(savedTokens.refreshToken) {
-        null -> throw UnauthorizedException()
-        else -> {
-            val tokens = refreshTokens(savedTokens.refreshToken!!, client)
+    if(isAccessTokenValid)
+        return savedTokens.accessToken
+    
+    if (savedTokens.refreshToken == null)
+        throw UnauthorizedException()
+    
+    val tokens = refreshTokens(savedTokens.refreshToken!!, client)
+    withContext(Dispatchers.Default) {
+        async {
             tokenStorage.saveTokens(tokens)
-            tokens.accessToken
         }
     }
+    return tokens.accessToken
 }
