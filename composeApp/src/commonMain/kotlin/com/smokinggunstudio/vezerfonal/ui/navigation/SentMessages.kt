@@ -4,24 +4,24 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.helpers.toDTO
-import com.smokinggunstudio.vezerfonal.ui.screens.MessageViewScreen
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.screens.SentMessagesScreen
+import io.ktor.client.HttpClient
 
-data class ViewMessage(
+data class SentMessages(
     val accessToken: String,
-    val isArchived: Boolean,
-    val isSenderView: Boolean,
-    val message: String,
+    val onMessageClick: CallbackEvent<MessageData>,
+    val scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
-        MessageViewScreen(
+        
+        SentMessagesScreen(
             client = client,
             accessToken = accessToken,
-            isArchived = isArchived,
-            message = message.toDTO<MessageData>(),
-            isSenderView = isSenderView
+            onMessageClick = onMessageClick,
+            scrollLockedBySliderCallback = scrollLockedBySliderCallback
         )
     }
 }
