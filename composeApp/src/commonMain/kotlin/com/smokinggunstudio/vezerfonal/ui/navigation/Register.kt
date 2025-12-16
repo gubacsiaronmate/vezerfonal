@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 data class Register(
     val page: Int,
     val regState: RegisterState?,
+    val userProvider: CallbackEvent<String>
 ) : Screen {
     lateinit var registerState: RegisterState
     
@@ -35,18 +36,18 @@ data class Register(
         
         when (page) {
             1 -> InitialRegisterScreen(
-                onContinueClick = { navigator.push(Register(2, regState ?: registerState)) },
+                onContinueClick = { navigator.push(Register(2, regState ?: registerState, userProvider)) },
                 onCreateOrgClick = {
-                    navigator.replace(CreateOrg((regState ?: registerState) as AdminRegisterState))
+                    navigator.replace(CreateOrg((regState ?: registerState) as AdminRegisterState, userProvider))
                 },
                 returnRegState = { registerState = it },
             ) 
             2 -> CredentialsRegisterScreen(regState ?: registerState) {
-                navigator.push(Register(3, regState ?: registerState))
+                navigator.push(Register(3, regState ?: registerState, userProvider))
             }
             3 -> ProfileCreationScreen(regState ?: registerState, client) { tokens ->
                 scope.launch { tokenStorage.saveTokens(tokens) }
-                navigator.push(Home(tokens.accessToken))
+                navigator.push(Home(tokens.accessToken, userProvider))
             }
         }
         

@@ -11,11 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview(showBackground = true)
 @Composable
-fun SentMsgBottomSheetRow() {
+fun SentMsgBottomSheetRow(
+    reaction: String,
+    username: String
+) {
+    
     Row(
         modifier = Modifier
         .fillMaxWidth()
@@ -28,10 +35,9 @@ fun SentMsgBottomSheetRow() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfilePicture(size = 24.dp)
-            Spacer(modifier = Modifier
-                .width(24.dp))
-            Text(text = "Test")
+            Spacer(Modifier.width(24.dp))
+            Text(username)
         }
-        Text(text = "❤️")
+        Text(reaction)
     }
 }

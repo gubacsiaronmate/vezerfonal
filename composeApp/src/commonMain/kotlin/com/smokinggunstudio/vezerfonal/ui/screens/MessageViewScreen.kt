@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalCurrentUser
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -27,6 +30,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.DisabledBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
 import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
+import com.smokinggunstudio.vezerfonal.ui.components.SentMessageBottomSheet
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import io.ktor.client.*
 import kotlinx.coroutines.launch
@@ -37,18 +41,26 @@ import vezerfonal.composeapp.generated.resources.status
 
 @Composable
 fun MessageViewScreen(
-    client: HttpClient,
     accessToken: String,
     isArchived: Boolean,
     message: MessageData,
     isSenderView: Boolean,
 ) {
+    var error by remember { mutableStateOf<Throwable?>(null) }
     val scope = rememberCoroutineScope()
+    val client = LocalHttpClient.current
+    val user = LocalCurrentUser.currentOrThrow
     var top by remember { mutableStateOf(80.dp) }
     val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
     var selectedReaction by remember { mutableStateOf<String?>(null) }
-    var error by remember { mutableStateOf<Throwable?>(null) }
+    var reactions by remember { mutableStateOf<List<InteractionInfoData>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    
+    if (isSenderView) LaunchedEffect(Unit) {
+        loading = true
+        
+    }
     
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -126,7 +138,7 @@ fun MessageViewScreen(
                 val isDisabled = (message.reactedWith != null || selectedReaction != null) || isArchived
                 
                 when {
-                    isSenderView -> {}
+                    isSenderView -> SentMessageBottomSheet(accessToken, reactions.map { it.toSerialized() })
                     isDisabled -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction!!,
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
@@ -140,6 +152,7 @@ fun MessageViewScreen(
                         try {
                             scope.launch {
                                 val interaction = InteractionInfoData(
+                                    userIdentifier = user.identifier,
                                     messageExtId = message.externalId,
                                     type = InteractionType.reaction,
                                     reaction = it

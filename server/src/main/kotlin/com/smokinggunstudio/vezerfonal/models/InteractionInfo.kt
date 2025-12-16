@@ -3,10 +3,12 @@ package com.smokinggunstudio.vezerfonal.models
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
-data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
+@OptIn(ExperimentalTime::class)
+data class InteractionInfo(
     val id: Int?,
     val message: Message,
     val user: User,
@@ -14,7 +16,7 @@ data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
     val status: MessageStatus?,
     val reaction: String?,
     val recipient: User?,
-    val createdAt: Instant?,
+    val createdAt: Instant,
     val updatedAt: Instant?,
     val deletedAt: Instant?
 ) {
@@ -31,7 +33,7 @@ data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
         status = status ?: MessageStatus.sent,
         reaction = null,
         recipient = null,
-        createdAt = null,
+        createdAt = Clock.System.now(),
         updatedAt = null,
         deletedAt = null
     )
@@ -49,7 +51,7 @@ data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
         status = null,
         reaction = reaction,
         recipient = null,
-        createdAt = null,
+        createdAt = Clock.System.now(),
         updatedAt = null,
         deletedAt = null
     )
@@ -67,7 +69,7 @@ data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
         status = null,
         reaction = null,
         recipient = recipient,
-        createdAt = null,
+        createdAt = Clock.System.now(),
         updatedAt = null,
         deletedAt = null
     )
@@ -84,16 +86,18 @@ data class InteractionInfo @OptIn(ExperimentalTime::class) constructor(
         status = null,
         reaction = null,
         recipient = null,
-        createdAt = null,
+        createdAt = Clock.System.now(),
         updatedAt = null,
         deletedAt = null
     )
     
     fun toDTO() = InteractionInfoData(
+        userIdentifier = user.identifier,
         messageExtId = message.externalId,
         type = type,
         status = status,
         reaction = reaction,
         recipientIdentifier = recipient?.identifier,
+        createdAt = createdAt.toEpochMilliseconds()
     )
 }

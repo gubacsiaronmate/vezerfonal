@@ -28,12 +28,14 @@ import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.screens.*
 import kotlinx.coroutines.launch
 
 data class Home(
     val accessToken: String,
+    val userProvider: CallbackEvent<String>
 ) : Screen {
     @Composable
     override fun Content() {
@@ -57,7 +59,10 @@ data class Home(
             HomeCache.load(accessToken, client)
 
             HomeCache.user.let {
-                if (it != null) user = it
+                if (it != null) {
+                    user = it
+                    userProvider(it.toSerialized())
+                }
                 else throw UnableToLoadException()
             }
             groups = HomeCache.groups
@@ -187,9 +192,9 @@ data class Home(
                                             navigator.push(
                                                 ViewMessage(
                                                     accessToken = accessToken,
-                                                    isArchived = true,
+                                                    isArchived = false,
                                                     message = it.toSerialized(),
-                                                    isSenderView = false,
+                                                    isSenderView = true,
                                                 )
                                             )
                                         },

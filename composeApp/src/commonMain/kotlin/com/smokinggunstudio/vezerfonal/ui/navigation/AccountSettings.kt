@@ -31,7 +31,7 @@ data class AccountSettings(
             client = client,
             accessToken = token,
             tokenStorage = tokenStorage,
-            onLogOutClick = { navigator.replaceAll(Landing) },
+            onLogOutClick = { navigator.replaceAll(Landing()) },
             onChangePasswordClick = { navigator.push(ChangePassword) }
         )
     }

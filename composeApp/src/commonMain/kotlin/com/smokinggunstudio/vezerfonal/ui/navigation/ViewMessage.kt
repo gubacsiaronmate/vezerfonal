@@ -17,7 +17,6 @@ data class ViewMessage(
     override fun Content() {
         val client = LocalHttpClient.current
         MessageViewScreen(
-            client = client,
             accessToken = accessToken,
             isArchived = isArchived,
             message = message.toDTO<MessageData>(),

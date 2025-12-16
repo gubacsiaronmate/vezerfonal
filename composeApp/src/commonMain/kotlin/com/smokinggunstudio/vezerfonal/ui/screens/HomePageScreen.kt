@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.LocalCurrentUser
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -45,6 +47,7 @@ fun HomePageScreen(
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     val scope = rememberCoroutineScope()
+    val user = LocalCurrentUser.currentOrThrow
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
@@ -149,6 +152,7 @@ fun HomePageScreen(
                             sendInteraction(
                                 accessToken,
                                 InteractionInfoData(
+                                    userIdentifier = user.identifier,
                                     messageExtId = message.externalId,
                                     type = InteractionType.archive,
                                 ),

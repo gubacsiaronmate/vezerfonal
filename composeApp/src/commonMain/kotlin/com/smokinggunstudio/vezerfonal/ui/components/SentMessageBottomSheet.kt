@@ -2,38 +2,78 @@ package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
+import io.ktor.client.HttpClient
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-@Preview(showBackground = true)
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun SentMessageBottomSheet() {
+fun SentMessageBottomSheet(
+    accessToken: String,
+    reactions: List<String>
+) {
+    val client = LocalHttpClient.current
+    var users by remember { mutableStateOf<List<UserData>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        loading = true
+        val d = getUsersByIdentifierList(
+            identifiers = reactions.map {
+                it
+                    .toDTO<InteractionInfoData>()
+                    .userIdentifier
+            },
+            accessToken = accessToken,
+            client = client,
+        )
+        users = d
+        loading = false
+    }
     ModalBottomSheet(
+        sheetGesturesEnabled = reactions.isNotEmpty(),
         onDismissRequest = { },
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-        repeat(40) {
-            SentMsgBottomSheetRow()
-        }
+        Box {
+            if (loading) LinearProgressIndicator()
+            else Column(
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                reactions.forEach { interaction ->
+                    val reaction = interaction.toDTO<InteractionInfoData>()
+                    val username = users.single { it.identifier == reaction.userIdentifier }.name
+                    SentMsgBottomSheetRow(reaction.reaction!!, username)
+                }
+            }
         }
     }
 }

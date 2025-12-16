@@ -15,7 +15,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.navigation.CreateOrg
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
 import com.smokinggunstudio.vezerfonal.ui.state.RegisterState

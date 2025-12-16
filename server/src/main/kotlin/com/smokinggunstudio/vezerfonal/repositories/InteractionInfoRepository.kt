@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
@@ -75,6 +76,16 @@ class InteractionInfoRepository(val db: Database) {
         id: Int,
     ): List<InteractionInfo> = suspendTransaction(db) {
         getInteractionInfosByCondition { MessageUserInteractions.messageId eq id }
+    }
+    
+    suspend fun getInteractionInfosByMessageIdAndType(
+        id: Int,
+        type: InteractionType,
+    ): List<InteractionInfo> = suspendTransaction(db) {
+        getInteractionInfosByCondition {
+            (MessageUserInteractions.messageId eq id) and
+            (MessageUserInteractions.type eq type)
+        }
     }
 
     suspend fun getInteractionInfosByMessageAndUserId(

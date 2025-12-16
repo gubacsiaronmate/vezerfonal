@@ -92,5 +92,4 @@ import kotlin.time.ExperimentalTime
                 modifier = Modifier.align(Alignment.Center)
             )
     }
-    SentMessageBottomSheet()
 }

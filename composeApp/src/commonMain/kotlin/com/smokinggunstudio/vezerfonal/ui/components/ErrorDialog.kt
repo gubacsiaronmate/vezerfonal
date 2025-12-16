@@ -44,15 +44,14 @@ import vezerfonal.composeapp.generated.resources.login
             onClick = {
                 HomeCache.invalidate()
 
-                if (navigator.lastItem != Landing)
+                if (navigator.lastItem is Landing)
                     if (isUnauthed)
-                        navigator.replaceAll(Landing)
-                    else
-                        navigator.popUntilRoot()
+                        navigator.replaceAll(Landing())
+                    else navigator.popUntilRoot()
                 else throw Exception("No way to reliably exit apps so just fail.")
             },
         ) {
-            if (isUnauthed && navigator.lastItem != Landing)
+            if (isUnauthed && navigator.lastItem is Landing)
                 Text(stringResource(Res.string.login))
             else Text(stringResource(Res.string.leave))
         }

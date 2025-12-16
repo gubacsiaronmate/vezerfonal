@@ -13,12 +13,17 @@ import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.network.api.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 
-data object Landing : Screen {
+data class Landing(
+    val userProvider: CallbackEvent<String> =
+        CallbackEvent { throw UnauthorizedException() },
+) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
@@ -54,13 +59,13 @@ data object Landing : Screen {
             }
             
             if (token != null) {
-                LaunchedEffect(token) { navigator.replaceAll(Home(token!!)) }
+                LaunchedEffect(token) { navigator.replaceAll(Home(token!!, userProvider)) }
                 return
             }
             
             LandingPageScreen(
-                onRegisterClick = { navigator.push(Register(1, null)) },
-                onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
+                onRegisterClick = { navigator.push(Register(1, null, userProvider)) },
+                onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() }, userProvider)) },
             )
             
             if (error != null) {

@@ -11,14 +11,17 @@ import com.smokinggunstudio.vezerfonal.ui.screens.CreateOrganizationScreen
 import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
 import io.ktor.client.HttpClient
 
-data class CreateOrg(val registerState: AdminRegisterState) : Screen {
+data class CreateOrg(
+    val registerState: AdminRegisterState,
+    val userProvider: CallbackEvent<String>
+) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         
         CreateOrganizationScreen(registerState, client) {
-            navigator.push(Register(2, registerState))
+            navigator.push(Register(2, registerState, userProvider))
         }
     }
 }

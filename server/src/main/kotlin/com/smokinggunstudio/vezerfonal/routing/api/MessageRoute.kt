@@ -165,50 +165,5 @@ fun Route.messageRoute() {
         call.respond(messages)
     }
     
-    route("/interactions") {
-        route("/reaction") {
-            post("/send") {
-                val principal = call.principal<AuthResponse>()
-                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                
-                val user = principal.user
-                val db = principal.db
-                
-                val interaction = tryIncoming("Unable to receive interaction.") {
-                    call
-                        .receive<InteractionInfoData>()
-                        .toInteractionInfo(user, db)
-                } ?: return@post
-                
-                val success = tryInternal("Unable to save interaction.") {
-                    InteractionInfoRepository(db)
-                        .insertInteraction(interaction)
-                } ?: return@post
-                
-                if (success) call.respond(HttpStatusCode.OK)
-            }
-        }
-        
-        route("/archive") {
-            post("/send") {
-                val principal = call.principal<AuthResponse>()
-                    ?: return@post call.respond(HttpStatusCode.Unauthorized)
-                
-                val user = principal.user
-                val db = principal.db
-                val interaction = tryIncoming("Unable to receive interaction.") {
-                    call
-                        .receive<InteractionInfoData>()
-                        .toInteractionInfo(user, db)
-                } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-                
-                val success = tryInternal("Unable to insert interaction.") {
-                    InteractionInfoRepository(db)
-                        .insertInteraction(interaction)
-                } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-                
-                if (success) call.respond(HttpStatusCode.OK)
-            }
-        }
-    }
+    route("/interactions", Route::interactionRoute)
 }
