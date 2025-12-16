@@ -37,6 +37,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.FilterRow
 import com.smokinggunstudio.vezerfonal.ui.components.ListItem
 import com.smokinggunstudio.vezerfonal.ui.components.MessageFilter
 import com.smokinggunstudio.vezerfonal.ui.components.ScrollableMessageList
+import com.smokinggunstudio.vezerfonal.ui.components.SentMessageBottomSheet
 import com.smokinggunstudio.vezerfonal.ui.components.TagSelect
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.between
@@ -126,4 +127,5 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
                 modifier = Modifier.align(Alignment.Center)
             )
     }
+    SentMessageBottomSheet()
 }

@@ -57,5 +57,7 @@ object NetworkConstants {
         const val INTERACTIONS = "/api/messages/interactions"
         
         const val GET_ARCHIVED = "/api/messages/archived/"
+        
+        const val GET_SENT_MESSAGES = "/api/messages/sent/"
     }
 }

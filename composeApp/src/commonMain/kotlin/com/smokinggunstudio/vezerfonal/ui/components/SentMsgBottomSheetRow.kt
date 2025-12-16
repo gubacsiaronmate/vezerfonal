@@ -2,8 +2,10 @@ package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,17 +19,17 @@ fun SentMsgBottomSheetRow() {
     Row(
         modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp),
+        .padding(24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(0.2F),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfilePicture(size = 24.dp)
+            Spacer(modifier = Modifier
+                .width(24.dp))
             Text(text = "Test")
         }
         Text(text = "❤️")
