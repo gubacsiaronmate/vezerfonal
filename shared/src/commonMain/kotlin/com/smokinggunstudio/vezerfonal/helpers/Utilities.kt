@@ -37,4 +37,8 @@ inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
 inline fun <reified T : DTO> String.toDTO(): T = Json.decodeFromString<T>(this)
 
-inline fun log(message: () -> String) = println("\n\n\n\n\n${message()}\n\n\n\n\n")
+inline fun log(message: () -> String) {
+    repeat(5) { println("\u200E") }
+    println(message())
+    repeat(5) { println("\u200E") }
+}

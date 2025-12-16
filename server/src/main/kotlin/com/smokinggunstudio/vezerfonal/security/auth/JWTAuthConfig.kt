@@ -32,29 +32,44 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
             val tokenId = credentials.payload.getClaim("tokenId").asString()
             val orgExtId = credentials.payload.getClaim("orgExtId").asString()
             log { "got token $token" }
+            
             val org = OrganisationRepository(mainDB)
                 .getOrganisationByExternalId(orgExtId)
                 ?: return@validate null
             log { "got org " + org.name }
+            
             val db = ensureOrgDB(org.name)
                 ?: return@validate null
             log { "got db " + db.name }
+            
             val user = UserRepository(db)
                 .getUserByIdentifier(userExtId)
                 ?: return@validate null
             log { "got user " + user.displayName }
+            
             val jrepo = JWTRepository(db)
             val jwt = jrepo.getJWTById(tokenId)
                 ?: return@validate null
             log { "got jwt " + jwt.tokenHash }
-            if (jwt.expiresAt.isExpired())
+            
+            if (jwt.expiresAt.toEpochMilliseconds().isExpired()) {
                 jrepo.modifyJWT(jwt.id, JWTs.revoked, true)
-            log { "jwt expired. modified to revoked\nexpires at: " + jwt.expiresAt }
+                log { "jwt expired. modified to revoked\nplease work\nexpires at: " + jwt.expiresAt }
+            }
             
             return@validate when {
-                jwt.revoked -> null
-                jwt.isRefresh -> null
-                !verifyLongStringHash(token, jwt.tokenHash) -> null
+                jwt.revoked -> {
+                    log { "jwt revoked" }
+                    null
+                }
+                jwt.isRefresh -> {
+                    log { "jwt refresh" }
+                    null
+                }
+                !verifyLongStringHash(token, jwt.tokenHash) -> {
+                    log { "verifyLongStringHash failed" }
+                    null
+                }
                 else -> AuthResponse(user, db, org)
             }
         }
@@ -85,11 +100,14 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
                 ?: return@validate null
             
             val jrepo = JWTRepository(db)
-            val jwt = jrepo.getJWTById(tokenId)
+            var jwt = jrepo.getJWTById(tokenId)
                 ?: return@validate null
             
-            if (jwt.expiresAt.isExpired())
+            if (jwt.expiresAt.toEpochMilliseconds().isExpired())
                 jrepo.modifyJWT(jwt.id, JWTs.revoked, true)
+            
+            jwt = jrepo.getJWTById(tokenId)
+                ?: return@validate null
             
             return@validate when {
                 jwt.revoked -> null

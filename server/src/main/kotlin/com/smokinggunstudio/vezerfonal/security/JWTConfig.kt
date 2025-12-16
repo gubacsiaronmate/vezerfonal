@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
@@ -10,7 +11,10 @@ import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 object JWTConfig {
@@ -40,11 +44,12 @@ object JWTConfig {
         isRefresh: Boolean = false
     ): String {
         val tokenId = UUID.randomUUID().toString()
+        val currentTime = Clock.System.now().toEpochMilliseconds()
         val expiresAt = when (isRefresh) {
-            false -> Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_IN_MS)
-            true -> Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_IN_MS)
+            false -> Date(currentTime + ACCESS_TOKEN_VALIDITY_IN_MS)
+            true -> Date(currentTime + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
-        
+        log { "expires at: $expiresAt" }
         val orgName =
             transaction {
                 db.config.defaultSchema!!.identifier
@@ -80,7 +85,7 @@ object JWTConfig {
                 )
             )
             
-            return@with if (!insertSuccess) false
+            return@with if (insertSuccess) true
             else invalidateAllTokensByUserId(user.id!!)
         }
         

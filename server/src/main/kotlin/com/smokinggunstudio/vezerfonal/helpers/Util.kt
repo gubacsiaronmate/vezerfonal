@@ -55,7 +55,10 @@ fun FieldSet.selectWhere(
 ): Query = Query(this, where)
 
 @OptIn(ExperimentalTime::class)
-fun Instant.isExpired(): Boolean = this < Clock.System.now()
+fun Long.isExpired(): Boolean {
+    val now = Clock.System.now().toEpochMilliseconds()
+    return now >= this
+}
 
 typealias SQLCondition = () -> Op<Boolean>
 
