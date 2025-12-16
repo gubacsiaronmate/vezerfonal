@@ -18,6 +18,8 @@ application {
 
 dependencies {
     // my imports
+    implementation(libs.jakarta.mail)
+    implementation(libs.thymeleaf)
     implementation(libs.exposed.json)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.java.jwt)

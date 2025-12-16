@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.routing.api
 
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.tryInternal
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
@@ -28,6 +29,7 @@ fun Route.userRoute() {
         } ?: return@get
         
         call.respond(user)
+        log { "Responded with ${user.name}" }
     }
     
     get("/all") {

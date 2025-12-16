@@ -49,3 +49,5 @@ typealias ExternalId = String
 inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
 inline fun <reified T : DTO> String.toDTO(): T = Json.decodeFromString<T>(this)
+
+inline fun log(message: () -> String) = println("\n\n\n\n\n${message()}\n\n\n\n\n")
