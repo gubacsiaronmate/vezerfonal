@@ -1,11 +1,10 @@
 package com.smokinggunstudio.vezerfonal.objects
 
 import com.smokinggunstudio.vezerfonal.helpers.Modifiable
-import com.smokinggunstudio.vezerfonal.helpers.now
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.datetime.CurrentDateTime
+import org.jetbrains.exposed.v1.datetime.CurrentTimestampWithTimeZone
 import org.jetbrains.exposed.v1.datetime.datetime
+import org.jetbrains.exposed.v1.datetime.timestampWithTimeZone
 
 object Users : Table("users"), Modifiable<Int> {
     override val table: Table = this
@@ -19,9 +18,9 @@ object Users : Table("users"), Modifiable<Int> {
     val identifier = varchar("identifier", 255).uniqueIndex()
     val isSuperAdmin = bool("is_super_admin").default(false)
     
-    val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
-    val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
-    val deletedAt = datetime("deleted_at").nullable()
+    val createdAt = timestampWithTimeZone("created_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val updatedAt = timestampWithTimeZone("updated_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val deletedAt = timestampWithTimeZone("deleted_at").nullable()
     
     override val primaryKey = PrimaryKey(id)
 }

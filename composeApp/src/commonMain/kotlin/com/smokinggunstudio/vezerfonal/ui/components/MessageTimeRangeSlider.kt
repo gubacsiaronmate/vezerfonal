@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTime
+import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTimeDefault
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -24,7 +24,7 @@ fun MessageTimeRangeSlider(
     initialRange: ClosedFloatingPointRange<Float> = valueRange,
     steps: Int = 0,
     formatLabel: (Float) -> String = { ts: Float ->
-        val local = Instant.fromEpochSeconds(ts.toLong()).toLocalDateTime()
+        val local = Instant.fromEpochSeconds(ts.toLong()).toLocalDateTimeDefault()
         "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
     },
     onRangeSelected: (ClosedFloatingPointRange<Float>) -> Unit,

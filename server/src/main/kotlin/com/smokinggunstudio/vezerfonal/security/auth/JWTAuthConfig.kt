@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.security.auth
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.helpers.isExpired
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
 import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
@@ -12,8 +13,11 @@ import com.smokinggunstudio.vezerfonal.security.verifyLongStringHash
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.name
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
     jwt("jwt-access") {
         verifier(JWTConfig.verifier)
@@ -27,24 +31,25 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
             val userExtId = credentials.payload.getClaim("userExtId").asString()
             val tokenId = credentials.payload.getClaim("tokenId").asString()
             val orgExtId = credentials.payload.getClaim("orgExtId").asString()
-            
+            log { "got token $token" }
             val org = OrganisationRepository(mainDB)
                 .getOrganisationByExternalId(orgExtId)
                 ?: return@validate null
-            
+            log { "got org " + org.name }
             val db = ensureOrgDB(org.name)
                 ?: return@validate null
-            
+            log { "got db " + db.name }
             val user = UserRepository(db)
                 .getUserByIdentifier(userExtId)
                 ?: return@validate null
-            
+            log { "got user " + user.displayName }
             val jrepo = JWTRepository(db)
             val jwt = jrepo.getJWTById(tokenId)
                 ?: return@validate null
-            
+            log { "got jwt " + jwt.tokenHash }
             if (jwt.expiresAt.isExpired())
                 jrepo.modifyJWT(jwt.id, JWTs.revoked, true)
+            log { "jwt expired. modified to revoked\nexpires at: " + jwt.expiresAt }
             
             return@validate when {
                 jwt.revoked -> null

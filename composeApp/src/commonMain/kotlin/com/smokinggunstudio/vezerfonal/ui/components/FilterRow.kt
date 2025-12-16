@@ -11,10 +11,11 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.between
-import com.smokinggunstudio.vezerfonal.ui.helpers.toLDT
-import com.smokinggunstudio.vezerfonal.ui.helpers.toLocalDateTime
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
+@OptIn(ExperimentalTime::class)
 @Composable fun FilterRow(
     onFilterOpened: ClickEvent,
     onCompleted: CallbackEvent<List<MessageData>>,
@@ -32,13 +33,10 @@ import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
         else FilterApplyCancelButtons(
             onApply = {
                 val filtered = messages.filter { message ->
-                    val isRangeSet = messageFilterState.selectedStartDate > 0L && messageFilterState.selectedEndDate > 0L
-                    val dateMatch = if (isRangeSet)
-                        message.sentAt.toLDT().between(
-                            start = messageFilterState.selectedStartDate.toLocalDateTime(),
-                            end = messageFilterState.selectedEndDate.toLocalDateTime()
-                        )
-                    else true
+                    val dateMatch = Instant.fromEpochMilliseconds(message.sentAt).between(
+                        start = Instant.fromEpochMilliseconds(messageFilterState.selectedStartDate),
+                        end = Instant.fromEpochMilliseconds(messageFilterState.selectedEndDate)
+                    )
                     
                     val senderMatch = if (messageFilterState.senderName.isNotEmpty())
                         message.author.name.contains(messageFilterState.senderName, ignoreCase = true)
@@ -50,7 +48,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
                     
                     val searchMatch = if (messageFilterState.searchQuery.isNotEmpty()) {
                         message.title.contains(messageFilterState.searchQuery, ignoreCase = true) ||
-                                message.content.contains(messageFilterState.searchQuery, ignoreCase = true)
+                        message.content.contains(messageFilterState.searchQuery, ignoreCase = true)
                     } else true
                     
                     dateMatch && senderMatch && urgentMatch && searchMatch

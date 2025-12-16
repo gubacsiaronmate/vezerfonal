@@ -1,21 +1,18 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-import com.smokinggunstudio.vezerfonal.models.JWTModel
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toKotlinLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.core.FieldSet
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Query
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 
 suspend inline fun <T> RoutingContext.trial(
@@ -58,43 +55,7 @@ fun FieldSet.selectWhere(
 ): Query = Query(this, where)
 
 @OptIn(ExperimentalTime::class)
-fun LocalDateTime.before(
-    instant: Instant
-): Boolean = toInstant(
-    TimeZone.currentSystemDefault()
-) < instant
-
-@OptIn(ExperimentalTime::class)
-fun LocalDateTime.isExpired(): Boolean =
-    before(Clock.System.now())
-
-@OptIn(ExperimentalTime::class)
-fun Date.compareTo(
-    anotherDate: LocalDateTime
-): Boolean =
-    toInstant().toKotlinInstant().let { println(it); it } == anotherDate.toInstant(
-        TimeZone.currentSystemDefault()
-    ).let { println(it); it }
-
-private typealias jtLDT = java.time.LocalDateTime
-
-fun List<JWTModel>.latestPair(): TokenResponse? {
-    if (isEmpty()) return null
-    if (size == 2) return TokenResponse(
-        accessToken = this[indexOfFirst { !it.isRefresh }].tokenHash,
-        refreshToken = this[indexOfFirst { it.isRefresh }].tokenHash
-    )
-    
-    val maxTs = maxOfOrNull { it.createdAt ?: jtLDT.MIN.toKotlinLocalDateTime() }
-    val latest = filter { it.createdAt == maxTs }
-    
-    if (latest.size != 2) return null
-    
-    return TokenResponse(
-        accessToken = latest[latest.indexOfFirst { !it.isRefresh }].tokenHash,
-        refreshToken = latest[latest.indexOfFirst { it.isRefresh }].tokenHash
-    )
-}
+fun Instant.isExpired(): Boolean = this < Clock.System.now()
 
 typealias SQLCondition = () -> Op<Boolean>
 
@@ -105,4 +66,10 @@ fun Query.singleOrNull(): ResultRow? = toList().ifNotEmpty()?.single()
 inline fun String.toIntOrNull(predicate: (Int) -> Int?): Int? = toIntOrNull()?.let(predicate)
 
 @OptIn(ExperimentalTime::class)
-fun Date.toKotlinLDT(): LocalDateTime = toInstant().toKotlinInstant().toLocalDateTime()
+fun Date.toKotlinInstant() = toInstant().toKotlinInstant()
+
+@OptIn(ExperimentalTime::class)
+fun OffsetDateTime.toKotlinInstant() = toInstant().toKotlinInstant()
+
+@OptIn(ExperimentalTime::class)
+fun Instant.toOffsetDateTime(zoneOffset: ZoneOffset): OffsetDateTime = toJavaInstant().atOffset(zoneOffset)

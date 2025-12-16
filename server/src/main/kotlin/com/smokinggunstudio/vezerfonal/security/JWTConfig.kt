@@ -3,7 +3,7 @@ package com.smokinggunstudio.vezerfonal.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.smokinggunstudio.vezerfonal.helpers.toKotlinLDT
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
 import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
@@ -29,7 +29,7 @@ object JWTConfig {
         .require(algorithm)
         .withIssuer(ISSUER)
         .withAudience(AUDIENCE)
-        .acceptLeeway(365L * 24 * 60 * 60)
+//        .acceptLeeway(365L * 24 * 60 * 60)
         .build()
     
     @OptIn(ExperimentalTime::class)
@@ -76,7 +76,7 @@ object JWTConfig {
                     isRefresh = isRefresh,
                     user = user,
                     revoked = false,
-                    expiresAt = expiresAt.toKotlinLDT()
+                    expiresAt = expiresAt.toKotlinInstant()
                 )
             )
             

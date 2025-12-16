@@ -4,12 +4,13 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
-import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import com.smokinggunstudio.vezerfonal.helpers.now
+import com.smokinggunstudio.vezerfonal.helpers.nowUTC
 import kotlinx.datetime.LocalDateTime
 import kotlin.collections.emptyList
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class WriteMessageState {
     private val _title = mutableStateOf("")
@@ -73,6 +74,7 @@ class WriteMessageState {
         _availableReactions.value = _availableReactions.value.filter { it != reaction }
     }
     
+    @OptIn(ExperimentalTime::class)
     fun toMessageData(author: UserData) = MessageData(
         title = title,
         author = author,
@@ -83,7 +85,7 @@ class WriteMessageState {
         userIdentifiers = userIdentifiers,
         availableReactions = availableReactions.ifNotEmpty(),
         groups = groups,
-        sentAt = LocalDateTime.now().toString(),
+        sentAt = Clock.System.now().toEpochMilliseconds(),
         reactedWith = null,
         externalId = getExtId()
     )

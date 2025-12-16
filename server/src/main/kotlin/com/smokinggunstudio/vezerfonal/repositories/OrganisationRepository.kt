@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.repositories
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.Organisation
 import com.smokinggunstudio.vezerfonal.objects.Organisations
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -11,13 +12,15 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import kotlin.time.ExperimentalTime
 
 class OrganisationRepository(val db: Database) {
+    @OptIn(ExperimentalTime::class)
     private fun ResultRow.toOrg(): Organisation = Organisation(
         id = this[Organisations.id],
         name = this[Organisations.name],
         externalId = this[Organisations.externalId],
-        createdAt = this[Organisations.createdAt]
+        createdAt = this[Organisations.createdAt].toKotlinInstant()
     )
     
     suspend fun getOrganisations(): List<Organisation> =

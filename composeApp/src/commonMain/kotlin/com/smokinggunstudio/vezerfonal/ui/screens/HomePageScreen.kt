@@ -32,9 +32,11 @@ import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.spiralgraphic
 import vezerfonal.composeapp.generated.resources.vezerfonal
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Composable
 fun HomePageScreen(
     accessToken: String,
@@ -62,14 +64,8 @@ fun HomePageScreen(
         filtered = messages
         isLoading = false
 
-        messageFilterState.setEarliestMessageUnixTime(
-            messages
-                .minByOrNull {
-                    LocalDateTime.parse(it.sentAt)
-                }
-                ?.sentAt
-                .toLDTOrNull()
-        )
+        messageFilterState
+            .setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
     }
     
     try {

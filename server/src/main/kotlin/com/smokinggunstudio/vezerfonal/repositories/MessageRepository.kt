@@ -4,6 +4,7 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
@@ -15,8 +16,10 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import kotlin.time.ExperimentalTime
 
 class MessageRepository(val db: Database) {
+    @OptIn(ExperimentalTime::class)
     private suspend fun ResultRow.toMessage(): Message =
         suspendTransaction(db) {
             val grepo = GroupRepository(db)
@@ -42,9 +45,9 @@ class MessageRepository(val db: Database) {
                 status = null,
                 tags = selectedTags,
                 externalId = this@toMessage[Messages.externalId],
-                createdAt = this@toMessage[Messages.createdAt],
-                updatedAt = this@toMessage[Messages.updatedAt],
-                deletedAt = this@toMessage[Messages.deletedAt]
+                createdAt = this@toMessage[Messages.createdAt].toKotlinInstant(),
+                updatedAt = this@toMessage[Messages.updatedAt].toKotlinInstant(),
+                deletedAt = this@toMessage[Messages.deletedAt]?.toKotlinInstant()
             )
         }
     

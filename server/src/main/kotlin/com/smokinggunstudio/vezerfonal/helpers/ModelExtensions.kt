@@ -1,31 +1,16 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-import com.smokinggunstudio.vezerfonal.data.GroupData
-import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
-import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.data.OrgData
-import com.smokinggunstudio.vezerfonal.data.RegCodeData
-import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.data.*
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
-import com.smokinggunstudio.vezerfonal.models.Group
-import com.smokinggunstudio.vezerfonal.models.InteractionInfo
-import com.smokinggunstudio.vezerfonal.models.Membership
-import com.smokinggunstudio.vezerfonal.models.Message
-import com.smokinggunstudio.vezerfonal.models.Organisation
-import com.smokinggunstudio.vezerfonal.models.RegistrationCode
-import com.smokinggunstudio.vezerfonal.models.User
-import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
-import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
-import com.smokinggunstudio.vezerfonal.repositories.RegistrationCodeRepository
-import com.smokinggunstudio.vezerfonal.repositories.TagRepository
-import com.smokinggunstudio.vezerfonal.repositories.UserRepository
-import kotlinx.coroutines.withContext
-import kotlinx.datetime.LocalDateTime
+import com.smokinggunstudio.vezerfonal.models.*
+import com.smokinggunstudio.vezerfonal.repositories.*
 import org.jetbrains.exposed.v1.jdbc.Database
-import kotlin.coroutines.CoroutineContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 suspend fun UserData.toUser(
     mainDB: Database,
     db: Database? = null
@@ -59,6 +44,7 @@ suspend fun UserData.toUser(
     )
 }
 
+@OptIn(ExperimentalTime::class)
 suspend fun MessageData.toMessage(db: Database): Message {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
@@ -113,14 +99,16 @@ suspend fun MessageData.toMessage(db: Database): Message {
     )
 }
 
+@OptIn(ExperimentalTime::class)
 fun OrgData.toOrganisation() =
     Organisation(
         id = null,
         name = name,
         externalId = externalId,
-        createdAt = LocalDateTime.now()
+        createdAt = Clock.System.now(),
     )
 
+@OptIn(ExperimentalTime::class)
 suspend fun GroupData.toGroup(
     db: Database
 ): Group {
@@ -130,7 +118,7 @@ suspend fun GroupData.toGroup(
         Membership(
             user = urepo.getUserByIdentifier(identifier)!!,
             groupId = null,
-            joinedAt = LocalDateTime.now()
+            joinedAt = Clock.System.now()
         )
     }
     

@@ -1,9 +1,10 @@
 package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.data.GroupData
-import kotlinx.datetime.LocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-data class Group(
+data class Group @OptIn(ExperimentalTime::class) constructor(
     val id: Int?,
     val displayName: String,
     val description: String,
@@ -11,9 +12,9 @@ data class Group(
     val admin: User,
     val externalId: String,
     val isInternal: Boolean,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
-    val deletedAt: LocalDateTime?
+    val createdAt: Instant?,
+    val updatedAt: Instant?,
+    val deletedAt: Instant?
 ) {
     fun toDTO(): GroupData = GroupData(
         name = displayName,

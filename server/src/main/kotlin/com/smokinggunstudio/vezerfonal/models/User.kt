@@ -3,9 +3,10 @@ package com.smokinggunstudio.vezerfonal.models
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Image
 import com.smokinggunstudio.vezerfonal.security.hashPassword
-import kotlinx.datetime.LocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-data class User(
+data class User @OptIn(ExperimentalTime::class) constructor(
     val id: Int?,
     val email: String,
     private var _password: String = "",
@@ -14,9 +15,9 @@ data class User(
     val identifier: String,
     var isAnyAdmin: Boolean?,
     val isSuperAdmin: Boolean = false,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
-    val deletedAt: LocalDateTime?
+    val createdAt: Instant?,
+    val updatedAt: Instant?,
+    val deletedAt: Instant?
 ) {
     var password: String
         get() = _password

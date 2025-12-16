@@ -15,7 +15,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 fun Route.groupRoute() {
     get("/data") {
         val principal = call.principal<AuthResponse>()

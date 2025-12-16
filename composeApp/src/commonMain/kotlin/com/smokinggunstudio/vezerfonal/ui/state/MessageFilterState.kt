@@ -1,20 +1,16 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
-import com.smokinggunstudio.vezerfonal.helpers.now
-import com.smokinggunstudio.vezerfonal.helpers.toFloat
-import com.smokinggunstudio.vezerfonal.helpers.toInstant
-import com.smokinggunstudio.vezerfonal.helpers.toLong
-import kotlinx.datetime.LocalDateTime
-import kotlin.math.floor
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 class MessageFilterState {
     private val _earliestMessageUnixTime = mutableStateOf(0F)
     val earliestMessageUnixTime get() = _earliestMessageUnixTime.value
     
+    @OptIn(ExperimentalTime::class)
     val latestMessageUnixTime
-        get() = mutableStateOf(LocalDateTime.now().toFloat()).value
+        get() = mutableStateOf(Clock.System.now().toEpochMilliseconds().toFloat()).value
     
     private val _selectedStartDate = mutableStateOf(0L)
     val selectedStartDate get() = _selectedStartDate.value
@@ -36,22 +32,23 @@ class MessageFilterState {
     
     val tagSelectionState = mutableStateOf(TagSelectionState()).value
     
+    private val _isRangeSet = mutableStateOf(false)
+    val isRangeSet: Boolean get() = _isRangeSet.value
+    
     @OptIn(ExperimentalTime::class)
-    fun setEarliestMessageUnixTime(newUnixTime: LocalDateTime?) {
-        val nowInSeconds = LocalDateTime
-            .now().toInstant()
-            .toEpochMilliseconds() / 1000
-        
+    fun setEarliestMessageUnixTime(newUnixTime: Long?) {
         _earliestMessageUnixTime.value = newUnixTime?.toFloat()
-            ?: (nowInSeconds - (60 * 10)).toFloat()
+            ?: Clock.System.now().toEpochMilliseconds().toFloat()
     }
     
     fun updateSelectedStartDate(newValue: Long) {
         _selectedStartDate.value = newValue
+        _isRangeSet.value = selectedStartDate > 0L && selectedEndDate > 0L
     }
     
     fun updateSelectedEndDate(newValue: Long) {
         _selectedEndDate.value = newValue
+        _isRangeSet.value = selectedStartDate > 0L && selectedEndDate > 0L
     }
     
     fun updateSenderName(newValue: String) {

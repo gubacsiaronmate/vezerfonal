@@ -3,15 +3,15 @@ package com.smokinggunstudio.vezerfonal.repositories
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import com.smokinggunstudio.vezerfonal.helpers.now
+import com.smokinggunstudio.vezerfonal.helpers.nowUTC
 import com.smokinggunstudio.vezerfonal.helpers.select
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -21,10 +21,13 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class GroupRepository(val db: Database) {
+    @OptIn(ExperimentalTime::class)
     private suspend fun ResultRow.toGroup(): Group = suspendTransaction(db) {
         val admin = UserRepository(db).getUserById(this@toGroup[Groups.groupAdminId])!!
         val members = MembershipRepository(db).getMembershipsByGroupId(this@toGroup[Groups.id])
@@ -37,9 +40,9 @@ class GroupRepository(val db: Database) {
             admin = admin,
             externalId = this@toGroup[Groups.externalId],
             isInternal = this@toGroup[Groups.isInternal],
-            createdAt = this@toGroup[Groups.createdAt],
-            updatedAt = this@toGroup[Groups.updatedAt],
-            deletedAt = this@toGroup[Groups.deletedAt]
+            createdAt = this@toGroup[Groups.createdAt].toKotlinInstant(),
+            updatedAt = this@toGroup[Groups.updatedAt].toKotlinInstant(),
+            deletedAt = this@toGroup[Groups.deletedAt]?.toKotlinInstant()
         )
     }
     
@@ -120,6 +123,7 @@ class GroupRepository(val db: Database) {
         getExactGroupByNameAndAdminIdentifier(name, identifier) != null
     }
     
+    @OptIn(ExperimentalTime::class)
     suspend fun insertGroup(
         group: Group,
     ): Boolean = suspendTransaction(db) {
@@ -146,13 +150,13 @@ class GroupRepository(val db: Database) {
         else false
     }
     
-    @OptIn(ExperimentalUuidApi::class)
+    @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
     suspend fun createInternalGroup(
         members: List<User>,
     ): Group = suspendTransaction(db) {
         val groupName = Uuid.random().toString()
         val admin = UserRepository(db).createInternalUser()
-        val memberships = members.map { user -> Membership(user, null, LocalDateTime.now()) }
+        val memberships = members.map { user -> Membership(user, null, Clock.System.now()) }
         insertGroup(
             Group(
                 id = null,
@@ -162,8 +166,8 @@ class GroupRepository(val db: Database) {
                 admin = admin,
                 externalId = getExtId(),
                 isInternal = true,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
+                createdAt = Clock.System.now(),
+                updatedAt = Clock.System.now(),
                 deletedAt = null
             )
         )

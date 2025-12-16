@@ -2,12 +2,11 @@ package com.smokinggunstudio.vezerfonal.models
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
-import com.smokinggunstudio.vezerfonal.helpers.ExternalId
-import com.smokinggunstudio.vezerfonal.helpers.now
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.format
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
-data class Message(
+data class Message @OptIn(ExperimentalTime::class) constructor(
     val id: Int?,
     val user: User?,
     val author: User,
@@ -19,14 +18,15 @@ data class Message(
     val externalId: String,
     val status: MessageStatus?,
     val availableReactions: List<String>?,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
-    val deletedAt: LocalDateTime?
+    val createdAt: Instant?,
+    val updatedAt: Instant?,
+    val deletedAt: Instant?
 ) {
     init {
         require((user == null) != (group == null)) { "Only one can and must be null." }
     }
     
+    @OptIn(ExperimentalTime::class)
     fun toDTO(reactedWith: String?): MessageData = MessageData(
         title = title,
         author = author.toDTO(),
@@ -37,7 +37,7 @@ data class Message(
         userIdentifiers = null,
         availableReactions = availableReactions,
         groups = null,
-        sentAt = (createdAt ?: LocalDateTime.now()).toString(),
+        sentAt = (createdAt ?: Clock.System.now()).toEpochMilliseconds(),
         reactedWith = reactedWith,
         externalId = externalId,
     )

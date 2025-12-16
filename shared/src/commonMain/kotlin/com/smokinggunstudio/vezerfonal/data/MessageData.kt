@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class MessageData(
     val title: String,
-    val sentAt: String,
+    val sentAt: Long,
     val content: String,
     val author: UserData,
     val isUrgent: Boolean,

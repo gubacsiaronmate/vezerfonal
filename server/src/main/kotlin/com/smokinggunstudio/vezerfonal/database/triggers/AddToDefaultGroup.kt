@@ -1,22 +1,26 @@
 package com.smokinggunstudio.vezerfonal.database.triggers
 
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
-import com.smokinggunstudio.vezerfonal.helpers.now
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
+import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
+import com.smokinggunstudio.vezerfonal.helpers.toOffsetDateTime
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import com.smokinggunstudio.vezerfonal.objects.Users
 import com.smokinggunstudio.vezerfonal.repositories.MembershipRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import java.time.ZoneOffset
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(db) {
     val admin = UserRepository(db).getUserById(this@toGroup[Groups.groupAdminId])!!
     val members = MembershipRepository(db).getMembershipsByGroupId(this@toGroup[Groups.id])
@@ -29,12 +33,13 @@ private suspend fun ResultRow.toGroup(db: Database): Group = suspendTransaction(
         admin = admin,
         externalId = this@toGroup[Groups.externalId],
         isInternal = this@toGroup[Groups.isInternal],
-        createdAt = this@toGroup[Groups.createdAt],
-        updatedAt = this@toGroup[Groups.updatedAt],
-        deletedAt = this@toGroup[Groups.deletedAt]
+        createdAt = this@toGroup[Groups.createdAt].toKotlinInstant(),
+        updatedAt = this@toGroup[Groups.updatedAt].toKotlinInstant(),
+        deletedAt = this@toGroup[Groups.deletedAt]?.toKotlinInstant()
     )
 }
 
+@OptIn(ExperimentalTime::class)
 suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransaction(db) {
     val default = Groups
         .select { Groups.displayName eq "default" }
@@ -47,7 +52,7 @@ suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransact
         UserGroupConnection.insert {
             it[groupId] = defaultGroupId
             it[userId] = newUserId
-            it[joinedAt] = LocalDateTime.now()
+            it[joinedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
         }
     }
     

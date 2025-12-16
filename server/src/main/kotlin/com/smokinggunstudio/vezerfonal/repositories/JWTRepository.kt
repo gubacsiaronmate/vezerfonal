@@ -1,8 +1,6 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
-import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
-import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.JWTModel
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import org.jetbrains.exposed.v1.core.Column
@@ -14,8 +12,11 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.ZoneOffset
+import kotlin.time.ExperimentalTime
 
 class JWTRepository(val db: Database) {
+    @OptIn(ExperimentalTime::class)
     private suspend fun ResultRow.toJWTModel(): JWTModel =
         suspendTransaction(db) {
             val user = UserRepository(db).getUserById(this@toJWTModel[JWTs.userId])!!
@@ -25,8 +26,8 @@ class JWTRepository(val db: Database) {
                 isRefresh = this@toJWTModel[JWTs.isRefresh],
                 user = user,
                 revoked = this@toJWTModel[JWTs.revoked],
-                createdAt = this@toJWTModel[JWTs.createdAt],
-                expiresAt = this@toJWTModel[JWTs.expiresAt]
+                createdAt = this@toJWTModel[JWTs.createdAt].toKotlinInstant(),
+                expiresAt = this@toJWTModel[JWTs.expiresAt].toKotlinInstant()
             )
         }
     
@@ -72,6 +73,7 @@ class JWTRepository(val db: Database) {
         tokenHash: String
     ): Boolean = suspendTransaction(db) { getJWTByTokenHash(tokenHash) != null }
     
+    @OptIn(ExperimentalTime::class)
     suspend fun insertJWT(
         jwt: JWTModel
     ): Boolean = suspendTransaction(db) {
@@ -82,8 +84,8 @@ class JWTRepository(val db: Database) {
                 row[isRefresh] = jwt.isRefresh
                 row[userId] = jwt.user.id!!
                 row[revoked] = jwt.revoked
-                jwt.createdAt?.let { row[createdAt] = it }
-                row[expiresAt] = jwt.expiresAt
+                jwt.createdAt?.let { row[createdAt] = it.toOffsetDateTime(ZoneOffset.UTC) }
+                row[expiresAt] = jwt.expiresAt.toOffsetDateTime(ZoneOffset.UTC)
             }.insertedCount == 1
         else false
     }

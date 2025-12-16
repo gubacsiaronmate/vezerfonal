@@ -1,15 +1,11 @@
 package com.smokinggunstudio.vezerfonal.objects
 
 import com.smokinggunstudio.vezerfonal.helpers.Modifiable
-import com.smokinggunstudio.vezerfonal.helpers.now
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Table
-import org.jetbrains.exposed.v1.datetime.CurrentDate
-import org.jetbrains.exposed.v1.datetime.CurrentDateTime
-import org.jetbrains.exposed.v1.datetime.CurrentTimestamp
+import org.jetbrains.exposed.v1.datetime.CurrentTimestampWithTimeZone
 import org.jetbrains.exposed.v1.datetime.datetime
+import org.jetbrains.exposed.v1.datetime.timestampWithTimeZone
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 object Groups : Table("groups"), Modifiable<Int> {
     override val table: Table = this
@@ -23,9 +19,9 @@ object Groups : Table("groups"), Modifiable<Int> {
     val isInternal = bool("is_internal").default(false)
     
     @OptIn(ExperimentalTime::class)
-    val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
-    val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
-    val deletedAt = datetime("deleted_at").nullable()
+    val createdAt = timestampWithTimeZone("created_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val updatedAt = timestampWithTimeZone("updated_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val deletedAt = timestampWithTimeZone("deleted_at").nullable()
     
     override val primaryKey = PrimaryKey(id)
 }

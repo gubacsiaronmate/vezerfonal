@@ -1,10 +1,11 @@
 package com.smokinggunstudio.vezerfonal.models
 
-import kotlinx.datetime.LocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 
-data class Membership(
+data class Membership @OptIn(ExperimentalTime::class) constructor(
     val user: User,
     val groupId: Int?,
-    val joinedAt: LocalDateTime
+    val joinedAt: Instant
 )

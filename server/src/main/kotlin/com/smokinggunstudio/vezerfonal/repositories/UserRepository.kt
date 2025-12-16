@@ -1,14 +1,9 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.database.triggers.trgAddToDefaultGroup
-import com.smokinggunstudio.vezerfonal.helpers.ProfileImage
-import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
-import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import com.smokinggunstudio.vezerfonal.helpers.now
-import com.smokinggunstudio.vezerfonal.helpers.select
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Users
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -17,10 +12,14 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.update
+import java.time.ZoneOffset
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class UserRepository(val db: Database) {
+    @OptIn(ExperimentalTime::class)
     private suspend fun ResultRow.toUser(): User = suspendTransaction(db) {
         val pfp = this@toUser[Users.profilePicURI].let { ProfileImage(it, it?.substringAfterLast("/")) }
         User(
@@ -32,9 +31,9 @@ class UserRepository(val db: Database) {
             identifier = this@toUser[Users.identifier],
             isAnyAdmin = null,
             isSuperAdmin = this@toUser[Users.isSuperAdmin],
-            createdAt = this@toUser[Users.createdAt],
-            updatedAt = this@toUser[Users.updatedAt],
-            deletedAt = this@toUser[Users.deletedAt]
+            createdAt = this@toUser[Users.createdAt].toKotlinInstant(),
+            updatedAt = this@toUser[Users.updatedAt].toKotlinInstant(),
+            deletedAt = this@toUser[Users.deletedAt]?.toKotlinInstant()
         )
     }
     
@@ -89,6 +88,7 @@ class UserRepository(val db: Database) {
         } else false
     }
     
+    @OptIn(ExperimentalTime::class)
     suspend fun <T> modifyUser(
         userId: Int,
         property: Column<T>,
@@ -98,12 +98,12 @@ class UserRepository(val db: Database) {
         if (user != null)
             Users.update({ Users.id eq user.id!! }) {
                 it[property] = newValue
-                it[updatedAt] = LocalDateTime.now()
+                it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
             } == 1
         else false
     }
     
-    @OptIn(ExperimentalUuidApi::class)
+    @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
     suspend fun createInternalUser(): User =
         suspendTransaction(db) {
             val identifier = Uuid.random().toString().substring(0..8)
