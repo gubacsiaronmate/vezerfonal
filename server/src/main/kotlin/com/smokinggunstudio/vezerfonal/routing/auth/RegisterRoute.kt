@@ -42,7 +42,8 @@ fun Route.registerRoute(
             OrganisationRepository(mainDB).insertOrg(org)
         } ?: return@post
         
-        if (!success) return@post call.respond(HttpStatusCode.InternalServerError)
+        if (!success)
+            return@post call.respond(HttpStatusCode.InternalServerError)
         
         val orgDB = ensureOrgDB(org.name)
             ?: return@post call.respond(HttpStatusCode.InternalServerError)
@@ -65,8 +66,9 @@ fun Route.registerRoute(
             
             val urepo = UserRepository(db)
             
-            val insertSuccess = tryInternal("Failed to insert user.")
-            { urepo.insertUser(user) } ?: return@post
+            val insertSuccess = tryInternal("Failed to insert user.") {
+                urepo.insertUser(user)
+            } ?: return@post
             
             if (insertSuccess) {
                 val user = urepo.getUserByIdentifier(user.identifier)
