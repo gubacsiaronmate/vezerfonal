@@ -10,7 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.http.HttpStatusCode
 
 suspend fun getMessages(
-    amount: Int,
+    amount: Int?,
     client: HttpClient,
     accessToken: String,
 ): List<MessageData> {

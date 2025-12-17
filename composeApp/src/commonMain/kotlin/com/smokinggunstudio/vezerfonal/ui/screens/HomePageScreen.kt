@@ -47,7 +47,7 @@ fun HomePageScreen(
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     val scope = rememberCoroutineScope()
-    val user = LocalCurrentUser.currentOrThrow
+    val user = LocalCurrentUser.current
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
@@ -152,7 +152,7 @@ fun HomePageScreen(
                             sendInteraction(
                                 accessToken,
                                 InteractionInfoData(
-                                    userIdentifier = user.identifier,
+                                    userIdentifier = user?.identifier.toString(),
                                     messageExtId = message.externalId,
                                     type = InteractionType.archive,
                                 ),

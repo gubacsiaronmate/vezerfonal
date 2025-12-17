@@ -43,7 +43,7 @@ fun Route.messageRoute() {
         val userId = principal.user.id!!
         val db = principal.db
         
-        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
+        val amount = call.parameters["amount"]?.toIntOrNull()
         
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
@@ -65,7 +65,7 @@ fun Route.messageRoute() {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
-        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
+        val amount = call.parameters["amount"]?.toIntOrNull()
         
         val user = principal.user
         
@@ -144,7 +144,7 @@ fun Route.messageRoute() {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
-        val amount = call.parameters["amount"]?.toIntOrNull { if (it > 0) null else it }
+        val amount = call.parameters["amount"]?.toIntOrNull()
         
         val db = principal.db
         val userId = principal.user.id!!

@@ -12,9 +12,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 
 suspend fun getSentMessages(
-    amount: Int,
     client: HttpClient,
     accessToken: String,
+    amount: Int? = null,
 ): List<MessageData> {
     val response = client
         .get(NetworkConstants.Endpoints.GET_SENT_MESSAGES + amount) {

@@ -37,7 +37,7 @@ import kotlin.time.ExperimentalTime
     LaunchedEffect(Unit) {
         isLoading = true
         try {
-            messages = getArchivedMessages(-1, client, accessToken)
+            messages = getArchivedMessages(client, accessToken)
         } catch (e: Exception) {
             error = e
         }

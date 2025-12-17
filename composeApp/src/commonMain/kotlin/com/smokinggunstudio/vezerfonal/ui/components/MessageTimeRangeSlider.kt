@@ -24,7 +24,7 @@ fun MessageTimeRangeSlider(
     initialRange: ClosedFloatingPointRange<Float> = valueRange,
     steps: Int = 0,
     formatLabel: (Float) -> String = { ts: Float ->
-        val local = Instant.fromEpochSeconds(ts.toLong()).toLocalDateTimeDefault()
+        val local = Instant.fromEpochMilliseconds(ts.toLong()).toLocalDateTimeDefault()
         "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
     },
     onRangeSelected: (ClosedFloatingPointRange<Float>) -> Unit,

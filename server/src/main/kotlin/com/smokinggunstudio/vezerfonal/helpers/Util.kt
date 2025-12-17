@@ -66,8 +66,6 @@ inline fun <reified T : Table> makeArrayOfTable(vararg items: T): Array<T> = arr
 
 fun Query.singleOrNull(): ResultRow? = toList().ifNotEmpty()?.single()
 
-inline fun String.toIntOrNull(predicate: (Int) -> Int?): Int? = toIntOrNull()?.let(predicate)
-
 @OptIn(ExperimentalTime::class)
 fun Date.toKotlinInstant() = toInstant().toKotlinInstant()
 

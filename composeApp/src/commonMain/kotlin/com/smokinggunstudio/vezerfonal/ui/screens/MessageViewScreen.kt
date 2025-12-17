@@ -49,7 +49,7 @@ fun MessageViewScreen(
     var error by remember { mutableStateOf<Throwable?>(null) }
     val scope = rememberCoroutineScope()
     val client = LocalHttpClient.current
-    val user = LocalCurrentUser.currentOrThrow
+    val user = LocalCurrentUser.current
     var top by remember { mutableStateOf(80.dp) }
     val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
@@ -140,7 +140,7 @@ fun MessageViewScreen(
                 when {
                     isSenderView -> SentMessageBottomSheet(accessToken, reactions.map { it.toSerialized() })
                     isDisabled -> DisabledBottomPanel(
-                        reaction = message.reactedWith ?: selectedReaction!!,
+                        reaction = message.reactedWith ?: selectedReaction.toString(),
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                     )
                     else -> RecipientReactionBottomPanel(
@@ -152,7 +152,7 @@ fun MessageViewScreen(
                         try {
                             scope.launch {
                                 val interaction = InteractionInfoData(
-                                    userIdentifier = user.identifier,
+                                    userIdentifier = user?.identifier.toString(),
                                     messageExtId = message.externalId,
                                     type = InteractionType.reaction,
                                     reaction = it

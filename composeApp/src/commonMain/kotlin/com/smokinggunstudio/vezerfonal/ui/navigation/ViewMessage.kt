@@ -15,7 +15,6 @@ data class ViewMessage(
 ) : Screen {
     @Composable
     override fun Content() {
-        val client = LocalHttpClient.current
         MessageViewScreen(
             accessToken = accessToken,
             isArchived = isArchived,
