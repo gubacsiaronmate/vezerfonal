@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
+import com.smokinggunstudio.vezerfonal.ui.helpers.exitApp
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 import org.jetbrains.compose.resources.stringResource
@@ -44,14 +45,14 @@ import vezerfonal.composeapp.generated.resources.login
             onClick = {
                 HomeCache.invalidate()
 
-                if (navigator.lastItem is Landing)
+                if (navigator.lastItem !is Landing)
                     if (isUnauthed)
-                        navigator.replaceAll(Landing())
+                        navigator.replaceAll(Landing)
                     else navigator.popUntilRoot()
-                else throw Exception("No way to reliably exit apps so just fail.")
+                else exitApp() /*throw Exception("No way to reliably exit apps so just fail.")*/
             },
         ) {
-            if (isUnauthed && navigator.lastItem is Landing)
+            if (isUnauthed && navigator.lastItem !is Landing)
                 Text(stringResource(Res.string.login))
             else Text(stringResource(Res.string.leave))
         }

@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.routing.api
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.helpers.log
+import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
 import com.smokinggunstudio.vezerfonal.helpers.tryInternal
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
@@ -23,13 +24,15 @@ fun Route.userRoute() {
         val db = principal.db
         
         val user = tryInternal("Unable to query users table.") {
-            UserRepository(db).getUserById(userId)!!.apply {
-                isAnyAdmin = GroupRepository(db).getGroupsByAdminId(this.id!!).isNotEmpty()
-            }.toDTO()
+            with(UserRepository(db).getUserById(userId)!!) {
+                isAnyAdmin = GroupRepository(db).getGroupsByAdminId(id!!).isNotEmpty() || isSuperAdmin
+                log { "isAnyAdmin: $isAnyAdmin" }
+                return@with this.toDTO()
+            }
         } ?: return@get
         
         call.respond(user)
-        log { "Responded with ${user.name}" }
+        log { "Responded with ${user.name}\nisAnyAdmin: ${user.isAnyAdmin}" }
     }
     
     get("/all") {
@@ -55,14 +58,17 @@ fun Route.userRoute() {
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
         
         val db = principal.db
-        val identifiers = call.receive<List<Identifier>>()
+        val identifiers = tryIncoming("Unable to receive identifiers.") {
+            call.receive<List<Identifier>>()
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
         
         val users = tryInternal("Unable to get any user.") {
             identifiers.mapNotNull {
                 UserRepository(db)
                     .getUserByIdentifier(it)
-            }.map { it.toDTO() }
-        } ?: return@post
+                    ?.toDTO()
+            }.ifEmpty { null }
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(users)
     }

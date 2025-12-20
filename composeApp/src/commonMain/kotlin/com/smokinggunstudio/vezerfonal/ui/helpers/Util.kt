@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.helpers
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.FileData
@@ -24,6 +25,15 @@ fun genRegCode() = Uuid.random().toString().replace("-","").substring(0..7)
 @OptIn(ExperimentalTime::class)
 fun Instant.between(start: Instant, end: Instant): Boolean = this in start..end
 
-@OptIn(ExperimentalTime::class)
 val List<MessageData>.earliestMessageTimestamp: Long?
-    get() = this.minByOrNull { Instant.fromEpochMilliseconds(it.sentAt) }?.sentAt
+    get() = this.minByOrNull { it.sentAt }?.sentAt
+
+inline fun <reified T> Array<MutableState<T?>>.ifNotEmpty(): List<T>? {
+    if (all { it.value == null }) return null
+    
+    val result = mutableListOf<T>()
+    forEach { item -> item.value?.let { result.add(it) } }
+    return result
+}
+
+inline fun <reified T> Array<MutableState<T?>>.contains(item: T): Boolean = any { it.value == item }

@@ -28,14 +28,12 @@ import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.screens.*
 import kotlinx.coroutines.launch
 
-data class Home(
+data class HomePage(
     val accessToken: String,
-    val userProvider: CallbackEvent<String>
 ) : Screen {
     @Composable
     override fun Content() {
@@ -59,10 +57,7 @@ data class Home(
             HomeCache.load(accessToken, client)
 
             HomeCache.user.let {
-                if (it != null) {
-                    user = it
-                    userProvider(it.toSerialized())
-                }
+                if (it != null) user = it
                 else throw UnableToLoadException()
             }
             groups = HomeCache.groups
@@ -101,7 +96,9 @@ data class Home(
             },
         ) {
             if (!loaded) {
-                Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
+                Box(Modifier.fillMaxSize()) {
+                    LinearProgressIndicator(Modifier.align(Alignment.Center))
+                }
                 return@PullToRefreshBox
             }
 
@@ -116,7 +113,7 @@ data class Home(
 
             val tabs = remember {
                 buildList {
-                    add(NavBarContent.Home)
+                    add(Home)
                     add(Archive)
                     if (user!!.isAnyAdmin || user!!.isSuperAdmin) add(Send)
                     add(Group)
@@ -132,7 +129,11 @@ data class Home(
                     NavBar(
                         tabs = tabs,
                         currentIndex = pagerState.currentPage,
-                        onTabSelected = { i -> scope.launch { pagerState.animateScrollToPage(i) } }
+                        onTabSelected = { i ->
+                            scope.launch {
+                                pagerState.animateScrollToPage(i)
+                            }
+                        }
                     )
                 }
             ) { paddingValues ->
@@ -142,16 +143,18 @@ data class Home(
                     userScrollEnabled = isScrollEnabled
                 ) { i ->
                     when (tabs[i]) {
-                        NavBarContent.Home -> HomePageScreen(
-                            accessToken = accessToken,
+                        Home -> HomePageScreen(
                             client = client,
+                            accessToken = accessToken,
+                            userIdentifier = user!!.identifier,
                             onMessageClick = {
                                 navigator.push(
                                     ViewMessage(
                                         accessToken = accessToken,
                                         isArchived = false,
-                                        message = it.toSerialized(),
+                                        messageStr = it.toSerialized(),
                                         isSenderView = false,
+                                        userIdentifier = user!!.identifier
                                     )
                                 )
                             },
@@ -165,20 +168,48 @@ data class Home(
                                     ViewMessage(
                                         accessToken = accessToken,
                                         isArchived = true,
-                                        message = it.toSerialized(),
+                                        messageStr = it.toSerialized(),
                                         isSenderView = false,
+                                        userIdentifier = user!!.identifier
                                     )
                                 )
                             },
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
-                        Send -> WriteMessageScreen(user!!, client, accessToken, guiao, userList, tagList)
-                        Group -> GroupScreen(client, accessToken, user!!.identifier, groups, user!!.isSuperAdmin)
+                        Send -> WriteMessageScreen(
+                            user = user!!,
+                            client = client,
+                            accessToken = accessToken,
+                            guiao = guiao,
+                            userList = userList,
+                            tagList = tagList
+                        )
+                        Group -> GroupScreen(
+                            client = client,
+                            accessToken = accessToken,
+                            myIdentifier = user!!.identifier,
+                            groupData = groups,
+                            isSuperAdminLogIn = user!!.isSuperAdmin
+                        )
                         Settings -> SettingsScreen(
                             user = user!!,
                             isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
-                            onAccountSettingsClick = { navigator.push(AccountSettings(accessToken, user!!)) },
-                            onAdminToolsClick = { navigator.push(AdminTools(accessToken, regCodes)) },
+                            onAccountSettingsClick = {
+                                navigator.push(
+                                    AccountSettings(
+                                        token = accessToken,
+                                        userStr = user!!.toSerialized()
+                                    )
+                                )
+                            },
+                            onAdminToolsClick = {
+                                navigator.push(
+                                    AdminTools(
+                                        token = accessToken,
+                                        regCodesStr = regCodes.map { it.toSerialized() }
+                                    )
+                                )
+                            },
                             onArchiveClick = { },
                             onNotificationsClick = { },
                             onTOSClick = { },
@@ -193,8 +224,9 @@ data class Home(
                                                 ViewMessage(
                                                     accessToken = accessToken,
                                                     isArchived = false,
-                                                    message = it.toSerialized(),
+                                                    messageStr = it.toSerialized(),
                                                     isSenderView = true,
+                                                    userIdentifier = user!!.identifier
                                                 )
                                             )
                                         },

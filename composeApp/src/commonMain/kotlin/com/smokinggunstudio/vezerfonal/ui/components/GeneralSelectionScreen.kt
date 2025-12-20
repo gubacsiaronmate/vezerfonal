@@ -85,7 +85,7 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionScreen(
                 Button(
                     modifier = Modifier
                         .width(160.dp),
-                    onClick = { onApplyClick(state.selectedItems) },
+                    onClick = { onApplyClick(state.selectedItems); onCancelClick() },
                 ) {
                     Text(
                         text = stringResource(Res.string.applyStr),

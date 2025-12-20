@@ -11,15 +11,17 @@ data class ViewMessage(
     val accessToken: String,
     val isArchived: Boolean,
     val isSenderView: Boolean,
-    val message: String,
+    val messageStr: String,
+    val userIdentifier: String,
 ) : Screen {
     @Composable
     override fun Content() {
         MessageViewScreen(
             accessToken = accessToken,
             isArchived = isArchived,
-            message = message.toDTO<MessageData>(),
-            isSenderView = isSenderView
+            messageStr = messageStr,
+            isSenderView = isSenderView,
+            userIdentifier = userIdentifier
         )
     }
 }

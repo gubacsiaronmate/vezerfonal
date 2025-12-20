@@ -24,6 +24,7 @@ import com.smokinggunstudio.vezerfonal.network.api.getAllTags
 import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import com.smokinggunstudio.vezerfonal.network.api.sendMessage
 import com.smokinggunstudio.vezerfonal.ui.components.*
+import com.smokinggunstudio.vezerfonal.ui.helpers.contains
 import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
 import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
 import com.smokinggunstudio.vezerfonal.ui.state.UserSelectionState
@@ -148,10 +149,10 @@ fun WriteMessageScreen(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        ReactionBar { emoji ->
+                        ReactionBar(state.availableReactions) { i, emoji ->
                             if (state.availableReactions.contains(emoji))
-                                state.removeReaction(emoji)
-                            else state.addReaction(emoji)
+                                state.removeReaction(emoji, i)
+                            else state.addReaction(emoji, i)
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }

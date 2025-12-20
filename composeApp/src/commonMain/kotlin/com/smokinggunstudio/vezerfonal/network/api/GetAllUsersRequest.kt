@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.network.api
 
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.HttpClient
@@ -17,7 +18,10 @@ suspend fun getAllUsers(
         bearerAuth(accessToken)
     }
     
-    val ok = response.status == HttpStatusCode.OK
-    return if (!ok) throw UnauthorizedException()
-    else response.body()
+    return when (val status = response.status) {
+        HttpStatusCode.OK -> response.body()
+        HttpStatusCode.Unauthorized ->
+            throw UnauthorizedException()
+        else -> throw UnableToLoadException(status)
+    }
 }

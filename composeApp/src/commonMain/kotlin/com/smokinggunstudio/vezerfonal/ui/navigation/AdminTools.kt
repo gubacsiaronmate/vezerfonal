@@ -6,12 +6,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.ui.screens.AdminToolsScreen
 import io.ktor.client.HttpClient
 
 data class AdminTools(
     val token: String,
-    val regCodes: List<RegCodeData>
+    val regCodesStr: List<String>
 ) : Screen {
     @Composable
     override fun Content() {
@@ -21,7 +22,7 @@ data class AdminTools(
             onUserManagementClick = { navigator.push(UserManagement) },
             onTagManagementClick = { navigator.push(TagManagement) },
             onRegistrationCodeManagementClick = {
-                navigator.push(RegCodeManagement(token, regCodes))
+                navigator.push(RegCodeManagement(token, regCodesStr))
             }
         )
     }

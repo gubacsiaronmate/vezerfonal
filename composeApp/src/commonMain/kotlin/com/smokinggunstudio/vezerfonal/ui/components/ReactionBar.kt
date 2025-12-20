@@ -15,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -25,13 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.helpers.EmojiPicker
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEventIndexed
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ReactionBar(
-    onClick: CallbackEvent<String>
+    buttonEmojis: Array<MutableState<String?>>,
+    onClick: CallbackEventIndexed<String>
 ) {
-    val buttonEmojis = remember { List(8) { mutableStateOf<String?>(null) } }
     val isPickerVisible = remember { mutableStateOf(false) }
     val activeIndex = remember { mutableStateOf<Int?>(null) }
 
@@ -42,17 +44,17 @@ fun ReactionBar(
             onEmojiSelected = { emoji ->
                 val previous = buttonEmojis[idx].value
                 if (previous != null && previous != emoji) {
-                    onClick(previous)
+                    onClick(idx, previous)
                 }
                 buttonEmojis[idx].value = emoji
-                onClick(emoji)
+                onClick(idx, emoji)
                 isPickerVisible.value = false
             },
             onRemove = {
                 val current = buttonEmojis[idx].value
                 if (current != null) {
                     buttonEmojis[idx].value = null
-                    onClick(current)
+                    onClick(idx, current)
                 }
                 isPickerVisible.value = false
             },
@@ -69,12 +71,12 @@ fun ReactionBar(
                 shape = RoundedCornerShape(50)
             ),
     ) {
-        repeat(8) { index ->
-            val currentEmoji = buttonEmojis[index].value
+        repeat(8) { i ->
+            val currentEmoji = buttonEmojis[i].value
             IconButton(
                 modifier = Modifier.widthIn(max = 32.dp),
                 onClick = {
-                    activeIndex.value = index
+                    activeIndex.value = i
                     isPickerVisible.value = true
                 }
             ) {

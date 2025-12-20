@@ -69,8 +69,10 @@ fun Route.messageRoute() {
         
         val user = principal.user
         
-        if (user.isAnyAdmin != true)
+        if (user.isAnyAdmin != true) {
+            log { "user.isAnyAdmin: ${user.isAnyAdmin}\ni no longer understand\nuser.isSuperAdmin: ${user.isSuperAdmin}" }
             return@get call.respond(HttpStatusCode.Forbidden)
+        }
         
         val db = principal.db
         

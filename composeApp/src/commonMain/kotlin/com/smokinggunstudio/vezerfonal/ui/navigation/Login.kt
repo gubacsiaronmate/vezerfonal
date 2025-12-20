@@ -10,13 +10,11 @@ import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
 data class Login(
     val orgs: List<String>,
-    val userProvider: CallbackEvent<String>
 ) : Screen {
     @Composable
     override fun Content() {
@@ -27,7 +25,7 @@ data class Login(
         
         LoginScreen(client, orgs.map { it.toDTO<OrgData>() }) { newTokens ->
             log { newTokens.toString() }
-            navigator.push(Home(newTokens.accessToken, userProvider))
+            navigator.push(HomePage(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }
         }
     }

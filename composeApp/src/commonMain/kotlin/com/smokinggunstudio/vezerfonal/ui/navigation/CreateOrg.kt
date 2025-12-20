@@ -13,7 +13,6 @@ import io.ktor.client.HttpClient
 
 data class CreateOrg(
     val registerState: AdminRegisterState,
-    val userProvider: CallbackEvent<String>
 ) : Screen {
     @Composable
     override fun Content() {
@@ -21,7 +20,7 @@ data class CreateOrg(
         val navigator = LocalNavigator.currentOrThrow
         
         CreateOrganizationScreen(registerState, client) {
-            navigator.push(Register(2, registerState, userProvider))
+            navigator.push(Register(2, registerState))
         }
     }
 }

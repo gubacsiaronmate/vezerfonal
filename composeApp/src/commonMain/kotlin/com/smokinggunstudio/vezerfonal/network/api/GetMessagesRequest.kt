@@ -19,9 +19,10 @@ suspend fun getMessages(
             bearerAuth(accessToken)
         }
     
-    val auth = response.status == HttpStatusCode.Unauthorized
-    val ok = response.status == HttpStatusCode.OK
-    return if (auth) throw UnauthorizedException()
-    else if (!ok) throw UnableToLoadException()
-    else response.body()
+    return when (val status = response.status) {
+        HttpStatusCode.OK -> response.body()
+        HttpStatusCode.Unauthorized ->
+            throw UnauthorizedException()
+        else -> throw UnableToLoadException(status)
+    }
 }

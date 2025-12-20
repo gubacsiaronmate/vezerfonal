@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
@@ -50,9 +51,7 @@ fun AccountSettingsScreen(
             .background(MaterialTheme.colorScheme.surface)
     ) {
         Column {
-            AccountSettingsNameCard(
-                user = user
-            )
+            AccountSettingsNameCard(user)
             SettingRow(
                 imageVector = Icons.Default.Password,
                 text = stringResource(Res.string.change_password),

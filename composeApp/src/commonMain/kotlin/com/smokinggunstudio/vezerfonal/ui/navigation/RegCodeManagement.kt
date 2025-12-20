@@ -4,17 +4,18 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.ui.screens.RegCodeManagementScreen
 import io.ktor.client.HttpClient
 
 data class RegCodeManagement(
     val token: String,
-    val regCodes: List<RegCodeData>
+    val regCodesStr: List<String>
 ) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
         
-        RegCodeManagementScreen(client, token, regCodes)
+        RegCodeManagementScreen(client, token, regCodesStr.map { it.toDTO<RegCodeData>() })
     }
 }

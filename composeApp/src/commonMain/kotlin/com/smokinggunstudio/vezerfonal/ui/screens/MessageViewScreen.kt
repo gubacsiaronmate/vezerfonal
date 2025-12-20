@@ -8,8 +8,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.ErrorOutline
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,13 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.smokinggunstudio.vezerfonal.LocalCurrentUser
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import com.smokinggunstudio.vezerfonal.network.api.getReactionsByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.DisabledBottomPanel
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
@@ -43,13 +46,14 @@ import vezerfonal.composeapp.generated.resources.status
 fun MessageViewScreen(
     accessToken: String,
     isArchived: Boolean,
-    message: MessageData,
+    messageStr: String,
     isSenderView: Boolean,
+    userIdentifier: String,
 ) {
+    val message = messageStr.toDTO<MessageData>()
     var error by remember { mutableStateOf<Throwable?>(null) }
     val scope = rememberCoroutineScope()
     val client = LocalHttpClient.current
-    val user = LocalCurrentUser.current
     var top by remember { mutableStateOf(80.dp) }
     val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
@@ -57,10 +61,17 @@ fun MessageViewScreen(
     var reactions by remember { mutableStateOf<List<InteractionInfoData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     
-    if (isSenderView) LaunchedEffect(Unit) {
-        loading = true
-        
-    }
+    if (isSenderView)
+        LaunchedEffect(Unit) {
+            loading = true
+            reactions = try {
+                getReactionsByMessageExtId(client, accessToken, message.externalId)
+            } catch (e: Exception) {
+                error = e
+                emptyList()
+            }
+            loading = false
+        }
     
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -135,15 +146,20 @@ fun MessageViewScreen(
                     )
                 }
                 
-                val isDisabled = (message.reactedWith != null || selectedReaction != null) || isArchived
+                val shouldDisabledReactionBarBeDisplayed =
+                    (message.reactedWith != null || selectedReaction != null) || isArchived
+                val shouldBottomSheetBeDisplayed =
+                    isSenderView && !loading && error == null && reactions.isNotEmpty()
+                val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
                 
                 when {
-                    isSenderView -> SentMessageBottomSheet(accessToken, reactions.map { it.toSerialized() })
-                    isDisabled -> DisabledBottomPanel(
+                    shouldBottomSheetBeDisplayed ->
+                        SentMessageBottomSheet(accessToken, reactions.map { it.toSerialized() })
+                    shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction.toString(),
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                     )
-                    else -> RecipientReactionBottomPanel(
+                    shouldReactionBarBeDisplayed -> RecipientReactionBottomPanel(
                         availableReactions = message.availableReactions,
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
                         onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
@@ -152,7 +168,7 @@ fun MessageViewScreen(
                         try {
                             scope.launch {
                                 val interaction = InteractionInfoData(
-                                    userIdentifier = user?.identifier.toString(),
+                                    userIdentifier = userIdentifier,
                                     messageExtId = message.externalId,
                                     type = InteractionType.reaction,
                                     reaction = it
@@ -167,6 +183,16 @@ fun MessageViewScreen(
                 }
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, error is UnauthorizedException)
+        if (error != null)
+            ErrorDialog(
+                errorMessage = error!!.message!!,
+                isUnauthed = error is UnauthorizedException,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        
+        if (loading)
+            Box(Modifier.fillMaxSize()) {
+                LinearProgressIndicator(Modifier.align(Alignment.Center))
+            }
     }
 }

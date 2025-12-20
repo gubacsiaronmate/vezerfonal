@@ -2,7 +2,9 @@ package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.UserData
+import kotlinx.serialization.Serializable
 
+@Serializable
 class AdminRegisterState : RegisterState {
     private val _orgName = mutableStateOf("")
     val orgName: String get() = _orgName.value

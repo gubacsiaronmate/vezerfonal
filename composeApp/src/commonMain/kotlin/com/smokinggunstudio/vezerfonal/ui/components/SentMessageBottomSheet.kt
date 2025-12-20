@@ -19,11 +19,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import io.ktor.client.HttpClient
@@ -38,42 +40,49 @@ fun SentMessageBottomSheet(
     val client = LocalHttpClient.current
     var users by remember { mutableStateOf<List<UserData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
+    val identifierList = reactions.map { it.toDTO<InteractionInfoData>().userIdentifier }
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
     LaunchedEffect(Unit) {
         loading = true
-        val d = getUsersByIdentifierList(
-            identifiers = reactions.map {
-                it
-                    .toDTO<InteractionInfoData>()
-                    .userIdentifier
-            },
-            accessToken = accessToken,
-            client = client,
-        )
+        val d = try {
+            getUsersByIdentifierList(
+                identifiers = identifierList,
+                accessToken = accessToken,
+                client = client,
+            )
+        } catch (e: Exception) { error = e; emptyList() }
         users = d
         loading = false
     }
-    ModalBottomSheet(
-        sheetGesturesEnabled = reactions.isNotEmpty(),
-        onDismissRequest = { },
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Box {
-            if (loading) LinearProgressIndicator()
-            else Column(
-                Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                reactions.forEach { interaction ->
-                    val reaction = interaction.toDTO<InteractionInfoData>()
-                    val username = users.single { it.identifier == reaction.userIdentifier }.name
-                    SentMsgBottomSheetRow(reaction.reaction!!, username)
+    
+    if (reactions.isNotEmpty())
+        ModalBottomSheet(
+            onDismissRequest = { },
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Box {
+                if (loading) LinearProgressIndicator()
+                else if (!loading && error != null)
+                    ErrorDialog(
+                        errorMessage = error!!.message!!,
+                        isUnauthed = error is UnauthorizedException,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                else Column(
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    reactions.forEach { interaction ->
+                        val reaction = interaction.toDTO<InteractionInfoData>()
+                        val username = users.single { it.identifier == reaction.userIdentifier }.name
+                        SentMsgBottomSheetRow(reaction.reaction!!, username)
+                    }
                 }
             }
         }
-    }
 }

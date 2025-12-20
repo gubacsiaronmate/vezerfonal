@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.data
 
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.jvm.JvmInline
@@ -11,7 +12,7 @@ import kotlin.time.ExperimentalTime
 @Serializable
 @OptIn(ExperimentalTime::class)
 data class InteractionInfoData(
-    val userIdentifier: String,
+    val userIdentifier: Identifier,
     val messageExtId: String,
     val type: InteractionType,
     val status: MessageStatus?,

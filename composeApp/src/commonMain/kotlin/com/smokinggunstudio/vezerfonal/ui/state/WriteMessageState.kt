@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
@@ -7,6 +8,7 @@ import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.nowUTC
+import com.smokinggunstudio.vezerfonal.ui.helpers.ifNotEmpty
 import kotlinx.datetime.LocalDateTime
 import kotlin.collections.emptyList
 import kotlin.time.Clock
@@ -31,8 +33,8 @@ class WriteMessageState {
     private val _userIdentifiers = mutableStateOf<List<String>>(emptyList())
     val userIdentifiers: List<String> get() = _userIdentifiers.value
     
-    private val _availableReactions = mutableStateOf<List<String>>(emptyList())
-    val availableReactions: List<String> get() = _availableReactions.value
+    private val _availableReactions: Array<MutableState<String?>> = Array(8) { mutableStateOf(null) }
+    val availableReactions: Array<MutableState<String?>> get() = _availableReactions
     
     private val _groups = mutableStateOf<List<ExternalId>>(emptyList())
     val groups: List<ExternalId> get() = _groups.value
@@ -66,12 +68,12 @@ class WriteMessageState {
         _groups.value = newGroups
     }
     
-    fun addReaction(reaction: String) {
-        _availableReactions.value += reaction
+    fun addReaction(reaction: String, index: Int) {
+        _availableReactions[index].value = reaction
     }
     
-    fun removeReaction(reaction: String) {
-        _availableReactions.value = _availableReactions.value.filter { it != reaction }
+    fun removeReaction(reaction: String, index: Int) {
+        _availableReactions[index].value = null
     }
     
     @OptIn(ExperimentalTime::class)
@@ -97,7 +99,7 @@ class WriteMessageState {
         _tags.value = emptyList()
         _status.value = ""
         _userIdentifiers.value = emptyList()
-        _availableReactions.value = emptyList()
+        _availableReactions.forEach { it.value = null }
         _groups.value = emptyList()
     }
 }

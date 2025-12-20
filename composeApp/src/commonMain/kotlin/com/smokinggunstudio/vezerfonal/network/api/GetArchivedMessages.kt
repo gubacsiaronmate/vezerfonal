@@ -21,9 +21,10 @@ suspend fun getArchivedMessages(
             bearerAuth(accessToken)
         }
     
-    val auth = response.status == HttpStatusCode.Unauthorized
-    val ok = response.status == HttpStatusCode.OK
-    return if (!ok) throw UnableToLoadException()
-    else if (auth) throw UnauthorizedException()
-    else response.body()
+    return when (val status = response.status) {
+        HttpStatusCode.OK -> response.body()
+        HttpStatusCode.Unauthorized ->
+            throw UnauthorizedException()
+        else -> throw UnableToLoadException(status)
+    }
 }

@@ -8,10 +8,5 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 
-suspend fun getAllOrgsRequest(client: HttpClient): List<OrgData> {
-    val response = try {
-        client.get(NetworkConstants.Endpoints.GET_ORGS)
-    } catch (e: Exception) { throw e }
-    
-    return response.body()
-}
+suspend fun getAllOrgsRequest(client: HttpClient): List<OrgData> =
+    client.get(NetworkConstants.Endpoints.GET_ORGS).body()

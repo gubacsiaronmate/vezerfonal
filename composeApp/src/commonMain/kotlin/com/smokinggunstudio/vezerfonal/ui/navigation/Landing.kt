@@ -13,17 +13,12 @@ import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
-import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.network.api.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.LandingPageScreen
 
-data class Landing(
-    val userProvider: CallbackEvent<String> =
-        CallbackEvent { throw UnauthorizedException() },
-) : Screen {
+data object Landing: Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
@@ -54,18 +49,20 @@ data class Landing(
         
         Box(Modifier.fillMaxSize()) {
             if (!loaded) {
-                Box(Modifier.fillMaxSize()) { LinearProgressIndicator(Modifier.align(Alignment.Center)) }
+                Box(Modifier.fillMaxSize()) {
+                    LinearProgressIndicator(Modifier.align(Alignment.Center))
+                }
                 return
             }
             
             if (token != null) {
-                LaunchedEffect(token) { navigator.replaceAll(Home(token!!, userProvider)) }
+                LaunchedEffect(token) { navigator.replaceAll(HomePage(token!!)) }
                 return
             }
             
             LandingPageScreen(
-                onRegisterClick = { navigator.push(Register(1, null, userProvider)) },
-                onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() }, userProvider)) },
+                onRegisterClick = { navigator.push(Register(1, null)) },
+                onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
             )
             
             if (error != null) {

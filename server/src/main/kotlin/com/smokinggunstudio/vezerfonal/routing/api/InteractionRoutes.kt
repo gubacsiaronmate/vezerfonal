@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.routing.api
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toInteractionInfo
 import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
 import com.smokinggunstudio.vezerfonal.helpers.tryInternal
@@ -21,7 +22,7 @@ import java.awt.TrayIcon
 
 fun Route.interactionRoute() {
     route("/reaction") {
-        get("/by-message-ext-id") {
+        get("/by-message-ext-id/{messageExtId}") {
             val principal = call.principal<AuthResponse>()
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             
@@ -30,7 +31,10 @@ fun Route.interactionRoute() {
             if (user.isAnyAdmin != true)
                 call.respond(HttpStatusCode.Unauthorized)
             
-            val messageExtId = call.receive<String>()
+            val messageExtId = tryIncoming("Unable to receive message extId.") {
+                val asd = call.parameters["messageExtId"]
+                asd
+            } ?: return@get call.respond(HttpStatusCode.BadRequest)
             
             val db = principal.db
             
@@ -39,8 +43,10 @@ fun Route.interactionRoute() {
                     .getMessageByExtId(messageExtId)
                     ?: return@tryInternal null
                 
+                
                 InteractionInfoRepository(db)
                     .getInteractionInfosByMessageIdAndType(message.id!!, InteractionType.reaction)
+                    .map { it.toDTO() }
             } ?: return@get call.respond(HttpStatusCode.InternalServerError)
             
             call.respond(interactions)

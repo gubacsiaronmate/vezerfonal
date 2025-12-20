@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.smokinggunstudio.vezerfonal.LocalCurrentUser
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -41,13 +40,13 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Composable
 fun HomePageScreen(
-    accessToken: String,
     client: HttpClient,
+    accessToken: String,
+    userIdentifier: String,
     onMessageClick: CallbackEvent<MessageData>,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     val scope = rememberCoroutineScope()
-    val user = LocalCurrentUser.current
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState() }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
@@ -152,7 +151,7 @@ fun HomePageScreen(
                             sendInteraction(
                                 accessToken,
                                 InteractionInfoData(
-                                    userIdentifier = user?.identifier.toString(),
+                                    userIdentifier = userIdentifier,
                                     messageExtId = message.externalId,
                                     type = InteractionType.archive,
                                 ),

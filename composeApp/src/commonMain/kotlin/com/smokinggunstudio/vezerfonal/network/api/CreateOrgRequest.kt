@@ -16,7 +16,8 @@ suspend fun createOrgRequest(
     val response = client
         .post(NetworkConstants.Endpoints.CREATE_ORG) { setBody(org) }
     
-    val ok = response.status == HttpStatusCode.OK
-    return if (!ok) throw NotCreatedException()
-    else ok
+    when (response.status) {
+        HttpStatusCode.OK -> return true
+        else -> throw NotCreatedException()
+    }
 }

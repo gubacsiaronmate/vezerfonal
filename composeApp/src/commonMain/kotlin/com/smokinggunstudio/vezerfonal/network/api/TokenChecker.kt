@@ -11,7 +11,8 @@ suspend fun getAccessToken(tokenStorage: TokenStorage, client: HttpClient): Stri
     val savedTokens = tokenStorage.getTokens()
         ?: throw UnauthorizedException()
     
-    val isAccessTokenValid = checkAccessTokenValidity(savedTokens.accessToken, client)
+    val isAccessTokenValid =
+        checkAccessTokenValidity(savedTokens.accessToken, client)
     
     if(isAccessTokenValid)
         return savedTokens.accessToken

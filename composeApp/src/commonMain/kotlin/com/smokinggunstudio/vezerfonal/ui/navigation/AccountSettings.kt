@@ -11,6 +11,7 @@ import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.screens.AccountSettingsScreen
 import io.ktor.client.HttpClient
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 
 data class AccountSettings(
     val token: String,
-    val user: UserData,
+    val userStr: String,
 ) : Screen {
     @Composable
     override fun Content() {
@@ -27,11 +28,11 @@ data class AccountSettings(
         val navigator = LocalNavigator.currentOrThrow
         
         AccountSettingsScreen(
-            user = user,
+            user = userStr.toDTO<UserData>(),
             client = client,
             accessToken = token,
             tokenStorage = tokenStorage,
-            onLogOutClick = { navigator.replaceAll(Landing()) },
+            onLogOutClick = { navigator.replaceAll(Landing) },
             onChangePasswordClick = { navigator.push(ChangePassword) }
         )
     }

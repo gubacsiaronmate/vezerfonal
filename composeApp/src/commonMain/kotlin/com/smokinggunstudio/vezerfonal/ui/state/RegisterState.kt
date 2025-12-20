@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
 import com.smokinggunstudio.vezerfonal.data.UserData
+import kotlinx.serialization.Serializable
 
+@Serializable
 interface RegisterState {
     val email: String
     val password: String
