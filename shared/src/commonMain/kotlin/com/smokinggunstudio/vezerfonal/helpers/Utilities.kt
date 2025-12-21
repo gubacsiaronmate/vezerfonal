@@ -1,6 +1,9 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.DTO
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.data.UserInteractionData
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -42,3 +45,6 @@ inline fun log(message: () -> String) {
     println(message())
     repeat(5) { println("\u200E") }
 }
+
+fun List<Pair<UserData, InteractionInfoData>>.toListOfDTO(): List<UserInteractionData> =
+    this.map { (user, interaction) -> UserInteractionData(user, interaction) }

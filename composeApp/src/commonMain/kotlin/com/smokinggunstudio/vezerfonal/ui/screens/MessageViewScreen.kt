@@ -1,47 +1,36 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.UserInteractionData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
-import com.smokinggunstudio.vezerfonal.network.api.getReactionsByMessageExtId
+import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
-import com.smokinggunstudio.vezerfonal.ui.components.DisabledBottomPanel
-import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
-import com.smokinggunstudio.vezerfonal.ui.components.HorizontallyScrollableTagList
-import com.smokinggunstudio.vezerfonal.ui.components.RecipientReactionBottomPanel
-import com.smokinggunstudio.vezerfonal.ui.components.SentMessageBottomSheet
+import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
-import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.archive
 import vezerfonal.composeapp.generated.resources.status
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageViewScreen(
     accessToken: String,
@@ -58,14 +47,18 @@ fun MessageViewScreen(
     val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
     val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
     var selectedReaction by remember { mutableStateOf<String?>(null) }
-    var reactions by remember { mutableStateOf<List<InteractionInfoData>>(emptyList()) }
+    var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     
     if (isSenderView)
         LaunchedEffect(Unit) {
             loading = true
-            reactions = try {
-                getReactionsByMessageExtId(client, accessToken, message.externalId)
+            reactionsAndUsers = try {
+                getReactionsAndUsersByMessageExtId(
+                    client = client,
+                    accessToken = accessToken,
+                    messageExtId = message.externalId
+                )
             } catch (e: Exception) {
                 error = e
                 emptyList()
@@ -149,12 +142,30 @@ fun MessageViewScreen(
                 val shouldDisabledReactionBarBeDisplayed =
                     (message.reactedWith != null || selectedReaction != null) || isArchived
                 val shouldBottomSheetBeDisplayed =
-                    isSenderView && !loading && error == null && reactions.isNotEmpty()
+                    isSenderView && !loading && error == null && reactionsAndUsers.isNotEmpty()
                 val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
                 
                 when {
-                    shouldBottomSheetBeDisplayed ->
-                        SentMessageBottomSheet(accessToken, reactions.map { it.toSerialized() })
+                    shouldBottomSheetBeDisplayed -> {
+                        ModalBottomSheet(
+                            onDismissRequest = { },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface)
+                        ) {
+                            Column(
+                                Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                reactionsAndUsers
+                                    .forEach { (user, reaction) ->
+                                        SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+                                    }
+                            }
+                        }
+                    }
                     shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction.toString(),
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
@@ -183,12 +194,14 @@ fun MessageViewScreen(
                 }
             }
         }
-        if (error != null)
+        if (error != null) {
             ErrorDialog(
                 errorMessage = error!!.message!!,
                 isUnauthed = error is UnauthorizedException,
                 modifier = Modifier.align(Alignment.Center)
             )
+            throw error!!
+        }
         
         if (loading)
             Box(Modifier.fillMaxSize()) {

@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable fun ProfilePicture(
     size: Dp = 120.dp,

@@ -10,9 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.stringResource
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.email_address
 
 @Composable
 fun EmailField(

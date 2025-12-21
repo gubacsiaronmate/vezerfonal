@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.Image
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun TagCard(

@@ -9,20 +9,14 @@ import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.UserData
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.name
 import vezerfonal.composeapp.generated.resources.reveal_email
 import vezerfonal.composeapp.generated.resources.reveal_id
 

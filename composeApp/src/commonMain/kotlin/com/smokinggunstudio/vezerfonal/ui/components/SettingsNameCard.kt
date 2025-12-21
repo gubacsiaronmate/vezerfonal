@@ -12,12 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.name
 
 @Composable
 fun SettingsNameCard(

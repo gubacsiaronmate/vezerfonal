@@ -2,23 +2,15 @@ package com.smokinggunstudio.vezerfonal.routing.api
 
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
-import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
-import com.smokinggunstudio.vezerfonal.helpers.log
-import com.smokinggunstudio.vezerfonal.helpers.toInteractionInfo
-import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
-import com.smokinggunstudio.vezerfonal.helpers.tryInternal
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.principal
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.route
-import jdk.internal.joptsimple.internal.Messages.message
-import java.awt.TrayIcon
+import com.smokinggunstudio.vezerfonal.repositories.UserRepository
+import io.ktor.http.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Route.interactionRoute() {
     route("/reaction") {
@@ -49,7 +41,16 @@ fun Route.interactionRoute() {
                     .map { it.toDTO() }
             } ?: return@get call.respond(HttpStatusCode.InternalServerError)
             
-            call.respond(interactions)
+            val interactionsAndUsers = tryInternal("Unable to get users") {
+                interactions.map {
+                    val u = UserRepository(db)
+                        .getUserByIdentifier(it.userIdentifier)
+                        ?: return@tryInternal null
+                    Pair(u.toDTO(), it)
+                }
+            } ?: return@get call.respond(HttpStatusCode.InternalServerError)
+            
+            call.respond(interactionsAndUsers.toListOfDTO())
         }
         
         post("/send") {
