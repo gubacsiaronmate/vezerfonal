@@ -156,6 +156,23 @@ fun MessageViewScreen(
                 val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
                 
                 when {
+                    shouldBottomSheetBeDisplayed && showReactionsSheet -> {
+                        ModalBottomSheet(
+                            sheetState = sheetState,
+                            onDismissRequest = { dismissReactionsSheet() },
+                        ) {
+                            Column(
+                                Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                reactionsAndUsers.forEach { (user, reaction) ->
+                                    SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+                                }
+                            }
+                        }
+                    }
                     
                     shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction.toString(),
@@ -199,23 +216,5 @@ fun MessageViewScreen(
             Box(Modifier.fillMaxSize()) {
                 LinearProgressIndicator(Modifier.align(Alignment.Center))
             }
-        
-        if (showReactionsSheet) {
-            ModalBottomSheet(
-                sheetState = sheetState,
-                onDismissRequest = { dismissReactionsSheet() },
-            ) {
-                Column(
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    reactionsAndUsers.forEach { (user, reaction) ->
-                        SentMsgBottomSheetRow(reaction.reaction!!, user.name)
-                    }
-                }
-            }
-        }
     }
 }
