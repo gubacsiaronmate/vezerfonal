@@ -50,12 +50,6 @@ fun MessageViewScreen(
     var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     
-//    fun dismissReactionsSheet() {
-//        scope.launch {
-//            sheetState.bottomSheetState.hide()
-//        }.invokeOnCompletion { showReactionsSheet = false }
-//    }
-    
     val shouldDisabledReactionBarBeDisplayed =
         (message.reactedWith != null || selectedReaction != null) || isArchived
     val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
