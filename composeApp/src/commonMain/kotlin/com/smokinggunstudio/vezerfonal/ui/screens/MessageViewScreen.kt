@@ -49,6 +49,16 @@ fun MessageViewScreen(
     var selectedReaction by remember { mutableStateOf<String?>(null) }
     var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
+    var showReactionsSheet by remember { mutableStateOf(true) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+    )
+    
+    fun dismissReactionsSheet() {
+        scope.launch {
+            sheetState.hide()
+        }.invokeOnCompletion { showReactionsSheet = false }
+    }
     
     if (isSenderView)
         LaunchedEffect(Unit) {
@@ -146,30 +156,12 @@ fun MessageViewScreen(
                 val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
                 
                 when {
-                    shouldBottomSheetBeDisplayed -> {
-                        ModalBottomSheet(
-                            onDismissRequest = { },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface)
-                        ) {
-                            Column(
-                                Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                                    .verticalScroll(rememberScrollState())
-                            ) {
-                                reactionsAndUsers
-                                    .forEach { (user, reaction) ->
-                                        SentMsgBottomSheetRow(reaction.reaction!!, user.name)
-                                    }
-                            }
-                        }
-                    }
+                    
                     shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
                         reaction = message.reactedWith ?: selectedReaction.toString(),
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                     )
+                    
                     shouldReactionBarBeDisplayed -> RecipientReactionBottomPanel(
                         availableReactions = message.availableReactions,
                         modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
@@ -207,5 +199,23 @@ fun MessageViewScreen(
             Box(Modifier.fillMaxSize()) {
                 LinearProgressIndicator(Modifier.align(Alignment.Center))
             }
+        
+        if (showReactionsSheet) {
+            ModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = { dismissReactionsSheet() },
+            ) {
+                Column(
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    reactionsAndUsers.forEach { (user, reaction) ->
+                        SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+                    }
+                }
+            }
+        }
     }
 }
