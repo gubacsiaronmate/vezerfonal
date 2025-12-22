@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.DropdownSearchBar
@@ -31,14 +33,16 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LoginScreen(
     client: HttpClient,
-    orgs: List<OrgData>,
+    orgsStr: List<String>,
     onClick: CallbackEvent<TokenResponse>
 ) {
+    val orgs = orgsStr.map { it.toDTO<OrgData>() }
     val loginState by remember { mutableStateOf(LoginState()) }
     var selectedOrgExtId by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     var counter by remember { mutableStateOf(0) }
     var error by remember { mutableStateOf<Throwable?>(null) }
+    val ourTestOrgExtId = "f9b14a894c80421c"
     
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -57,9 +61,12 @@ fun LoginScreen(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
-                    modifier = Modifier.clickable {
-                        if (counter < 3) counter++
-                        else selectedOrgExtId = "f9b14a894c80421c"
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        if (counter <= 3) counter++
+                        else selectedOrgExtId = ourTestOrgExtId
                     }
                 )
             }
@@ -103,10 +110,10 @@ fun LoginScreen(
                 ) {
                     AnimatedButton(
                         enabled = (
-                                loginState.email.isNotBlank() &&
-                                        loginState.password.isNotBlank() &&
-                                        selectedOrgExtId.isNotBlank()
-                                ),
+                            loginState.email.isNotBlank() &&
+                            loginState.password.isNotBlank() &&
+                            selectedOrgExtId.isNotBlank()
+                        ),
                         onClick = {
                             try {
                                 scope.launch {
@@ -117,7 +124,7 @@ fun LoginScreen(
                                     )
                                     onClick(tokens)
                                 }
-                            } catch (e: UnauthorizedException) {
+                            } catch (e: Exception) {
                                 error = e
                             }
                         },
@@ -136,27 +143,14 @@ fun LoginScreen(
                             .padding(vertical = 20.dp)
                             .clickable(onClick = { })
                     )
-                    
-                    /*OrOptionDivider()
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    AnimatedButton(
-                        onClick = { },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                    ) { Text(stringResource(Res.string.continue_google)) }
-                    
-                    AnimatedButton(
-                        onClick = { },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                    ) { Text(stringResource(Res.string.continue_apple)) }*/
                 }
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, true)
+        if (error != null)
+            ErrorDialog(
+                errorMessage = error!!.message!!,
+                isUnauthed = error is UnauthorizedException,
+                modifier = Modifier.align(Alignment.Center)
+            )
     }
 }

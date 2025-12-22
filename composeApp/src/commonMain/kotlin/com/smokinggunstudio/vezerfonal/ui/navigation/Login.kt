@@ -14,7 +14,7 @@ import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
 data class Login(
-    val orgs: List<String>,
+    val orgsStr: List<String>,
 ) : Screen {
     @Composable
     override fun Content() {
@@ -23,7 +23,7 @@ data class Login(
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
-        LoginScreen(client, orgs.map { it.toDTO<OrgData>() }) { newTokens ->
+        LoginScreen(client, orgsStr) { newTokens ->
             log { newTokens.toString() }
             navigator.push(HomePage(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }

@@ -54,10 +54,12 @@ internal inline fun <reified T : NamedDTO> DropdownSearchBar(
             filtered.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item.name) },
-                    onClick = { selectedItem = item.name; onItemSelected(item) }
+                    onClick = {
+                        selectedItem = item.name
+                        onItemSelected(item)
+                    }
                 )
             }
         }
-        
     }
 }
