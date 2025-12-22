@@ -49,16 +49,16 @@ fun MessageViewScreen(
     var selectedReaction by remember { mutableStateOf<String?>(null) }
     var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
-    var showReactionsSheet by remember { mutableStateOf(true) }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false,
-    )
     
-    fun dismissReactionsSheet() {
-        scope.launch {
-            sheetState.hide()
-        }.invokeOnCompletion { showReactionsSheet = false }
-    }
+//    fun dismissReactionsSheet() {
+//        scope.launch {
+//            sheetState.bottomSheetState.hide()
+//        }.invokeOnCompletion { showReactionsSheet = false }
+//    }
+    
+    val shouldDisabledReactionBarBeDisplayed =
+        (message.reactedWith != null || selectedReaction != null) || isArchived
+    val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
     
     if (isSenderView)
         LaunchedEffect(Unit) {
@@ -76,145 +76,137 @@ fun MessageViewScreen(
             loading = false
         }
     
-    Box(Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-                .background(color = MaterialTheme.colorScheme.surface),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    verticalArrangement = Arrangement.Top,
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+    BottomSheetScaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+            .background(color = MaterialTheme.colorScheme.surface),
+        sheetContent = {
+            Column(
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                reactionsAndUsers.forEach { (user, reaction) ->
+                    SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+                }
+            }
+        }
+    ) {
+        Box(Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalArrangement = Arrangement.Top,
                     ) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                maxLines = 1,
+                                text = message.title,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.headlineLarge,
+                            )
+                            
+                            Icon(
+                                imageVector =
+                                    if (message.isUrgent) Icons.Filled.Error
+                                    else Icons.Outlined.ErrorOutline,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                            )
+                        }
+                        
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                maxLines = 1,
+                                text = message.author.name,
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = statusString,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                    
+                    HorizontallyScrollableTagList(message.tags)
+                }
+                
+                HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
+                
+                Box(Modifier.fillMaxSize()) {
+                    Column(Modifier.verticalScroll(rememberScrollState())) {
                         Text(
-                            maxLines = 1,
-                            text = message.title,
-                            fontWeight = FontWeight.Bold,
+                            text = message.content,
                             color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.headlineLarge,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(16.dp).fillMaxHeight(),
+                        )
+                    }
+                    
+                    when {
+                        shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
+                            reaction = message.reactedWith ?: selectedReaction.toString(),
+                            modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                         )
                         
-                        Icon(
-                            imageVector =
-                                if (message.isUrgent) Icons.Filled.Error
-                                else Icons.Outlined.ErrorOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
-                        )
-                    }
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            maxLines = 1,
-                            text = message.author.name,
-                            fontWeight = FontWeight.Medium,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = statusString,
-                            maxLines = 1,
-                            fontWeight = FontWeight.Medium,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-                
-                HorizontallyScrollableTagList(message.tags)
-            }
-            
-            HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
-            
-            Box(Modifier.fillMaxSize()) {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    Text(
-                        text = message.content,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp).fillMaxHeight(),
-                    )
-                }
-                
-                val shouldDisabledReactionBarBeDisplayed =
-                    (message.reactedWith != null || selectedReaction != null) || isArchived
-                val shouldBottomSheetBeDisplayed =
-                    isSenderView && !loading && error == null && reactionsAndUsers.isNotEmpty()
-                val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
-                
-                when {
-                    shouldBottomSheetBeDisplayed && showReactionsSheet -> {
-                        ModalBottomSheet(
-                            sheetState = sheetState,
-                            onDismissRequest = { dismissReactionsSheet() },
+                        shouldReactionBarBeDisplayed -> RecipientReactionBottomPanel(
+                            availableReactions = message.availableReactions,
+                            modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
+                            onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
                         ) {
-                            Column(
-                                Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                                    .verticalScroll(rememberScrollState())
-                            ) {
-                                reactionsAndUsers.forEach { (user, reaction) ->
-                                    SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+                            selectedReaction = it
+                            try {
+                                scope.launch {
+                                    val interaction = InteractionInfoData(
+                                        userIdentifier = userIdentifier,
+                                        messageExtId = message.externalId,
+                                        type = InteractionType.reaction,
+                                        reaction = it
+                                    )
+                                    
+                                    sendInteraction(accessToken, interaction, client)
                                 }
+                            } catch (e: UnauthorizedException) {
+                                error = e
                             }
-                        }
-                    }
-                    
-                    shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
-                        reaction = message.reactedWith ?: selectedReaction.toString(),
-                        modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
-                    )
-                    
-                    shouldReactionBarBeDisplayed -> RecipientReactionBottomPanel(
-                        availableReactions = message.availableReactions,
-                        modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
-                        onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
-                    ) {
-                        selectedReaction = it
-                        try {
-                            scope.launch {
-                                val interaction = InteractionInfoData(
-                                    userIdentifier = userIdentifier,
-                                    messageExtId = message.externalId,
-                                    type = InteractionType.reaction,
-                                    reaction = it
-                                )
-                                
-                                sendInteraction(accessToken, interaction, client)
-                            }
-                        } catch (e: UnauthorizedException) {
-                            error = e
                         }
                     }
                 }
             }
-        }
-        if (error != null) {
-            ErrorDialog(
-                errorMessage = error!!.message!!,
-                isUnauthed = error is UnauthorizedException,
-                modifier = Modifier.align(Alignment.Center)
-            )
-            throw error!!
-        }
-        
-        if (loading)
-            Box(Modifier.fillMaxSize()) {
-                LinearProgressIndicator(Modifier.align(Alignment.Center))
+            if (error != null) {
+                ErrorDialog(
+                    errorMessage = error!!.message!!,
+                    isUnauthed = error is UnauthorizedException,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                throw error!!
             }
+            
+            if (loading)
+                Box(Modifier.fillMaxSize()) {
+                    LinearProgressIndicator(Modifier.align(Alignment.Center))
+                }
+        }
     }
 }

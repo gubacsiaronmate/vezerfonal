@@ -52,7 +52,6 @@ data object Landing: Screen {
                 Box(Modifier.fillMaxSize()) {
                     LinearProgressIndicator(Modifier.align(Alignment.Center))
                 }
-                return
             }
             
             if (token != null) {
