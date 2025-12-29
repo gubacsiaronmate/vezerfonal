@@ -1,3 +1,3 @@
 package com.smokinggunstudio.vezerfonal.ui.state.model
 
-data class CreateOrgStateModel(val orgName: String = "")
+data class SearchBarStateModel(val query: String = "")

@@ -12,5 +12,5 @@ fun GroupSelect(
     onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<GroupData>>
 ) {
-    GeneralSelectionScreen(state, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(state, onCancelClick, onApplyClick)
 }

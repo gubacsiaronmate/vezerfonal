@@ -3,6 +3,10 @@ package com.smokinggunstudio.vezerfonal.ui.state
 import com.smokinggunstudio.vezerfonal.data.UserData
 import kotlinx.serialization.Serializable
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 @Serializable
 interface RegisterState {
     val email: String

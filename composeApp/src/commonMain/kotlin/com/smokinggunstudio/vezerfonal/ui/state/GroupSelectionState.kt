@@ -3,6 +3,10 @@ package com.smokinggunstudio.vezerfonal.ui.state
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.GroupData
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 class GroupSelectionState : SelectionState<GroupData> {
     private var _allItems = mutableStateOf<List<GroupData>>(emptyList())
     override val allItems: List<GroupData> get() = _allItems.value

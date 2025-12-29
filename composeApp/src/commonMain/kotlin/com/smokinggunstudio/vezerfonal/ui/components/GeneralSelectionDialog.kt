@@ -23,7 +23,7 @@ import vezerfonal.composeapp.generated.resources.cancel
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-internal inline fun <reified T : NamedDTO> GeneralSelectionScreen(
+internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
     state: SelectionState<T>,
     noinline onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<T>>
@@ -38,12 +38,10 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionScreen(
     ) {
         SearchBar(
             state = searchBarState,
-            onClick = object : SuspendCallbackClickEvent<SearchBarState> {
-                override suspend fun invoke(returns: SearchBarState) {
-                    val localSearch = state.allItems.filter { it.name.contains(returns.query) }
-                    state.visibleItems = localSearch.ifEmpty {
-                        state.allItems // TODO: Group get
-                    }
+            onClick = SuspendCallbackClickEvent { query ->
+                val localSearch = state.allItems.filter { it.name.contains(query.query) }
+                state.visibleItems = localSearch.ifEmpty {
+                    state.allItems // TODO: Group get
                 }
             }
         )

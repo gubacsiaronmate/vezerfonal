@@ -4,6 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import com.smokinggunstudio.vezerfonal.data.UserData
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 class NonAdminRegisterState : RegisterState {
     private val _regCode = mutableStateOf("")
     val regCode: String get() = _regCode.value

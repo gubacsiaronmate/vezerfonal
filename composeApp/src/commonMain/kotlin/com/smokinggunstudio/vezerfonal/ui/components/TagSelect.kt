@@ -12,5 +12,5 @@ fun TagSelect(
     onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<TagData>>
 ) {
-    GeneralSelectionScreen(state, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(state, onCancelClick, onApplyClick)
 }

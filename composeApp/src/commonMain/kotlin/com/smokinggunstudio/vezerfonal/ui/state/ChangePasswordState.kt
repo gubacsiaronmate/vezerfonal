@@ -3,8 +3,8 @@ package com.smokinggunstudio.vezerfonal.ui.state
 import androidx.compose.runtime.mutableStateOf
 
 class ChangePasswordState {
-    private val _currentPassword = mutableStateOf("")
-    val currentPassword: String get() = _currentPassword.value
+    private val _passwordChangeCode = mutableStateOf(0)
+    val passwordChangeCode: Int get() = _passwordChangeCode.value
     
     private val _newPassword = mutableStateOf("")
     val newPassword: String get() = _newPassword.value
@@ -12,8 +12,8 @@ class ChangePasswordState {
     private val _confirmPassword = mutableStateOf("")
     val confirmPassword: String get() = _confirmPassword.value
     
-    fun updateCurrentPassword(newPassword: String) {
-        _currentPassword.value = newPassword
+    fun updatePasswordChangeCode(newPassword: String) {
+        _passwordChangeCode.value = newPassword.toInt()
     }
     
     fun updateNewPassword(newPassword: String) {

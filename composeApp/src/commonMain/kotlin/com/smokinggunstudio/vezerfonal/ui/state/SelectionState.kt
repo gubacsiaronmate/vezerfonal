@@ -1,5 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.state
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 interface SelectionState<T> {
     val allItems: List<T>
     

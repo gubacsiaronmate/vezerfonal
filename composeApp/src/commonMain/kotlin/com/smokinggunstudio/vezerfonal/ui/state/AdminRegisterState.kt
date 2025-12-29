@@ -4,6 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.UserData
 import kotlinx.serialization.Serializable
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 @Serializable
 class AdminRegisterState : RegisterState {
     private val _orgName = mutableStateOf("")

@@ -1,4 +1,4 @@
-package com.smokinggunstudio.vezerfonal.ui.state
+package com.smokinggunstudio.vezerfonal.ui.state.controller
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -9,38 +9,37 @@ import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.nowUTC
 import com.smokinggunstudio.vezerfonal.ui.helpers.ifNotEmpty
+import com.smokinggunstudio.vezerfonal.ui.state.model.WriteMessageStateModel
 import kotlinx.datetime.LocalDateTime
 import kotlin.collections.emptyList
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-@Deprecated(
-    message = "Redone",
-    level = DeprecationLevel.ERROR
-)
-class WriteMessageState {
-    private val _title = mutableStateOf("")
+class WriteMessageStateController(initial: WriteMessageStateModel) {
+    private val _title = mutableStateOf(initial.title)
     val title: String get() = _title.value
     
-    private val _content = mutableStateOf("")
+    private val _content = mutableStateOf(initial.content)
     val content: String get() = _content.value
     
-    private val _isUrgent = mutableStateOf(false)
+    private val _isUrgent = mutableStateOf(initial.isUrgent)
     val isUrgent: Boolean get() = _isUrgent.value
     
-    private val _tags = mutableStateOf<List<String>>(emptyList())
+    private val _tags = mutableStateOf(initial.tags)
     val tags: List<String> get() = _tags.value
     
-    private val _status = mutableStateOf("")
+    private val _status = mutableStateOf(initial.status)
     val status: String get() = _status.value
 
-    private val _userIdentifiers = mutableStateOf<List<String>>(emptyList())
+    private val _userIdentifiers = mutableStateOf(initial.userIdentifiers)
     val userIdentifiers: List<String> get() = _userIdentifiers.value
     
-    private val _availableReactions: Array<MutableState<String?>> = Array(8) { mutableStateOf(null) }
+    // Array(8) { mutableStateOf(null) }
+    private val _availableReactions: Array<MutableState<String?>> =
+        initial.availableReactions.map { mutableStateOf(it) }.toTypedArray()
     val availableReactions: Array<MutableState<String?>> get() = _availableReactions
     
-    private val _groups = mutableStateOf<List<ExternalId>>(emptyList())
+    private val _groups = mutableStateOf(initial.groups)
     val groups: List<ExternalId> get() = _groups.value
     
     
@@ -106,4 +105,15 @@ class WriteMessageState {
         _availableReactions.forEach { it.value = null }
         _groups.value = emptyList()
     }
+    
+    fun snapshot() = WriteMessageStateModel(
+        title = title,
+        content = content,
+        isUrgent = isUrgent,
+        tags = tags,
+        status = status,
+        userIdentifiers = userIdentifiers,
+        availableReactions = availableReactions.map { it.value }.toTypedArray(),
+        groups = groups
+    )
 }

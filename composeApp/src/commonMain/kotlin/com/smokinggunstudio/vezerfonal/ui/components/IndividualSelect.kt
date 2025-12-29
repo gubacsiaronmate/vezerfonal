@@ -12,5 +12,5 @@ fun IndividualSelect(
     onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<UserData>>
 ) {
-    GeneralSelectionScreen(state, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(state, onCancelClick, onApplyClick)
 }

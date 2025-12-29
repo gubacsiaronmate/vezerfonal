@@ -15,7 +15,7 @@ import kotlin.reflect.full.memberProperties
 fun Class<*>.isPrimitiveType(): Boolean =
     this.isPrimitive || this in setOf(
         String::class.java,
-        java.lang.Boolean::class.java,
+        java.lang.Boolean::class,
         Byte::class.java,
         Short::class.java,
         Integer::class.java,
@@ -25,19 +25,20 @@ fun Class<*>.isPrimitiveType(): Boolean =
         Character::class.java
     )
 
-fun <T: Any> T.toFlatString(): String = this::class.memberProperties.joinToString(" ") { property ->
-    @Suppress("UNCHECKED_CAST")
-    val prop = (property as KProperty1<T, *>).get(this)
-    when (prop) {
-        null -> ""
-        is List<*> -> prop.joinToString(" ") {
-            if (it == null) ""
-            else if (it::class.java.isPrimitiveType()) it.toString()
-            else it.toFlatString()
+fun <T: Any> T.toFlatString(): String =
+    this::class.memberProperties.joinToString(" ") { property ->
+        @Suppress("UNCHECKED_CAST")
+        val prop = (property as KProperty1<T, *>).get(this)
+        when (prop) {
+            null -> ""
+            is List<*> -> prop.joinToString(" ") {
+                if (it == null) ""
+                else if (it::class.java.isPrimitiveType()) it.toString()
+                else it.toFlatString()
+            }
+            else -> if (prop::class.java.isPrimitiveType()) prop.toString() else prop.toFlatString()
         }
-        else -> if (prop::class.java.isPrimitiveType()) prop.toString() else prop.toFlatString()
     }
-}
 
 fun <T: Any> T.containsInParameters(substring: String, ignoreCase: Boolean = true): Boolean {
     val searchableString = this.toFlatString()

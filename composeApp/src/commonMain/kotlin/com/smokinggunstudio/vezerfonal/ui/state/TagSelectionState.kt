@@ -3,6 +3,10 @@ package com.smokinggunstudio.vezerfonal.ui.state
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.TagData
 
+@Deprecated(
+    message = "Redone",
+    level = DeprecationLevel.ERROR
+)
 class TagSelectionState : SelectionState<TagData> {
     private var _allItems = mutableStateOf<List<TagData>>(emptyList())
     override val allItems: List<TagData> get() = _allItems.value

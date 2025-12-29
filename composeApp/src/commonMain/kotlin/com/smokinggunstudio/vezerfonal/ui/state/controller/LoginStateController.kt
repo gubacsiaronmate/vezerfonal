@@ -1,19 +1,16 @@
-package com.smokinggunstudio.vezerfonal.ui.state
+package com.smokinggunstudio.vezerfonal.ui.state.controller
 
 import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.ui.state.model.LoginStateModel
 
-@Deprecated(
-    message = "Redone",
-    level = DeprecationLevel.ERROR
-)
-class LoginState {
-    private val _email = mutableStateOf("")
+class LoginStateController(initial: LoginStateModel) {
+    private val _email = mutableStateOf(initial.email)
     val email: String get() = _email.value
     
-    private val _password = mutableStateOf("")
+    private val _password = mutableStateOf(initial.password)
     val password: String get() = _password.value
     
-    private val _rememberMe = mutableStateOf(true)
+    private val _rememberMe = mutableStateOf(initial.rememberMe)
     val rememberMe: Boolean get() = _rememberMe.value
     
     fun updateEmail(newEmail: String) {
@@ -27,4 +24,6 @@ class LoginState {
     fun updateRememberMe(newValue: Boolean) {
         _rememberMe.value = newValue
     }
+    
+    fun snapshot() = LoginStateModel(email, password, rememberMe)
 }

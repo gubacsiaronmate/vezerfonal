@@ -22,7 +22,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.state.ChangePasswordState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
@@ -30,7 +29,7 @@ fun ChangePasswordScreen() {
     val changePasswordState by remember { mutableStateOf(ChangePasswordState()) }
     val scope = rememberCoroutineScope()
     var isSnackBarVisible by remember { mutableStateOf(false) }
-    Box{
+    Box {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -48,10 +47,10 @@ fun ChangePasswordScreen() {
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedTextField(
-                    value = changePasswordState.currentPassword,
-                    onValueChange = changePasswordState::updateCurrentPassword,
+                    value = changePasswordState.passwordChangeCode.toString(),
+                    onValueChange = changePasswordState::updatePasswordChangeCode,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    supportingText = {Text(stringResource(Res.string.enter_code))},
+                    supportingText = { Text(stringResource(Res.string.enter_code)) },
                     label = {
                         Text(
                             stringResource(Res.string.code),
