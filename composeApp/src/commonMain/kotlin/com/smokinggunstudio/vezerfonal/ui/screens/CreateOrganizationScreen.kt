@@ -6,12 +6,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,10 +15,11 @@ import com.smokinggunstudio.vezerfonal.helpers.NotCreatedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
-import io.ktor.client.request.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -33,11 +29,12 @@ import vezerfonal.composeapp.generated.resources.organization_name
 
 @Composable
 fun CreateOrganizationScreen(
-    state: AdminRegisterState,
+    snapshot: RegisterStateModel.AdminRegisterStateModel,
     client: HttpClient,
-    onClick: ClickEvent
+    onClick: CallbackEvent<RegisterStateModel>
 ) {
     val scope = rememberCoroutineScope()
+    val state = remember { AdminRegisterStateController(snapshot) }
     var error by remember { mutableStateOf<Throwable?>(null) }
 
     Box(
@@ -84,7 +81,7 @@ fun CreateOrganizationScreen(
                                     externalId = getExtId()
                                 ),
                                 client = client
-                            )) onClick()
+                            )) onClick(state.snapshot())
                         }
                     } catch (e: NotCreatedException) { error = e }
                 }

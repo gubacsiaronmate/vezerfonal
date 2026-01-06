@@ -6,7 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -15,9 +15,8 @@ import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
-import com.smokinggunstudio.vezerfonal.ui.state.NonAdminRegisterState
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create_organization
@@ -25,9 +24,8 @@ import vezerfonal.composeapp.generated.resources.proceed
 import vezerfonal.composeapp.generated.resources.registration_code
 
 @Composable fun InitialRegisterScreen(
-    onContinueClick: ClickEvent,
     onCreateOrgClick: ClickEvent,
-    returnRegState: CallbackEvent<RegisterState>,
+    onContinueClick: CallbackEvent<RegisterStateModel>,
 ) {
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
@@ -37,7 +35,9 @@ import vezerfonal.composeapp.generated.resources.registration_code
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
     ) {
-        val nonAdminRegisterState = rememberSaveable(saver = NonAdminRegisterState.Saver) { NonAdminRegisterState() }
+        val nonAdminRegisterState = remember {
+            NonAdminRegisterStateController(RegisterStateModel.NonAdminRegisterStateModel())
+        }
         
         RegisterText()
         
@@ -62,10 +62,7 @@ import vezerfonal.composeapp.generated.resources.registration_code
                     .fillMaxWidth()
             ) {
                 AnimatedButton(
-                    onClick = {
-                        returnRegState(nonAdminRegisterState)
-                        onContinueClick()
-                    },
+                    onClick = { onContinueClick(nonAdminRegisterState.snapshot()) },
                     enabled = nonAdminRegisterState.regCode.isNotBlank(),
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
@@ -82,14 +79,13 @@ import vezerfonal.composeapp.generated.resources.registration_code
                 
                 AnimatedButton(
                     onClick = {
-                        returnRegState(AdminRegisterState())
                         onCreateOrgClick()
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
                     Text(
                         text = stringResource(Res.string.create_organization),
-                    color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }

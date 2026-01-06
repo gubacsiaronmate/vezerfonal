@@ -10,16 +10,13 @@ import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.ui.screens.CredentialsRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.InitialRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.ProfileCreationScreen
-import com.smokinggunstudio.vezerfonal.ui.state.AdminRegisterState
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import kotlinx.coroutines.launch
 
 data class Register(
     val page: Int,
-    val regState: RegisterState?,
+    val state: RegisterStateModel = RegisterStateModel.NonAdminRegisterStateModel(),
 ) : Screen {
-    lateinit var registerState: RegisterState
-    
     @Composable
     override fun Content() {
         val scope = rememberCoroutineScope()
@@ -29,18 +26,19 @@ data class Register(
         
         when (page) {
             1 -> InitialRegisterScreen(
-                onContinueClick = { navigator.push(Register(2, regState ?: registerState)) },
                 onCreateOrgClick = {
-                    navigator.replace(CreateOrg((regState ?: registerState) as AdminRegisterState))
+                    navigator.replace(CreateOrg(RegisterStateModel.AdminRegisterStateModel()))
                 },
-                returnRegState = { registerState = it },
-            ) 
-            2 -> CredentialsRegisterScreen(regState ?: registerState) {
-                navigator.push(Register(3, regState ?: registerState))
+                onContinueClick = {
+                    navigator.push(Register(2, it))
+                },
+            )
+            2 -> CredentialsRegisterScreen(state) {
+                navigator.push(Register(3, it))
             }
-            3 -> ProfileCreationScreen(regState ?: registerState, client) { tokens ->
+            3 -> ProfileCreationScreen(state, client) { tokens ->
                 scope.launch { tokenStorage.saveTokens(tokens) }
-                navigator.push(HomePage(tokens.accessToken))
+                navigator.push(Home(tokens.accessToken))
             }
         }
         

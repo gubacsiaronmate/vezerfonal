@@ -10,4 +10,7 @@ data class TagData(
     override fun toSerialized(): String {
         return Json.encodeToString(this)
     }
+    
+    override val externalId: String
+        get() = name
 }

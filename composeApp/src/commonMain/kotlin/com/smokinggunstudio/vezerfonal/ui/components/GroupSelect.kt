@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
+import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
 
 @Composable
 fun GroupSelect(
-    state: GroupSelectionState,
+    snapshot: GroupSelectionStateModel,
     onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<GroupData>>
 ) {
-    GeneralSelectionDialog(state, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(snapshot, onCancelClick, onApplyClick)
 }

@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -21,20 +20,21 @@ import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.*
-import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
+import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
+import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import io.ktor.client.*
-import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.spiralgraphic
 import vezerfonal.composeapp.generated.resources.vezerfonal
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
@@ -48,7 +48,7 @@ fun HomePageScreen(
 ) {
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
-    val messageFilterState = remember { MessageFilterState() }
+    val messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
@@ -135,7 +135,7 @@ fun HomePageScreen(
                 },
                 isFilterOpened = isFilterOpened,
                 messages = messages,
-                messageFilterState = messageFilterState
+                snapshot = messageFilterState.snapshot()
             )
             
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -168,7 +168,7 @@ fun HomePageScreen(
             ) {
                 if (isFilterOpened)
                     MessageFilter(
-                        state = messageFilterState,
+                        snapshot = messageFilterState.snapshot(),
                         tabOpenedClick = { isTagSelectTabOpened = true },
                         modifier = Modifier.align(Alignment.TopCenter)
                     ) { scrollLockedBySliderCallback(it && isFilterOpened) }
@@ -176,7 +176,7 @@ fun HomePageScreen(
                 
                 if (isTagSelectTabOpened)
                     TagSelect(
-                        state = messageFilterState.tagSelectionState,
+                        snapshot = messageFilterState.tagSelectionState,
                         onCancelClick = { isTagSelectTabOpened = false },
                         onApplyClick = { }
                     )

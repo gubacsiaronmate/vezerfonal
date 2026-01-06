@@ -10,12 +10,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
-import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.SearchBarState
-import com.smokinggunstudio.vezerfonal.ui.state.SelectionState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.SearchBarStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.SelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.UserSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.SearchBarStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.SelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
@@ -24,11 +32,21 @@ import vezerfonal.composeapp.generated.resources.cancel
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
-    state: SelectionState<T>,
+    snapshot: SelectionStateModel<T>,
     noinline onCancelClick: ClickEvent,
-    onApplyClick: CallbackEvent<List<T>>
+    onApplyClick: CallbackEvent<List<T>>,
+    noinline prefixContent: ComposableContent = { },
 ) {
-    val searchBarState by remember { mutableStateOf(SearchBarState()) }
+    @Suppress("UNCHECKED_CAST")
+    val state: SelectionStateController<T> = remember {
+        when(snapshot) {
+            is UserSelectionStateModel -> UserSelectionStateController(snapshot)
+            is GroupSelectionStateModel -> GroupSelectionStateController(snapshot)
+            is TagSelectionStateModel -> TagSelectionStateController(snapshot)
+            else -> error("Invalid snapshot")
+        } as SelectionStateController<T>
+    }
+    val searchBarState = remember { SearchBarStateController(SearchBarStateModel()) }
     
     Column(
         modifier = Modifier
@@ -37,22 +55,17 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
             .padding(8.dp)
     ) {
         SearchBar(
-            state = searchBarState,
-            onClick = SuspendCallbackClickEvent { query ->
-                val localSearch = state.allItems.filter { it.name.contains(query.query) }
-                state.visibleItems = localSearch.ifEmpty {
-                    state.allItems // TODO: Group get
-                }
-            }
+            snapshot = searchBarState.snapshot(),
+            onClick = SuspendCallbackClickEvent { state.search(it.query) }
         )
         Box(modifier = Modifier.weight(1F)){
             Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
                 state.visibleItems.forEach {
-                    key(it.name) {
+                    key(it.externalId) {
                         SelectionListItem(
                             item = it,
                             isChecked = it in state.selectedItems,
-                            prefixContent = { if (it is UserData) ProfilePicture(size = 24.dp) }
+                            prefixContent = prefixContent
                         ) { checked -> if (checked) state.addItem(it) else state.removeItem(it) }
                     }
                 }
@@ -77,9 +90,11 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
                     )
                 }
                 Button(
-                    modifier = Modifier
-                        .width(160.dp),
-                    onClick = { onApplyClick(state.selectedItems); onCancelClick() },
+                    modifier = Modifier.width(160.dp),
+                    onClick = {
+                        onApplyClick(state.selectedItems.toList())
+                        onCancelClick()
+                    },
                 ) {
                     Text(
                         text = stringResource(Res.string.applyStr),

@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -21,10 +20,10 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.DropdownSearchBar
 import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
-import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.state.LoginState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.LoginStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.LoginStateModel
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -37,7 +36,7 @@ fun LoginScreen(
     onClick: CallbackEvent<TokenResponse>
 ) {
     val orgs = orgsStr.map { it.toDTO<OrgData>() }
-    val loginState by remember { mutableStateOf(LoginState()) }
+    val state by remember { mutableStateOf(LoginStateController(LoginStateModel())) }
     var selectedOrgExtId by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     var counter by remember { mutableStateOf(0) }
@@ -73,15 +72,15 @@ fun LoginScreen(
             
             Column(modifier = Modifier.fillMaxWidth()) {
                 EmailField(
-                    value = loginState.email,
+                    value = state.email,
                     labelText = stringResource(Res.string.email_address),
-                    onValueChanged = loginState::updateEmail
+                    onValueChanged = state::updateEmail
                 )
                 
                 PasswordField(
-                    value = loginState.password,
+                    value = state.password,
                     labelText = stringResource(Res.string.password),
-                    onValueChanged = loginState::updatePassword,
+                    onValueChanged = state::updatePassword,
                 )
                 
                 Column(Modifier.fillMaxWidth()) {
@@ -92,8 +91,8 @@ fun LoginScreen(
                     
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
-                            checked = loginState.rememberMe,
-                            onCheckedChange = loginState::updateRememberMe
+                            checked = state.rememberMe,
+                            onCheckedChange = state::updateRememberMe
                         )
                         
                         Text(
@@ -110,15 +109,15 @@ fun LoginScreen(
                 ) {
                     AnimatedButton(
                         enabled = (
-                            loginState.email.isNotBlank() &&
-                            loginState.password.isNotBlank() &&
+                            state.email.isNotBlank() &&
+                            state.password.isNotBlank() &&
                             selectedOrgExtId.isNotBlank()
                         ),
                         onClick = {
                             try {
                                 scope.launch {
                                     val tokens = loginBasic(
-                                        loginState = loginState,
+                                        loginState = state.snapshot(),
                                         orgExtId = selectedOrgExtId,
                                         client = client
                                     )

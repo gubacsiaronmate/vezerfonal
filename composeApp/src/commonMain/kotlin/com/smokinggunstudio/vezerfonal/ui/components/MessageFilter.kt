@@ -9,13 +9,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
@@ -23,11 +25,13 @@ import kotlin.time.ExperimentalTime
 @Composable
 @OptIn(ExperimentalTime::class)
 fun MessageFilter(
-    state: MessageFilterState,
+    snapshot: MessageFilterStateModel,
     tabOpenedClick: ClickEvent,
     modifier: Modifier = Modifier,
     scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
+    val state = remember { MessageFilterStateController(snapshot) }
+    
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -126,7 +130,7 @@ fun MessageFilter(
             }
         )
         HorizontallyScrollableTagSelect(
-            state = state.tagSelectionState,
+            snapshot = state.tagSelectionState,
             tabOpenedCallback = tabOpenedClick
         )
     }

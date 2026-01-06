@@ -73,4 +73,16 @@ class MessageFilterStateController(initial: MessageFilterStateModel) {
         updateSearchQuery("")
         _tagSelectionState.value = TagSelectionStateModel()
     }
+    
+    fun snapshot(): MessageFilterStateModel = MessageFilterStateModel(
+        earliestMessageUnixTime = earliestMessageUnixTime,
+        latestMessageUnixTime = latestMessageUnixTime,
+        selectedStartDate = selectedStartDate,
+        selectedEndDate = selectedEndDate,
+        senderName = senderName,
+        isImportant = isImportant,
+        isWaitingForAnswer = isWaitingForAnswer,
+        searchQuery = searchQuery,
+        tagSelectionState = tagSelectionState
+    )
 }

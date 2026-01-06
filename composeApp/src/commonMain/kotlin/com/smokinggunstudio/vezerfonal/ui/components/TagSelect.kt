@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 
 @Composable
 fun TagSelect(
-    state: TagSelectionState,
+    snapshot: TagSelectionStateModel,
     onCancelClick: ClickEvent,
     onApplyClick: CallbackEvent<List<TagData>>
 ) {
-    GeneralSelectionDialog(state, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(snapshot, onCancelClick, onApplyClick)
 }

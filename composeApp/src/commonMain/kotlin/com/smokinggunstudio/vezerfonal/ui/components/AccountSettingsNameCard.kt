@@ -76,7 +76,7 @@ fun AccountSettingsNameCard(
                             .padding(horizontal = 4.dp)
                     )
                     Text(
-                        text = if (revealId) user.identifier else stringResource(Res.string.reveal_id),
+                        text = if (revealId) user.externalId else stringResource(Res.string.reveal_id),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
                         modifier = Modifier

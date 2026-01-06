@@ -2,6 +2,8 @@ package com.smokinggunstudio.vezerfonal.ui.navigation
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -10,18 +12,27 @@ import io.ktor.client.HttpClient
 
 data class SentMessages(
     val accessToken: String,
-    val onMessageClick: CallbackEvent<MessageData>,
-    val scrollLockedBySliderCallback: CallbackEvent<Boolean>
+    val userIdentifier: String,
 ) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
+        val navigator = LocalNavigator.currentOrThrow
         
         SentMessagesScreen(
             client = client,
             accessToken = accessToken,
-            onMessageClick = onMessageClick,
-            scrollLockedBySliderCallback = scrollLockedBySliderCallback
+            onMessageClick = {
+                navigator.push(
+                    ViewMessage(
+                        accessToken = accessToken,
+                        isArchived = false,
+                        messageStr = it.toSerialized(),
+                        isSenderView = true,
+                        userIdentifier = userIdentifier
+                    )
+                )
+            },
         )
     }
 }

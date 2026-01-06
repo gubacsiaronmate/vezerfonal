@@ -32,7 +32,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.screens.*
 import kotlinx.coroutines.launch
 
-data class HomePage(
+data class Home(
     val accessToken: String,
 ) : Screen {
     @Composable
@@ -111,7 +111,7 @@ data class HomePage(
                     )
                 }
 
-            val tabs = remember {
+            val tabs: List<NavBarContent> = remember {
                 buildList {
                     add(Home)
                     add(Archive)
@@ -146,7 +146,7 @@ data class HomePage(
                         Home -> HomePageScreen(
                             client = client,
                             accessToken = accessToken,
-                            userIdentifier = user!!.identifier,
+                            userIdentifier = user!!.externalId,
                             onMessageClick = {
                                 navigator.push(
                                     ViewMessage(
@@ -154,7 +154,7 @@ data class HomePage(
                                         isArchived = false,
                                         messageStr = it.toSerialized(),
                                         isSenderView = false,
-                                        userIdentifier = user!!.identifier
+                                        userIdentifier = user!!.externalId
                                     )
                                 )
                             },
@@ -170,7 +170,7 @@ data class HomePage(
                                         isArchived = true,
                                         messageStr = it.toSerialized(),
                                         isSenderView = false,
-                                        userIdentifier = user!!.identifier
+                                        userIdentifier = user!!.externalId
                                     )
                                 )
                             },
@@ -187,7 +187,7 @@ data class HomePage(
                         Group -> GroupScreen(
                             client = client,
                             accessToken = accessToken,
-                            myIdentifier = user!!.identifier,
+                            myIdentifier = user!!.externalId,
                             groupData = groups,
                             isSuperAdminLogIn = user!!.isSuperAdmin
                         )
@@ -219,18 +219,7 @@ data class HomePage(
                                 navigator.push(
                                     SentMessages(
                                         accessToken = accessToken,
-                                        onMessageClick = {
-                                            navigator.push(
-                                                ViewMessage(
-                                                    accessToken = accessToken,
-                                                    isArchived = false,
-                                                    messageStr = it.toSerialized(),
-                                                    isSenderView = true,
-                                                    userIdentifier = user!!.identifier
-                                                )
-                                            )
-                                        },
-                                        scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                                        userIdentifier = user!!.externalId,
                                     )
                                 )
                             }

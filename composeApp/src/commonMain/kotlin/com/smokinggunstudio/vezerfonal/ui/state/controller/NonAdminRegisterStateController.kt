@@ -2,31 +2,32 @@ package com.smokinggunstudio.vezerfonal.ui.state.controller
 
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.ui.state.model.AdminRegisterStateModel
-import com.smokinggunstudio.vezerfonal.ui.state.model.NonAdminRegisterStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 
-class NonAdminRegisterStateController(initial: NonAdminRegisterStateModel) {
+class NonAdminRegisterStateController(
+    initial: RegisterStateModel.NonAdminRegisterStateModel
+) : RegisterStateController {
     private val _regCode = mutableStateOf(initial.regCode)
     val regCode: String get() = _regCode.value
     
     private val _name = mutableStateOf(initial.name)
-    val name: String get() = _name.value
+    override val name: String get() = _name.value
     
     private val _email = mutableStateOf(initial.email)
-    val email: String get() = _email.value
+    override val email: String get() = _email.value
     
     private val _password = mutableStateOf(initial.password)
-    val password: String get() = _password.value
+    override val password: String get() = _password.value
     
     private val _identifier = mutableStateOf(initial.identifier)
-    val identifier: String get() = _identifier.value
+    override val identifier: String get() = _identifier.value
     
-    fun toUserData(): UserData = UserData(
+    override fun toUserData(): UserData = UserData(
         registrationCode = regCode,
         email = email,
         password = password,
         name = name,
-        identifier = identifier,
+        externalId = identifier,
         isAnyAdmin = false,
         isSuperAdmin = false
     )
@@ -35,21 +36,21 @@ class NonAdminRegisterStateController(initial: NonAdminRegisterStateModel) {
         _regCode.value = newCode
     }
     
-    fun updateEmail(newEmail: String) {
+    override fun updateEmail(newEmail: String) {
         _email.value = newEmail
     }
     
-    fun updatePassword(newPassword: String) {
+    override fun updatePassword(newPassword: String) {
         _password.value = newPassword
     }
     
-    fun updateName(newName: String) {
+    override fun updateName(newName: String) {
         _name.value = newName
     }
     
-    fun updateIdentifier(newIdentifier: String) {
+    override fun updateIdentifier(newIdentifier: String) {
         _identifier.value = newIdentifier
     }
     
-    fun snapshot() = NonAdminRegisterStateModel(regCode, email, password, name, identifier)
+    override fun snapshot() = RegisterStateModel.NonAdminRegisterStateModel(regCode, email, password, name, identifier)
 }

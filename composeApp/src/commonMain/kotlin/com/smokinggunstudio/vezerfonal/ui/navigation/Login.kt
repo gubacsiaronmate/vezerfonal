@@ -7,9 +7,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
-import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.log
-import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
@@ -25,7 +23,7 @@ data class Login(
         
         LoginScreen(client, orgsStr) { newTokens ->
             log { newTokens.toString() }
-            navigator.push(HomePage(newTokens.accessToken))
+            navigator.push(Home(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }
         }
     }

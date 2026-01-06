@@ -9,7 +9,7 @@ data class UserData(
     val email: String,
     val password: String?,
     override val name: String,
-    val identifier: String,
+    override val externalId: String,
     val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
 ) : NamedDTO, DTO {

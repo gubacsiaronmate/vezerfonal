@@ -6,7 +6,7 @@ import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.network.helpers.Platform
 import com.smokinggunstudio.vezerfonal.network.helpers.PlatformType
-import com.smokinggunstudio.vezerfonal.ui.state.LoginState
+import com.smokinggunstudio.vezerfonal.ui.state.model.LoginStateModel
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -14,7 +14,7 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import kotlin.io.encoding.Base64
 
-suspend fun loginBasic(loginState: LoginState, orgExtId: String, client: HttpClient): TokenResponse {
+suspend fun loginBasic(loginState: LoginStateModel, orgExtId: String, client: HttpClient): TokenResponse {
     val rememberMe = when (Platform.type) {
         PlatformType.JS -> false
         PlatformType.Desktop -> false

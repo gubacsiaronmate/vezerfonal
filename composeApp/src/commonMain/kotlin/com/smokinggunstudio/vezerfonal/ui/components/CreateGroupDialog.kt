@@ -89,7 +89,7 @@ import vezerfonal.composeapp.generated.resources.name
             DropdownSearchBar(
                 allItems = users,
                 labelText = stringResource(Res.string.name)
-            ) { adminIdentifier = it.identifier }
+            ) { adminIdentifier = it.externalId }
         }
         
         if (error != null) ErrorDialog(error!!.message!!, true)

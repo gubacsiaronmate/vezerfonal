@@ -31,7 +31,7 @@ suspend fun UserData.toUser(
         User(
             email = email,
             displayName = name,
-            identifier = identifier,
+            identifier = externalId,
             isAnyAdmin = isAnyAdmin,
             isSuperAdmin = isSuperAdmin,
             
@@ -49,7 +49,7 @@ suspend fun MessageData.toMessage(db: Database): Message {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
-    val author = urepo.getUserByIdentifier(author.identifier)!!
+    val author = urepo.getUserByIdentifier(author.externalId)!!
     val tagList = tags.map { tagName ->
         TagRepository(db)
             .getTagByName(tagName)

@@ -15,6 +15,7 @@ actual class FilePicker {
         val result = withContext(Dispatchers.Default) {
             // Show dialog on EDT synchronously
             val resHolder = IntArray(1)
+            @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
             val lock = Object()
             var done = false
             SwingUtilities.invokeLater {

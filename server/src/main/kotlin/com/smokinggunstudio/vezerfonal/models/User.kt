@@ -27,7 +27,7 @@ data class User @OptIn(ExperimentalTime::class) constructor(
         email = email,
         password = null,
         name = displayName,
-        identifier = identifier,
+        externalId = identifier,
         registrationCode = null,
         isAnyAdmin = isAnyAdmin ?: isSuperAdmin,
         isSuperAdmin = isSuperAdmin,

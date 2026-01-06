@@ -95,3 +95,4 @@ ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 parcelize = { id = "kotlin-parcelize" }
+nativeCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods" }

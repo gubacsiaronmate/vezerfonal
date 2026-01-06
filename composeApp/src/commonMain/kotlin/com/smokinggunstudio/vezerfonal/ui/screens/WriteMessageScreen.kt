@@ -14,26 +14,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
-import com.smokinggunstudio.vezerfonal.network.api.getAllTags
-import com.smokinggunstudio.vezerfonal.network.api.getUsersByIdentifierList
 import com.smokinggunstudio.vezerfonal.network.api.sendMessage
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.contains
-import com.smokinggunstudio.vezerfonal.ui.state.GroupSelectionState
-import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
-import com.smokinggunstudio.vezerfonal.ui.state.UserSelectionState
-import com.smokinggunstudio.vezerfonal.ui.state.WriteMessageState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.UserSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.WriteMessageStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.WriteMessageStateModel
 import io.ktor.client.HttpClient
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
@@ -46,13 +45,13 @@ fun WriteMessageScreen(
     tagList: List<TagData>
 ) {
     val scope = rememberCoroutineScope()
-    val state = remember { WriteMessageState() }
+    val state = remember { WriteMessageStateController(WriteMessageStateModel()) }
     var isGroupTabOpened by remember { mutableStateOf(false) }
     var isIndividualTabOpened by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
-    val groupSelectionState = remember { GroupSelectionState() }
-    val userSelectionState = remember { UserSelectionState() }
-    val tagSelectionState = remember { TagSelectionState() }
+    val groupSelectionState = remember { GroupSelectionStateController(GroupSelectionStateModel()) }
+    val userSelectionState = remember { UserSelectionStateController(UserSelectionStateModel()) }
+    val tagSelectionState = remember { TagSelectionStateController(TagSelectionStateModel()) }
     var error by remember { mutableStateOf<Throwable?>(null) }
     
     groupSelectionState.loadAllItems(guiao)
@@ -71,6 +70,7 @@ fun WriteMessageScreen(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.titleLarge
             )
+            
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -81,11 +81,13 @@ fun WriteMessageScreen(
                     selectedAmount = state.groups.size,
                     onClick = { isGroupTabOpened = true }
                 )
+                
                 RecipientSelectButton(
                     text = stringResource(Res.string.individuals),
                     selectedAmount = state.userIdentifiers.size,
                     onClick = { isIndividualTabOpened = true }
                 )
+                
                 IconToggleButton(
                     checked = state.isUrgent,
                     onCheckedChange = state::updateUrgency
@@ -154,9 +156,15 @@ fun WriteMessageScreen(
                                 state.removeReaction(emoji, i)
                             else state.addReaction(emoji, i)
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        HorizontallyScrollableTagSelect(tagSelectionState) { isTagSelectTabOpened = true }
-                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Spacer(Modifier.height(12.dp))
+                        
+                        HorizontallyScrollableTagSelect(
+                            tagSelectionState.snapshot() as TagSelectionStateModel
+                        ) { isTagSelectTabOpened = true }
+                        
+                        Spacer(Modifier.height(12.dp))
+                        
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             modifier = Modifier.fillMaxWidth().padding(4.dp),
@@ -193,21 +201,23 @@ fun WriteMessageScreen(
                 
                 if (isGroupTabOpened && !isIndividualTabOpened && !isTagSelectTabOpened)
                     GroupSelect(
-                        state = groupSelectionState,
+                        snapshot = groupSelectionState.snapshot() as GroupSelectionStateModel,
                         onCancelClick = { isGroupTabOpened = false },
                         onApplyClick = { groups -> state.updateGroups(groups.map { it.externalId }) }
                     )
+                
                 if (isTagSelectTabOpened && !isGroupTabOpened && !isIndividualTabOpened)
                     TagSelect(
-                        state = tagSelectionState,
+                        snapshot = tagSelectionState.snapshot() as TagSelectionStateModel,
                         onCancelClick = { isTagSelectTabOpened = false },
                         onApplyClick = { tags -> state.updateTags(tags.map { it.name }) }
                     )
+                
                 if (isIndividualTabOpened && !isGroupTabOpened && !isTagSelectTabOpened)
                     IndividualSelect(
-                        state = userSelectionState,
+                        snapshot = userSelectionState.snapshot() as UserSelectionStateModel,
                         onCancelClick = { isIndividualTabOpened = false },
-                        onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.identifier }) }
+                        onApplyClick = { users -> state.updateUserIdentifiers(users.map { it.externalId }) }
                     )
             }
         }

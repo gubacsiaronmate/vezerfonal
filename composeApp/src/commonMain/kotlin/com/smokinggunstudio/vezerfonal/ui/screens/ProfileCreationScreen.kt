@@ -13,22 +13,23 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
-import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.registerBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun ProfileCreationScreen(
-    registerState: RegisterState,
+    snapshot: RegisterStateModel,
     client: HttpClient,
     onClick: CallbackEvent<TokenResponse>
 ) {
@@ -37,6 +38,12 @@ import vezerfonal.composeapp.generated.resources.*
     var data: FileData? by remember { mutableStateOf(null) }
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf<Throwable?>(null) }
+    val state: RegisterStateController = remember {
+        when (snapshot) {
+            is RegisterStateModel.AdminRegisterStateModel -> AdminRegisterStateController(snapshot)
+            is RegisterStateModel.NonAdminRegisterStateModel -> NonAdminRegisterStateController(snapshot)
+        }
+    }
     
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -51,8 +58,8 @@ import vezerfonal.composeapp.generated.resources.*
             
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = registerState.identifier,
-                    onValueChange = { registerState.updateIdentifier(it) },
+                    value = state.identifier,
+                    onValueChange = { state.updateIdentifier(it) },
                     label = {
                         Text(
                             stringResource(Res.string.identifier),
@@ -64,8 +71,8 @@ import vezerfonal.composeapp.generated.resources.*
                 )
                 
                 OutlinedTextField(
-                    value = registerState.name,
-                    onValueChange = { registerState.updateName(it) },
+                    value = state.name,
+                    onValueChange = { state.updateName(it) },
                     label = {
                         Text(
                             stringResource(Res.string.display_name),
@@ -109,8 +116,8 @@ import vezerfonal.composeapp.generated.resources.*
                 
                 AnimatedButton(
                     enabled = (
-                            registerState.identifier.isNotBlank()
-                                    && registerState.name.isNotBlank()
+                            state.identifier.isNotBlank()
+                                    && state.name.isNotBlank()
                                     && areTermsAccepted
                                     && data != null
                             ),
@@ -118,7 +125,7 @@ import vezerfonal.composeapp.generated.resources.*
                         try {
                             scope.launch {
                                 val tokens = registerBasic(
-                                    userData = registerState.toUserData(),
+                                    userData = state.toUserData(),
                                     rememberMe = rememberMe,
                                     fileData = data!!,
                                     client = client

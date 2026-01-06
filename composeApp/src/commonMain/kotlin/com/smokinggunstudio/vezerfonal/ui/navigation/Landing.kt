@@ -55,12 +55,12 @@ data object Landing: Screen {
             }
             
             if (token != null) {
-                LaunchedEffect(token) { navigator.replaceAll(HomePage(token!!)) }
+                LaunchedEffect(token) { navigator.replaceAll(Home(token!!)) }
                 return
             }
             
             LandingPageScreen(
-                onRegisterClick = { navigator.push(Register(1, null)) },
+                onRegisterClick = { navigator.push(Register(1)) },
                 onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
             )
             

@@ -1,42 +1,40 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.EmailField
-import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.isValidEmail
-import com.smokinggunstudio.vezerfonal.ui.state.RegisterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun CredentialsRegisterScreen(
-    registerState: RegisterState,
-    onClick: ClickEvent
+    snapshot: RegisterStateModel,
+    onClick: CallbackEvent<RegisterStateModel>
 ) {
+    val state: RegisterStateController = remember {
+        when (snapshot) {
+            is RegisterStateModel.AdminRegisterStateModel -> AdminRegisterStateController(snapshot)
+            is RegisterStateModel.NonAdminRegisterStateModel -> NonAdminRegisterStateController(snapshot)
+        }
+    }
+    
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,15 +49,15 @@ import vezerfonal.composeapp.generated.resources.*
         
         Column(modifier = Modifier.fillMaxWidth()) {
             EmailField(
-                value = registerState.email,
+                value = state.email,
                 labelText = stringResource(Res.string.email_address),
-                onValueChanged = registerState::updateEmail
+                onValueChanged = state::updateEmail
             )
             
             PasswordField(
-                value = registerState.password,
+                value = state.password,
                 labelText = stringResource(Res.string.password),
-                onValueChanged = registerState::updatePassword,
+                onValueChanged = state::updatePassword,
                 supportingText = stringResource(Res.string.password_must_be_at_least_8_characters_long)
             )
             
@@ -83,38 +81,15 @@ import vezerfonal.composeapp.generated.resources.*
                             horizontal = 8.dp,
                             vertical = 20.dp
                         ),
-                    onClick = onClick,
+                    onClick = { onClick(state.snapshot()) },
                     enabled = (
-                        registerState.password == confirmPassword.value
-                        && registerState.password.length >= 8
-                        && registerState.email.isNotBlank()
-                        && registerState.email.isValidEmail()
+                        state.password == confirmPassword.value
+                        && state.password.length >= 8
+                        && state.email.isNotBlank()
+                        && state.email.isValidEmail()
                         && confirmPassword.value.isNotBlank()
                     ),
                 ) { Text(stringResource(Res.string.proceed)) }
-                
-                /*OrOptionDivider()
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AnimatedButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        onClick = {
-                            // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
-                        },
-                    ) { Text(stringResource(Res.string.continue_google)) }
-                    AnimatedButton(
-                        onClick = {
-                            // TODO: Set up OAuth2.0 (DO NOT attempt to connect to backend since no OAuth is set up yet)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp)
-                    ) { Text(stringResource(Res.string.continue_apple)) }
-                }*/
             }
         }
     }

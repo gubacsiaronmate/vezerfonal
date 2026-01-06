@@ -14,7 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.TagSelectionState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.browse_tags
@@ -22,10 +23,12 @@ import vezerfonal.composeapp.generated.resources.tags
 
 @Composable
 fun HorizontallyScrollableTagSelect(
-    state: TagSelectionState,
+    snapshot: TagSelectionStateModel,
     modifier: Modifier = Modifier,
     tabOpenedCallback: ClickEvent,
 ) {
+    val state = remember { TagSelectionStateController(snapshot) }
+    
     Row(
         modifier = modifier
             .fillMaxWidth()

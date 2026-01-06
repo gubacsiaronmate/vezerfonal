@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class GroupData(
     override val name: String,
-    val externalId: ExternalId,
+    override val externalId: String,
     val description: String,
     val members: List<Identifier>,
     val adminIdentifier: Identifier

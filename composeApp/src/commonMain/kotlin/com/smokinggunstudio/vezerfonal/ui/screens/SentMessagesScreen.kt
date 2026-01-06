@@ -15,7 +15,8 @@ import com.smokinggunstudio.vezerfonal.network.api.getSentMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
-import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import io.ktor.client.*
 import kotlin.time.ExperimentalTime
 
@@ -24,12 +25,11 @@ import kotlin.time.ExperimentalTime
     client: HttpClient,
     accessToken: String,
     onMessageClick: CallbackEvent<MessageData>,
-    scrollLockedBySliderCallback: CallbackEvent<Boolean>
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
-    val messageFilterState = remember { MessageFilterState() }
+    val messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var filtered by remember(messages) { mutableStateOf(messages)}
@@ -58,7 +58,7 @@ import kotlin.time.ExperimentalTime
                 },
                 isFilterOpened = isFilterOpened,
                 messages = messages,
-                messageFilterState = messageFilterState
+                snapshot = messageFilterState.snapshot()
             )
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
             else HorizontalDivider(Modifier.height(1.dp))
@@ -70,15 +70,14 @@ import kotlin.time.ExperimentalTime
             ) {
                 if (isFilterOpened)
                     MessageFilter(
-                        state = messageFilterState,
+                        snapshot = messageFilterState.snapshot(),
                         tabOpenedClick = { isTagSelectTabOpened = true },
                         modifier = Modifier.align(Alignment.TopCenter)
-                    ) { scrollLockedBySliderCallback(it && isFilterOpened) }
-                else scrollLockedBySliderCallback(false)
+                    ) { _ -> }
                 
                 if (isTagSelectTabOpened)
                     TagSelect(
-                        state = messageFilterState.tagSelectionState,
+                        snapshot = messageFilterState.tagSelectionState,
                         onCancelClick = { isTagSelectTabOpened = false },
                         onApplyClick = { }
                     )
