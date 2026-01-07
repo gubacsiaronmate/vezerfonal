@@ -5,19 +5,21 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.ui.helpers.toModel
+import com.smokinggunstudio.vezerfonal.ui.helpers.toSerialized
 import com.smokinggunstudio.vezerfonal.ui.screens.CreateOrganizationScreen
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 
 data class CreateOrg(
-    val snapshot: RegisterStateModel,
+    val snapshot: String,
 ) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         
-        CreateOrganizationScreen(snapshot, client) {
-            navigator.push(Register(2, it))
+        CreateOrganizationScreen(snapshot.toModel(), client) {
+            navigator.push(Register(2, it.toSerialized()))
         }
     }
 }

@@ -1,5 +1,8 @@
 package com.smokinggunstudio.vezerfonal.ui.state.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class RegisterStateModel(
     val extra: String = "",
     val name: String = "",

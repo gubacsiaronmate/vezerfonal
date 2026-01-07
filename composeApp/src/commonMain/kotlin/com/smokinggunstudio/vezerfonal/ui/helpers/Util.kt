@@ -5,6 +5,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
+import kotlinx.serialization.json.Json
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -39,3 +41,7 @@ inline fun <reified T> Array<MutableState<T?>>.ifNotEmpty(): List<T>? {
 inline fun <reified T> Array<MutableState<T?>>.contains(item: T): Boolean = any { it.value == item }
 
 infix fun <T> Boolean.ifFalseNull(value: T): T? = if (this) value else null
+
+fun RegisterStateModel.toSerialized(): String = Json.encodeToString(this)
+
+fun String.toModel(): RegisterStateModel = Json.decodeFromString(this)

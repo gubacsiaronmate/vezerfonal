@@ -7,6 +7,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
+import com.smokinggunstudio.vezerfonal.ui.helpers.toModel
+import com.smokinggunstudio.vezerfonal.ui.helpers.toSerialized
 import com.smokinggunstudio.vezerfonal.ui.screens.CredentialsRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.InitialRegisterScreen
 import com.smokinggunstudio.vezerfonal.ui.screens.ProfileCreationScreen
@@ -15,7 +17,7 @@ import kotlinx.coroutines.launch
 
 data class Register(
     val page: Int,
-    val state: RegisterStateModel = RegisterStateModel(),
+    val state: String = "",
 ) : Screen {
     @Composable
     override fun Content() {
@@ -27,16 +29,18 @@ data class Register(
         when (page) {
             1 -> InitialRegisterScreen(
                 onCreateOrgClick = {
-                    navigator.replace(CreateOrg(RegisterStateModel()))
+                    navigator.replace(
+                        CreateOrg(RegisterStateModel().toSerialized())
+                    )
                 },
                 onContinueClick = {
-                    navigator.push(Register(2, it))
+                    navigator.push(Register(2, it.toSerialized()))
                 },
             )
-            2 -> CredentialsRegisterScreen(state) {
-                navigator.push(Register(3, it))
+            2 -> CredentialsRegisterScreen(state.toModel()) {
+                navigator.push(Register(3, it.toSerialized()))
             }
-            3 -> ProfileCreationScreen(state, client) { tokens ->
+            3 -> ProfileCreationScreen(state.toModel(), client) { tokens ->
                 scope.launch { tokenStorage.saveTokens(tokens) }
                 navigator.push(Home(tokens.accessToken))
             }
