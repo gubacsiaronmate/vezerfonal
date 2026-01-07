@@ -41,7 +41,6 @@ import vezerfonal.composeapp.generated.resources.request_account_deletion
 @Composable
 fun RequestAccountDeletionScreen() {
     var isSnackBarVisible by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     Box{
         Column(
             modifier = Modifier
@@ -80,11 +79,7 @@ fun RequestAccountDeletionScreen() {
                     fontWeight = FontWeight.Bold
                 )
                 Button(
-                    onClick = {
-                        scope.launch{
-                            isSnackBarVisible = true
-                        }
-                    },
+                    onClick = { isSnackBarVisible = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -100,11 +95,7 @@ fun RequestAccountDeletionScreen() {
                     }
                 }
                 Button(
-                    onClick = {
-                        scope.launch {
-                            isSnackBarVisible = true
-                        }
-                    },
+                    onClick = { isSnackBarVisible = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
