@@ -1,27 +1,67 @@
 package com.smokinggunstudio.vezerfonal.ui.state.controller
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.ui.helpers.ifFalseNull
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 
-interface RegisterStateController {
-    val name: String
+class RegisterStateController(initial: RegisterStateModel) {
+    private val _extra = mutableStateOf(initial.extra)
+    val extra: String get() = _extra.value
     
-    val email: String
+    private val _name = mutableStateOf(initial.name)
+    val name: String get() = _name.value
     
-    val password: String
+    private val _email = mutableStateOf(initial.email)
+    val email: String get() = _email.value
     
-    val identifier: String
+    private val _password = mutableStateOf(initial.password)
+    val password: String get() = _password.value
     
-    fun toUserData(): UserData
+    private val _identifier = mutableStateOf(initial.identifier)
+    val identifier: String get() = _identifier.value
     
-    fun updateEmail(newEmail: String)
+    private var isAdmin by mutableStateOf(initial.isAdmin)
     
-    fun updatePassword(newPassword: String)
+    fun toUserData(): UserData = UserData(
+        registrationCode = !isAdmin ifFalseNull extra,
+        email = email,
+        password = password,
+        name = name,
+        externalId = identifier,
+        isAnyAdmin = isAdmin,
+        isSuperAdmin = isAdmin
+    )
     
-    fun updateName(newName: String)
+    fun updateExtra(newValue: String) {
+        val valid =
+            newValue.all { it.isLetter() }
+                    && newValue.length <= 100
+        if (!valid) return
+        _extra.value = newValue
+    }
     
-    fun updateIdentifier(newIdentifier: String)
+    fun updateEmail(newEmail: String) {
+        _email.value = newEmail
+    }
     
-    fun snapshot(): RegisterStateModel
+    fun updatePassword(newPassword: String) {
+        _password.value = newPassword
+    }
+    
+    fun updateName(newName: String) {
+        _name.value = newName
+    }
+    
+    fun updateIdentifier(newIdentifier: String) {
+        _identifier.value = newIdentifier
+    }
+    
+    fun setIsAdmin(newValue: Boolean) {
+        isAdmin = newValue
+    }
+    
+    fun snapshot() = RegisterStateModel(extra, email, password, name, identifier)
 }

@@ -9,7 +9,7 @@ import com.smokinggunstudio.vezerfonal.ui.screens.CreateOrganizationScreen
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 
 data class CreateOrg(
-    val snapshot: RegisterStateModel.AdminRegisterStateModel,
+    val snapshot: RegisterStateModel,
 ) : Screen {
     @Composable
     override fun Content() {

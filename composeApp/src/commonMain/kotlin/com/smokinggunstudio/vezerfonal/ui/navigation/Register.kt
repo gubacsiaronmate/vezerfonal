@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 data class Register(
     val page: Int,
-    val state: RegisterStateModel = RegisterStateModel.NonAdminRegisterStateModel(),
+    val state: RegisterStateModel = RegisterStateModel(),
 ) : Screen {
     @Composable
     override fun Content() {
@@ -27,7 +27,7 @@ data class Register(
         when (page) {
             1 -> InitialRegisterScreen(
                 onCreateOrgClick = {
-                    navigator.replace(CreateOrg(RegisterStateModel.AdminRegisterStateModel()))
+                    navigator.replace(CreateOrg(RegisterStateModel()))
                 },
                 onContinueClick = {
                     navigator.push(Register(2, it))

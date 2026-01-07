@@ -37,3 +37,5 @@ inline fun <reified T> Array<MutableState<T?>>.ifNotEmpty(): List<T>? {
 }
 
 inline fun <reified T> Array<MutableState<T?>>.contains(item: T): Boolean = any { it.value == item }
+
+infix fun <T> Boolean.ifFalseNull(value: T): T? = if (this) value else null

@@ -16,8 +16,7 @@ import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
 import kotlinx.coroutines.launch
@@ -29,12 +28,12 @@ import vezerfonal.composeapp.generated.resources.organization_name
 
 @Composable
 fun CreateOrganizationScreen(
-    snapshot: RegisterStateModel.AdminRegisterStateModel,
+    snapshot: RegisterStateModel,
     client: HttpClient,
     onClick: CallbackEvent<RegisterStateModel>
 ) {
     val scope = rememberCoroutineScope()
-    val state = remember { AdminRegisterStateController(snapshot) }
+    val state = remember { RegisterStateController(snapshot) }
     var error by remember { mutableStateOf<Throwable?>(null) }
 
     Box(
@@ -54,8 +53,8 @@ fun CreateOrganizationScreen(
                 style = MaterialTheme.typography.displaySmall
             )
             OutlinedTextField(
-                value = state.orgName,
-                onValueChange = state::updateOrgName,
+                value = state.extra,
+                onValueChange = state::updateExtra,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -77,11 +76,11 @@ fun CreateOrganizationScreen(
                         scope.launch {
                             if (createOrgRequest(
                                 org = OrgData(
-                                    name = state.orgName,
+                                    name = state.extra,
                                     externalId = getExtId()
                                 ),
                                 client = client
-                            )) onClick(state.snapshot())
+                            )) onClick(state.apply { setIsAdmin(true) }.snapshot())
                         }
                     } catch (e: NotCreatedException) { error = e }
                 }

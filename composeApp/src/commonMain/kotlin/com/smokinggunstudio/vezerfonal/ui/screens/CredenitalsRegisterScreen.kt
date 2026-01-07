@@ -15,10 +15,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.isValidEmail
-import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
-import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import org.jetbrains.compose.resources.stringResource
@@ -28,12 +25,7 @@ import vezerfonal.composeapp.generated.resources.*
     snapshot: RegisterStateModel,
     onClick: CallbackEvent<RegisterStateModel>
 ) {
-    val state: RegisterStateController = remember {
-        when (snapshot) {
-            is RegisterStateModel.AdminRegisterStateModel -> AdminRegisterStateController(snapshot)
-            is RegisterStateModel.NonAdminRegisterStateModel -> NonAdminRegisterStateController(snapshot)
-        }
-    }
+    val state = remember { RegisterStateController(snapshot) }
     
     Column(
         verticalArrangement = Arrangement.SpaceEvenly,

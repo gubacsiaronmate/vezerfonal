@@ -15,7 +15,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -35,9 +35,7 @@ import vezerfonal.composeapp.generated.resources.registration_code
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp),
     ) {
-        val nonAdminRegisterState = remember {
-            NonAdminRegisterStateController(RegisterStateModel.NonAdminRegisterStateModel())
-        }
+        val nonAdminRegisterState = remember { RegisterStateController(RegisterStateModel()) }
         
         RegisterText()
         
@@ -48,8 +46,8 @@ import vezerfonal.composeapp.generated.resources.registration_code
                 verticalArrangement = Arrangement.SpaceEvenly,
         ) {
             OutlinedTextField(
-                value = nonAdminRegisterState.regCode,
-                onValueChange = nonAdminRegisterState::updateRegCode,
+                value = nonAdminRegisterState.extra,
+                onValueChange = nonAdminRegisterState::updateExtra,
                 label = { Text(stringResource(Res.string.registration_code), color = MaterialTheme.colorScheme.onSurface) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
@@ -62,8 +60,14 @@ import vezerfonal.composeapp.generated.resources.registration_code
                     .fillMaxWidth()
             ) {
                 AnimatedButton(
-                    onClick = { onContinueClick(nonAdminRegisterState.snapshot()) },
-                    enabled = nonAdminRegisterState.regCode.isNotBlank(),
+                    onClick = {
+                        onContinueClick(
+                            nonAdminRegisterState
+                                .apply { setIsAdmin(false) }
+                                .snapshot()
+                        )
+                    },
+                    enabled = nonAdminRegisterState.extra.isNotBlank(),
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 ) {
                     Text(

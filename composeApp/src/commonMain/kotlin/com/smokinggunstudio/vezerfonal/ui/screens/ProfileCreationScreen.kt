@@ -19,8 +19,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.state.controller.AdminRegisterStateController
-import com.smokinggunstudio.vezerfonal.ui.state.controller.NonAdminRegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
@@ -33,17 +31,12 @@ import vezerfonal.composeapp.generated.resources.*
     client: HttpClient,
     onClick: CallbackEvent<TokenResponse>
 ) {
-    var areTermsAccepted by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     var rememberMe by remember { mutableStateOf(false) }
     var data: FileData? by remember { mutableStateOf(null) }
-    val scope = rememberCoroutineScope()
+    val state = remember { RegisterStateController(snapshot) }
+    var areTermsAccepted by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
-    val state: RegisterStateController = remember {
-        when (snapshot) {
-            is RegisterStateModel.AdminRegisterStateModel -> AdminRegisterStateController(snapshot)
-            is RegisterStateModel.NonAdminRegisterStateModel -> NonAdminRegisterStateController(snapshot)
-        }
-    }
     
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -116,11 +109,11 @@ import vezerfonal.composeapp.generated.resources.*
                 
                 AnimatedButton(
                     enabled = (
-                            state.identifier.isNotBlank()
-                                    && state.name.isNotBlank()
-                                    && areTermsAccepted
-                                    && data != null
-                            ),
+                        state.identifier.isNotBlank()
+                        && state.name.isNotBlank()
+                        && areTermsAccepted
+                        && data != null
+                    ),
                     onClick = {
                         try {
                             scope.launch {
