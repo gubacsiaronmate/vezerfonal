@@ -15,6 +15,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.controller.SearchBarStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.SearchBarStateModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.search
 
 @Composable
 fun SearchBar(
@@ -29,7 +32,7 @@ fun SearchBar(
         value = state.query,
         onValueChange = state::updateQuery,
         modifier = modifier.fillMaxWidth(),
-        label = { Text(text = "Search"); TODO("Create string resource for this") },
+        label = { Text(text = stringResource(Res.string.search)) },
         singleLine = true,
         trailingIcon = {
             IconButton(
@@ -38,7 +41,7 @@ fun SearchBar(
                         onClick(state.snapshot())
                     }
                 }
-            ) { Icon(Icons.Filled.Search, "Search") }
+            ) { Icon(Icons.Filled.Search, stringResource(Res.string.search)) }
         }
     )
 }
