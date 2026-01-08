@@ -28,7 +28,7 @@ class UserRepository(val db: Database) {
             _password = this@toUser[Users.password],
             profilePic = pfp,
             displayName = this@toUser[Users.displayName],
-            identifier = this@toUser[Users.identifier],
+            externalId = this@toUser[Users.externalId],
             isAnyAdmin = null,
             isSuperAdmin = this@toUser[Users.isSuperAdmin],
             createdAt = this@toUser[Users.createdAt].toKotlinInstant(),
@@ -64,7 +64,7 @@ class UserRepository(val db: Database) {
     
     suspend fun getUserByIdentifier(
         identifier: String,
-    ): User? = suspendTransaction(db) { getUserByCondition { Users.identifier eq identifier } }
+    ): User? = suspendTransaction(db) { getUserByCondition { Users.externalId eq identifier } }
     
     suspend fun doesUserExist(
         identifier: String
@@ -73,13 +73,13 @@ class UserRepository(val db: Database) {
     suspend fun insertUser(
         user: User,
     ): Boolean = suspendTransaction(db) {
-        if (!doesUserExist(user.identifier)) {
+        if (!doesUserExist(user.externalId)) {
             val insert = Users.insert {
                 it[email] = user.email
                 it[password] = user.password
                 it[profilePicURI] = user.profilePic?.uri
                 it[displayName] = user.displayName
-                it[identifier] = user.identifier
+                it[externalId] = user.externalId
                 it[isSuperAdmin] = user.isSuperAdmin
             }
             val user = getUserById(insert[Users.id])!!
@@ -114,7 +114,7 @@ class UserRepository(val db: Database) {
                     _password = Uuid.random().toString().substring(0..8),
                     profilePic = null,
                     displayName = Uuid.random().toString().substring(0..8),
-                    identifier = identifier,
+                    externalId = identifier,
                     isAnyAdmin = true,
                     isSuperAdmin = false,
                     createdAt = null,

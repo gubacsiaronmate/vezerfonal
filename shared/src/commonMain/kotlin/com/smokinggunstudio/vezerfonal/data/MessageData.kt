@@ -20,10 +20,6 @@ data class MessageData(
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,
 ) : DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-    
     init {
         require(availableReactions == null || availableReactions.size < 9)
     }

@@ -48,3 +48,5 @@ inline fun log(message: () -> String) {
 
 fun List<Pair<UserData, InteractionInfoData>>.toListOfDTO(): List<UserInteractionData> =
     this.map { (user, interaction) -> UserInteractionData(user, interaction) }
+
+inline fun <reified T : DTO> T.toSerialized(): String = Json.encodeToString(this)

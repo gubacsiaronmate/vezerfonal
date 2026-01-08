@@ -8,8 +8,4 @@ data class RegCodeData(
     val code: String,
     val totalUses: Int,
     val remainingUses: Int
-) : DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-}
+) : DTO

@@ -9,7 +9,6 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
-import kotlin.coroutines.CoroutineContext
 
 suspend fun RoutingContext.jwtRefresh(
     mainDB: Database
@@ -22,7 +21,7 @@ suspend fun RoutingContext.jwtRefresh(
     
     val accessToken = tryInternal("Cannot generate jwt") {
         JWTConfig.generateToken(
-            userExtId = user.identifier,
+            userExtId = user.externalId,
             db = db,
             mainDB = mainDB
         )
@@ -30,7 +29,7 @@ suspend fun RoutingContext.jwtRefresh(
     
     val refreshToken = tryInternal("Cannot generate jwt") {
         JWTConfig.generateToken(
-            userExtId = user.identifier,
+            userExtId = user.externalId,
             db = db,
             mainDB = mainDB,
             isRefresh = true

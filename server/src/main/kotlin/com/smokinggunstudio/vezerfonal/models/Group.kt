@@ -20,7 +20,7 @@ data class Group @OptIn(ExperimentalTime::class) constructor(
         name = displayName,
         externalId = externalId,
         description = description,
-        members = members.map { it.user.identifier },
-        adminIdentifier = admin.identifier
+        members = members.map { it.user.externalId },
+        adminIdentifier = admin.externalId
     )
 }

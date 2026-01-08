@@ -23,7 +23,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.jetbrains.exposed.v1.jdbc.Database
-import kotlin.coroutines.CoroutineContext
 
 fun Route.registerRoute(
     imageService: ImageService,
@@ -71,7 +70,7 @@ fun Route.registerRoute(
             } ?: return@post
             
             if (insertSuccess) {
-                val user = urepo.getUserByIdentifier(user.identifier)
+                val user = urepo.getUserByIdentifier(user.externalId)
                     ?: error("Cannot get user by identifier.")
                 val userId = user.id ?: error("Cannot get user id.")
                 call.respondText("$userId", status = HttpStatusCode.Created)
@@ -144,7 +143,7 @@ fun Route.registerRoute(
                 
                 val accessToken = tryInternal("Cannot generate jwt.") {
                     JWTConfig.generateToken(
-                        userExtId = user.identifier,
+                        userExtId = user.externalId,
                         db = db,
                         mainDB = mainDB
                     )
@@ -153,7 +152,7 @@ fun Route.registerRoute(
                 val refreshToken = if (rememberMe)
                     tryInternal("Cannot generate jwt") {
                         JWTConfig.generateToken(
-                            userExtId = user.identifier,
+                            userExtId = user.externalId,
                             db = db,
                             mainDB = mainDB,
                             isRefresh = true

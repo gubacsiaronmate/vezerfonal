@@ -3,7 +3,6 @@ package com.smokinggunstudio.vezerfonal.repositories
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import com.smokinggunstudio.vezerfonal.helpers.nowUTC
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.Group
@@ -129,9 +128,9 @@ class GroupRepository(val db: Database) {
     ): Boolean = suspendTransaction(db) {
         val doesGroupExist = doesGroupExist(
             name = group.displayName,
-            identifier = group.admin.identifier
+            identifier = group.admin.externalId
         )
-        val admin = UserRepository(db).getUserByIdentifier(group.admin.identifier)
+        val admin = UserRepository(db).getUserByIdentifier(group.admin.externalId)
         if (!doesGroupExist && admin != null) {
             val insert = Groups.insert {
                 it[displayName] = group.displayName
@@ -141,7 +140,7 @@ class GroupRepository(val db: Database) {
             }
             group.members.forEach {
                 MembershipRepository(db).insertMemberIntoGroup(
-                    newUserId = UserRepository(db).getUserByIdentifier(it.user.identifier)!!.id!!,
+                    newUserId = UserRepository(db).getUserByIdentifier(it.user.externalId)!!.id!!,
                     newGroupId = insert[Groups.id],
                 )
             }
@@ -173,11 +172,11 @@ class GroupRepository(val db: Database) {
         )
         val group = getExactGroupByNameAndAdminIdentifier(
             name = groupName,
-            identifier = admin.identifier
+            identifier = admin.externalId
         )!!
         memberships.forEach {
             MembershipRepository(db).insertMemberIntoGroup(
-                newUserId = UserRepository(db).getUserByIdentifier(it.user.identifier)!!.id!!,
+                newUserId = UserRepository(db).getUserByIdentifier(it.user.externalId)!!.id!!,
                 newGroupId = group.id!!,
             )
         }

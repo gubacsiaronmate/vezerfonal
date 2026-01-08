@@ -7,8 +7,4 @@ import kotlinx.serialization.json.Json
 data class UserInteractionData(
     val user: UserData,
     val interaction: InteractionInfoData,
-) : DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-}
+) : DTO

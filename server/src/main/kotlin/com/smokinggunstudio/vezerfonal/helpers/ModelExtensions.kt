@@ -31,7 +31,7 @@ suspend fun UserData.toUser(
         User(
             email = email,
             displayName = name,
-            identifier = externalId,
+            externalId = externalId,
             isAnyAdmin = isAnyAdmin,
             isSuperAdmin = isSuperAdmin,
             
@@ -68,7 +68,7 @@ suspend fun MessageData.toMessage(db: Database): Message {
     val groups = groupData.map {
         grepo.getExactGroupByNameAndAdminIdentifier(
             name = it.displayName,
-            identifier = it.admin.identifier
+            identifier = it.admin.externalId
         )!!
     }
     val allGroupUsers = groups

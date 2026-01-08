@@ -7,8 +7,4 @@ import kotlinx.serialization.json.Json
 data class OrgData(
     override val name: String,
     override val externalId: String
-) : NamedDTO, DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-}
+) : NamedDTO, DTO

@@ -64,8 +64,4 @@ data class InteractionInfoData(
         recipientIdentifier = null,
         createdAt = Clock.System.now().toEpochMilliseconds(),
     )
-    
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
 }

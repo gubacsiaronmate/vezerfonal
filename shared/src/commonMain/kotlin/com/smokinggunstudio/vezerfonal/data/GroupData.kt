@@ -12,8 +12,4 @@ data class GroupData(
     val description: String,
     val members: List<Identifier>,
     val adminIdentifier: Identifier
-) : NamedDTO, DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-}
+) : NamedDTO, DTO

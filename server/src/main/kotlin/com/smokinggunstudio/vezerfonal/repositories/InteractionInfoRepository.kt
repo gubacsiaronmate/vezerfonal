@@ -107,7 +107,7 @@ class InteractionInfoRepository(val db: Database) {
     suspend fun insertInteraction(
         interaction: InteractionInfo,
     ): Boolean = suspendTransaction(db) {
-        val actorUserID = interaction.recipient?.identifier?.let { UserRepository(db).getUserByIdentifier(it)?.id }
+        val actorUserID = interaction.recipient?.externalId?.let { UserRepository(db).getUserByIdentifier(it)?.id }
         MessageUserInteractions.insert {
             it[messageId] = interaction.message.id!!
             it[userId] = interaction.user.id!!

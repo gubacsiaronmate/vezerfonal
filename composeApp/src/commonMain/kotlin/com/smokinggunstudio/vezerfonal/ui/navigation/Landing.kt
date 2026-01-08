@@ -13,6 +13,7 @@ import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.helpers.toSerialized
 import com.smokinggunstudio.vezerfonal.network.api.getAllOrgsRequest
 import com.smokinggunstudio.vezerfonal.network.api.getAccessToken
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog

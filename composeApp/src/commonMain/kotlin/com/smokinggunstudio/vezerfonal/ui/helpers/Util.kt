@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.ui.helpers
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
+import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel

@@ -7,10 +7,6 @@ import kotlinx.serialization.json.Json
 data class TagData(
     override val name: String
 ) : NamedDTO, DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-    
     override val externalId: String
         get() = name
 }

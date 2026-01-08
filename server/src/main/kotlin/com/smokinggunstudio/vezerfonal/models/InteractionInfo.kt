@@ -92,12 +92,12 @@ data class InteractionInfo(
     )
     
     fun toDTO() = InteractionInfoData(
-        userIdentifier = user.identifier,
+        userIdentifier = user.externalId,
         messageExtId = message.externalId,
         type = type,
         status = status,
         reaction = reaction,
-        recipientIdentifier = recipient?.identifier,
+        recipientIdentifier = recipient?.externalId,
         createdAt = createdAt.toEpochMilliseconds()
     )
 }

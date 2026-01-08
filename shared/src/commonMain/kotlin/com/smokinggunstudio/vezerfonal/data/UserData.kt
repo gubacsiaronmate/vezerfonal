@@ -12,8 +12,4 @@ data class UserData(
     override val externalId: String,
     val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
-) : NamedDTO, DTO {
-    override fun toSerialized(): String {
-        return Json.encodeToString(this)
-    }
-}
+) : NamedDTO, DTO
