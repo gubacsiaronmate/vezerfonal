@@ -12,15 +12,19 @@ class ChangePasswordState {
     private val _confirmPassword = mutableStateOf("")
     val confirmPassword: String get() = _confirmPassword.value
     
-    fun updatePasswordChangeCode(newPassword: String) {
-        _passwordChangeCode.value = newPassword.toInt()
+    fun updatePasswordChangeCode(newValue: String) {
+        when {
+            newValue.isEmpty() -> _passwordChangeCode.value = 0
+            newValue.map { it.isDigit() }.all { it } ->
+                _passwordChangeCode.value = newValue.toInt()
+        }
     }
     
-    fun updateNewPassword(newPassword: String) {
-        _newPassword.value = newPassword
+    fun updateNewPassword(newValue: String) {
+        _newPassword.value = newValue
     }
     
-    fun updateConfirmPassword(newPassword: String) {
-        _confirmPassword.value = newPassword
+    fun updateConfirmPassword(newValue: String) {
+        _confirmPassword.value = newValue
     }
 }

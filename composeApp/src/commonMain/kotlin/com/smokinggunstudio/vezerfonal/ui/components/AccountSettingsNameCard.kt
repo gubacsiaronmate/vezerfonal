@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -21,11 +22,10 @@ import vezerfonal.composeapp.generated.resources.reveal_email
 import vezerfonal.composeapp.generated.resources.reveal_id
 
 @Composable
-fun AccountSettingsNameCard(
-    user: UserData
-) {
+fun AccountSettingsNameCard(user: UserData) {
     var revealEmail by remember { mutableStateOf(false) }
     var revealId by remember { mutableStateOf(false) }
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,57 +33,47 @@ fun AccountSettingsNameCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             ProfilePicture(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .size(100.dp)
+                modifier = Modifier.size(100.dp)
             )
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Column(Modifier.padding(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = user.name,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        modifier = Modifier
-                            .padding(4.dp)
+                        modifier = Modifier.padding(4.dp)
                     )
-                    IconButton(
-                        onClick = {},
-                        content = {
-                            Image(
-                                imageVector = Icons.Outlined.Edit,
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                            )
-                        }
-                    )
+                    IconButton({
+                    
+                    }) {
+                        Image(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                        )
+                    }
                 }
-                Row {
+                Row(Modifier.clickable { revealId = !revealId }) {
                     Image(
                         imageVector = Icons.Outlined.AccountCircle,
                         contentDescription = null,
                         colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp)
                     )
                     Text(
-                        text = if (revealId) user.externalId else stringResource(Res.string.reveal_id),
+                        text =
+                            if (revealId) user.externalId
+                            else stringResource(Res.string.reveal_id),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                        modifier = Modifier
-                            .padding(4.dp)
+                        modifier = Modifier.padding(4.dp)
                     )
                 }
-                Row {
+                Row(Modifier.clickable { revealEmail = !revealEmail }) {
                     Image(
                         imageVector = Icons.Outlined.Email,
                         contentDescription = null,
@@ -92,11 +82,12 @@ fun AccountSettingsNameCard(
                             .padding(horizontal = 4.dp)
                     )
                     Text(
-                        text = if (revealEmail) user.email else stringResource(Res.string.reveal_email),
+                        text =
+                            if (revealEmail) user.email
+                            else stringResource(Res.string.reveal_email),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                        modifier = Modifier
-                            .padding(4.dp)
+                        modifier = Modifier.padding(4.dp)
                     )
                 }
             }

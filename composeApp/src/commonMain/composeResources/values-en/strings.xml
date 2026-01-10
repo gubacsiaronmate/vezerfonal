@@ -38,9 +38,9 @@
     <string name="select_recipients">Select recipient(s)</string>
     <string name="languages">Languages</string>
     <string name="english">English</string>
-    <string name="magyar">Hungarian</string>
-    <string name="deutsch">German</string>
-    <string name="français">French</string>
+    <string name="hungarian">Hungarian</string>
+    <string name="german">German</string>
+    <string name="french">French</string>
     <string name="russian">Russian</string>
     <string name="ukrainian">Ukrainian</string>
     <string name="you_reacted_with">You reacted with:</string>

@@ -27,8 +27,8 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun ChangePasswordScreen() {
     val changePasswordState by remember { mutableStateOf(ChangePasswordState()) }
-    val scope = rememberCoroutineScope()
     var isSnackBarVisible by remember { mutableStateOf(false) }
+    
     Box {
         Column(
             modifier = Modifier
@@ -76,9 +76,7 @@ fun ChangePasswordScreen() {
                 )
                 Button(
                     onClick = {
-                        scope.launch{
-                            isSnackBarVisible = true
-                        }
+                        isSnackBarVisible = true
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) { Text(stringResource(Res.string.change_password)) }

@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create_group
+import vezerfonal.composeapp.generated.resources.description
 import vezerfonal.composeapp.generated.resources.group_name
 import vezerfonal.composeapp.generated.resources.name
 
@@ -80,7 +81,7 @@ import vezerfonal.composeapp.generated.resources.name
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text(stringResource(Res.string.group_name)) },
+                label = { Text(stringResource(Res.string.description)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp)

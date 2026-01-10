@@ -54,6 +54,16 @@ fun MessageViewScreen(
         (message.reactedWith != null || selectedReaction != null) || isArchived
     val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
     
+    val snackbarHostState = remember { SnackbarHostState() }
+    val sheetState = rememberStandardBottomSheetState(
+        if (isSenderView) SheetValue.Hidden
+        else SheetValue.PartiallyExpanded
+    )
+    val scaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = sheetState,
+        snackbarHostState = snackbarHostState
+    )
+    
     if (isSenderView)
         LaunchedEffect(Unit) {
             loading = true
@@ -70,23 +80,26 @@ fun MessageViewScreen(
             loading = false
         }
     
+    val content = @Composable fun() {
+        Column(
+            Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            reactionsAndUsers.forEach { (user, reaction) ->
+                SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+            }
+        }
+    }
+    
     BottomSheetScaffold(
+        scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
-        sheetContent = {
-            Column(
-                Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                reactionsAndUsers.forEach { (user, reaction) ->
-                    SentMsgBottomSheetRow(reaction.reaction!!, user.name)
-                }
-            }
-        }
+        sheetContent = { if (isSenderView) content() }
     ) {
         Box(Modifier.fillMaxSize()) {
             Column(
