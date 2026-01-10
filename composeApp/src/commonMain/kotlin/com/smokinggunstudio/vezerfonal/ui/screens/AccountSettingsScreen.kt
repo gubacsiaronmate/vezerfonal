@@ -17,21 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
-import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
@@ -40,8 +36,8 @@ fun AccountSettingsScreen(
     client: HttpClient,
     accessToken: String,
     tokenStorage: TokenStorage,
-    onLogOutClick: ClickEvent,
-    onChangePasswordClick: ClickEvent,
+    onLogOutClick: Event,
+    onChangePasswordClick: Event,
 ) {
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf<Throwable?>(null) }

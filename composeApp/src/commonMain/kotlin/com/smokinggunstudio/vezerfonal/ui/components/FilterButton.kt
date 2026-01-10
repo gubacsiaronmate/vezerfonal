@@ -14,13 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.filter
 
 @Composable fun FilterButton(
-    onClickEvent: ClickEvent
+    onClickEvent: Event
 ) {
     Row(
         modifier = Modifier

@@ -12,6 +12,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.update
 
 class RegistrationCodeRepository(val db: Database) {
     private suspend fun ResultRow.toCode(): RegistrationCode = suspendTransaction(db) {
@@ -84,12 +85,20 @@ class RegistrationCodeRepository(val db: Database) {
         registrationCodes.map { insertCode(it) }
     }
     
+    suspend fun updateCode(
+        registrationCode: RegistrationCode,
+    ): Boolean = suspendTransaction(db) {
+        RegistrationCodes.update({ RegistrationCodes.code eq registrationCode.code }) {
+            it[totalUses] = registrationCode.totalUses
+            it[remainingUses] = registrationCode.remainingUses
+        } == 1
+    }
+    
     suspend fun deleteCode(
         code: String
     ): Boolean = suspendTransaction(db) {
-        RegistrationCodes
-            .deleteWhere {
-                RegistrationCodes.code eq code
-            } == 1
+        RegistrationCodes.deleteWhere {
+            RegistrationCodes.code eq code
+        } == 1
     }
 }

@@ -163,7 +163,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                 { isJoinPopUpOn = false }
             ) { groups += it }
             
-            if (error != null) ErrorDialog(error!!.message!!, true)
+            if (error != null) ErrorDialog(error!!.message!!, error is UnauthorizedException)
         }
     }
 }

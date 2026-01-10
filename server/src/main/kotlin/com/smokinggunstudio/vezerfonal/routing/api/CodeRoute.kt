@@ -13,6 +13,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -61,6 +62,28 @@ fun Route.codeRoute(mainDB: Database) {
         if (success) call.respond(HttpStatusCode.OK)
     }
     
+    patch("/update") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@patch call.respond(HttpStatusCode.Unauthorized)
+        
+        if (!principal.user.isSuperAdmin)
+            call.respond(HttpStatusCode.Unauthorized)
+        
+        val db = principal.db
+        val org = principal.org
+        
+        val newCode = tryInternal("Unable to receive code.") {
+            call.receive<RegCodeData>().toRegCode(org)
+        } ?: return@patch call.respond(HttpStatusCode.BadRequest)
+        
+        val success = tryInternal("Unable to update code.") {
+            RegistrationCodeRepository(db)
+                .updateCode(newCode)
+        } ?: return@patch call.respond(HttpStatusCode.InternalServerError)
+        
+        if (success) call.respond(HttpStatusCode.OK)
+    }
+    
     delete("/delete") {
         val principal = call.principal<AuthResponse>()
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)
@@ -75,8 +98,7 @@ fun Route.codeRoute(mainDB: Database) {
         } ?: return@delete
         
         val success = tryInternal("Unable to delete code.") {
-            RegistrationCodeRepository(db)
-                .deleteCode(code)
+            RegistrationCodeRepository(db).deleteCode(code)
         } ?: return@delete
         
         if (success) call.respond(HttpStatusCode.OK)

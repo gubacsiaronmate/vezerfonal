@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
+import com.smokinggunstudio.vezerfonal.network.api.deleteRegCode
 import com.smokinggunstudio.vezerfonal.ui.components.CreateRegCodeDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SwipeableRegCodeCard
 import io.ktor.client.*
@@ -67,22 +68,26 @@ fun RegCodeManagementScreen(
                 }
             }
             
-            regCodes.forEach { code ->
+            regCodes.forEachIndexed { i, code ->
                 SwipeableRegCodeCard(
                     onDelete = {
                         regCodes = regCodes.filter { it != code }
                         scope.launch {
-                            // TODO: Add logic to delete reg code
+                            deleteRegCode(code.code, client, accessToken)
                         }
+                    },
+                    onEdit = {
+                        // TODO: regcode edit shit
                     },
                     regCode = code
                 )
             }
         }
         
-        Column(modifier = Modifier
-            .fillMaxSize(),
-            verticalArrangement = Arrangement.Center){
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
             if (isCreateRegCodeOpened)
                 CreateRegCodeDialog(
                     client = client,

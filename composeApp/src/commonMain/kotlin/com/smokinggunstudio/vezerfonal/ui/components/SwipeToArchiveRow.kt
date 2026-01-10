@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 
 @Composable
 fun SwipeToArchiveRow(
-    onArchive: ClickEvent,
+    onArchive: Event,
     modifier: Modifier = Modifier,
     content: ComposableContent
 ) {

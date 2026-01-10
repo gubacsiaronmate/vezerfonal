@@ -12,12 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 
 @Composable fun NavBarButton(
     icon: ImageVector,
     modifier: Modifier = Modifier,
-    onClick: ClickEvent
+    onClick: Event
 ) {
     Column(
         modifier = modifier

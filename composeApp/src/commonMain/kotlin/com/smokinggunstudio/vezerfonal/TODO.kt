@@ -3,7 +3,7 @@ package com.smokinggunstudio.vezerfonal
 fun todo() {
 //    Critical:
 //    TODO: group edit and delete buttons dont work
-//    TODO: reaction edit button doesnt work
+//    TODO: reg code edit button doesnt work
 //    TODO: user and tag management screens are completely blank
 //    TODO: sender emoji bug on iphone
 

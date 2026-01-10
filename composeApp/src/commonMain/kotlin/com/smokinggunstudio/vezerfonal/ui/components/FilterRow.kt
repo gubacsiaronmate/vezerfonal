@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import com.smokinggunstudio.vezerfonal.ui.helpers.between
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
@@ -19,7 +19,7 @@ import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
 @Composable fun FilterRow(
-    onFilterOpened: ClickEvent,
+    onFilterOpened: Event,
     onCompleted: CallbackEvent<List<MessageData>>,
     isFilterOpened: Boolean,
     messages: List<MessageData>,

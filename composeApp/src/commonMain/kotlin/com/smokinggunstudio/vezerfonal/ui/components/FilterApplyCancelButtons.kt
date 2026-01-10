@@ -18,15 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.clear
 
 @Composable fun FilterApplyCancelButtons(
-    onApply: ClickEvent,
-    onCancel: ClickEvent
+    onApply: Event,
+    onCancel: Event
 ) {
     var height by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current

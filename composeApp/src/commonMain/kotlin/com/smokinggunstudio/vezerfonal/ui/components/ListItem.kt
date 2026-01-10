@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 
 @Composable
 fun ListItem(
     title: String,
     author: String,
-    onClick: ClickEvent
+    onClick: Event
 ) {
     Row(
         modifier = Modifier

@@ -15,15 +15,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
-import kotlinx.coroutines.flow.filterIsInstance
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 
 @Composable fun AnimatedButton(
-    onClick: ClickEvent,
+    onClick: Event,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RoundedCornerShape(12.dp),
@@ -41,27 +44,44 @@ import kotlinx.coroutines.flow.filterIsInstance
     content: ComposableContent,
 ) {
     val isPressed by interactionSource.interactions
-        .filterIsInstance<PressInteraction.Press>()
-        .collectAsState(initial = null)
-
-    val scale by animateFloatAsState(targetValue = if (isPressed != null) 0.9f else 1f)
-
-    val value = if (isPressed == null) elevationNotPressed else elevationPressed
+        .map { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> true
+                is PressInteraction.Release,
+                is PressInteraction.Cancel -> false
+                else -> null
+            }
+        }
+        .filterNotNull()
+        .distinctUntilChanged()
+        .collectAsState(false)
     
-    val animation by animateDpAsState(targetValue = value)
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        label = "scale"
+    )
     
-    val elevation = ButtonDefaults.buttonElevation()
+    val elevation by animateDpAsState(
+        targetValue = if (isPressed) elevationPressed else elevationNotPressed,
+        label = "elevation"
+    )
     
+    val elevationOverride = ButtonDefaults.buttonElevation(
+        defaultElevation = elevation,
+        pressedElevation = elevation,
+        focusedElevation = elevation,
+        hoveredElevation = elevation,
+        disabledElevation = 0.dp
+    )
     
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.scale(scale),
         enabled = enabled,
         shape = shape,
         colors = colors,
-        elevation = elevation,
+        elevation = elevationOverride,
         contentPadding = contentPadding,
         interactionSource = interactionSource
     ) { content() }
-    
 }

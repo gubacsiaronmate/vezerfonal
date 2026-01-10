@@ -59,5 +59,9 @@ object NetworkConstants {
         const val GET_ARCHIVED = "/api/messages/archived/"
         
         const val GET_SENT_MESSAGES = "/api/messages/sent/"
+        
+        const val PATCH_REG_CODE = "/api/codes/update"
+        
+        const val DELETE_REG_CODE = "/api/codes/delete"
     }
 }

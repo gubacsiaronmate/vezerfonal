@@ -1,7 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,22 +25,20 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun SettingsScreen(
     user: UserData,
-    onAccountSettingsClick: ClickEvent,
-    onAdminToolsClick: ClickEvent,
-    onArchiveClick: ClickEvent,
-    onNotificationsClick: ClickEvent,
-    onTOSClick: ClickEvent,
-    onLanguageClick: ClickEvent,
-    onSentMessagesClick: ClickEvent,
+    onAccountSettingsClick: Event,
+    onAdminToolsClick: Event,
+    onArchiveClick: Event,
+    onNotificationsClick: Event,
+    onTOSClick: Event,
+    onLanguageClick: Event,
+    onSentMessagesClick: Event,
     isInDarkTheme: Boolean,
     onThemeSwitchClick: CallbackEvent<Boolean>,
 ) {

@@ -15,7 +15,7 @@ import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createGroup
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -29,7 +29,7 @@ import vezerfonal.composeapp.generated.resources.name
     client: HttpClient,
     accessToken: String,
     users: List<UserData>,
-    onCancelClick: ClickEvent,
+    onCancelClick: Event,
     onCreatedGroup: CallbackEvent<GroupData>,
 ) {
     val scope = rememberCoroutineScope()

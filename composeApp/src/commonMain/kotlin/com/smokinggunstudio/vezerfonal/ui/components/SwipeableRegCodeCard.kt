@@ -10,14 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 
 @Composable
 fun SwipeableRegCodeCard(
-    onDelete: () -> Unit,
-    regCode: RegCodeData
+    regCode: RegCodeData,
+    onEdit: Event,
+    onDelete: Event,
 ) {
     SwipeableActionItem(
         isEditable = false,
+        onEdit = onEdit,
         onDelete = onDelete,
     ) {
         Icon(Icons.Outlined.Key, null)

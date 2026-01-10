@@ -14,7 +14,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.OrOptionDivider
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import org.jetbrains.compose.resources.stringResource
@@ -24,7 +24,7 @@ import vezerfonal.composeapp.generated.resources.proceed
 import vezerfonal.composeapp.generated.resources.registration_code
 
 @Composable fun InitialRegisterScreen(
-    onCreateOrgClick: ClickEvent,
+    onCreateOrgClick: Event,
     onContinueClick: CallbackEvent<RegisterStateModel>,
 ) {
     Column(

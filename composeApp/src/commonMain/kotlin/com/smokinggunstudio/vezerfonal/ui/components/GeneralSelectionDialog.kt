@@ -12,7 +12,7 @@ import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
@@ -34,7 +34,7 @@ import vezerfonal.composeapp.generated.resources.cancel
 @OptIn(ExperimentalMaterial3Api::class)
 internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
     snapshot: SelectionStateModel<T>,
-    noinline onCancelClick: ClickEvent,
+    noinline onCancelClick: Event,
     onApplyClick: CallbackEvent<List<T>>,
     noinline prefixContent: ComposableContent = { },
 ) {

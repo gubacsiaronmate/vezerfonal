@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.ClickEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Event
 import com.smokinggunstudio.vezerfonal.ui.theme.Black
 import kotlin.math.roundToInt
 
@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 fun SlidingConfirmButton(
     roundness: Dp,
     modifier: Modifier = Modifier,
-    onComplete: ClickEvent
+    onComplete: Event
 ) {
     BoxWithConstraints(modifier.padding(8.dp)) {
         val height = maxHeight
