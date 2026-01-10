@@ -49,7 +49,7 @@ suspend fun MessageData.toMessage(db: Database): Message {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
-    val author = urepo.getUserByIdentifier(author.externalId)!!
+    val author = urepo.getUserByExternalId(author.externalId)!!
     val tagList = tags.map { tagName ->
         TagRepository(db)
             .getTagByName(tagName)
@@ -61,18 +61,19 @@ suspend fun MessageData.toMessage(db: Database): Message {
     
     val users = userIdentifiers
         .orEmpty()
-        .map { urepo.getUserByIdentifier(it)!! }
+        .map { urepo.getUserByExternalId(it)!! }
     val groupData = groups
         .orEmpty()
         .map { grepo.getGroupByExtId(it)!! }
     val groups = groupData.map {
-        grepo.getExactGroupByNameAndAdminIdentifier(
+        grepo.getExactGroupByNameAndAdminExternalId(
             name = it.displayName,
-            identifier = it.admin.externalId
+            externalId = it.admin.externalId
         )!!
     }
-    val allGroupUsers = groups
-        .flatMap { group -> group.members.map { it.user } }
+    val allGroupUsers = groups.flatMap { group ->
+        group.members.map { it.user }
+    }
     val combinedUsers = users + allGroupUsers
     
     when(combinedUsers.size) {
@@ -113,10 +114,10 @@ suspend fun GroupData.toGroup(
     db: Database
 ): Group {
     val urepo = UserRepository(db)
-    val admin = urepo.getUserByIdentifier(adminIdentifier)!!
+    val admin = urepo.getUserByExternalId(adminIdentifier)!!
     val memberships = members.map { identifier ->
         Membership(
-            user = urepo.getUserByIdentifier(identifier)!!,
+            user = urepo.getUserByExternalId(identifier)!!,
             groupId = null,
             joinedAt = Clock.System.now()
         )
@@ -151,7 +152,7 @@ suspend fun InteractionInfoData.toInteractionInfo(user: User, db: Database): Int
     
     val message = mrepo.getMessageByExtId(messageExtId)!!
     val recipient = recipientIdentifier
-        ?.let { urepo.getUserByIdentifier(it) }
+        ?.let { urepo.getUserByExternalId(it) }
     
     return when (type) {
         InteractionType.status -> InteractionInfo(

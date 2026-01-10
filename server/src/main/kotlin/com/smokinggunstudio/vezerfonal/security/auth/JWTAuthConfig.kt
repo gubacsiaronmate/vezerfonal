@@ -3,7 +3,6 @@ package com.smokinggunstudio.vezerfonal.security.auth
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.helpers.isExpired
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
@@ -14,8 +13,6 @@ import com.smokinggunstudio.vezerfonal.security.verifyLongStringHash
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.name
-import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -40,7 +37,7 @@ fun AuthenticationConfig.configureJWTAuth(mainDB: Database) {
             val db = ensureOrgDB(org.name)
                 ?: return@validate null
             
-            val user = with(UserRepository(db).getUserByIdentifier(userExtId)) {
+            val user = with(UserRepository(db).getUserByExternalId(userExtId)) {
                 if (this == null) return@validate null
                 isAnyAdmin = GroupRepository(db).getGroupsByAdminId(id!!).isNotEmpty() || isSuperAdmin
                 return@with this

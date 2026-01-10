@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
@@ -53,6 +54,7 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(8.dp)
+            .onVisibilityChanged { visible -> if (!visible) onCancelClick() }
     ) {
         SearchBar(
             snapshot = searchBarState.snapshot(),

@@ -11,8 +11,6 @@ import com.smokinggunstudio.vezerfonal.repositories.OrganisationRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import java.time.Instant
-import java.time.ZoneOffset
 import java.util.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -70,7 +68,7 @@ object JWTConfig {
             .sign(algorithm)
         
         val user = UserRepository(db)
-            .getUserByIdentifier(userExtId)
+            .getUserByExternalId(userExtId)
             ?: error("Cannot resolve user by id: $userExtId")
         
         val success = with(JWTRepository(db)) {

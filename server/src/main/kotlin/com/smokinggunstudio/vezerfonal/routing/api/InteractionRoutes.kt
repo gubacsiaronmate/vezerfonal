@@ -44,7 +44,7 @@ fun Route.interactionRoute() {
             val interactionsAndUsers = tryInternal("Unable to get users") {
                 interactions.map {
                     val u = UserRepository(db)
-                        .getUserByIdentifier(it.userIdentifier)
+                        .getUserByExternalId(it.userIdentifier)
                         ?: return@tryInternal null
                     Pair(u.toDTO(), it)
                 }

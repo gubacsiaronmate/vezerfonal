@@ -65,7 +65,7 @@ fun Route.userRoute() {
         val users = tryInternal("Unable to get any user.") {
             identifiers.mapNotNull {
                 UserRepository(db)
-                    .getUserByIdentifier(it)
+                    .getUserByExternalId(it)
                     ?.toDTO()
             }.ifEmpty { null }
         } ?: return@post call.respond(HttpStatusCode.InternalServerError)

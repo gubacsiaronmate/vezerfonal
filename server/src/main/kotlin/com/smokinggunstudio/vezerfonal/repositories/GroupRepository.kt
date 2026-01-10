@@ -9,7 +9,6 @@ import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.objects.Groups
-import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.and
@@ -50,16 +49,15 @@ class GroupRepository(val db: Database) {
             Groups.selectAll().map { it.toGroup() }
         }
     
-    suspend fun getGroupByCondition(
-        condition: SQLCondition
-    ): Group? = suspendTransaction(db) {
-        Groups
-            .select(condition)
-            .toList()
-            .ifNotEmpty()
-            ?.single()
-            ?.toGroup()
-    }
+    suspend fun getGroupByCondition(condition: SQLCondition): Group? =
+        suspendTransaction(db) {
+            Groups
+                .select(condition)
+                .toList()
+                .ifNotEmpty()
+                ?.single()
+                ?.toGroup()
+        }
     
     suspend fun getGroupsByCondition(
         condition: SQLCondition
@@ -67,47 +65,42 @@ class GroupRepository(val db: Database) {
         Groups.select(condition).map { it.toGroup() }
     }
     
-    suspend fun getGroupById(
-        id: Int,
-    ): Group? = suspendTransaction(db) { getGroupByCondition { Groups.id eq id } }
+    suspend fun getGroupById(id: Int): Group? =
+        suspendTransaction(db) { getGroupByCondition { Groups.id eq id } }
     
-    suspend fun getGroupsByAdminId(
-        id: Int,
-    ): List<Group> = suspendTransaction(db) { getGroupsByCondition { Groups.groupAdminId eq id } }
+    suspend fun getGroupsByAdminId(id: Int): List<Group> =
+        suspendTransaction(db) { getGroupsByCondition { Groups.groupAdminId eq id } }
     
     
-    suspend fun getExactGroupByNameAndAdminIdentifier(
+    suspend fun getExactGroupByNameAndAdminExternalId(
         name: String,
-        identifier: String,
+        externalId: String,
     ): Group? = suspendTransaction(db) {
-        val admin = UserRepository(db).getUserByIdentifier(identifier)
+        val admin = UserRepository(db).getUserByExternalId(externalId)
             ?: return@suspendTransaction null
         
         getGroupByCondition {
-            (Groups.displayName eq name) and
-                    (Groups.groupAdminId eq admin.id!!)
+            (Groups.displayName eq name) and (Groups.groupAdminId eq admin.id!!)
         }
     }
     
-    suspend fun getAllGroupsByMemberUserId(
-        id: Int,
-    ): List<Group> = suspendTransaction(db) {
-        getGroupsByCondition {
-            Groups.id inSubQuery UserGroupConnection
-                .select { UserGroupConnection.userId eq id }
-                .adjustSelect { select(UserGroupConnection.groupId) }
-        }
-    }
-    
-    suspend fun getGroupByName(
+    suspend fun getExactGroupByNameAndAdminId(
         name: String,
-    ): Group? = suspendTransaction(db) { getGroupByCondition { Groups.displayName eq name } }
-    
-    suspend fun getGroupsByMessageId(
         id: Int,
-    ): List<Group> = suspendTransaction(db) {
-        getGroupsByCondition { (Messages.id eq id) and (Messages.groupId eq Groups.id) }
+    ): Group? = suspendTransaction(db) {
+        getGroupByCondition {
+            (Groups.displayName eq name) and (Groups.groupAdminId eq id)
+        }
     }
+    
+    suspend fun getAllGroupsByMemberUserId(id: Int): List<Group> =
+        suspendTransaction(db) {
+            getGroupsByCondition {
+                Groups.id inSubQuery UserGroupConnection
+                    .select { UserGroupConnection.userId eq id }
+                    .adjustSelect { select(UserGroupConnection.groupId) }
+            }
+        }
     
     suspend fun getGroupByExtId(
         externalId: String
@@ -117,69 +110,70 @@ class GroupRepository(val db: Database) {
     
     suspend fun doesGroupExist(
         name: String,
-        identifier: String,
+        admin: User,
     ): Boolean = suspendTransaction(db) {
-        getExactGroupByNameAndAdminIdentifier(name, identifier) != null
+        getExactGroupByNameAndAdminId(name, admin.id!!) != null
     }
     
     @OptIn(ExperimentalTime::class)
-    suspend fun insertGroup(
-        group: Group,
-    ): Boolean = suspendTransaction(db) {
-        val doesGroupExist = doesGroupExist(
-            name = group.displayName,
-            identifier = group.admin.externalId
-        )
-        val admin = UserRepository(db).getUserByIdentifier(group.admin.externalId)
-        if (!doesGroupExist && admin != null) {
-            val insert = Groups.insert {
-                it[displayName] = group.displayName
-                it[description] = group.description
-                it[groupAdminId] = admin.id!!
-                it[externalId] = group.externalId
+    suspend fun insertGroup(group: Group): Boolean =
+        suspendTransaction(db) {
+            val admin = UserRepository(db).getUserByExternalId(group.admin.externalId)
+                ?: return@suspendTransaction false
+            
+            val doesGroupExist = doesGroupExist(
+                name = group.displayName,
+                admin = admin
+            )
+            
+            if (!doesGroupExist) {
+                val insert = Groups.insert {
+                    it[displayName] = group.displayName
+                    it[description] = group.description
+                    it[groupAdminId] = admin.id!!
+                    it[externalId] = group.externalId
+                }
+                group.members.forEach {
+                    MembershipRepository(db).insertMemberIntoGroup(
+                        newUserId = UserRepository(db).getUserByExternalId(it.user.externalId)!!.id!!,
+                        newGroupId = insert[Groups.id],
+                    )
+                }
+                insert.insertedCount == 1
             }
-            group.members.forEach {
-                MembershipRepository(db).insertMemberIntoGroup(
-                    newUserId = UserRepository(db).getUserByIdentifier(it.user.externalId)!!.id!!,
-                    newGroupId = insert[Groups.id],
-                )
-            }
-            insert.insertedCount == 1
+            else false
         }
-        else false
-    }
     
     @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
-    suspend fun createInternalGroup(
-        members: List<User>,
-    ): Group = suspendTransaction(db) {
-        val groupName = Uuid.random().toString()
-        val admin = UserRepository(db).createInternalUser()
-        val memberships = members.map { user -> Membership(user, null, Clock.System.now()) }
-        insertGroup(
-            Group(
-                id = null,
-                displayName = groupName,
-                description = "",
-                members = memberships,
-                admin = admin,
-                externalId = getExtId(),
-                isInternal = true,
-                createdAt = Clock.System.now(),
-                updatedAt = Clock.System.now(),
-                deletedAt = null
+    suspend fun createInternalGroup(members: List<User>): Group =
+        suspendTransaction(db) {
+            val groupName = Uuid.random().toString()
+            val admin = UserRepository(db).createInternalUser()
+            val memberships = members.map { user -> Membership(user, null, Clock.System.now()) }
+            insertGroup(
+                Group(
+                    id = null,
+                    displayName = groupName,
+                    description = "",
+                    members = memberships,
+                    admin = admin,
+                    externalId = getExtId(),
+                    isInternal = true,
+                    createdAt = Clock.System.now(),
+                    updatedAt = Clock.System.now(),
+                    deletedAt = null
+                )
             )
-        )
-        val group = getExactGroupByNameAndAdminIdentifier(
-            name = groupName,
-            identifier = admin.externalId
-        )!!
-        memberships.forEach {
-            MembershipRepository(db).insertMemberIntoGroup(
-                newUserId = UserRepository(db).getUserByIdentifier(it.user.externalId)!!.id!!,
-                newGroupId = group.id!!,
-            )
+            val group = getExactGroupByNameAndAdminExternalId(
+                name = groupName,
+                externalId = admin.externalId
+            )!!
+            memberships.forEach {
+                MembershipRepository(db).insertMemberIntoGroup(
+                    newUserId = UserRepository(db).getUserByExternalId(it.user.externalId)!!.id!!,
+                    newGroupId = group.id!!,
+                )
+            }
+            return@suspendTransaction group
         }
-        group
-    }
 }

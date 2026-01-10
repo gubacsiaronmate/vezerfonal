@@ -99,7 +99,7 @@ class MessageRepository(val db: Database) {
     suspend fun getMessagesByUserIdentifier(
         identifier: String,
     ): List<Message> = suspendTransaction(db) {
-        val user = UserRepository(db).getUserByIdentifier(identifier)
+        val user = UserRepository(db).getUserByExternalId(identifier)
             ?: return@suspendTransaction emptyList()
         
         getMessagesByCondition { Messages.userId eq user.id!! }

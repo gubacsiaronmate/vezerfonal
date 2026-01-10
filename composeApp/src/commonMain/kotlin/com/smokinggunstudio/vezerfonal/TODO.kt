@@ -2,11 +2,10 @@ package com.smokinggunstudio.vezerfonal
 
 fun todo() {
 //    Critical:
+//    TODO: group edit and delete buttons dont work
+//    TODO: reaction edit button doesnt work
 //    TODO: user and tag management screens are completely blank
-//    TODO: group create crash
 //    TODO: sender emoji bug on iphone
-//    TODO: group, individual and tag select doesn't reopen when not closed via the cancel button
-//    TODO: swipeable group cards don't work
 
 //    Non-critical:
 //    TODO: edit display name in account settings
@@ -20,6 +19,9 @@ fun todo() {
 }
 
 fun done() {
+//    Done: group create crash (unknown error)
+//    Done: group, individual and tag select doesn't reopen when not closed via the cancel button
+//    Done: swipeable group cards don't work
 //    Done: bottom sheet shows up on the recipient's read message screen
 //    Done: bottom sheet shows up on the recipient's archive screen
 //    Done: create group popup text fields

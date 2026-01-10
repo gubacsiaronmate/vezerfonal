@@ -14,10 +14,12 @@ suspend fun createGroup(
     accessToken: String,
     groupData: GroupData,
 ): Boolean {
-    val response = client
-        .post(NetworkConstants.Endpoints.CREATE_GROUP) {
-            bearerAuth(accessToken); setBody(groupData)
-        }
+    val url = NetworkConstants.Endpoints.CREATE_GROUP
+    
+    val response = client.post(url) {
+        bearerAuth(accessToken)
+        setBody(groupData)
+    }
     
     return when (val status = response.status) {
         HttpStatusCode.OK -> true

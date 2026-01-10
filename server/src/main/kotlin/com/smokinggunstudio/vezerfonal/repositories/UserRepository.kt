@@ -62,13 +62,13 @@ class UserRepository(val db: Database) {
         email: String,
     ): User? = suspendTransaction(db) { getUserByCondition { Users.email eq email } }
     
-    suspend fun getUserByIdentifier(
+    suspend fun getUserByExternalId(
         identifier: String,
     ): User? = suspendTransaction(db) { getUserByCondition { Users.externalId eq identifier } }
     
     suspend fun doesUserExist(
         identifier: String
-    ): Boolean = suspendTransaction(db) { getUserByIdentifier(identifier) != null }
+    ): Boolean = suspendTransaction(db) { getUserByExternalId(identifier) != null }
     
     suspend fun insertUser(
         user: User,
@@ -122,7 +122,7 @@ class UserRepository(val db: Database) {
                     deletedAt = null
                 )
             )
-            val user = getUserByIdentifier(identifier)!!
+            val user = getUserByExternalId(identifier)!!
             user
         }
 }

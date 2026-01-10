@@ -52,15 +52,10 @@ import vezerfonal.composeapp.generated.resources.name
                 )
                 
                 try {
+                    onCancelClick()
                     scope.launch {
-                        if (createGroup(
-                                groupData = group,
-                                accessToken = accessToken,
-                                client = client
-                            )
-                        ) {
+                        if (createGroup(client, accessToken, group)) {
                             onCreatedGroup(group)
-                            onCancelClick()
                         }
                     }
                 } catch (e: UnauthorizedException) {

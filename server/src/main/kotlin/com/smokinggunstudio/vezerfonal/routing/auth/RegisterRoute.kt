@@ -70,7 +70,7 @@ fun Route.registerRoute(
             } ?: return@post
             
             if (insertSuccess) {
-                val user = urepo.getUserByIdentifier(user.externalId)
+                val user = urepo.getUserByExternalId(user.externalId)
                     ?: error("Cannot get user by identifier.")
                 val userId = user.id ?: error("Cannot get user id.")
                 call.respondText("$userId", status = HttpStatusCode.Created)
@@ -113,7 +113,7 @@ fun Route.registerRoute(
                 }
                 
                 val urepo = UserRepository(db!!)
-                val user = urepo.getUserByIdentifier(userExtId)
+                val user = urepo.getUserByExternalId(userExtId)
                     ?: error("Cannot get user by identifier.")
                 
                 val data = tryIncoming("Unable to receive image bytes.") {
