@@ -56,8 +56,10 @@ fun MessageViewScreen(
     
     val snackbarHostState = remember { SnackbarHostState() }
     val sheetState = rememberStandardBottomSheetState(
-        if (isSenderView) SheetValue.Hidden
-        else SheetValue.PartiallyExpanded
+        initialValue =
+            if (!isSenderView) SheetValue.Hidden
+            else SheetValue.PartiallyExpanded,
+        skipHiddenState = false
     )
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState,
@@ -99,7 +101,7 @@ fun MessageViewScreen(
             .fillMaxSize()
             .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
-        sheetContent = { if (isSenderView) content() }
+        sheetContent = { if (!isSenderView) content() }
     ) {
         Box(Modifier.fillMaxSize()) {
             Column(
