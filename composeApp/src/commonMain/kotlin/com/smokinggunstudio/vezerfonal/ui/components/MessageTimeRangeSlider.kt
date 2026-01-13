@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import com.smokinggunstudio.vezerfonal.helpers.toLocalDateTimeDefault
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.end
@@ -28,7 +28,7 @@ fun MessageTimeRangeSlider(
         "${local.date.toString().replace("-", ". ")}. ${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
     },
     onRangeSelected: (ClosedFloatingPointRange<Float>) -> Unit,
-    scrollLockedBySliderCallback: CallbackEvent<Boolean>
+    scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
     val isDragging = remember { mutableStateOf(false) }
     var sliderPosition by remember(initialRange) { mutableStateOf(initialRange) }

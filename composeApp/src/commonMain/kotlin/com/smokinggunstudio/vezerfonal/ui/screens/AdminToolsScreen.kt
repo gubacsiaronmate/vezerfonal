@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.admin_tools
@@ -24,9 +24,9 @@ import vezerfonal.composeapp.generated.resources.user_management
 
 @Composable
 fun AdminToolsScreen(
-    onUserManagementClick: Event,
-    onTagManagementClick: Event,
-    onRegistrationCodeManagementClick: Event
+    onUserManagementClick: Function,
+    onTagManagementClick: Function,
+    onRegistrationCodeManagementClick: Function
 ) {
     Column(
         modifier = Modifier

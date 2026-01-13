@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 
 @Composable
@@ -33,7 +33,7 @@ fun SettingRow(
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
         )
     },
-    onClick: Event = { }
+    onClick: Function = { }
 ) {
     HorizontalDivider(modifier = Modifier.height(1.dp).padding(horizontal = 8.dp))
     Row(

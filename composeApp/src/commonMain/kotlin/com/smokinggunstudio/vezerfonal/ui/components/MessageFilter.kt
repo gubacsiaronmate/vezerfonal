@@ -14,8 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import org.jetbrains.compose.resources.stringResource
@@ -26,9 +26,9 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 fun MessageFilter(
     snapshot: MessageFilterStateModel,
-    tabOpenedClick: Event,
+    tabOpenedClick: Function,
     modifier: Modifier = Modifier,
-    scrollLockedBySliderCallback: CallbackEvent<Boolean>
+    scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
     val state = remember { MessageFilterStateController(snapshot) }
     

@@ -14,7 +14,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.isValidEmail
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
@@ -23,7 +23,7 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun CredentialsRegisterScreen(
     snapshot: RegisterStateModel,
-    onClick: CallbackEvent<RegisterStateModel>
+    onClick: CallbackFunction<RegisterStateModel>
 ) {
     val state = remember { RegisterStateController(snapshot) }
     

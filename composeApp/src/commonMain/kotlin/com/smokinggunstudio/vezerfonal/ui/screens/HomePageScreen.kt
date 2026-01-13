@@ -20,7 +20,7 @@ import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
@@ -43,8 +43,8 @@ fun HomePageScreen(
     client: HttpClient,
     accessToken: String,
     userIdentifier: String,
-    onMessageClick: CallbackEvent<MessageData>,
-    scrollLockedBySliderCallback: CallbackEvent<Boolean>
+    onMessageClick: CallbackFunction<MessageData>,
+    scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }

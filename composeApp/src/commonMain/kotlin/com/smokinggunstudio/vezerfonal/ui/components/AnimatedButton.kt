@@ -20,13 +20,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 
 @Composable fun AnimatedButton(
-    onClick: Event,
+    onClick: Function,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RoundedCornerShape(12.dp),

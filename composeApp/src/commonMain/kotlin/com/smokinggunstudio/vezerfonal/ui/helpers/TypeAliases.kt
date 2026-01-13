@@ -2,6 +2,6 @@ package com.smokinggunstudio.vezerfonal.ui.helpers
 
 import androidx.compose.runtime.Composable
 
-typealias Event = () -> Unit
+typealias Function = () -> Unit
 
 typealias ComposableContent = @Composable () -> Unit

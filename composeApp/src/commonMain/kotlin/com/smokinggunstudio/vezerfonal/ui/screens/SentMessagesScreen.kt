@@ -13,7 +13,7 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getSentMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
@@ -24,7 +24,7 @@ import kotlin.time.ExperimentalTime
 @Composable fun SentMessagesScreen(
     client: HttpClient,
     accessToken: String,
-    onMessageClick: CallbackEvent<MessageData>,
+    onMessageClick: CallbackFunction<MessageData>,
 ) {
     var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }

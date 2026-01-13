@@ -10,13 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 
 @Composable
 fun RecipientSelectButton(
     text: String,
     selectedAmount: Int,
-    onClick: Event
+    onClick: Function
 ) {
     Button(
         onClick = onClick,

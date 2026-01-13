@@ -15,7 +15,7 @@ import com.smokinggunstudio.vezerfonal.helpers.NotCreatedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.network.api.createOrgRequest
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
@@ -30,7 +30,7 @@ import vezerfonal.composeapp.generated.resources.organization_name
 fun CreateOrganizationScreen(
     snapshot: RegisterStateModel,
     client: HttpClient,
-    onClick: CallbackEvent<RegisterStateModel>
+    onClick: CallbackFunction<RegisterStateModel>
 ) {
     val scope = rememberCoroutineScope()
     val state = remember { RegisterStateController(snapshot) }

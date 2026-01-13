@@ -24,7 +24,7 @@ import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -36,8 +36,8 @@ fun AccountSettingsScreen(
     client: HttpClient,
     accessToken: String,
     tokenStorage: TokenStorage,
-    onLogOutClick: Event,
-    onChangePasswordClick: Event,
+    onLogOutClick: Function,
+    onChangePasswordClick: Function,
 ) {
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf<Throwable?>(null) }

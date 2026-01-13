@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.cancel
@@ -19,8 +19,8 @@ import vezerfonal.composeapp.generated.resources.create
 @Composable
 fun CreateDialog(
     titleText: String,
-    onCancelClick: Event,
-    onCreateClick: Event,
+    onCancelClick: Function,
+    onCreateClick: Function,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,

@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.network.api.deleteRegCode
 import com.smokinggunstudio.vezerfonal.ui.components.CreateRegCodeDialog
+import com.smokinggunstudio.vezerfonal.ui.components.RegCodeEditDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SwipeableRegCodeCard
 import io.ktor.client.*
 import kotlinx.coroutines.launch
@@ -29,6 +30,8 @@ fun RegCodeManagementScreen(
     val scope = rememberCoroutineScope()
     var regCodes by remember(registrationCodes) { mutableStateOf(registrationCodes) }
     var isCreateRegCodeOpened by remember { mutableStateOf(false) }
+    var newTotalUses by remember { mutableStateOf<Int?>(null) }
+    var isRegCodeEditOpened by remember { mutableStateOf(false) }
     
     Box(
         modifier = Modifier
@@ -68,7 +71,7 @@ fun RegCodeManagementScreen(
                 }
             }
             
-            regCodes.forEachIndexed { i, code ->
+            regCodes.forEach { code ->
                 SwipeableRegCodeCard(
                     onDelete = {
                         regCodes = regCodes.filter { it != code }
@@ -76,9 +79,7 @@ fun RegCodeManagementScreen(
                             deleteRegCode(code.code, client, accessToken)
                         }
                     },
-                    onEdit = {
-                        // TODO: regcode edit shit
-                    },
+                    onEdit = { isRegCodeEditOpened = true },
                     regCode = code
                 )
             }
@@ -94,6 +95,13 @@ fun RegCodeManagementScreen(
                     accessToken = accessToken,
                     onCancelClick = { isCreateRegCodeOpened = false }
                 ) { regCodes += it }
+            
+            if (isRegCodeEditOpened)
+                RegCodeEditDialog({ isRegCodeEditOpened = false }) {
+//                    regCodes = regCodes.mapIndexed { idx, code ->
+//                        if ()
+//                    }
+                }
         }
     }
 }

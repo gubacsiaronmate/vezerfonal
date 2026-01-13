@@ -8,6 +8,7 @@ package com.smokinggunstudio.vezerfonal
 //    TODO: tag system
 
 //    Non-critical:
+//    TODO: archive screen sometimes wants re-login
 //    TODO: edit display name in account settings
 //    TODO: change pfp in account settings
 //    TODO: notification settings screen

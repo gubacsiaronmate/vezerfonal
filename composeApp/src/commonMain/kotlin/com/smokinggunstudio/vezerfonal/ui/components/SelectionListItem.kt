@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 
 @Composable
@@ -20,7 +20,7 @@ inline fun <reified T : NamedDTO> SelectionListItem(
     item: T,
     isChecked: Boolean,
     noinline prefixContent: ComposableContent? = null,
-    onCheckedChange: CallbackEvent<Boolean>
+    onCheckedChange: CallbackFunction<Boolean>
 ) {
     var checked by remember(isChecked) { mutableStateOf(isChecked) }
     Row(

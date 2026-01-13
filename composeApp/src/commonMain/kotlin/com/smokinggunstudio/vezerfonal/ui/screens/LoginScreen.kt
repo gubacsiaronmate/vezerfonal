@@ -21,7 +21,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.DropdownSearchBar
 import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.state.controller.LoginStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.LoginStateModel
 import io.ktor.client.*
@@ -33,7 +33,7 @@ import vezerfonal.composeapp.generated.resources.*
 fun LoginScreen(
     client: HttpClient,
     orgsStr: List<String>,
-    onClick: CallbackEvent<TokenResponse>
+    onClick: CallbackFunction<TokenResponse>
 ) {
     val orgs = orgsStr.map { it.toDTO<OrgData>() }
     val state by remember { mutableStateOf(LoginStateController(LoginStateModel())) }

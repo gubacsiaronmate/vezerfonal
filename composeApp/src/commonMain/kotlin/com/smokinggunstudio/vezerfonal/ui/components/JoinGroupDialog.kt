@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.network.api.joinGroup
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -22,8 +22,8 @@ import vezerfonal.composeapp.generated.resources.*
 fun JoinGroupDialog(
     accessToken: String,
     client: HttpClient,
-    onCancelClick: Event,
-    onGroupJoined: CallbackEvent<GroupData>
+    onCancelClick: Function,
+    onGroupJoined: CallbackFunction<GroupData>
 ) {
     val scope = rememberCoroutineScope()
     var groupExtId by remember { mutableStateOf("") }

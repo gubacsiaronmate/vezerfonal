@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -21,8 +21,8 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LandingPageScreen(
-    onRegisterClick: Event,
-    onLoginClick: Event,
+    onRegisterClick: Function,
+    onLoginClick: Function,
 ) {
     Column(
         modifier = Modifier

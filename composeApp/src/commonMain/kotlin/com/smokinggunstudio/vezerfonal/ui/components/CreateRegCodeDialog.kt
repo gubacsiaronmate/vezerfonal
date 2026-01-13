@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.createRegCode
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.genRegCode
 import io.ktor.client.*
 import kotlinx.coroutines.launch
@@ -28,8 +28,8 @@ import vezerfonal.composeapp.generated.resources.total_uses
 fun CreateRegCodeDialog(
     client: HttpClient,
     accessToken: String,
-    onCancelClick: Event,
-    onCreatedRegCode: CallbackEvent<RegCodeData>
+    onCancelClick: Function,
+    onCreatedRegCode: CallbackFunction<RegCodeData>
 ) {
     val scope = rememberCoroutineScope()
     var totalUses by remember { mutableStateOf("") }

@@ -9,13 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 
 @Composable
 internal inline fun <reified T : NamedDTO> DropdownSearchBar(
     allItems: List<T>,
     labelText: String,
-    onItemSelected: CallbackEvent<T>
+    onItemSelected: CallbackFunction<T>
 ) {
     var expanded by remember { mutableStateOf(false) }
     var filtered by remember(allItems) { mutableStateOf(allItems) }

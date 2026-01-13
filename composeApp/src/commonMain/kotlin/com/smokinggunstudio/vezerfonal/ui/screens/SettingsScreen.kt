@@ -24,23 +24,23 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.components.SettingsNameCard
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun SettingsScreen(
     user: UserData,
-    onAccountSettingsClick: Event,
-    onAdminToolsClick: Event,
-    onArchiveClick: Event,
-    onNotificationsClick: Event,
-    onTOSClick: Event,
-    onLanguageClick: Event,
-    onSentMessagesClick: Event,
+    onAccountSettingsClick: Function,
+    onAdminToolsClick: Function,
+    onArchiveClick: Function,
+    onNotificationsClick: Function,
+    onTOSClick: Function,
+    onLanguageClick: Function,
+    onSentMessagesClick: Function,
     isInDarkTheme: Boolean,
-    onThemeSwitchClick: CallbackEvent<Boolean>,
+    onThemeSwitchClick: CallbackFunction<Boolean>,
 ) {
     var checked by remember { mutableStateOf(isInDarkTheme) }
 

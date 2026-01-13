@@ -11,13 +11,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 
 @Composable fun ScrollableMessageList(
     isSwipeable: Boolean,
     messages: List<MessageData>,
-    onMessageClick: CallbackEvent<MessageData>,
-    onArchive: CallbackEvent<MessageData>,
+    onMessageClick: CallbackFunction<MessageData>,
+    onArchive: CallbackFunction<MessageData>,
     popUpContent: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {

@@ -1,9 +1,8 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -13,8 +12,8 @@ import kotlinx.serialization.json.Json
 suspend fun subscribeToMessages(
     client: HttpClient,
     accessToken: String,
-    onMessage: CallbackEvent<MessageData>,
-    onError: CallbackEvent<Throwable> = CallbackEvent { throw it }
+    onMessage: CallbackFunction<MessageData>,
+    onError: CallbackFunction<Throwable> = CallbackFunction { throw it }
 ) {
     try {
         client

@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.FilePicker
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -27,7 +27,7 @@ import vezerfonal.composeapp.generated.resources.set_profile_picture
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier,
-    onFilePickCallBack: CallbackEvent<FileData?>
+    onFilePickCallBack: CallbackFunction<FileData?>
 ) {
     val filePicker = FilePicker()
     val scope = rememberCoroutineScope()

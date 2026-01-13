@@ -18,7 +18,7 @@ import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PfpSetter
 import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import io.ktor.client.*
@@ -29,7 +29,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable fun ProfileCreationScreen(
     snapshot: RegisterStateModel,
     client: HttpClient,
-    onClick: CallbackEvent<TokenResponse>
+    onClick: CallbackFunction<TokenResponse>
 ) {
     val scope = rememberCoroutineScope()
     var rememberMe by remember { mutableStateOf(false) }

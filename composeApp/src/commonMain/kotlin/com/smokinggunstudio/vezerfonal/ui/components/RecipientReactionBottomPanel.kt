@@ -13,15 +13,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEvent
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.ShapeModifier
 
 @Composable
 fun RecipientReactionBottomPanel(
     availableReactions: List<String>?,
     modifier: Modifier = Modifier,
-    onIsReactionBarVisible: CallbackEvent<Boolean>,
-    onReactionSelected: CallbackEvent<String>
+    onIsReactionBarVisible: CallbackFunction<Boolean>,
+    onReactionSelected: CallbackFunction<String>
 ) {
     var isReactionBarVisible by remember { mutableStateOf(false) }
     var selectedReaction by remember { mutableStateOf<String?>(null) }

@@ -12,18 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 
 @Composable
 fun SettingsNameCard(
     username: String,
-    onClickEvent: Event,
+    onClickFunction: Function,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp)
-            .clickable { onClickEvent() },
+            .clickable { onClickFunction() },
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

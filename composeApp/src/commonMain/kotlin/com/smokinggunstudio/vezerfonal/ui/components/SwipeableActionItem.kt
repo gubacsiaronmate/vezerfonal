@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.Event
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun SwipeableActionItem(
     isEditable: Boolean,
-    onEdit: Event = {},
-    onDelete: Event,
+    onEdit: Function = {},
+    onDelete: Function,
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
