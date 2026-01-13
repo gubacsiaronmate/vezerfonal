@@ -71,6 +71,6 @@ fun JoinGroupDialog(
                 }) { Text(stringResource(Res.string.join)) }
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, true)
+        if (error != null) ErrorDialog(error!!)
     }
 }

@@ -21,7 +21,7 @@ object HomeCache {
         if (loaded) return
 
         user = getUserData(accessToken, client)
-        groups = getGroupData(accessToken, client)
+        val g = getGroupData(accessToken, client)
 
         if (user!!.isSuperAdmin)
             regCodes = getAllRegCodes(accessToken, client)
@@ -36,6 +36,8 @@ object HomeCache {
         )
 
         tagList = getAllTags(accessToken, client)
+        
+        groups = g + guiao
         
         loaded = true
     }

@@ -8,6 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
+import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.UserNotFoundException
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.helpers.exitApp
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
@@ -18,11 +21,11 @@ import vezerfonal.composeapp.generated.resources.leave
 import vezerfonal.composeapp.generated.resources.login
 
 @Composable fun ErrorDialog(
-    errorMessage: String,
-    isUnauthed: Boolean,
+    error: Throwable,
     modifier: Modifier = Modifier,
 ) {
     val navigator = LocalNavigator.currentOrThrow
+    val isUnauthed = error is UnauthorizedException
 
     Dialog(modifier = modifier) {
         Text(
@@ -30,7 +33,14 @@ import vezerfonal.composeapp.generated.resources.login
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.error
         )
-        Text(errorMessage)
+        
+        when (error) {
+            is UnauthorizedException,
+            is UnableToLoadException,
+            is UserNotFoundException
+                -> error.message?.let { Text(it) }
+        }
+        
         Button(
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.error,
@@ -39,16 +49,15 @@ import vezerfonal.composeapp.generated.resources.login
             onClick = {
                 HomeCache.invalidate()
 
-                if (navigator.lastItem !is Landing)
-                    if (isUnauthed)
-                        navigator.replaceAll(Landing)
-                    else navigator.popUntilRoot()
-                else exitApp() /*throw Exception("No way to reliably exit apps so just fail.")*/
+                if (navigator.lastItem is Landing) exitApp()
+                else navigator.popUntilRoot()
             },
         ) {
-            if (isUnauthed && navigator.lastItem !is Landing)
-                Text(stringResource(Res.string.login))
-            else Text(stringResource(Res.string.leave))
+            val strRes = if (isUnauthed)
+                Res.string.login
+            else Res.string.leave
+            
+            Text(stringResource(strRes))
         }
     }
 }

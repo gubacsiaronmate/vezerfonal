@@ -26,6 +26,7 @@ import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.UserNotFoundException
 import com.smokinggunstudio.vezerfonal.helpers.toSerialized
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
@@ -103,14 +104,15 @@ data class Home(
                 return@PullToRefreshBox
             }
 
-            if (error != null || user == null)
+            val effectiveError = error
+                ?: if (user != null) null
+                else UserNotFoundException()
+            
+            if (effectiveError != null) {
                 return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
-                    ErrorDialog(
-                        errorMessage = error?.message ?: "User not found",
-                        isUnauthed = error is UnauthorizedException,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                    ErrorDialog(error!!, Modifier.align(Alignment.Center))
                 }
+            }
 
             val tabs: List<NavBarContent> = remember {
                 buildList {

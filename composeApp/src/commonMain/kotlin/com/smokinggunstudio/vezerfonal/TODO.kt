@@ -1,11 +1,12 @@
 package com.smokinggunstudio.vezerfonal
 
 //    Critical:
+//    TODO: message statuses are broken!!!
+//    TODO: nudge feature is nowhere!!!
+//    TODO: sender emoji bug!!!
+//    TODO: tag system!!!
 //    TODO: group edit and delete buttons dont work
-//    TODO: reg code edit button doesnt work
 //    TODO: user and tag management screens are completely blank
-//    TODO: sender emoji bug on iphone
-//    TODO: tag system
 
 //    Non-critical:
 //    TODO: archive screen sometimes wants re-login
@@ -18,6 +19,8 @@ package com.smokinggunstudio.vezerfonal
 //    TODO: set up account deletion popup
 //    TODO: archive options screen
 
+//    Done: groups tab doesn't display groups you are an admin of
+//    Done: reg code edit button doesnt work
 //    Done: group create crash (unknown error)
 //    Done: group, individual and tag select doesn't reopen when not closed via the cancel button
 //    Done: swipeable group cards don't work

@@ -114,17 +114,17 @@ fun LoginScreen(
                             selectedOrgExtId.isNotBlank()
                         ),
                         onClick = {
-                            try {
-                                scope.launch {
+                            scope.launch {
+                                try {
                                     val tokens = loginBasic(
                                         loginState = state.snapshot(),
                                         orgExtId = selectedOrgExtId,
                                         client = client
                                     )
                                     onClick(tokens)
+                                } catch (e: Exception) {
+                                    error = e
                                 }
-                            } catch (e: Exception) {
-                                error = e
                             }
                         },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
@@ -145,11 +145,6 @@ fun LoginScreen(
                 }
             }
         }
-        if (error != null)
-            ErrorDialog(
-                errorMessage = error!!.message!!,
-                isUnauthed = error is UnauthorizedException,
-                modifier = Modifier.align(Alignment.Center)
-            )
+        if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }

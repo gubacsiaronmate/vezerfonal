@@ -84,11 +84,6 @@ import kotlin.time.ExperimentalTime
             }
         }
         
-        if (error != null)
-            ErrorDialog(
-                errorMessage = error!!.message!!,
-                isUnauthed = error is UnauthorizedException,
-                modifier = Modifier.align(Alignment.Center)
-            )
+        if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }

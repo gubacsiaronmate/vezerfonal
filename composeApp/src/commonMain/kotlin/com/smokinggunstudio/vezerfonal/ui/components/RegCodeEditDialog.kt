@@ -27,7 +27,6 @@ fun RegCodeEditDialog(
     modifier: Modifier = Modifier,
     onApplyClick: CallbackFunction<Int?>,
 ) {
-    // TODO: extract string resources
     var text by remember { mutableStateOf("") }
     
     Dialog(

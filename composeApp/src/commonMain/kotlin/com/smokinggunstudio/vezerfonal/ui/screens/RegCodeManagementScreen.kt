@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.network.api.deleteRegCode
+import com.smokinggunstudio.vezerfonal.network.api.patchCode
 import com.smokinggunstudio.vezerfonal.ui.components.CreateRegCodeDialog
+import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.RegCodeEditDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SwipeableRegCodeCard
 import io.ktor.client.*
@@ -30,8 +32,9 @@ fun RegCodeManagementScreen(
     val scope = rememberCoroutineScope()
     var regCodes by remember(registrationCodes) { mutableStateOf(registrationCodes) }
     var isCreateRegCodeOpened by remember { mutableStateOf(false) }
-    var newTotalUses by remember { mutableStateOf<Int?>(null) }
+    var selectedCode by remember { mutableStateOf("") }
     var isRegCodeEditOpened by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<Throwable?>(null) }
     
     Box(
         modifier = Modifier
@@ -71,7 +74,7 @@ fun RegCodeManagementScreen(
                 }
             }
             
-            regCodes.forEach { code ->
+            regCodes.forEach { code: RegCodeData ->
                 SwipeableRegCodeCard(
                     onDelete = {
                         regCodes = regCodes.filter { it != code }
@@ -79,7 +82,10 @@ fun RegCodeManagementScreen(
                             deleteRegCode(code.code, client, accessToken)
                         }
                     },
-                    onEdit = { isRegCodeEditOpened = true },
+                    onEdit = {
+                        isRegCodeEditOpened = true
+                        selectedCode = code.code
+                    },
                     regCode = code
                 )
             }
@@ -96,12 +102,32 @@ fun RegCodeManagementScreen(
                     onCancelClick = { isCreateRegCodeOpened = false }
                 ) { regCodes += it }
             
-            if (isRegCodeEditOpened)
-                RegCodeEditDialog({ isRegCodeEditOpened = false }) {
-//                    regCodes = regCodes.mapIndexed { idx, code ->
-//                        if ()
-//                    }
+            if (isRegCodeEditOpened && selectedCode.isNotBlank())
+                RegCodeEditDialog({ isRegCodeEditOpened = false }) { newTotalUses ->
+                    if (newTotalUses == null) return@RegCodeEditDialog
+                    
+                    val newCode = RegCodeData(
+                        code = selectedCode,
+                        totalUses = newTotalUses,
+                        remainingUses = newTotalUses
+                    )
+                    
+                    regCodes = regCodes.map { if (it.code != selectedCode) it else newCode }
+                    
+                    scope.launch {
+                        try {
+                            patchCode(
+                                client = client,
+                                accessToken = accessToken,
+                                regCode = newCode,
+                            )
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                    }
                 }
+            
+            if (error != null) ErrorDialog(error!!)
         }
     }
 }

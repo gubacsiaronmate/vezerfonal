@@ -115,8 +115,8 @@ import vezerfonal.composeapp.generated.resources.*
                         && data != null
                     ),
                     onClick = {
-                        try {
-                            scope.launch {
+                        scope.launch {
+                            try {
                                 val tokens = registerBasic(
                                     userData = state.toUserData(),
                                     rememberMe = rememberMe,
@@ -124,9 +124,10 @@ import vezerfonal.composeapp.generated.resources.*
                                     client = client
                                 )
                                 onClick(tokens)
+                                
+                            } catch (e: UnauthorizedException) {
+                                error = e
                             }
-                        } catch (e: UnauthorizedException) {
-                            error = e
                         }
                     },
                     modifier = Modifier
@@ -135,6 +136,6 @@ import vezerfonal.composeapp.generated.resources.*
                 ) { Text(stringResource(Res.string.create_account)) }
             }
         }
-        if (error != null) ErrorDialog(error!!.message!!, true)
+        if (error != null) ErrorDialog(error!!)
     }
 }

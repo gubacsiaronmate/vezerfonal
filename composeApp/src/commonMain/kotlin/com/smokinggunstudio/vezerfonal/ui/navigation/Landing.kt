@@ -65,10 +65,7 @@ data object Landing: Screen {
                 onLoginClick = { navigator.push(Login(orgs.map { it.toSerialized() })) },
             )
             
-            if (error != null) {
-                ErrorDialog(error!!.message!!, false)
-                return
-            }
+            if (error != null) return ErrorDialog(error!!)
         }
     }
 }

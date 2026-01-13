@@ -87,6 +87,6 @@ fun CreateOrganizationScreen(
             ) { Text(text = stringResource(Res.string.create)) }
         }
 
-        if (error != null) ErrorDialog(error!!.message!!, false)
+        if (error != null) ErrorDialog(error!!)
     }
 }
