@@ -141,4 +141,5 @@
     <string name="sent_messages">Elküldött üzenetek</string>
     <string name="search">Keresés</string>
     <string name="description">Leírás</string>
+    <string name="edit_total_uses">Használhatósági limit módosítása</string>
 </resources>
