@@ -6,6 +6,7 @@ fun todo() {
 //    TODO: reg code edit button doesnt work
 //    TODO: user and tag management screens are completely blank
 //    TODO: sender emoji bug on iphone
+//    TODO: tag system
 
 //    Non-critical:
 //    TODO: edit display name in account settings
