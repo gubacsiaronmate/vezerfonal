@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal
 
 //    Critical:
+//    TODO: push notfication system!!!
 //    TODO: message statuses are broken!!!
 //    TODO: nudge feature is nowhere!!!
 //    TODO: sender emoji bug!!!
