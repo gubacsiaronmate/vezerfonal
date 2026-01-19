@@ -23,11 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smokinggunstudio.vezerfonal.helpers.EmojiPicker
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackEventIndexed
+import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 
 @Composable
 fun ReactionBar(
     buttonEmojis: Array<MutableState<String?>>,
-    onClick: CallbackEventIndexed<String>
+    onSetEmoji: CallbackEventIndexed<String>,
+    onClearEmoji: CallbackFunction<Int>
 ) {
     val isPickerVisible = remember { mutableStateOf(false) }
     val activeIndex = remember { mutableStateOf<Int?>(null) }
@@ -37,19 +39,14 @@ fun ReactionBar(
         EmojiPicker.Show(
             isVisible = true,
             onEmojiSelected = { emoji ->
-                val previous = buttonEmojis[idx].value
-                if (previous != null && previous != emoji) {
-                    onClick(idx, previous)
-                }
-                onClick(idx, emoji)
+                onSetEmoji(idx, emoji)
                 isPickerVisible.value = false
             },
-            onRemove = {
-                val current = buttonEmojis[idx].value
-                if (current != null) {
-                    buttonEmojis[idx].value = null
-                    onClick(idx, current)
-                }
+            onRemove = onRemove@{
+                if (buttonEmojis[idx].value == null)
+                    return@onRemove
+                
+                onClearEmoji(idx)
                 isPickerVisible.value = false
             },
             onDismiss = { isPickerVisible.value = false }

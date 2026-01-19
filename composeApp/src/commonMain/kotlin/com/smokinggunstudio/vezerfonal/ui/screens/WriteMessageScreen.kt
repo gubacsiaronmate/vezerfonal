@@ -152,11 +152,11 @@ fun WriteMessageScreen(
                         horizontalAlignment = Alignment.Start
                     ) {
                         // TODO
-                        ReactionBar(state.availableReactions) { i, emoji ->
-                            if (state.availableReactions.any { it.value == emoji })
-                                state.removeReaction(i)
-                            else state.addReaction(emoji, i)
-                        }
+                        ReactionBar(
+                            buttonEmojis = state.availableReactions,
+                            onSetEmoji = { i, emoji -> state.addReaction(emoji, i) },
+                            onClearEmoji = { i -> state.removeReaction(i) }
+                        )
                         
                         Spacer(Modifier.height(12.dp))
                         
