@@ -151,7 +151,6 @@ fun WriteMessageScreen(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        // TODO
                         ReactionBar(
                             buttonEmojis = state.availableReactions,
                             onSetEmoji = { i, emoji -> state.addReaction(emoji, i) },
