@@ -151,9 +151,10 @@ fun WriteMessageScreen(
                             .verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.Start
                     ) {
+                        // TODO
                         ReactionBar(state.availableReactions) { i, emoji ->
-                            if (state.availableReactions.contains(emoji))
-                                state.removeReaction(emoji, i)
+                            if (state.availableReactions.any { it.value == emoji })
+                                state.removeReaction(i)
                             else state.addReaction(emoji, i)
                         }
                         

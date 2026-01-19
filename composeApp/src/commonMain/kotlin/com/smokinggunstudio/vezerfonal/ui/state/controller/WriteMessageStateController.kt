@@ -75,7 +75,7 @@ class WriteMessageStateController(initial: WriteMessageStateModel) {
         _availableReactions[index].value = reaction
     }
     
-    fun removeReaction(reaction: String, index: Int) {
+    fun removeReaction(index: Int) {
         _availableReactions[index].value = null
     }
     

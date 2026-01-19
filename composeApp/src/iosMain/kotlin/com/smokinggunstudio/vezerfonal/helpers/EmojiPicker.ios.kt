@@ -1,12 +1,18 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -40,12 +46,21 @@ actual object EmojiPicker {
             onDismiss()
         }
         
+        LaunchedEffect(isVisible) {
+            withFrameNanos {}
+            withFrameNanos {}
+            tfRef.value?.becomeFirstResponder()
+        }
+        
         AlertDialog(
             onDismissRequest = { hideImeAndDismiss() },
             title = { Text("Pick emoji") },
             text = {
                 UIKitView(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(44.dp)
+                        .padding(horizontal = 12.dp),
                     factory = {
                         val textField = UITextField().apply {
                             placeholder = "Tap here and choose emoji from your keyboard"
@@ -61,7 +76,6 @@ actual object EmojiPicker {
                                     onRemove()
                                     textField.text = ""
                                 } else {
-                                    // Better emoji validation
                                     val emojiOnly = replacementString.all { char ->
                                         char.isSupplementaryCodePoint() || 
                                         char.code in 0x1F300..0x1F9FF ||
@@ -79,21 +93,10 @@ actual object EmojiPicker {
                         textField.setDelegate(delegate)
                         tfRef.value = textField
                         
-                        // Safely open keyboard with null check
-                        dispatch_async(dispatch_get_main_queue()) {
-                            if (tfRef.value != null) {
-                                textField.becomeFirstResponder()
-                            }
-                        }
-                        
                         textField as UIView
                     },
-                    update = { view ->
-                        // Ensure keyboard shows if view is reused
-                        (view as? UITextField)?.becomeFirstResponder()
-                    },
+                    update = { _ -> },
                     onRelease = { view ->
-                        // Proper cleanup when the view is released
                         (view as? UITextField)?.let { tf ->
                             tf.resignFirstResponder()
                             tf.setDelegate(null)

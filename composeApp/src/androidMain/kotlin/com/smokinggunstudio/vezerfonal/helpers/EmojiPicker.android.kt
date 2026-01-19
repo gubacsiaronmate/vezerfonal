@@ -64,7 +64,6 @@ actual object EmojiPicker {
                             EditText(ctx).apply {
                                 hint = "Tap here and choose emoji from your keyboard"
                                 isSingleLine = true
-                                // Request focus and open IME immediately
                                 post {
                                     if (isAttachedToWindow) {
                                         requestFocus()
@@ -75,7 +74,6 @@ actual object EmojiPicker {
                             }.also { editTextRef.value = it }
                         },
                         update = { editText ->
-                            // Remove any existing listeners to prevent duplicates
                             editText.addTextChangedListener(object : TextWatcher {
                                 var previous = ""
                                 var isProcessing = false
@@ -90,7 +88,6 @@ actual object EmojiPicker {
                                 
                                     val now = s?.toString() ?: ""
                                     if (now.length > previous.length) {
-                                        // insertion — extract the last grapheme cluster
                                         val lastCluster = run {
                                             if (now.isEmpty()) return@run ""
                                         
@@ -103,21 +100,18 @@ actual object EmojiPicker {
                                             ) {
                                                 now.substring(startIdx, end)
                                             } else {
-                                                // fallback: last code unit
                                                 if (now.isNotEmpty()) now.last().toString() else ""
                                             }
                                         }
                                         if (lastCluster.isNotEmpty()) {
                                             onEmojiSelected(lastCluster)
                                         }
-                                        // Hide IME after selection
                                         editText.windowToken?.let { token ->
                                             val imm =
                                                 editText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                                             imm.hideSoftInputFromWindow(token, 0)
                                         }
                                     } else if (now.length < previous.length) {
-                                        // deletion/backspace
                                         onRemove()
                                         editText.windowToken?.let { token ->
                                             val imm =
@@ -129,8 +123,7 @@ actual object EmojiPicker {
                                     isProcessing = false
                                 }
                             
-                                override fun afterTextChanged(s: Editable?) { /* no-op */
-                                }
+                                override fun afterTextChanged(s: Editable?) { /* no-op */ }
                             })
                         }
                     )

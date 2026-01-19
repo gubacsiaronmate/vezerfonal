@@ -41,7 +41,6 @@ fun ReactionBar(
                 if (previous != null && previous != emoji) {
                     onClick(idx, previous)
                 }
-                buttonEmojis[idx].value = emoji
                 onClick(idx, emoji)
                 isPickerVisible.value = false
             },
