@@ -24,7 +24,7 @@ fun Route.messageRoute() {
         val userId = principal.user.id!!
         
         call.response.cacheControl(CacheControl.NoCache(null))
-        call.respondTextWriter(contentType = ContentType.Text.EventStream) {
+        call.respondTextWriter(ContentType.Text.EventStream) {
             val channel = MessageHub.subscribe(userId)
             try {
                 for (message in channel) {
@@ -49,14 +49,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getNonArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .map { message ->
-                    val interactions = InteractionInfoRepository(db)
-                        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
-                    val reaction = try {
-                        interactions.single { it.type == InteractionType.reaction }.reaction
-                    } catch (_: Exception) { null }
-                    message.toDTO(reaction)
-                }
+                .fillMissingInfo(db, userId)
         } ?: return@get
         
         call.respond(messages)
@@ -78,14 +71,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getMessagesBySenderUserId(user.id!!, limit = amount)
-                .map { message ->
-                    val interactions = InteractionInfoRepository(db)
-                        .getInteractionInfosByMessageAndUserId(message.id!!, user.id)
-                    val reaction = try {
-                        interactions.single { it.type == InteractionType.reaction }.reaction
-                    } catch (_: Exception) { null }
-                    message.toDTO(reaction)
-                }
+                .fillMissingInfo(db, user.id)
         } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
@@ -104,8 +90,7 @@ fun Route.messageRoute() {
         } ?: return@post
         
         val (id, success) = tryInternal("Unable to insert message.") {
-             MessageRepository(db)
-                .insertMessage(message)
+             MessageRepository(db).insertMessage(message)
         } ?: return@post
         
         if (!success) call.respondText(
@@ -113,15 +98,14 @@ fun Route.messageRoute() {
             status = HttpStatusCode.TooManyRequests
         )
         
-        MessageHub.broadcast(message)
-        
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }
         
         val insertedMessage = tryInternal("Unable to get message.") {
-            MessageRepository(db)
-                .getMessageById(id)
+            MessageRepository(db).getMessageById(id)
         } ?: return@post
+        
+        MessageHub.broadcast(insertedMessage)
         
         val interactionSuccess = tryInternal("Unable to insert all interactions.") {
             recipients.map { user ->
@@ -154,14 +138,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages") {
             MessageRepository(db)
                 .getArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .map { message ->
-                    val interactions = InteractionInfoRepository(db)
-                        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
-                    val reaction = try {
-                        interactions.single { it.type == InteractionType.reaction }.reaction
-                    } catch (_: Exception) { null }
-                    message.toDTO(reaction)
-                }
+                .fillMissingInfo(db, userId)
         } ?: return@get
         
         call.respond(messages)

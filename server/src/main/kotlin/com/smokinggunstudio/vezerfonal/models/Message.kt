@@ -27,7 +27,7 @@ data class Message @OptIn(ExperimentalTime::class) constructor(
     }
     
     @OptIn(ExperimentalTime::class)
-    fun toDTO(reactedWith: String?): MessageData = MessageData(
+    fun toDTO(reactedWith: String?, status: MessageStatus): MessageData = MessageData(
         title = title,
         author = author.toDTO(),
         content = content,

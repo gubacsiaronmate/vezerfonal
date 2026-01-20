@@ -59,9 +59,7 @@ fun Application.configureRouting(
                 
                 route("/groups", Route::groupRoute)
                 
-                route("/codes") {
-                    codeRoute(mainDB)
-                }
+                route("/codes") { codeRoute(mainDB) }
                 
                 route("/tags", Route::tagRoute)
             }

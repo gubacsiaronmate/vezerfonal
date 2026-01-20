@@ -1,10 +1,16 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
+import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.models.Message
+import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.core.FieldSet
 import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.Query
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -74,3 +80,23 @@ fun OffsetDateTime.toKotlinInstant() = toInstant().toKotlinInstant()
 
 @OptIn(ExperimentalTime::class)
 fun Instant.toOffsetDateTime(zoneOffset: ZoneOffset): OffsetDateTime = toJavaInstant().atOffset(zoneOffset)
+
+suspend inline fun List<Message>.fillMissingInfo(db: Database, userId: Int): List<MessageData> = map { message ->
+    val interactions = InteractionInfoRepository(db)
+        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
+    
+    val reaction = try {
+        interactions.single { it.type == InteractionType.reaction }.reaction
+    } catch (_: Exception) { null }
+    
+    val statuses = try {
+        interactions.filter { it.type == InteractionType.status && it.user.id == userId }.map { it.status!! }
+    } catch (_: Exception) { listOf(MessageStatus.sent) }
+    
+//    TODO
+//    TODO
+//    TODO
+//    TODO
+    
+    message.toDTO(reaction, statuses.first())
+}
