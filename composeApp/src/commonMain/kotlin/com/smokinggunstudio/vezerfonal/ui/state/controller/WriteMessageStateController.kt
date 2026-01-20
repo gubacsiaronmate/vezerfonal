@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
@@ -86,7 +87,7 @@ class WriteMessageStateController(initial: WriteMessageStateModel) {
         content = content,
         isUrgent = isUrgent,
         tags = tags,
-        status = null,
+        status = MessageStatus.sent,
         userIdentifiers = userIdentifiers,
         availableReactions = availableReactions.ifNotEmpty(),
         groups = groups,

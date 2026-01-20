@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.repositories
 
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
@@ -42,7 +43,7 @@ class MessageRepository(val db: Database) {
                 isUrgent = this@toMessage[Messages.isUrgent],
                 author = author,
                 availableReactions = this@toMessage[Messages.availableReactions],
-                status = null,
+                status = MessageStatus.sent,
                 tags = selectedTags,
                 externalId = this@toMessage[Messages.externalId],
                 createdAt = this@toMessage[Messages.createdAt].toKotlinInstant(),

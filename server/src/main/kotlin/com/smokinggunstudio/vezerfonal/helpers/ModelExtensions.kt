@@ -91,7 +91,7 @@ suspend fun MessageData.toMessage(db: Database): Message {
         isUrgent = isUrgent,
         author = author,
         availableReactions = availableReactions,
-        status = status ?: MessageStatus.sent,
+        status = status,
         tags = tagList,
         externalId = externalId,
         createdAt = null,
