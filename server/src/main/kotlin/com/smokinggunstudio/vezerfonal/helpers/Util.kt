@@ -81,22 +81,24 @@ fun OffsetDateTime.toKotlinInstant() = toInstant().toKotlinInstant()
 @OptIn(ExperimentalTime::class)
 fun Instant.toOffsetDateTime(zoneOffset: ZoneOffset): OffsetDateTime = toJavaInstant().atOffset(zoneOffset)
 
-suspend inline fun List<Message>.fillMissingInfo(db: Database, userId: Int): List<MessageData> = map { message ->
+suspend inline fun Message.fillMissingInformation(db: Database, userId: Int): MessageData {
     val interactions = InteractionInfoRepository(db)
-        .getInteractionInfosByMessageAndUserId(message.id!!, userId)
+        .getInteractionInfosByMessageAndUserId(this.id!!, userId)
     
     val reaction = try {
         interactions.single { it.type == InteractionType.reaction }.reaction
     } catch (_: Exception) { null }
     
-    val statuses = try {
-        interactions.filter { it.type == InteractionType.status && it.user.id == userId }.map { it.status!! }
-    } catch (_: Exception) { listOf(MessageStatus.sent) }
+    val statuses = interactions.filter { it.type == InteractionType.status }
+
+    val status = statuses.maxByOrNull { it.createdAt }!!.status!!
     
-//    TODO
-//    TODO
-//    TODO
-//    TODO
-    
-    message.toDTO(reaction, statuses.first())
+    return this.toDTO(reaction, status)
+}
+
+suspend inline fun List<Message>.fillMissingInfos(
+    db: Database,
+    userId: Int
+): List<MessageData> = map { message ->
+    message.fillMissingInformation(db, userId)
 }

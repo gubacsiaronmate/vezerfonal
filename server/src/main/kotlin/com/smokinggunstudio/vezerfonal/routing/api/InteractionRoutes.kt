@@ -24,8 +24,7 @@ fun Route.interactionRoute() {
                 call.respond(HttpStatusCode.Unauthorized)
             
             val messageExtId = tryIncoming("Unable to receive message extId.") {
-                val asd = call.parameters["messageExtId"]
-                asd
+                call.parameters["messageExtId"]
             } ?: return@get call.respond(HttpStatusCode.BadRequest)
             
             val db = principal.db
@@ -82,6 +81,7 @@ fun Route.interactionRoute() {
             
             val user = principal.user
             val db = principal.db
+            
             val interaction = tryIncoming("Unable to receive interaction.") {
                 call
                     .receive<InteractionInfoData>()
@@ -89,8 +89,29 @@ fun Route.interactionRoute() {
             } ?: return@post call.respond(HttpStatusCode.InternalServerError)
             
             val success = tryInternal("Unable to insert interaction.") {
-                InteractionInfoRepository(db)
-                    .insertInteraction(interaction)
+                InteractionInfoRepository(db).insertInteraction(interaction)
+            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+            
+            if (success) call.respond(HttpStatusCode.OK)
+        }
+    }
+    
+    route("/status") {
+        post("/send") {
+            val principal = call.principal<AuthResponse>()
+                ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            
+            val user = principal.user
+            val db = principal.db
+            
+            val interaction = tryIncoming("Unable to receive interaction") {
+                call
+                    .receive<InteractionInfoData>()
+                    .toInteractionInfo(user, db)
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+            
+            val success = tryInternal("Unable to insert interaction.") {
+                InteractionInfoRepository(db).insertInteraction(interaction)
             } ?: return@post call.respond(HttpStatusCode.InternalServerError)
             
             if (success) call.respond(HttpStatusCode.OK)

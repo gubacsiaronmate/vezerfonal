@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.models.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -23,13 +24,13 @@ object MessageHub {
         channel.close()
     }
     
-    suspend fun broadcast(message: Message) = withContext(Dispatchers.IO) {
+    suspend fun broadcast(message: Message, db: Database) = withContext(Dispatchers.IO) {
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }
         
         recipients.forEach { user ->
-            userChannels[user.id]?.forEach {
-                it.trySend(message.toDTO(null))
+            userChannels[user.id]?.forEach { channel ->
+                channel.trySend(message.fillMissingInformation(db, user.id!!))
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.smokinggunstudio.vezerfonal.routing.api
 
-import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.*
@@ -8,19 +7,18 @@ import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
-import com.smokinggunstudio.vezerfonal.repositories.TagRepository
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
-import kotlin.coroutines.CoroutineContext
 
 fun Route.messageRoute() {
     get("/subscribe") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
+        
         val userId = principal.user.id!!
         
         call.response.cacheControl(CacheControl.NoCache(null))
@@ -49,7 +47,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getNonArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .fillMissingInfo(db, userId)
+                .fillMissingInfos(db, userId)
         } ?: return@get
         
         call.respond(messages)
@@ -71,7 +69,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getMessagesBySenderUserId(user.id!!, limit = amount)
-                .fillMissingInfo(db, user.id)
+                .fillMissingInfos(db, user.id)
         } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
@@ -105,7 +103,7 @@ fun Route.messageRoute() {
             MessageRepository(db).getMessageById(id)
         } ?: return@post
         
-        MessageHub.broadcast(insertedMessage)
+        MessageHub.broadcast(insertedMessage, db)
         
         val interactionSuccess = tryInternal("Unable to insert all interactions.") {
             recipients.map { user ->
@@ -138,7 +136,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages") {
             MessageRepository(db)
                 .getArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .fillMissingInfo(db, userId)
+                .fillMissingInfos(db, userId)
         } ?: return@get
         
         call.respond(messages)
