@@ -180,3 +180,5 @@ suspend fun InteractionInfoData.toInteractionInfo(user: User, db: Database): Int
         )
     }
 }
+
+fun TagData.toTag(): Tag = Tag(null, name)
