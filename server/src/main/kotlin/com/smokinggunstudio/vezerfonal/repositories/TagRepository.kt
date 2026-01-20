@@ -7,17 +7,18 @@ import com.smokinggunstudio.vezerfonal.models.Tag
 import com.smokinggunstudio.vezerfonal.objects.MessageTag
 import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import org.jetbrains.exposed.v1.core.ResultRow
-import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.jdbc.update
 
 class TagRepository(val db: Database) {
     private fun ResultRow.toTag(): Tag = Tag(
         id = this@toTag[MessageTag.id],
-        tagName = this@toTag[MessageTag.name],
+        name = this@toTag[MessageTag.name],
     )
     
     suspend fun getAllTags(): List<Tag> =
@@ -65,11 +66,12 @@ class TagRepository(val db: Database) {
     suspend fun insertTag(
         tag: Tag
     ): Boolean = suspendTransaction(db) {
-        if (!doesTagExist(tag.tagName))
-            MessageTag.insert {
-                it[name] = tag.tagName
-            }.insertedCount == 1
-        else false
+        if (doesTagExist(tag.name))
+            return@suspendTransaction false
+        
+        MessageTag.insert {
+            it[name] = tag.name
+        }.insertedCount == 1
     }
     
     suspend fun attachTagToMessageId(
@@ -92,5 +94,21 @@ class TagRepository(val db: Database) {
                 newTagId = id
             )
         }.all { it }
+    }
+    
+    suspend fun modifyTag(
+        tag: Tag
+    ): Boolean = suspendTransaction(db) {
+        MessageTag.update({ MessageTag.name eq tag.name }) {
+            it[name] = tag.name
+        } == 1
+    }
+    
+    suspend fun deleteTag(
+        tag: Tag
+    ): Boolean = suspendTransaction(db) {
+        val del1 = MessageTagConnection.deleteWhere { MessageTag.name eq tag.name } > 0
+        val del2 = MessageTag.deleteWhere { MessageTag.name eq tag.name } == 1
+        del1 && del2
     }
 }

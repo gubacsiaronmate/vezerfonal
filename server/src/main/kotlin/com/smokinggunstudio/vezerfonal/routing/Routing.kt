@@ -7,16 +7,13 @@ import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
 import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
-import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.Configuration
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
-import kotlin.coroutines.CoroutineContext
 
 fun Application.configureRouting(
     imageService: ImageService,

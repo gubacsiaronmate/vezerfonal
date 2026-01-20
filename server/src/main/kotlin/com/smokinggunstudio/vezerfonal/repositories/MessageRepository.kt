@@ -185,7 +185,7 @@ class MessageRepository(val db: Database) {
             it[availableReactions] = message.availableReactions
         }
         
-        val tagIds = message.tags.map { trepo.getTagByName(it.tagName)!!.id!! }
+        val tagIds = message.tags.map { trepo.getTagByName(it.name)!!.id!! }
         trepo.attachTagsToMessageId(
             newMessageId = statement[Messages.id],
             tagIds = tagIds

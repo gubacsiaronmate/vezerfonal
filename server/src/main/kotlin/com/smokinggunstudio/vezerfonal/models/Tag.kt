@@ -4,7 +4,7 @@ import com.smokinggunstudio.vezerfonal.data.TagData
 
 data class Tag(
     val id: Int?,
-    val tagName: String,
+    val name: String,
 ) {
-    fun toDTO() = TagData(name = tagName)
+    fun toDTO() = TagData(name = name)
 }

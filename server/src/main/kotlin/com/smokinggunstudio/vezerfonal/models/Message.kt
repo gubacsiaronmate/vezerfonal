@@ -32,7 +32,7 @@ data class Message @OptIn(ExperimentalTime::class) constructor(
         author = author.toDTO(),
         content = content,
         isUrgent = isUrgent,
-        tags = tags.map { tag -> tag.tagName },
+        tags = tags.map { tag -> tag.name },
         status = status,
         userIdentifiers = null,
         availableReactions = availableReactions,

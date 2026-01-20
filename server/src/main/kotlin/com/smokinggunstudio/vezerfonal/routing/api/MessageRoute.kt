@@ -8,6 +8,7 @@ import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
+import com.smokinggunstudio.vezerfonal.repositories.TagRepository
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -69,10 +70,8 @@ fun Route.messageRoute() {
         
         val user = principal.user
         
-        if (user.isAnyAdmin != true) {
-            log { "user.isAnyAdmin: ${user.isAnyAdmin}\ni no longer understand\nuser.isSuperAdmin: ${user.isSuperAdmin}" }
+        if (user.isAnyAdmin != true)
             return@get call.respond(HttpStatusCode.Forbidden)
-        }
         
         val db = principal.db
         
@@ -105,7 +104,7 @@ fun Route.messageRoute() {
         } ?: return@post
         
         val (id, success) = tryInternal("Unable to insert message.") {
-            MessageRepository(db)
+             MessageRepository(db)
                 .insertMessage(message)
         } ?: return@post
         
@@ -138,7 +137,8 @@ fun Route.messageRoute() {
             }
         } ?: return@post
         
-        if (interactionSuccess.all { it }) call.respond(HttpStatusCode.OK)
+        if (interactionSuccess.all { it })
+            call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.InternalServerError)
     }
     

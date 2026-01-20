@@ -63,5 +63,11 @@ object NetworkConstants {
         const val PATCH_REG_CODE = "/api/codes/update"
         
         const val DELETE_REG_CODE = "/api/codes/delete"
+        
+        const val TAG_CREATE = "/api/tags/create"
+        
+        const val TAG_UPDATE = "/api/tags/update"
+        
+        const val TAG_DELETE = "/api/tags/delete"
     }
 }
