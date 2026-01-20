@@ -15,7 +15,7 @@ data class MessageData(
     val tags: List<String>,
     val externalId: String,
     val reactedWith: String?,
-    val status: MessageStatus?,
+    val status: MessageStatus,
     val groups: List<ExternalId>?,
     val userIdentifiers: List<String>?,
     val availableReactions: List<String>?,

@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal
 
 //    Critical:
 //    TODO: push notification system!!!
-//    TODO: message statuses are broken!!!
+//    TODO: message statuses are broken!!! (fix: MessageRoute.kt)
 //    TODO: nudge feature is nowhere!!!
 //    TODO: tag system!!!
 //    TODO: group edit and delete buttons dont work

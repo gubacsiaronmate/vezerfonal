@@ -16,7 +16,7 @@ data class Message @OptIn(ExperimentalTime::class) constructor(
     val tags: List<Tag>,
     val isUrgent: Boolean,
     val externalId: String,
-    val status: MessageStatus?,
+    val status: MessageStatus,
     val availableReactions: List<String>?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
