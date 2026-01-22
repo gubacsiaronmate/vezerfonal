@@ -26,6 +26,8 @@ import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.asStr
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
+import com.smokinggunstudio.vezerfonal.ui.helpers.changeStatus
+import io.ktor.client.request.invoke
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -40,12 +42,31 @@ fun MessageViewScreen(
     isSenderView: Boolean,
     userIdentifier: String,
 ) {
-    val message = messageStr.toDTO<MessageData>()
-    var error by remember { mutableStateOf<Throwable?>(null) }
-    val scope = rememberCoroutineScope()
     val client = LocalHttpClient.current
+    var error by remember { mutableStateOf<Throwable?>(null) }
+    
+    val msg = messageStr.toDTO<MessageData>()
+    val isStatusSent = remember { msg.status == MessageStatus.sent }
+    val message = if (!isStatusSent) msg
+    else msg.changeStatus(MessageStatus.received)
+    
+    if (isStatusSent) LaunchedEffect(Unit) {
+        try {
+            sendInteraction(
+                client = client,
+                accessToken = accessToken,
+                interaction = InteractionInfoData(
+                    userIdentifier = userIdentifier,
+                    messageExtId = message.externalId,
+                    type = InteractionType.status,
+                    status = MessageStatus.received
+                )
+            )
+        } catch (e: Exception) { error = e }
+    }
+    
+    val scope = rememberCoroutineScope()
     var top by remember { mutableStateOf(80.dp) }
-    val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
     var selectedReaction by remember { mutableStateOf<String?>(null) }
     var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
@@ -94,6 +115,8 @@ fun MessageViewScreen(
             }
         }
     }
+    
+    val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
     
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -183,18 +206,20 @@ fun MessageViewScreen(
                             availableReactions = message.availableReactions,
                             modifier = Modifier.padding(top = top).align(Alignment.BottomCenter),
                             onIsReactionBarVisible = { top = if (!it) 80.dp else 4.dp },
-                        ) {
-                            selectedReaction = it
+                        ) { reaction ->
+                            selectedReaction = reaction
                             try {
                                 scope.launch {
-                                    val interaction = InteractionInfoData(
-                                        userIdentifier = userIdentifier,
-                                        messageExtId = message.externalId,
-                                        type = InteractionType.reaction,
-                                        reaction = it
+                                    sendInteraction(
+                                        client = client,
+                                        accessToken = accessToken,
+                                        interaction = InteractionInfoData(
+                                            userIdentifier = userIdentifier,
+                                            messageExtId = message.externalId,
+                                            type = InteractionType.reaction,
+                                            reaction = reaction
+                                        )
                                     )
-                                    
-                                    sendInteraction(accessToken, interaction, client)
                                 }
                             } catch (e: UnauthorizedException) {
                                 error = e

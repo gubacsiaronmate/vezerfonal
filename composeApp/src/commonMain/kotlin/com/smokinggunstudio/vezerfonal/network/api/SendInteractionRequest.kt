@@ -14,9 +14,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 
 suspend fun sendInteraction(
+    client: HttpClient,
     accessToken: String,
     interaction: InteractionInfoData,
-    client: HttpClient
 ): Boolean {
     val url = "${NetworkConstants.Endpoints.INTERACTIONS}/${interaction.type.name.lowercase()}/send"
     

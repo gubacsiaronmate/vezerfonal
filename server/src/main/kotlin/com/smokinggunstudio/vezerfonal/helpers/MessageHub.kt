@@ -4,7 +4,12 @@ import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.util.concurrent.ConcurrentHashMap
@@ -24,14 +29,21 @@ object MessageHub {
         channel.close()
     }
     
-    suspend fun broadcast(message: Message, db: Database) = withContext(Dispatchers.IO) {
+    private val sendSemaphore = Semaphore(32)
+    
+    suspend fun broadcast(message: Message, db: Database) = coroutineScope {
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }
         
-        recipients.forEach { user ->
-            userChannels[user.id]?.forEach { channel ->
-                channel.trySend(message.fillMissingInformation(db, user.id!!))
+        recipients.map { user ->
+            async {
+                sendSemaphore.withPermit {
+                    val msg = message.fillMissingInformation(db, user.id!!)
+                    userChannels[user.id]?.forEach { channel ->
+                        channel.trySend(msg)
+                    }
+                }
             }
-        }
+        }.awaitAll()
     }
 }

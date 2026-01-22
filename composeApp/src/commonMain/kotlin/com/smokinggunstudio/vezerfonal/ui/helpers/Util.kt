@@ -59,3 +59,18 @@ internal inline val MessageStatus.asStr: String
         MessageStatus.received -> stringResource(Res.string.received)
         MessageStatus.read -> stringResource(Res.string.read)
     }
+
+fun MessageData.changeStatus(status: MessageStatus) = MessageData(
+    title = this.title,
+    sentAt = this.sentAt,
+    content = this.content,
+    author = this.author,
+    isUrgent = this.isUrgent,
+    tags = this.tags,
+    externalId = this.externalId,
+    reactedWith = this.reactedWith,
+    status = status,
+    groups = this.groups,
+    userIdentifiers = this.userIdentifiers,
+    availableReactions = this.availableReactions
+)
