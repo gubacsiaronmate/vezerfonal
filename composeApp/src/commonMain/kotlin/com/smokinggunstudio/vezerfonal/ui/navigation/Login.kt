@@ -21,7 +21,7 @@ data class Login(
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
-        LoginScreen(client, orgsStr) { newTokens ->
+        LoginScreen(orgsStr) { newTokens ->
             log { newTokens.toString() }
             navigator.push(Home(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }

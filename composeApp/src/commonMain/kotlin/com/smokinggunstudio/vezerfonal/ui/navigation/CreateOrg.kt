@@ -18,7 +18,7 @@ data class CreateOrg(
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         
-        CreateOrganizationScreen(snapshot.toModel(), client) {
+        CreateOrganizationScreen(snapshot.toModel()) {
             navigator.push(Register(2, it.toSerialized()))
         }
     }

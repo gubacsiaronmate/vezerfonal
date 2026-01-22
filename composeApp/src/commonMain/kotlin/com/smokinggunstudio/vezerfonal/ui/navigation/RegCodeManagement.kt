@@ -14,8 +14,6 @@ data class RegCodeManagement(
 ) : Screen {
     @Composable
     override fun Content() {
-        val client = LocalHttpClient.current
-        
-        RegCodeManagementScreen(client, token, regCodesStr.map { it.toDTO<RegCodeData>() })
+        RegCodeManagementScreen(token, regCodesStr.map { it.toDTO<RegCodeData>() })
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
@@ -31,10 +32,10 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable
 fun LoginScreen(
-    client: HttpClient,
     orgsStr: List<String>,
     onClick: CallbackFunction<TokenResponse>
 ) {
+    val client = LocalHttpClient.current
     val orgs = orgsStr.map { it.toDTO<OrgData>() }
     val state by remember { mutableStateOf(LoginStateController(LoginStateModel())) }
     var selectedOrgExtId by remember { mutableStateOf("") }

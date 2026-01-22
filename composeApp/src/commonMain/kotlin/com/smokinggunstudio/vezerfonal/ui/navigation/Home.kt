@@ -147,7 +147,6 @@ data class Home(
                 ) { i ->
                     when (tabs[i]) {
                         Home -> HomePageScreen(
-                            client = client,
                             accessToken = accessToken,
                             userIdentifier = user!!.externalId,
                             onMessageClick = {
@@ -164,7 +163,6 @@ data class Home(
                             scrollLockedBySliderCallback = { isScrollEnabled = !it }
                         )
                         Archive -> ArchiveScreen(
-                            client = client,
                             accessToken = accessToken,
                             onMessageClick = {
                                 navigator.push(
@@ -181,14 +179,12 @@ data class Home(
                         )
                         Send -> WriteMessageScreen(
                             user = user!!,
-                            client = client,
                             accessToken = accessToken,
                             guiao = guiao,
                             userList = userList,
                             tagList = tagList
                         )
                         Group -> GroupScreen(
-                            client = client,
                             accessToken = accessToken,
                             myIdentifier = user!!.externalId,
                             groupData = groups,

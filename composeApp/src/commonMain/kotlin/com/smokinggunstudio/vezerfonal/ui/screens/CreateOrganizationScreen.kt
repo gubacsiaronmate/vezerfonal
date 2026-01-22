@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.NotCreatedException
 import com.smokinggunstudio.vezerfonal.helpers.getExtId
@@ -29,9 +30,9 @@ import vezerfonal.composeapp.generated.resources.organization_name
 @Composable
 fun CreateOrganizationScreen(
     snapshot: RegisterStateModel,
-    client: HttpClient,
     onClick: CallbackFunction<RegisterStateModel>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     val state = remember { RegisterStateController(snapshot) }
     var error by remember { mutableStateOf<Throwable?>(null) }

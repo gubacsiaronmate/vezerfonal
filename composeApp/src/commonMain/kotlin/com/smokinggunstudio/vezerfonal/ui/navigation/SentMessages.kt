@@ -18,7 +18,6 @@ data class SentMessages(
         val navigator = LocalNavigator.currentOrThrow
         
         SentMessagesScreen(
-            client = client,
             accessToken = accessToken,
             onMessageClick = {
                 navigator.push(

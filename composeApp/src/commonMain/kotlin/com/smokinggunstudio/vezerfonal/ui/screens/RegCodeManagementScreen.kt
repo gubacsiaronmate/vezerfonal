@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.network.api.deleteRegCode
 import com.smokinggunstudio.vezerfonal.network.api.patchCode
@@ -25,10 +26,10 @@ import vezerfonal.composeapp.generated.resources.registration_code_management
 
 @Composable
 fun RegCodeManagementScreen(
-    client: HttpClient,
     accessToken: String,
     registrationCodes: List<RegCodeData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var regCodes by remember(registrationCodes) { mutableStateOf(registrationCodes) }
     var isCreateRegCodeOpened by remember { mutableStateOf(false) }
@@ -97,7 +98,6 @@ fun RegCodeManagementScreen(
         ) {
             if (isCreateRegCodeOpened)
                 CreateRegCodeDialog(
-                    client = client,
                     accessToken = accessToken,
                     onCancelClick = { isCreateRegCodeOpened = false }
                 ) { regCodes += it }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
@@ -40,12 +41,12 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Composable
 fun HomePageScreen(
-    client: HttpClient,
     accessToken: String,
     userIdentifier: String,
     onMessageClick: CallbackFunction<MessageData>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }

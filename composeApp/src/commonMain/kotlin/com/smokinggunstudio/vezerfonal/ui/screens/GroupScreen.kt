@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
@@ -29,12 +30,12 @@ import vezerfonal.composeapp.generated.resources.groups
 import vezerfonal.composeapp.generated.resources.join_group
 
 @Composable fun GroupScreen(
-    client: HttpClient,
     accessToken: String,
     myIdentifier: Identifier,
     groupData: List<GroupData>,
     isSuperAdminLogIn: Boolean = false
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var groups by remember(groupData) { mutableStateOf(groupData) }
     var isCreatePopUpOn by remember { mutableStateOf(false) }
@@ -151,7 +152,6 @@ import vezerfonal.composeapp.generated.resources.join_group
         ){
             if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
                 CreateGroupDialog(
-                    client = client,
                     accessToken = accessToken,
                     users = users!!,
                     onCancelClick = { isCreatePopUpOn = false }
@@ -159,10 +159,8 @@ import vezerfonal.composeapp.generated.resources.join_group
             
             if (isJoinPopUpOn) JoinGroupDialog(
                 accessToken = accessToken,
-                client = client,
                 { isJoinPopUpOn = false }
             ) { groups += it }
-            
             if (error != null) ErrorDialog(error!!)
         }
     }
