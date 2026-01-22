@@ -24,6 +24,7 @@ import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.*
+import com.smokinggunstudio.vezerfonal.ui.helpers.asStr
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -44,8 +45,7 @@ fun MessageViewScreen(
     val scope = rememberCoroutineScope()
     val client = LocalHttpClient.current
     var top by remember { mutableStateOf(80.dp) }
-    val statusAsStr = (message.status ?: MessageStatus.received).toString().capitalize()
-    val statusString = "${stringResource(Res.string.status)}: $statusAsStr"
+    val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
     var selectedReaction by remember { mutableStateOf<String?>(null) }
     var reactionsAndUsers by remember { mutableStateOf<List<UserInteractionData>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }

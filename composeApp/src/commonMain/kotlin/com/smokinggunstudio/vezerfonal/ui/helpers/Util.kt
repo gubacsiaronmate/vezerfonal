@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import kotlinx.serialization.json.Json
@@ -46,3 +47,10 @@ infix fun <T> Boolean.ifFalseNull(value: T): T? = if (this) value else null
 fun RegisterStateModel.toSerialized(): String = Json.encodeToString(this)
 
 fun String.toModel(): RegisterStateModel = Json.decodeFromString(this)
+
+val MessageStatus.asStr: String
+    get() = when (this) {
+        MessageStatus.sent -> TODO()
+        MessageStatus.received -> TODO()
+        MessageStatus.read -> TODO()
+    }
