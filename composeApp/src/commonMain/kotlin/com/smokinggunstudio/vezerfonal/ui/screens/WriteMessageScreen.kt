@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
@@ -38,12 +39,12 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun WriteMessageScreen(
     user: UserData,
-    client: HttpClient,
     accessToken: String,
     guiao: List<GroupData>,
     userList: List<UserData>,
     tagList: List<TagData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     val state = remember { WriteMessageStateController(WriteMessageStateModel()) }
     var isGroupTabOpened by remember { mutableStateOf(false) }

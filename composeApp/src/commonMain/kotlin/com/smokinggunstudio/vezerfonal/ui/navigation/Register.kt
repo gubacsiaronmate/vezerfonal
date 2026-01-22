@@ -40,7 +40,7 @@ data class Register(
             2 -> CredentialsRegisterScreen(state.toModel()) {
                 navigator.push(Register(3, it.toSerialized()))
             }
-            3 -> ProfileCreationScreen(state.toModel(), client) { tokens ->
+            3 -> ProfileCreationScreen(state.toModel()) { tokens ->
                 scope.launch { tokenStorage.saveTokens(tokens) }
                 navigator.push(Home(tokens.accessToken))
             }

@@ -22,7 +22,6 @@ data class AccountSettings(
         
         AccountSettingsScreen(
             user = userStr.toDTO<UserData>(),
-            client = client,
             accessToken = token,
             tokenStorage = tokenStorage,
             onLogOutClick = { navigator.replaceAll(Landing) },

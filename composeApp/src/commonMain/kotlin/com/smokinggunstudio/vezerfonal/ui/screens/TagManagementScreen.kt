@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.network.api.deleteRegCode
@@ -34,10 +35,10 @@ import vezerfonal.composeapp.generated.resources.tag_management
 
 @Composable
 fun TagManagementScreen(
-    client: HttpClient,
     accessToken: String,
     tagsList: List<TagData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var tags by remember(tagsList) { mutableStateOf(tagsList) }
     var isCreateTagOpened by remember { mutableStateOf(false) }
@@ -106,7 +107,6 @@ fun TagManagementScreen(
         ) {
             if (isCreateTagOpened)
                 CreateTagDialog(
-                    client = client,
                     accessToken = accessToken,
                     onCancelClick = { isCreateTagOpened = false }
                 ) { tags += it }

@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
@@ -20,11 +21,11 @@ import vezerfonal.composeapp.generated.resources.tag_name
 
 @Composable
 fun CreateTagDialog(
-    client: HttpClient,
     accessToken: String,
     onCancelClick: Function,
     onCreatedTag: CallbackFunction<TagData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var tagName by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<Throwable?>(null) }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.createRegCode
@@ -26,11 +27,11 @@ import vezerfonal.composeapp.generated.resources.total_uses
 
 @Composable
 fun CreateRegCodeDialog(
-    client: HttpClient,
     accessToken: String,
     onCancelClick: Function,
     onCreatedRegCode: CallbackFunction<RegCodeData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var totalUses by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<Throwable?>(null) }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
@@ -33,12 +34,12 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun AccountSettingsScreen(
     user: UserData,
-    client: HttpClient,
     accessToken: String,
     tokenStorage: TokenStorage,
     onLogOutClick: Function,
     onChangePasswordClick: Function,
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var error by remember { mutableStateOf<Throwable?>(null) }
 

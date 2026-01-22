@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
@@ -26,12 +27,12 @@ import vezerfonal.composeapp.generated.resources.group_name
 import vezerfonal.composeapp.generated.resources.name
 
 @Composable fun CreateGroupDialog(
-    client: HttpClient,
     accessToken: String,
     users: List<UserData>,
     onCancelClick: Function,
     onCreatedGroup: CallbackFunction<GroupData>,
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var groupName by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }

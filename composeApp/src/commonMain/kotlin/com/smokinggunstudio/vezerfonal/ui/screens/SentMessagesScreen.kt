@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getSentMessages
@@ -22,10 +23,10 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 @Composable fun SentMessagesScreen(
-    client: HttpClient,
     accessToken: String,
     onMessageClick: CallbackFunction<MessageData>,
 ) {
+    val client = LocalHttpClient.current
     var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.network.api.joinGroup
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
@@ -21,10 +22,10 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun JoinGroupDialog(
     accessToken: String,
-    client: HttpClient,
     onCancelClick: Function,
     onGroupJoined: CallbackFunction<GroupData>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var groupExtId by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<Throwable?>(null)}

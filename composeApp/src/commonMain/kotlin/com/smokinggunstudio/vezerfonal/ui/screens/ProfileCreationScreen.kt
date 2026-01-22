@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
@@ -28,9 +29,9 @@ import vezerfonal.composeapp.generated.resources.*
 
 @Composable fun ProfileCreationScreen(
     snapshot: RegisterStateModel,
-    client: HttpClient,
     onClick: CallbackFunction<TokenResponse>
 ) {
+    val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var rememberMe by remember { mutableStateOf(false) }
     var data: FileData? by remember { mutableStateOf(null) }
