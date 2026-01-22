@@ -9,6 +9,11 @@ import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.read
+import vezerfonal.composeapp.generated.resources.received
+import vezerfonal.composeapp.generated.resources.sent
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
@@ -48,9 +53,9 @@ fun RegisterStateModel.toSerialized(): String = Json.encodeToString(this)
 
 fun String.toModel(): RegisterStateModel = Json.decodeFromString(this)
 
-val MessageStatus.asStr: String
-    get() = when (this) {
-        MessageStatus.sent -> TODO()
-        MessageStatus.received -> TODO()
-        MessageStatus.read -> TODO()
+internal inline val MessageStatus.asStr: String
+    @Composable get() = when (this) {
+        MessageStatus.sent -> stringResource(Res.string.sent)
+        MessageStatus.received -> stringResource(Res.string.received)
+        MessageStatus.read -> stringResource(Res.string.read)
     }

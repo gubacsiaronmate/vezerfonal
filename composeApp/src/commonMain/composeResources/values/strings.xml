@@ -54,8 +54,6 @@
     <string name="disable_2fa_warning">A fiókod kevésbé lesz biztonságos.</string>
     <string name="keep_account_safe">Nem, maradjon biztonságos a fiókom</string>
     <string name="yes_disable_2fa">Igen, kétlépcsős hitelesítés kikapcsolása</string>
-    <string name="read">Olvasott</string>
-    <string name="not_read">Olvasatlan</string>
     <string name="logout_confirmation">Biztos, hogy ki szeretnél jelentkezni?</string>
     <string name="logout_warning">Ha kijelentkezel, újra meg kell adni az adataidat bejelentkezéskor.</string>
     <string name="yes_log_out">Igen, ki szeretnék jelentkezni</string>
@@ -144,4 +142,7 @@
     <string name="edit_total_uses">Használhatósági limit módosítása</string>
     <string name="create_tag">Címke létrehozása</string>
     <string name="tag_name">Címkenév</string>
+    <string name="sent">Elküldve</string>
+    <string name="received">Fogadva</string>
+    <string name="read">Olvasott</string>
 </resources>
