@@ -145,4 +145,6 @@
     <string name="sent">Elküldve</string>
     <string name="received">Fogadva</string>
     <string name="read">Olvasott</string>
+    <string name="close">Bezár</string>
+    <string name="alert">Riasztás</string>
 </resources>

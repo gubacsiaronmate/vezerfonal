@@ -15,7 +15,8 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTime::class)
-fun LocalDateTime.Companion.nowDefault(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+fun LocalDateTime.Companion.nowDefault(): LocalDateTime =
+    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
 @OptIn(ExperimentalTime::class)
 fun LocalDateTime.Companion.nowUTC(): LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.UTC)
@@ -27,7 +28,7 @@ operator fun String.unaryPlus(): StringBuilder = builder.append(this)
  * @return [LocalDateTime] based on [TimeZone.currentSystemDefault].
  * */
 @OptIn(ExperimentalTime::class)
-fun Instant.toLocalDateTimeDefault(): LocalDateTime = toLocalDateTime(TimeZone.currentSystemDefault())
+fun Instant.toLDTDefault(): LocalDateTime = toLocalDateTime(TimeZone.currentSystemDefault())
 
 @OptIn(ExperimentalUuidApi::class)
 fun getExtId(): String = Uuid.random().toString().replace("-", "").substring(0..15)

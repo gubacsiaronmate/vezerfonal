@@ -11,6 +11,7 @@ import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
+import com.smokinggunstudio.vezerfonal.objects.Users
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -166,8 +167,19 @@ class MessageRepository(val db: Database) {
     ): List<Message> = suspendTransaction(db) {
         getMessagesByCondition {
             (MessageTagConnection.tagId eq id) and
-                    (Messages.id eq MessageTagConnection.messageId)
+            (Messages.id eq MessageTagConnection.messageId)
         }
+    }
+    
+    suspend fun getMessageIdByExternalId(
+        externalId: String
+    ): Int? = suspendTransaction(db) {
+        try {
+            Messages
+                .select(Messages.id)
+                .where { Messages.externalId eq externalId }
+                .single()[Messages.id]
+        } catch (_: Exception) { null }
     }
     
     suspend fun insertMessage(

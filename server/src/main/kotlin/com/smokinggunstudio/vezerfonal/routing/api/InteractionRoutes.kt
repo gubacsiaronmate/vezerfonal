@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.routing.api
 
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.data.MessageStatusData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
@@ -115,6 +117,69 @@ fun Route.interactionRoute() {
             } ?: return@post call.respond(HttpStatusCode.InternalServerError)
             
             if (success) call.respond(HttpStatusCode.OK)
+        }
+        
+        get("/by-message-ext-id/{messageExtId}/by-user-ext-id/{userExtId}") {
+            val principal = call.principal<AuthResponse>()
+                ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            
+            if (principal.user.isAnyAdmin != true)
+                call.respond(HttpStatusCode.Forbidden)
+            
+            val db = principal.db
+            
+            val messageExtId = tryIncoming("Invalid message extId") {
+                call.parameters["messageExtId"]
+            } ?: return@get call.respond(HttpStatusCode.BadRequest)
+            
+            val userExtId = tryIncoming("Invalid user extId") {
+                call.parameters["userExtId"]
+            } ?: return@get call.respond(HttpStatusCode.BadRequest)
+            
+            val interactions = tryInternal("Unable to fetch statuses") {
+                val messageId = MessageRepository(db)
+                    .getMessageIdByExternalId(messageExtId)
+                    ?: return@tryInternal null
+                
+                val userId = UserRepository(db)
+                    .getUserIdByExternalId(userExtId)
+                    ?: return@tryInternal null
+                
+                InteractionInfoRepository(db)
+                    .getInteractionInfosByMessageAndUserId(messageId, userId)
+                    .filter { it.type == InteractionType.status }
+                    .distinctBy { it.status }.let { interactions ->
+                        if (interactions.size > 3)
+                            error("There are more than 3 status interactions in the db for messageId: $messageId and userId: $userId")
+                        
+                        val sentAt = try {
+                            interactions
+                                .single { it.status == MessageStatus.sent }
+                                .createdAt.toEpochMilliseconds()
+                        } catch (_: Exception) { null }
+                        
+                        val receivedAt = try {
+                            interactions
+                                .single { it.status == MessageStatus.received }
+                                .createdAt.toEpochMilliseconds()
+                        } catch (_: Exception) { null }
+                        
+                        val readAt = try {
+                            interactions
+                                .single { it.status == MessageStatus.read }
+                                .createdAt.toEpochMilliseconds()
+                        } catch (_: Exception) { null }
+                        
+                        return@let MessageStatusData(
+                            userExtId = userExtId,
+                            sentAt = sentAt,
+                            receivedAt = receivedAt,
+                            readAt = readAt,
+                        )
+                    }
+            } ?: return@get call.respond(HttpStatusCode.InternalServerError)
+            
+            call.respond(interactions)
         }
     }
 }

@@ -69,5 +69,7 @@ object NetworkConstants {
         const val TAG_UPDATE = "/api/tags/update"
         
         const val TAG_DELETE = "/api/tags/delete"
+        
+        const val GET_STATUS_CHANGES_BY_MESSAGE_EXT_ID = "/api/status/by-message-ext-id/"
     }
 }

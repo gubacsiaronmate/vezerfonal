@@ -16,14 +16,18 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.MessageStatusData
 import com.smokinggunstudio.vezerfonal.data.UserInteractionData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
+import com.smokinggunstudio.vezerfonal.network.api.getStatusChangesForMessageByUserExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.*
+import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.asStr
 import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import com.smokinggunstudio.vezerfonal.ui.helpers.changeStatus
@@ -47,8 +51,12 @@ fun MessageViewScreen(
     
     val msg = messageStr.toDTO<MessageData>()
     val isStatusSent = remember { msg.status == MessageStatus.sent }
-    val message = if (!isStatusSent) msg
-    else msg.changeStatus(MessageStatus.received)
+    val message =
+        if (isSenderView) msg
+        else if (!isStatusSent) msg
+        else msg.changeStatus(MessageStatus.received)
+    
+    val selectedMessage: ExternalId = message.externalId
     
     if (isStatusSent) LaunchedEffect(Unit) {
         try {
@@ -87,7 +95,13 @@ fun MessageViewScreen(
         snackbarHostState = snackbarHostState
     )
     
-    if (isSenderView)
+    var isStatusDialogOpen by remember { mutableStateOf(false) }
+    var selectedUser: ExternalId by remember { mutableStateOf("") }
+    var interactionByUser: MessageStatusData? by remember { mutableStateOf(null) }
+    var interactionsByUser: List<MessageStatusData> by remember { mutableStateOf(emptyList()) }
+    
+    
+    if (isSenderView) {
         LaunchedEffect(Unit) {
             loading = true
             reactionsAndUsers = try {
@@ -102,16 +116,39 @@ fun MessageViewScreen(
             }
             loading = false
         }
+        
+        LaunchedEffect(selectedUser) {
+            loading = true
+            val statusData = interactionsByUser
+                .singleOrNull { it.userExtId == selectedUser }
+                ?: suspend suspend@{
+                    val data = getStatusChangesForMessageByUserExtId(
+                        client = client,
+                        accessToken = accessToken,
+                        userExtId = selectedUser,
+                        messageExtId = selectedMessage
+                    )
+                    interactionsByUser += data
+                    return@suspend data
+                }()
+            interactionByUser = statusData
+            loading = false
+            isStatusDialogOpen = true
+        }
+    }
     
-    val content = @Composable fun() {
+    
+    val content: ComposableContent = {
         Column(
             Modifier
                 .padding(16.dp)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         ) {
-            reactionsAndUsers.forEach { (user, reaction) ->
-                SentMsgBottomSheetRow(reaction.reaction!!, user.name)
+            reactionsAndUsers.forEach { (user, interaction) ->
+                SentMsgBottomSheetRow(interaction.reaction!!, user.name) {
+                    selectedUser = user.externalId
+                }
             }
         }
     }
@@ -229,7 +266,13 @@ fun MessageViewScreen(
                 }
             }
             
-            if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
+            if (error != null)
+                ErrorDialog(error!!, Modifier.align(Alignment.Center))
+            
+            if (isStatusDialogOpen && interactionByUser != null)
+                AsdfghDialog(interactionByUser!!) {
+                    isStatusDialogOpen = false
+                }
             
             if (loading) Box(Modifier.fillMaxSize()) {
                 LinearProgressIndicator(Modifier.align(Alignment.Center))

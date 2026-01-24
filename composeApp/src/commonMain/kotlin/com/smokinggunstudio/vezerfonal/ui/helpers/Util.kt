@@ -7,6 +7,7 @@ import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.toLDTDefault
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
@@ -74,3 +75,18 @@ fun MessageData.changeStatus(status: MessageStatus) = MessageData(
     userIdentifiers = this.userIdentifiers,
     availableReactions = this.availableReactions
 )
+
+inline val Long.asFormattedLDTStr: String
+    get() {
+        val local = Instant
+            .fromEpochMilliseconds(this)
+            .toLDTDefault()
+        
+        return "${
+            local.date.toString().replace("-", ". ")
+        }. ${
+            local.hour.toString().padStart(2, '0')
+        }:${
+            local.minute.toString().padStart(2, '0')
+        }"
+    }

@@ -9,6 +9,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.update
@@ -63,8 +64,19 @@ class UserRepository(val db: Database) {
     ): User? = suspendTransaction(db) { getUserByCondition { Users.email eq email } }
     
     suspend fun getUserByExternalId(
-        identifier: String,
-    ): User? = suspendTransaction(db) { getUserByCondition { Users.externalId eq identifier } }
+        externalId: String,
+    ): User? = suspendTransaction(db) { getUserByCondition { Users.externalId eq externalId } }
+    
+    suspend fun getUserIdByExternalId(
+        externalId: String
+    ): Int? = suspendTransaction(db) {
+        try {
+            Users
+                .select(Users.id)
+                .where { Users.externalId eq externalId }
+                .single()[Users.id]
+        } catch (_: Exception) { null }
+    }
     
     suspend fun doesUserExist(
         identifier: String

@@ -145,4 +145,6 @@
     <string name="read">Read</string>
     <string name="received">Received</string>
     <string name="sent">Sent</string>
+    <string name="close">Close</string>
+    <string name="alert">Alert</string>
 </resources>
