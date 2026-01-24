@@ -150,13 +150,13 @@ fun HomePageScreen(
                     scope.launch {
                         try {
                             sendInteraction(
+                                client,
                                 accessToken,
                                 InteractionInfoData(
                                     userIdentifier = userIdentifier,
                                     messageExtId = message.externalId,
                                     type = InteractionType.archive,
                                 ),
-                                client
                             )
                         } catch (e: Exception) {
                             error = e
