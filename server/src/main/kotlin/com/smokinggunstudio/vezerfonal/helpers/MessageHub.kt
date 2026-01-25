@@ -38,7 +38,7 @@ object MessageHub {
         recipients.map { user ->
             async {
                 sendSemaphore.withPermit {
-                    val msg = message.fillMissingInformation(db, user.id!!)
+                    val msg = message.fillMissingInformation(db, user.id!!, user.isAnyAdmin == true)
                     userChannels[user.id]?.forEach { channel ->
                         channel.trySend(msg)
                     }

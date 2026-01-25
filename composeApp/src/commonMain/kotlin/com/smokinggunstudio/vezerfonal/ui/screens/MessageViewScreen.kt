@@ -117,23 +117,31 @@ fun MessageViewScreen(
             loading = false
         }
         
-        LaunchedEffect(selectedUser) {
+        if (selectedUser.isNotEmpty()) LaunchedEffect(selectedUser) {
             loading = true
-            val statusData = interactionsByUser
-                .singleOrNull { it.userExtId == selectedUser }
-                ?: suspend suspend@{
-                    val data = getStatusChangesForMessageByUserExtId(
-                        client = client,
-                        accessToken = accessToken,
-                        userExtId = selectedUser,
-                        messageExtId = selectedMessage
-                    )
-                    interactionsByUser += data
-                    return@suspend data
-                }()
-            interactionByUser = statusData
-            loading = false
-            isStatusDialogOpen = true
+            try {
+                val localStatusData = interactionsByUser
+                    .singleOrNull { it.userExtId == selectedUser }
+                
+                val statusData = localStatusData
+                    ?: suspend suspend@{
+                        val data = getStatusChangesForMessageByUserExtId(
+                            client = client,
+                            accessToken = accessToken,
+                            userExtId = selectedUser,
+                            messageExtId = selectedMessage
+                        )
+                        interactionsByUser += data
+                        return@suspend data
+                    }()
+                
+                interactionByUser = statusData
+                isStatusDialogOpen = true
+            } catch (e: Exception) {
+                error = e
+            } finally {
+                loading = false
+            }
         }
     }
     

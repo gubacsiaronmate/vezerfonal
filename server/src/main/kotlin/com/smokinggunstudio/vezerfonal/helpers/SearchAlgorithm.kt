@@ -1,10 +1,5 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
-import java.lang.Byte
-import java.lang.Double
-import java.lang.Float
-import java.lang.Long
-import java.lang.Short
 import kotlin.Any
 import kotlin.Boolean
 import kotlin.String
@@ -12,17 +7,18 @@ import kotlin.Suppress
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 fun Class<*>.isPrimitiveType(): Boolean =
-    this.isPrimitive || this in setOf(
+    isPrimitive || this in setOf(
         String::class.java,
-        java.lang.Boolean::class,
+        Boolean::class.java,
         Byte::class.java,
         Short::class.java,
         Integer::class.java,
         Long::class.java,
         Float::class.java,
         Double::class.java,
-        Character::class.java
+        Character::class.java,
     )
 
 fun <T: Any> T.toFlatString(): String =

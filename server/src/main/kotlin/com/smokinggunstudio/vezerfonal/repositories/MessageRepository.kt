@@ -33,7 +33,7 @@ class MessageRepository(val db: Database) {
             val selectedTags = TagRepository(db).getTagsByMessageId(this@toMessage[Messages.id])
             
             if ((user == null) == (group == null))
-                throw IllegalStateException("Both user and group cannot be null at the same time. Nor can both have a value.")
+                error("Both user and group cannot be null at the same time. Nor can both have a value.")
             
             Message(
                 id = this@toMessage[Messages.id],

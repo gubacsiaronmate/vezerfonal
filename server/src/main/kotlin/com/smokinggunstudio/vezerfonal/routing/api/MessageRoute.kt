@@ -39,15 +39,15 @@ fun Route.messageRoute() {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
-        val userId = principal.user.id!!
+        val user = principal.user
         val db = principal.db
         
         val amount = call.parameters["amount"]?.toIntOrNull()
         
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
-                .getNonArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .fillMissingInfos(db, userId)
+                .getNonArchivedMessagesByRecipientUserId(user.id!!, limit = amount)
+                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
         } ?: return@get
         
         call.respond(messages)
@@ -69,7 +69,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getMessagesBySenderUserId(user.id!!, limit = amount)
-                .fillMissingInfos(db, user.id)
+                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
         } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
@@ -130,13 +130,13 @@ fun Route.messageRoute() {
         
         val amount = call.parameters["amount"]?.toIntOrNull()
         
+        val user = principal.user
         val db = principal.db
-        val userId = principal.user.id!!
         
         val messages = tryInternal("Unable to get messages") {
             MessageRepository(db)
-                .getArchivedMessagesByRecipientUserId(userId, limit = amount)
-                .fillMissingInfos(db, userId)
+                .getArchivedMessagesByRecipientUserId(user.id!!, limit = amount)
+                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
         } ?: return@get
         
         call.respond(messages)
