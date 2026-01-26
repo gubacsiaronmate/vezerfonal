@@ -87,23 +87,53 @@ suspend inline fun Message.fillMissingInformation(db: Database, userId: Int, isS
     val interactions = InteractionInfoRepository(db)
         .getInteractionInfosByMessageAndUserId(this.id!!, userId)
     
+//    log { this.id.toString() }
+//    log { userId.toString() }
+    
     val reaction = interactions
         .singleOrNull { it.type == InteractionType.reaction }
         ?.reaction
     
-    val status =
-        if (isSenderRequest)
-            MessageStatus.read
-        else interactions
-            .filter { it.type == InteractionType.status }
-            .ifEmpty { null }
-            ?.maxByOrNull { it.createdAt }
-            ?.status
-            ?: if (reaction == null)
-                MessageStatus.received
-            else MessageStatus.read
+    var status = MessageStatus.received
+    
+    if (isSenderRequest) {
+        status = MessageStatus.read
+    } else {
+        val _status = interactions.filter { it.type == InteractionType.status }.maxByOrNull { it.createdAt }?.status
+        if (_status != null) {
+            status = _status
+        }
+        
+    }
+    
+    if (reaction != null) {
+        status = MessageStatus.read;
+    }
+    
+//    log { reaction.toString() }
     
     
+    
+//    if (reaction != null) {
+//        status = MessageStatus.read
+////        log { "non null reaction, status set to sent" }
+//    }
+    
+    
+    
+    
+//    val status =
+//        if (isSenderRequest)
+//            MessageStatus.read
+//        else interactions
+//            .filter { it.type == InteractionType.status }
+//            .maxByOrNull { it.createdAt }
+//            ?.status
+//            ?: if (reaction == null)
+//                MessageStatus.received
+//            else MessageStatus.read
+//
+//    log { status.toString() }
     return this.toDTO(reaction, status)
 }
 

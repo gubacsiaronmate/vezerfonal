@@ -22,6 +22,7 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.getStatusChangesForMessageByUserExtId
@@ -160,6 +161,8 @@ fun MessageViewScreen(
     }
     
     val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
+    
+    log { "Status is:" + message.status }
     
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
