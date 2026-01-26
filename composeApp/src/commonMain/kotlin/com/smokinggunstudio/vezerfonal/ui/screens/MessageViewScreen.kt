@@ -29,9 +29,7 @@ import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.asStr
-import com.smokinggunstudio.vezerfonal.ui.helpers.capitalize
 import com.smokinggunstudio.vezerfonal.ui.helpers.changeStatus
-import io.ktor.client.request.invoke
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -278,7 +276,7 @@ fun MessageViewScreen(
                 ErrorDialog(error!!, Modifier.align(Alignment.Center))
             
             if (isStatusDialogOpen && interactionByUser != null)
-                AsdfghDialog(interactionByUser!!) {
+                StatusDialog(interactionByUser!!) {
                     isStatusDialogOpen = false
                 }
             
