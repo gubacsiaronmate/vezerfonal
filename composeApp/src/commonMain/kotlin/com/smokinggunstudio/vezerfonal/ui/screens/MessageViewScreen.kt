@@ -243,7 +243,7 @@ fun MessageViewScreen(
                     
                     when {
                         shouldDisabledReactionBarBeDisplayed -> DisabledBottomPanel(
-                            reaction = message.reactedWith ?: selectedReaction.toString(),
+                            reaction = message.reactedWith ?: selectedReaction,
                             modifier = Modifier.padding(top = top).align(Alignment.BottomCenter)
                         )
                         

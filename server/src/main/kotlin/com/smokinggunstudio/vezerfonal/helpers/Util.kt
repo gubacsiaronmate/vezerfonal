@@ -29,7 +29,9 @@ suspend inline fun <T> RoutingContext.trial(
     return try { action() }
     catch (e: Exception) {
         call.respond(statusCode)
-        println("\n\n$onErrorMessage\n\n$e\n${ e.printStackTrace() }\n\n")
+        log {
+            "\n\n" + onErrorMessage + "\n\n" + e + "\n" + e.printStackTrace() + "\n\n"
+        }
         null
     }
 }
@@ -81,26 +83,34 @@ fun OffsetDateTime.toKotlinInstant() = toInstant().toKotlinInstant()
 @OptIn(ExperimentalTime::class)
 fun Instant.toOffsetDateTime(zoneOffset: ZoneOffset): OffsetDateTime = toJavaInstant().atOffset(zoneOffset)
 
-suspend fun Message.fillMissingInformation(db: Database, userId: Int, isAnyAdmin: Boolean): MessageData {
+suspend inline fun Message.fillMissingInformation(db: Database, userId: Int, isSenderRequest: Boolean): MessageData {
     val interactions = InteractionInfoRepository(db)
         .getInteractionInfosByMessageAndUserId(this.id!!, userId)
     
-    val reaction = try {
-        interactions.single { it.type == InteractionType.reaction }.reaction
-    } catch (_: Exception) { null }
+    val reaction = interactions
+        .singleOrNull { it.type == InteractionType.reaction }
+        ?.reaction
     
-    val statuses = interactions.filter { it.type == InteractionType.status }
-
-    val status = if (isAnyAdmin) MessageStatus.read
-    else statuses.maxByOrNull { it.createdAt }!!.status!!
+    val status =
+        if (isSenderRequest)
+            MessageStatus.read
+        else interactions
+            .filter { it.type == InteractionType.status }
+            .ifEmpty { null }
+            ?.maxByOrNull { it.createdAt }
+            ?.status
+            ?: if (reaction == null)
+                MessageStatus.received
+            else MessageStatus.read
+    
     
     return this.toDTO(reaction, status)
 }
 
-suspend fun List<Message>.fillMissingInfos(
+suspend inline fun List<Message>.fillMissingInfos(
     db: Database,
     userId: Int,
-    isAnyAdmin: Boolean
+    isSenderRequest: Boolean
 ): List<MessageData> = map { message ->
-    message.fillMissingInformation(db, userId, isAnyAdmin)
+    message.fillMissingInformation(db, userId, isSenderRequest)
 }

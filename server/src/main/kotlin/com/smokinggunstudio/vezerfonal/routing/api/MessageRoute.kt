@@ -44,11 +44,11 @@ fun Route.messageRoute() {
         
         val amount = call.parameters["amount"]?.toIntOrNull()
         
-        val messages = tryInternal("Unable to get messages.") {
+        val messages = tryInternal("Unable to get messages. (/{amount})") {
             MessageRepository(db)
                 .getNonArchivedMessagesByRecipientUserId(user.id!!, limit = amount)
-                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
-        } ?: return@get
+                .fillMissingInfos(db, user.id, false)
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
     }
@@ -69,7 +69,7 @@ fun Route.messageRoute() {
         val messages = tryInternal("Unable to get messages.") {
             MessageRepository(db)
                 .getMessagesBySenderUserId(user.id!!, limit = amount)
-                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
+                .fillMissingInfos(db, user.id, true)
         } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
@@ -103,7 +103,7 @@ fun Route.messageRoute() {
             MessageRepository(db).getMessageById(id)
         } ?: return@post
         
-        MessageHub.broadcast(insertedMessage, db)
+        
         
         val interactionSuccess = tryInternal("Unable to insert all interactions.") {
             recipients.map { user ->
@@ -117,7 +117,9 @@ fun Route.messageRoute() {
                         )
                     )
             }
-        } ?: return@post
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+        
+        MessageHub.broadcast(insertedMessage, db)
         
         if (interactionSuccess.all { it })
             call.respond(HttpStatusCode.OK)
@@ -133,11 +135,11 @@ fun Route.messageRoute() {
         val user = principal.user
         val db = principal.db
         
-        val messages = tryInternal("Unable to get messages") {
+        val messages = tryInternal("Unable to get messages. (/archived/{amount})") {
             MessageRepository(db)
                 .getArchivedMessagesByRecipientUserId(user.id!!, limit = amount)
-                .fillMissingInfos(db, user.id, user.isAnyAdmin == true)
-        } ?: return@get
+                .fillMissingInfos(db, user.id, false)
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(messages)
     }
