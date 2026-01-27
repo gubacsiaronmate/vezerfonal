@@ -12,6 +12,7 @@ import io.ktor.client.HttpClient
 
 data class AdminTools(
     val token: String,
+    val tagListStr: List<String>,
     val regCodesStr: List<String>
 ) : Screen {
     @Composable
@@ -20,7 +21,9 @@ data class AdminTools(
         
         AdminToolsScreen(
             onUserManagementClick = { navigator.push(UserManagement) },
-            onTagManagementClick = { navigator.push(TagManagement) },
+            onTagManagementClick = {
+                navigator.push(TagManagement(token, tagListStr))
+            },
             onRegistrationCodeManagementClick = {
                 navigator.push(RegCodeManagement(token, regCodesStr))
             }

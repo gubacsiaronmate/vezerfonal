@@ -90,3 +90,6 @@ inline val Long.asFormattedLDTStr: String
             local.minute.toString().padStart(2, '0')
         }"
     }
+
+fun <T> List<T>.limit(limit: Int): List<T> =
+    if (size > limit) subList(0, limit) else this

@@ -24,6 +24,7 @@ import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import com.smokinggunstudio.vezerfonal.helpers.unaryPlus
 import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.getStatusChangesForMessageByUserExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
@@ -226,7 +227,7 @@ fun MessageViewScreen(
                             )
                         }
                     }
-                    
+                    log { message.tags.joinToString(", ") }
                     HorizontallyScrollableTagList(message.tags)
                 }
                 

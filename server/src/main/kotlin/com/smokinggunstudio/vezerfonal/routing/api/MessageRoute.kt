@@ -103,8 +103,6 @@ fun Route.messageRoute() {
             MessageRepository(db).getMessageById(id)
         } ?: return@post
         
-        
-        
         val interactionSuccess = tryInternal("Unable to insert all interactions.") {
             recipients.map { user ->
                 InteractionInfoRepository(db)

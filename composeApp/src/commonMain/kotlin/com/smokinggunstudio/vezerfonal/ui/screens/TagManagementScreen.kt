@@ -2,6 +2,8 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.*
@@ -84,20 +86,22 @@ fun TagManagementScreen(
                 }
             }
             
-            tags.forEach { tag: TagData ->
-                SwipeableTagCard(
-                    onDelete = {
-                        tags = tags.filter { it != tags }
-                        scope.launch {
-                            tagDelete(client, accessToken, tag)
-                        }
-                    },
-                    onEdit = {
-                        isTagEditOpened = true
-                        selectedTag = tag.name
-                    },
-                    tag = tag
-                )
+            LazyColumn(Modifier.weight(1F)) {
+                items(tags) { tag ->
+                    SwipeableTagCard(
+                        onDelete = {
+                            tags = tags.filter { it != tags }
+                            scope.launch {
+                                tagDelete(client, accessToken, tag)
+                            }
+                        },
+                        onEdit = {
+                            isTagEditOpened = true
+                            selectedTag = tag.name
+                        },
+                        tag = tag
+                    )
+                }
             }
         }
         

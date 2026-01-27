@@ -205,6 +205,7 @@ data class Home(
                                 navigator.push(
                                     AdminTools(
                                         token = accessToken,
+                                        tagListStr = tagList.map { it.toSerialized() },
                                         regCodesStr = regCodes.map { it.toSerialized() }
                                     )
                                 )

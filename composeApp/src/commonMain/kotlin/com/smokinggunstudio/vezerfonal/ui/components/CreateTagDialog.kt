@@ -11,9 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.TagData
+import com.smokinggunstudio.vezerfonal.network.api.tagCreate
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import io.ktor.client.*
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create_tag
@@ -35,7 +37,16 @@ fun CreateTagDialog(
             titleText = stringResource(Res.string.create_tag),
             onCancelClick = onCancelClick,
             onCreateClick = {
-            
+                try {
+                    scope.launch {
+                        val newTag = TagData(tagName)
+                        tagCreate(client, accessToken, newTag)
+                        onCreatedTag(newTag)
+                        onCancelClick()
+                    }
+                } catch (e: Exception) {
+                    error = e
+                }
             }
         ) {
             OutlinedTextField(

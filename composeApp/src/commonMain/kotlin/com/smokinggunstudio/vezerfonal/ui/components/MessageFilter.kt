@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
@@ -130,8 +131,8 @@ fun MessageFilter(
             }
         )
         HorizontallyScrollableTagSelect(
-            snapshot = state.tagSelectionState,
+            tagList = state.tagSelectionState.allItems.map { it.name },
             tabOpenedCallback = tabOpenedClick
-        )
+        ) { _ -> }
     }
 }

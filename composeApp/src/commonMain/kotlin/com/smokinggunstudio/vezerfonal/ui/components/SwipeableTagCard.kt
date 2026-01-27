@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Sell
+import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +26,7 @@ fun SwipeableTagCard(
         onEdit = onEdit,
         onDelete = onDelete,
     ) {
-        Icon(Icons.Outlined.Key, null)
+        Icon(Icons.Outlined.Sell, null)
         Spacer(Modifier.width(8.dp))
         Text(tag.name)
     }

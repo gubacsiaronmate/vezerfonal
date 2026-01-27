@@ -41,10 +41,16 @@ inline fun <reified T> List<T>.ifNotEmpty(): List<T>? = ifEmpty { null }
 
 inline fun <reified T : DTO> String.toDTO(): T = Json.decodeFromString<T>(this)
 
-inline fun log(message: () -> String) {
-    repeat(5) { println("\u200E") }
+inline fun log(padding: Int = 5, message: () -> String) {
+    repeat(padding) { println("\u200E") }
     println(message())
-    repeat(5) { println("\u200E") }
+    repeat(padding) { println("\u200E") }
+}
+
+fun log(message: Any?, padding: Int = 5) {
+    repeat(padding) { println("\u200E") }
+    println(message)
+    repeat(padding) { println("\u200E") }
 }
 
 fun List<Pair<UserData, InteractionInfoData>>.toListOfDTO(): List<UserInteractionData> =

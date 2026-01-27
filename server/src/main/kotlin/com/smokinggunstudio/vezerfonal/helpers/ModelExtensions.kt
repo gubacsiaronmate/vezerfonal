@@ -46,15 +46,25 @@ suspend fun UserData.toUser(
 
 @OptIn(ExperimentalTime::class)
 suspend fun MessageData.toMessage(db: Database): Message {
+    log("`toMessage` function starts here", 10)
+    
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
     val author = urepo.getUserByExternalId(author.externalId)!!
+    
+    log("Trying to log gotten tags")
+    tags.forEach(::log)
+    
     val tagList = tags.map { tagName ->
+        log("Trying to find tag with name: $tagName")
         TagRepository(db)
             .getTagByName(tagName)
+            ?.let { log("Found tag: $it"); it }
             ?: error("Tag is not available.")
     }
+    
+    tagList.forEach(::log)
     
     var group: Group? = null
     var user: User? = null

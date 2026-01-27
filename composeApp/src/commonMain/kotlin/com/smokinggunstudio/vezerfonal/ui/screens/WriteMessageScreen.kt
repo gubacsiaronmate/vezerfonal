@@ -20,9 +20,11 @@ import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.network.api.sendMessage
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.contains
+import com.smokinggunstudio.vezerfonal.ui.helpers.limit
 import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.UserSelectionStateController
@@ -161,8 +163,18 @@ fun WriteMessageScreen(
                         Spacer(Modifier.height(12.dp))
                         
                         HorizontallyScrollableTagSelect(
-                            tagSelectionState.snapshot() as TagSelectionStateModel
-                        ) { isTagSelectTabOpened = true }
+                            tagList = tagSelectionState.allItems.map { it.name }.limit(5),
+                            tabOpenedCallback = { isTagSelectTabOpened = true }
+                        ) { (checked, tag) ->
+                            with(tagSelectionState) {
+                                log("Checked: $checked\nTag: $tag")
+                                
+                                if (!checked) addItem(TagData(tag))
+                                else removeItem(TagData(tag))
+                                
+                                selectedItems.forEach(::log)
+                            }
+                        }
                         
                         Spacer(Modifier.height(12.dp))
                         
@@ -172,7 +184,10 @@ fun WriteMessageScreen(
                             onClick = {
                                 try {
                                     scope.launch {
+                                        state.updateTags(tagSelectionState.selectedItems.map { it.name })
                                         val message = state.toMessageData(user)
+                                        log("Trying to log tags:", 10)
+                                        message.tags.forEach(::log)
                                         sendMessage(
                                             client = client,
                                             message = message,
