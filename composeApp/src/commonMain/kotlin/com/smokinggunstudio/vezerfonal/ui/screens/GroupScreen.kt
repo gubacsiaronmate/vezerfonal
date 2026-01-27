@@ -2,6 +2,8 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -101,27 +103,29 @@ import vezerfonal.composeapp.generated.resources.join_group
                 }
             }
             
-            Spacer(Modifier.height(16.dp))
+//            Spacer(Modifier.height(16.dp))
             
-            groups.forEach { group ->
-                if (isSuperAdminLogIn)
-                    SwipeableGroupCard(
-                        onEdit = { },
-                        onDelete = {
-                            groups = groups.filter { it != group }
-                            scope.launch {
-                                // TODO: Add logic to delete group
-                            }
-                        },
-                        group = group,
-                        myIdentifier = myIdentifier
+            LazyColumn(Modifier.weight(1F)) {
+                items(groups) { group ->
+                    if (isSuperAdminLogIn)
+                        SwipeableGroupCard(
+                            onEdit = { },
+                            onDelete = {
+                                groups = groups.filter { it != group }
+                                scope.launch {
+                                    // TODO: Add logic to delete group
+                                }
+                            },
+                            group = group,
+                            myIdentifier = myIdentifier
+                        )
+                    else GroupCard(
+                        name = group.name,
+                        extId = group.externalId,
+                        description = group.description,
+                        amITheAdmin = group.adminIdentifier == myIdentifier
                     )
-                else GroupCard(
-                    name = group.name,
-                    extId = group.externalId,
-                    description = group.description,
-                    amITheAdmin = group.adminIdentifier == myIdentifier
-                )
+                }
             }
         }
         
@@ -146,22 +150,20 @@ import vezerfonal.composeapp.generated.resources.join_group
             }
         }
         
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center
-        ){
-            if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
-                CreateGroupDialog(
-                    accessToken = accessToken,
-                    users = users!!,
-                    onCancelClick = { isCreatePopUpOn = false }
-                ) { groups += it }
-            
-            if (isJoinPopUpOn) JoinGroupDialog(
+        if (isSuperAdminLogIn && isCreatePopUpOn && loaded)
+            CreateGroupDialog(
                 accessToken = accessToken,
-                { isJoinPopUpOn = false }
+                users = users!!,
+                modifier = Modifier.align(Alignment.Center),
+                onCancelClick = { isCreatePopUpOn = false }
             ) { groups += it }
-            if (error != null) ErrorDialog(error!!)
-        }
+        
+        if (isJoinPopUpOn) JoinGroupDialog(
+            accessToken = accessToken,
+            modifier = Modifier.align(Alignment.Center),
+            onCancelClick = { isJoinPopUpOn = false }
+        ) { groups += it }
+        
+        if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }

@@ -5,6 +5,7 @@ import com.smokinggunstudio.vezerfonal.data.MessageStatusData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.*
+import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
@@ -68,8 +69,15 @@ fun Route.interactionRoute() {
             } ?: return@post
             
             val success = tryInternal("Unable to save interaction.") {
-                InteractionInfoRepository(db)
-                    .insertInteraction(interaction)
+                with(InteractionInfoRepository(db)) {
+                    insertInteraction(interaction) &&
+                    insertInteraction(InteractionInfo(
+                        message = interaction.message,
+                        user = user,
+                        type = InteractionType.status,
+                        status = MessageStatus.read
+                    ))
+                }
             } ?: return@post
             
             if (success) call.respond(HttpStatusCode.OK)

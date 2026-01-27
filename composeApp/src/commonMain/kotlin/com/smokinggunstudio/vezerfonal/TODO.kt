@@ -2,7 +2,6 @@ package com.smokinggunstudio.vezerfonal
 
 //    Critical:
 //    TODO: push notification system!!!
-//    TODO: message statuses are broken!!! (fix: MessageRoute.kt)
 //    TODO: nudge feature is nowhere!!!
 //    TODO: tag system!!!
 //    TODO: group edit and delete buttons dont work
@@ -19,6 +18,7 @@ package com.smokinggunstudio.vezerfonal
 //    TODO: set up account deletion popup
 //    TODO: archive options screen
 
+//    Done: message statuses are broken!!! (fix: MessageRoute.kt)
 //    Done: sender emoji bug!!!
 //    Done: groups tab doesn't display groups you are an admin of
 //    Done: reg code edit button doesnt work

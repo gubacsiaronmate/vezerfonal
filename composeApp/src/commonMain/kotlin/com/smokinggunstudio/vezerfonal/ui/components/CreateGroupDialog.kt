@@ -29,6 +29,7 @@ import vezerfonal.composeapp.generated.resources.name
 @Composable fun CreateGroupDialog(
     accessToken: String,
     users: List<UserData>,
+    modifier: Modifier = Modifier,
     onCancelClick: Function,
     onCreatedGroup: CallbackFunction<GroupData>,
 ) {
@@ -39,7 +40,7 @@ import vezerfonal.composeapp.generated.resources.name
     var adminIdentifier by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<Throwable?>(null)}
     
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize()) {
         CreateDialog(
             titleText = stringResource(Res.string.create_group),
             onCancelClick = onCancelClick,

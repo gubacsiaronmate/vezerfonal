@@ -37,7 +37,12 @@ object HomeCache {
 
         tagList = getAllTags(accessToken, client)
         
-        groups = g + guiao
+        groups = (g + guiao).distinct().sortedWith(
+            compareBy(
+                { if (it.name.lowercase() == "default") 0 else 1 },
+                { it.name }
+            )
+        )
         
         loaded = true
     }

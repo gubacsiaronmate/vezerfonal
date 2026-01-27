@@ -22,6 +22,7 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun JoinGroupDialog(
     accessToken: String,
+    modifier: Modifier = Modifier,
     onCancelClick: Function,
     onGroupJoined: CallbackFunction<GroupData>
 ) {
@@ -30,7 +31,7 @@ fun JoinGroupDialog(
     var groupExtId by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<Throwable?>(null)}
     
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize()) {
         Dialog {
             Text(
                 text = stringResource(Res.string.join_group),

@@ -46,7 +46,7 @@ class GroupRepository(val db: Database) {
     
     suspend fun getAllGroups(): List<Group> =
         suspendTransaction(db) {
-            Groups.selectAll().map { it.toGroup() }
+            Groups.selectAll().distinct().map { it.toGroup() }
         }
     
     suspend fun getGroupByCondition(condition: SQLCondition): Group? =
@@ -62,7 +62,7 @@ class GroupRepository(val db: Database) {
     suspend fun getGroupsByCondition(
         condition: SQLCondition
     ): List<Group> = suspendTransaction(db) {
-        Groups.select(condition).map { it.toGroup() }
+        Groups.select(condition).distinct().map { it.toGroup() }
     }
     
     suspend fun getGroupById(id: Int): Group? =
