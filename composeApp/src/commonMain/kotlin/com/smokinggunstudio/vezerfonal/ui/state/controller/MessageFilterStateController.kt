@@ -1,10 +1,13 @@
 package com.smokinggunstudio.vezerfonal.ui.state.controller
 
 import androidx.compose.runtime.mutableStateOf
+import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.ui.helpers.between
 import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class MessageFilterStateController(initial: MessageFilterStateModel) {
     private val _earliestMessageUnixTime = mutableStateOf(initial.earliestMessageUnixTime)
@@ -62,6 +65,10 @@ class MessageFilterStateController(initial: MessageFilterStateModel) {
     
     fun updateSearchQuery(newValue: String) {
         _searchQuery.value = newValue
+    }
+    
+    fun updateTagSelectionState(newValue: TagSelectionStateModel) {
+        _tagSelectionState.value = newValue
     }
     
     fun clear() {

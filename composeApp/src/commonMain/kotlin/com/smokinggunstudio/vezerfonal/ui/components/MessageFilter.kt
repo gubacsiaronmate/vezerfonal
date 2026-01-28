@@ -18,7 +18,9 @@ import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 import kotlin.time.ExperimentalTime
@@ -29,6 +31,7 @@ fun MessageFilter(
     snapshot: MessageFilterStateModel,
     tabOpenedClick: Function,
     modifier: Modifier = Modifier,
+    onValueChange: CallbackFunction<MessageFilterStateModel>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
     val state = remember { MessageFilterStateController(snapshot) }
@@ -42,7 +45,10 @@ fun MessageFilter(
     ) {
         OutlinedTextField(
             value = state.senderName,
-            onValueChange = state::updateSenderName,
+            onValueChange = {
+                state.updateSenderName(it)
+                onValueChange(state.snapshot())
+            },
             label = {
                 Text(
                     text = stringResource(Res.string.senders_name),
@@ -50,8 +56,7 @@ fun MessageFilter(
                 )
             },
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         )
         Column {
@@ -72,13 +77,13 @@ fun MessageFilter(
                 onRangeSelected = { range ->
                     state.updateSelectedStartDate(range.start.toLong())
                     state.updateSelectedEndDate(range.endInclusive.toLong())
+                    onValueChange(state.snapshot())
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) { scrollLockedBySliderCallback(it) }
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -92,33 +97,40 @@ fun MessageFilter(
             )
             Switch(
                 checked = state.isImportant,
-                onCheckedChange = state::updateIsImportant,
+                onCheckedChange = {
+                    state.updateIsImportant(it)
+                    onValueChange(state.snapshot())
+                },
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(Res.string.waiting_for_answer),
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
             Switch(
                 checked = state.isWaitingForAnswer,
-                onCheckedChange = state::updateIsWaitingForAnswer,
+                onCheckedChange = {
+                    state.updateIsWaitingForAnswer(it)
+                    onValueChange(state.snapshot())
+                },
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
         OutlinedTextField(
             value = state.searchQuery,
-            onValueChange = state::updateSearchQuery,
+            onValueChange = {
+                state.updateSearchQuery(it)
+                onValueChange(state.snapshot())
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -133,6 +145,14 @@ fun MessageFilter(
         HorizontallyScrollableTagSelect(
             tagList = state.tagSelectionState.allItems.map { it.name },
             tabOpenedCallback = tabOpenedClick
-        ) { _ -> }
+        ) { (checked, tag) ->
+            with(TagSelectionStateController(state.tagSelectionState)) {
+                if (!checked) addItem(TagData(tag))
+                else removeItem(TagData(tag))
+                
+                state.updateTagSelectionState(snapshot() as TagSelectionStateModel)
+            }
+            onValueChange(state.snapshot())
+        }
     }
 }
