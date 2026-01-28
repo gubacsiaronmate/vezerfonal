@@ -30,7 +30,7 @@ import kotlin.time.ExperimentalTime
     var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
-    val messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
+    var messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var filtered by remember(messages) { mutableStateOf(messages)}
@@ -73,7 +73,8 @@ import kotlin.time.ExperimentalTime
                     MessageFilter(
                         snapshot = messageFilterState.snapshot(),
                         tabOpenedClick = { isTagSelectTabOpened = true },
-                        modifier = Modifier.align(Alignment.TopCenter)
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        onValueChange = { messageFilterState = MessageFilterStateController(it) }
                     ) { _ -> }
                 
                 if (isTagSelectTabOpened)

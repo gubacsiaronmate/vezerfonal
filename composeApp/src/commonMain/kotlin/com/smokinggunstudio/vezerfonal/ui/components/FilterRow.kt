@@ -57,11 +57,11 @@ import kotlin.time.Instant
                     
                     dateMatch && senderMatch && urgentMatch && searchMatch
                 }
-                onCompleted(filtered)
+                onCompleted(filtered.sortedBy { it.sentAt })
             },
             onCancel = {
                 state.clear()
-                onCompleted(messages)
+                onCompleted(messages.sortedBy { it.sentAt })
             }
         )
     }

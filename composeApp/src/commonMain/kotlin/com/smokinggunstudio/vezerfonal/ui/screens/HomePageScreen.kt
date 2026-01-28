@@ -49,7 +49,7 @@ fun HomePageScreen(
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
-    val messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
+    var messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
@@ -171,7 +171,8 @@ fun HomePageScreen(
                     MessageFilter(
                         snapshot = messageFilterState.snapshot(),
                         tabOpenedClick = { isTagSelectTabOpened = true },
-                        modifier = Modifier.align(Alignment.TopCenter)
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        onValueChange = { messageFilterState = MessageFilterStateController(it) }
                     ) { scrollLockedBySliderCallback(it && isFilterOpened) }
                 else scrollLockedBySliderCallback(false)
                 

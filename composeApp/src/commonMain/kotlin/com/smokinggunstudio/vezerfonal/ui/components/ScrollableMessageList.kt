@@ -22,7 +22,7 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 ) {
     Box(Modifier.fillMaxSize()) {
         LazyColumn(Modifier.fillMaxSize()) {
-            items(messages.reversed()) { message ->
+            items(messages.sortedBy { it.sentAt }.reversed()) { message ->
                 if (isSwipeable)
                     SwipeToArchiveRow({ onArchive(message) }) {
                         ListItem(
