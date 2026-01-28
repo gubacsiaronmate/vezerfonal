@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal
 //    Critical:
 //    TODO: push notification system!!!
 //    TODO: nudge feature is nowhere!!!
+//    TODO: message filter doesnt work
 //    TODO: group edit and delete buttons dont work
 //    TODO: user and tag management screens are completely blank
 

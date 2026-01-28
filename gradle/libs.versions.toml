@@ -32,6 +32,7 @@ multiplatformSettings = "1.3.0"
 voyager = "1.1.0-beta03"
 thymeleaf = "3.1.3.RELEASE"
 jakartaMail = "2.0.2"
+googleServices = "4.4.4"
 
 [libraries]
 androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "composeMultiplatform" }
@@ -96,3 +97,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 parcelize = { id = "kotlin-parcelize" }
 nativeCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

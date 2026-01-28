@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.nativeCocoapods)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.parcelize)
+    alias(libs.plugins.google.services)
 }
 
 kotlin {

@@ -27,7 +27,8 @@ private val orgTables = makeArrayOfTable(
     UserGroupConnection,
     UserNotificationSettings,
     UserOAuthProvider,
-    Users
+    Users,
+    PushToken
 )
 
 var MainDB: Database? = null
