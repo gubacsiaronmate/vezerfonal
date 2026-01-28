@@ -22,14 +22,13 @@ fun HorizontallyScrollableTagList(
 ) {
     LazyRow(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(tags) { tag ->
             Row(
                 modifier = Modifier
-                    .padding(horizontal =  12.dp, vertical = 6.dp)
+//                    .padding(horizontal = 12.dp, vertical = 6.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = RoundedCornerShape(50),
@@ -37,8 +36,9 @@ fun HorizontallyScrollableTagList(
             ) {
                 Text(
                     text = tag,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 6.dp, horizontal = 12.dp)
                 )
             }
         }

@@ -80,7 +80,7 @@ fun MessageViewScreen(
     var loading by remember { mutableStateOf(false) }
     
     val shouldDisabledReactionBarBeDisplayed =
-        (message.reactedWith != null || selectedReaction != null) || isArchived
+        ((message.reactedWith != null || selectedReaction != null) || isArchived) && !isSenderView
     val shouldReactionBarBeDisplayed = !isSenderView && !loading && error == null
     
     val snackbarHostState = remember { SnackbarHostState() }
@@ -145,20 +145,10 @@ fun MessageViewScreen(
         }
     }
     
+    reactionsAndUsers.forEach(::log)
     
     val content: ComposableContent = {
-        Column(
-            Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            reactionsAndUsers.forEach { (user, interaction) ->
-                SentMsgBottomSheetRow(interaction.reaction!!, user.name) {
-                    selectedUser = user.externalId
-                }
-            }
-        }
+    
     }
     
     val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
@@ -171,7 +161,18 @@ fun MessageViewScreen(
             .fillMaxSize()
             .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
-        sheetContent = { if (!isSenderView) content() }
+        sheetContent = { if (isSenderView) Column(
+            Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
+            reactionsAndUsers.forEach { (user, interaction) ->
+                SentMsgBottomSheetRow(interaction.reaction!!, user.name) {
+                    selectedUser = user.externalId
+                }
+            }
+        } }
     ) {
         Box(Modifier.fillMaxSize()) {
             Column(
@@ -180,13 +181,17 @@ fun MessageViewScreen(
             ) {
                 Box(Modifier.fillMaxWidth()) {
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .padding(top = 16.dp, bottom = 8.dp),
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 8.dp)
                         ) {
                             Text(
                                 maxLines = 1,
@@ -210,6 +215,8 @@ fun MessageViewScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        
                         ) {
                             Text(
                                 maxLines = 1,
@@ -226,12 +233,12 @@ fun MessageViewScreen(
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
+                        Spacer(Modifier.height(8.dp))
+                        HorizontallyScrollableTagList(message.tags)
                     }
-                    log { message.tags.joinToString(", ") }
-                    HorizontallyScrollableTagList(message.tags)
                 }
                 
-                HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(8.dp))
+                HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(bottom = 8.dp))
                 
                 Box(Modifier.fillMaxSize()) {
                     Column(Modifier.verticalScroll(rememberScrollState())) {
