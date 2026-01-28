@@ -2,7 +2,7 @@ package com.smokinggunstudio.vezerfonal.objects
 
 import org.jetbrains.exposed.v1.core.Table
 
-object PushToken : Table("push_tokens") {
+object PushTokens : Table("push_tokens") {
     val id = integer("id").autoIncrement()
     val userId = integer("user_id").references(Users.id)
     val token = text("fcm_token")

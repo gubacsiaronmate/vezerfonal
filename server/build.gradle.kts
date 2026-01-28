@@ -18,6 +18,8 @@ application {
 
 dependencies {
     // my imports
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.admin)
     implementation(libs.jakarta.mail)
     implementation(libs.thymeleaf)
     implementation(libs.exposed.json)

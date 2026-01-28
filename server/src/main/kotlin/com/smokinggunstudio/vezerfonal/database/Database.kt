@@ -2,14 +2,12 @@ package com.smokinggunstudio.vezerfonal.database
 
 import com.smokinggunstudio.vezerfonal.helpers.makeArrayOfTable
 import com.smokinggunstudio.vezerfonal.objects.*
-import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.core.Schema
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.migration.jdbc.MigrationUtils
-import kotlin.coroutines.CoroutineContext
 import kotlin.system.exitProcess
 import kotlin.text.filter
 
@@ -28,7 +26,7 @@ private val orgTables = makeArrayOfTable(
     UserNotificationSettings,
     UserOAuthProvider,
     Users,
-    PushToken
+    PushTokens
 )
 
 var MainDB: Database? = null

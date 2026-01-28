@@ -21,7 +21,7 @@ kotlin = "2.3.0"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.3.3"
 kvault = "1.12.0"
-logback = "1.5.22"
+logback = "1.5.26"
 #my imports
 exposed = "1.0.0-rc-4"
 kotlinx-datetime = "0.7.1"
@@ -33,6 +33,8 @@ voyager = "1.1.0-beta03"
 thymeleaf = "3.1.3.RELEASE"
 jakartaMail = "2.0.2"
 googleServices = "4.4.4"
+firebaseMessaging = "25.0.1"
+firebaseAdmin = "9.7.0"
 
 [libraries]
 androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "composeMultiplatform" }
@@ -83,6 +85,8 @@ skiko = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 multiplatformSettings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakartaMail" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebaseAdmin" }
 
 
 [plugins]
