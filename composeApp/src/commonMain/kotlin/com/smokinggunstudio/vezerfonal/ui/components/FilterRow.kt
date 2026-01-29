@@ -9,11 +9,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.between
-import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
-import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
@@ -23,10 +23,8 @@ import kotlin.time.Instant
     onCompleted: CallbackFunction<List<MessageData>>,
     isFilterOpened: Boolean,
     messages: List<MessageData>,
-    snapshot: MessageFilterStateModel,
+    state: MessageFilterState,
 ) {
-    val state = remember { MessageFilterStateController(snapshot) }
-    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,10 +35,12 @@ import kotlin.time.Instant
         else FilterApplyCancelButtons(
             onApply = {
                 val filtered = messages.filter { message ->
-                    val dateMatch = Instant.fromEpochMilliseconds(message.sentAt).between(
-                        start = Instant.fromEpochMilliseconds(state.selectedStartDate),
-                        end = Instant.fromEpochMilliseconds(state.selectedEndDate)
-                    )
+                    val dateMatch =
+                        if (state.selectedStartDate == 0L && state.selectedEndDate == 0L) true
+                        else Instant.fromEpochMilliseconds(message.sentAt).between(
+                            start = Instant.fromEpochMilliseconds(state.selectedStartDate),
+                            end = Instant.fromEpochMilliseconds(state.selectedEndDate)
+                        )
                     
                     val senderMatch = if (state.senderName.isNotEmpty())
                         message.author.name.contains(state.senderName, ignoreCase = true)
@@ -50,12 +50,19 @@ import kotlin.time.Instant
                         if (state.isImportant)
                             message.isUrgent else true
                     
+                    val waitingForAnswerMatch = if (state.isWaitingForAnswer) {
+                        message.reactedWith == null || message.status != MessageStatus.read
+                    } else true
+                    
                     val searchMatch = if (state.searchQuery.isNotEmpty()) {
                         message.title.contains(state.searchQuery, ignoreCase = true) ||
                         message.content.contains(state.searchQuery, ignoreCase = true)
                     } else true
                     
-                    dateMatch && senderMatch && urgentMatch && searchMatch
+                    val tagMatch = if (state.tagSelectionState.selectedItems.isEmpty()) true
+                    else message.tags.containsAll(state.tagSelectionState.selectedItems.map { it.name })
+                    
+                    dateMatch && senderMatch && urgentMatch && waitingForAnswerMatch && searchMatch && tagMatch
                 }
                 onCompleted(filtered.sortedBy { it.sentAt })
             },

@@ -149,6 +149,7 @@ data class Home(
                         Home -> HomePageScreen(
                             accessToken = accessToken,
                             userIdentifier = user!!.externalId,
+                            tagList = tagList,
                             onMessageClick = {
                                 navigator.push(
                                     ViewMessage(
@@ -164,6 +165,7 @@ data class Home(
                         )
                         Archive -> ArchiveScreen(
                             accessToken = accessToken,
+                            tagList = tagList,
                             onMessageClick = {
                                 navigator.push(
                                     ViewMessage(
@@ -219,6 +221,7 @@ data class Home(
                                 navigator.push(
                                     SentMessages(
                                         accessToken = accessToken,
+                                        tagStrList = tagList.map { it.toSerialized() },
                                         userIdentifier = user!!.externalId,
                                     )
                                 )

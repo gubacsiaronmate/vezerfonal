@@ -1,41 +1,38 @@
-package com.smokinggunstudio.vezerfonal.ui.state.controller
+package com.smokinggunstudio.vezerfonal.ui.state
 
 import androidx.compose.runtime.mutableStateOf
-import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.ui.helpers.between
-import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
+import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
-class MessageFilterStateController(initial: MessageFilterStateModel) {
-    private val _earliestMessageUnixTime = mutableStateOf(initial.earliestMessageUnixTime)
+class MessageFilterState(private val tagList: List<TagData>) {
+    private val _earliestMessageUnixTime = mutableStateOf(0F)
     val earliestMessageUnixTime: Float get() = _earliestMessageUnixTime.value
     
     @OptIn(ExperimentalTime::class)
-    val latestMessageUnixTime = initial.latestMessageUnixTime
+    val latestMessageUnixTime = Clock.System.now().toEpochMilliseconds().toFloat()
     
-    private val _selectedStartDate = mutableStateOf(initial.selectedStartDate)
+    private val _selectedStartDate = mutableStateOf(0L)
     val selectedStartDate: Long get() = _selectedStartDate.value
     
-    private val _selectedEndDate = mutableStateOf(initial.selectedEndDate)
+    private val _selectedEndDate = mutableStateOf(0L)
     val selectedEndDate: Long get() = _selectedEndDate.value
     
-    private val _senderName = mutableStateOf(initial.senderName)
+    private val _senderName = mutableStateOf("")
     val senderName: String get() = _senderName.value
     
-    private val _isImportant = mutableStateOf(initial.isImportant)
+    private val _isImportant = mutableStateOf(false)
     val isImportant: Boolean get() = _isImportant.value
     
-    private val _isWaitingForAnswer = mutableStateOf(initial.isWaitingForAnswer)
+    private val _isWaitingForAnswer = mutableStateOf(false)
     val isWaitingForAnswer: Boolean get() = _isWaitingForAnswer.value
     
-    private val _searchQuery = mutableStateOf(initial.searchQuery)
+    private val _searchQuery = mutableStateOf("")
     val searchQuery: String get() = _searchQuery.value
     
-    private val _tagSelectionState = mutableStateOf(initial.tagSelectionState)
-    val tagSelectionState: TagSelectionStateModel = _tagSelectionState.value
+    private val _tagSelectionState = mutableStateOf(TagSelectionStateModel(allItems = tagList))
+    val tagSelectionState: TagSelectionStateModel get() = _tagSelectionState.value
     
     @OptIn(ExperimentalTime::class)
     fun setEarliestMessageUnixTime(newUnixTime: Long?) {
@@ -78,18 +75,6 @@ class MessageFilterStateController(initial: MessageFilterStateModel) {
         updateIsWaitingForAnswer(false)
         updateIsImportant(false)
         updateSearchQuery("")
-        _tagSelectionState.value = TagSelectionStateModel()
+        _tagSelectionState.value = TagSelectionStateModel(allItems = tagList)
     }
-    
-    fun snapshot(): MessageFilterStateModel = MessageFilterStateModel(
-        earliestMessageUnixTime = earliestMessageUnixTime,
-        latestMessageUnixTime = latestMessageUnixTime,
-        selectedStartDate = selectedStartDate,
-        selectedEndDate = selectedEndDate,
-        senderName = senderName,
-        isImportant = isImportant,
-        isWaitingForAnswer = isWaitingForAnswer,
-        searchQuery = searchQuery,
-        tagSelectionState = tagSelectionState
-    )
 }

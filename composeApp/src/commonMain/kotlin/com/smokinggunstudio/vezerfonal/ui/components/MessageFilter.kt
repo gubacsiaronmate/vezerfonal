@@ -17,9 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
-import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -28,14 +27,11 @@ import kotlin.time.ExperimentalTime
 @Composable
 @OptIn(ExperimentalTime::class)
 fun MessageFilter(
-    snapshot: MessageFilterStateModel,
+    state: MessageFilterState,
     tabOpenedClick: Function,
     modifier: Modifier = Modifier,
-    onValueChange: CallbackFunction<MessageFilterStateModel>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
-    val state = remember { MessageFilterStateController(snapshot) }
-    
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -45,10 +41,7 @@ fun MessageFilter(
     ) {
         OutlinedTextField(
             value = state.senderName,
-            onValueChange = {
-                state.updateSenderName(it)
-                onValueChange(state.snapshot())
-            },
+            onValueChange = state::updateSenderName,
             label = {
                 Text(
                     text = stringResource(Res.string.senders_name),
@@ -63,8 +56,7 @@ fun MessageFilter(
             Text(
                 stringResource(Res.string.time_sent),
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 fontWeight = FontWeight.Bold,
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
@@ -77,7 +69,6 @@ fun MessageFilter(
                 onRangeSelected = { range ->
                     state.updateSelectedStartDate(range.start.toLong())
                     state.updateSelectedEndDate(range.endInclusive.toLong())
-                    onValueChange(state.snapshot())
                 },
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) { scrollLockedBySliderCallback(it) }
@@ -97,10 +88,7 @@ fun MessageFilter(
             )
             Switch(
                 checked = state.isImportant,
-                onCheckedChange = {
-                    state.updateIsImportant(it)
-                    onValueChange(state.snapshot())
-                },
+                onCheckedChange = state::updateIsImportant,
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
@@ -118,19 +106,13 @@ fun MessageFilter(
             )
             Switch(
                 checked = state.isWaitingForAnswer,
-                onCheckedChange = {
-                    state.updateIsWaitingForAnswer(it)
-                    onValueChange(state.snapshot())
-                },
+                onCheckedChange = state::updateIsWaitingForAnswer,
                 modifier = Modifier.padding(end = 16.dp)
             )
         }
         OutlinedTextField(
             value = state.searchQuery,
-            onValueChange = {
-                state.updateSearchQuery(it)
-                onValueChange(state.snapshot())
-            },
+            onValueChange = state::updateSearchQuery,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -146,13 +128,13 @@ fun MessageFilter(
             tagList = state.tagSelectionState.allItems.map { it.name },
             tabOpenedCallback = tabOpenedClick
         ) { (checked, tag) ->
-            with(TagSelectionStateController(state.tagSelectionState)) {
-                if (!checked) addItem(TagData(tag))
-                else removeItem(TagData(tag))
-                
-                state.updateTagSelectionState(snapshot() as TagSelectionStateModel)
-            }
-            onValueChange(state.snapshot())
+            val currentTags = state.tagSelectionState.selectedItems.toMutableSet()
+            val tagData = TagData(tag)
+            if (checked) currentTags.remove(tagData) else currentTags.add(tagData)
+            
+            state.updateTagSelectionState(
+                state.tagSelectionState.copy(selectedItems = currentTags)
+            )
         }
     }
 }

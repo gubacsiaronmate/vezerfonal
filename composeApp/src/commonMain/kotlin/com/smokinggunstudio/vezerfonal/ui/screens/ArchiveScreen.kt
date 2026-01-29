@@ -17,9 +17,8 @@ import com.smokinggunstudio.vezerfonal.network.api.getArchivedMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
-import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.controller.WriteMessageStateController
-import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import io.ktor.client.*
 import kotlin.time.ExperimentalTime
@@ -27,6 +26,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable fun ArchiveScreen(
     accessToken: String,
+    tagList: List<TagData>,
     onMessageClick: CallbackFunction<MessageData>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
@@ -34,7 +34,7 @@ import kotlin.time.ExperimentalTime
     var isLoading by remember { mutableStateOf(false) }
     var isFilterOpened by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
-    var messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
+    val messageFilterState = remember { MessageFilterState(tagList) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var filtered by remember(messages) { mutableStateOf(messages)}
@@ -63,7 +63,7 @@ import kotlin.time.ExperimentalTime
                 },
                 isFilterOpened = isFilterOpened,
                 messages = messages,
-                snapshot = messageFilterState.snapshot()
+                state = messageFilterState
             )
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
             else HorizontalDivider(Modifier.height(1.dp))
@@ -74,14 +74,13 @@ import kotlin.time.ExperimentalTime
             ) {
                 if (isFilterOpened)
                     MessageFilter(
-                        snapshot = messageFilterState.snapshot(),
+                        state = messageFilterState,
                         tabOpenedClick = { isTagSelectTabOpened = true },
                         modifier = Modifier.align(Alignment.TopCenter),
-                        onValueChange = { messageFilterState = MessageFilterStateController(it) }
                     ) { scrollLockedBySliderCallback(it && isFilterOpened) }
                 else scrollLockedBySliderCallback(false)
                 
-                if (isTagSelectTabOpened)
+                if (isTagSelectTabOpened && isFilterOpened)
                     TagSelect(
                         snapshot = messageFilterState.tagSelectionState,
                         onCancelClick = { isTagSelectTabOpened = false },

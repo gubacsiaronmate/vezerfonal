@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
@@ -24,8 +25,8 @@ import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
-import com.smokinggunstudio.vezerfonal.ui.state.controller.MessageFilterStateController
-import com.smokinggunstudio.vezerfonal.ui.state.model.MessageFilterStateModel
+import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
+import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import io.ktor.client.*
 import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
@@ -43,19 +44,22 @@ import kotlin.uuid.ExperimentalUuidApi
 fun HomePageScreen(
     accessToken: String,
     userIdentifier: String,
+    tagList: List<TagData>,
     onMessageClick: CallbackFunction<MessageData>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
-    var messageFilterState = remember { MessageFilterStateController(MessageFilterStateModel()) }
+    val messageFilterState = remember { MessageFilterState(tagList) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var filtered by remember(messages) { mutableStateOf(messages) }
     var timedOut by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
+    
+    
     
     LaunchedEffect(Unit) {
         isLoading = true
@@ -136,7 +140,7 @@ fun HomePageScreen(
                 },
                 isFilterOpened = isFilterOpened,
                 messages = messages,
-                snapshot = messageFilterState.snapshot()
+                state = messageFilterState
             )
             
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -169,18 +173,24 @@ fun HomePageScreen(
             ) {
                 if (isFilterOpened)
                     MessageFilter(
-                        snapshot = messageFilterState.snapshot(),
+                        state = messageFilterState,
                         tabOpenedClick = { isTagSelectTabOpened = true },
                         modifier = Modifier.align(Alignment.TopCenter),
-                        onValueChange = { messageFilterState = MessageFilterStateController(it) }
                     ) { scrollLockedBySliderCallback(it && isFilterOpened) }
                 else scrollLockedBySliderCallback(false)
                 
-                if (isTagSelectTabOpened)
+                if (isTagSelectTabOpened && isFilterOpened)
                     TagSelect(
                         snapshot = messageFilterState.tagSelectionState,
                         onCancelClick = { isTagSelectTabOpened = false },
-                        onApplyClick = { }
+                        onApplyClick = { tags ->
+                            messageFilterState
+                                .updateTagSelectionState(
+                                    TagSelectionStateModel(
+                                        selectedItems = tags.toSet()
+                                    )
+                                )
+                        }
                     )
             }
         }
