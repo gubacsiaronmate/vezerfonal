@@ -46,10 +46,9 @@ object MessageHub {
                         channel.trySend(msg)
                     }
                     
-                    val tokens = trepo.getTokensForUser(user.id)
-                    
-                    NotificationService.sendPushNotification(
-                        tokens = tokens,
+                    sendNotification(
+                        trepo = trepo,
+                        userId = user.id,
                         title = message.author.displayName,
                         body = message.title,
                         data = mapOf("messageExtId" to message.externalId)

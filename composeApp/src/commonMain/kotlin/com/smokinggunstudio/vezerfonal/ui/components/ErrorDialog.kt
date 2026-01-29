@@ -11,6 +11,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.UserNotFoundException
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.helpers.exitApp
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
@@ -26,7 +27,9 @@ import vezerfonal.composeapp.generated.resources.login
 ) {
     val navigator = LocalNavigator.currentOrThrow
     val isUnauthed = error is UnauthorizedException
-
+    
+    log { "${error.message}\n\n${error.printStackTrace()}" }
+    
     Dialog(modifier = modifier) {
         Text(
             text = stringResource(Res.string.error_happened),

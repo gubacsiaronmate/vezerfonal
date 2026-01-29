@@ -5,6 +5,7 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
+import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -111,4 +112,21 @@ suspend inline fun List<Message>.fillMissingInfos(
     isSenderRequest: Boolean
 ): List<MessageData> = map { message ->
     message.fillMissingInformation(db, userId, isSenderRequest)
+}
+
+suspend fun sendNotification(
+    trepo: PushTokenRepository,
+    userId: Int,
+    title: String,
+    body: String,
+    data: Map<String, String> = emptyMap()
+) {
+    val tokens = trepo.getTokensForUser(userId)
+    
+    NotificationService.sendPushNotification(
+        tokens = tokens,
+        title = title,
+        body = body,
+        data = data
+    )
 }

@@ -147,4 +147,5 @@
     <string name="sent">Sent</string>
     <string name="close">Close</string>
     <string name="alert">Alert</string>
+    <string name="perm_not_granted">Please enable notifications for this application to work.</string>
 </resources>

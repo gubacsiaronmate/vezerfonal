@@ -11,11 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
+import com.smokinggunstudio.vezerfonal.enums.InteractionType
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 
 @Composable
 fun SentMsgBottomSheetRow(
-    reaction: String,
+    interaction: InteractionInfoData,
     username: String,
     onClick: Function
 ) {
@@ -36,9 +39,17 @@ fun SentMsgBottomSheetRow(
             Spacer(Modifier.width(24.dp))
             Text(username)
         }
-        reaction.let {
-            if (it.isNotEmpty()) Text(it)
-            else Icon(Icons.Filled.DoneAll, null)
+        interaction.let {
+            when (it.type) {
+                InteractionType.status ->
+                    if (it.status == MessageStatus.received)
+                        Icon(Icons.Filled.Check, null)
+                InteractionType.reaction -> with(it.reaction!!) {
+                    if (isNotEmpty()) Text(this)
+                    else Icon(Icons.Filled.DoneAll, null)
+                }
+                else -> {}
+            }
         }
     }
 }

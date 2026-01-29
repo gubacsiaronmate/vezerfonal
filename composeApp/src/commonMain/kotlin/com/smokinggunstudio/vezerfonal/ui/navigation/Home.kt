@@ -24,14 +24,18 @@ import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent
 import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.*
+import com.smokinggunstudio.vezerfonal.helpers.NavBarContent.Home
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.UserNotFoundException
 import com.smokinggunstudio.vezerfonal.helpers.toSerialized
+import com.smokinggunstudio.vezerfonal.network.api.registerPushToken
+import com.smokinggunstudio.vezerfonal.network.helpers.Platform
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.screens.*
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.messaging.messaging
 import kotlinx.coroutines.launch
 
 data class Home(
@@ -74,6 +78,15 @@ data class Home(
         LaunchedEffect(Unit) {
             try {
                 loadAll(force = false)
+                
+                val token = Firebase.messaging.getToken()
+                
+                registerPushToken(
+                    accessToken = accessToken,
+                    client = client,
+                    fcmToken = token,
+                    platform = Platform.type.name.lowercase()
+                )
             } catch (e: Exception) {
                 error = e
             }

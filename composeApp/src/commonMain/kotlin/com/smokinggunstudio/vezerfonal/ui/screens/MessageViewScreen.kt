@@ -145,15 +145,7 @@ fun MessageViewScreen(
         }
     }
     
-    reactionsAndUsers.forEach(::log)
-    
-    val content: ComposableContent = {
-    
-    }
-    
     val statusString = "${stringResource(Res.string.status)}: ${message.status.asStr}"
-    
-    log { "Status is:" + message.status }
     
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -161,18 +153,24 @@ fun MessageViewScreen(
             .fillMaxSize()
             .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
-        sheetContent = { if (isSenderView) Column(
-            Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
-            reactionsAndUsers.forEach { (user, interaction) ->
-                SentMsgBottomSheetRow(interaction.reaction!!, user.name) {
-                    selectedUser = user.externalId
+        sheetContent = {
+            if (isSenderView) Column(
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                reactionsAndUsers.filterNot {
+                    it.interaction.type == InteractionType.status &&
+                    it.interaction.status == MessageStatus.read
+                }.distinctBy { it.user.externalId }
+                .forEach { (user, interaction) ->
+                    SentMsgBottomSheetRow(interaction, user.name) {
+                        selectedUser = user.externalId
+                    }
                 }
             }
-        } }
+        }
     ) {
         Box(Modifier.fillMaxSize()) {
             Column(
@@ -287,7 +285,14 @@ fun MessageViewScreen(
                 ErrorDialog(error!!, Modifier.align(Alignment.Center))
             
             if (isStatusDialogOpen && interactionByUser != null)
-                StatusDialog(interactionByUser!!) {
+                StatusDialog(
+                    accessToken = accessToken,
+                    messageExtId = message.externalId,
+                    userIdentifier = userIdentifier,
+                    recipientIdentifier = selectedUser,
+                    statusChanges = interactionByUser!!,
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
                     isStatusDialogOpen = false
                 }
             

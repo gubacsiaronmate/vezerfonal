@@ -8,6 +8,7 @@ import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
 import com.smokinggunstudio.vezerfonal.repositories.MessageRepository
+import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
 import io.ktor.http.*
 import io.ktor.server.auth.*
@@ -38,9 +39,18 @@ fun Route.interactionRoute() {
                     ?: return@tryInternal null
                 
                 
-                InteractionInfoRepository(db)
-                    .getInteractionInfosByMessageIdAndType(message.id!!, InteractionType.reaction)
-                    .map { it.toDTO() }
+                with(InteractionInfoRepository(db)) {
+                    val asd = getInteractionInfosByMessageIdAndType(
+                        id = message.id!!,
+                        type = InteractionType.reaction
+                    ).map { it.toDTO() }
+                    val fgh = getInteractionInfosByMessageIdAndType(
+                        id = message.id,
+                        type = InteractionType.status
+                    ).map { it.toDTO() }
+                    
+                    return@with asd + fgh
+                }
             } ?: return@get call.respond(HttpStatusCode.InternalServerError)
             
             val interactionsAndUsers = tryInternal("Unable to get users") {
@@ -79,6 +89,28 @@ fun Route.interactionRoute() {
                     ))
                 }
             } ?: return@post
+            
+            val trepo = PushTokenRepository(db)
+            
+            val author = tryInternal("Unable to fetch author of message.") {
+                UserRepository(db)
+                    .getUserByExternalId(
+                        interaction
+                            .message
+                            .author
+                            .externalId
+                    )
+            } ?: return@post
+            
+            sendNotification(
+                trepo = trepo,
+                userId = author.id!!,
+                title = user.displayName,
+                body = interaction.reaction!!.let {
+                    if (it.isEmpty()) "${user.displayName} marked message ${interaction.message.title} read"
+                    else "${user.displayName} reacted with: $it"
+                },
+            )
             
             if (success) call.respond(HttpStatusCode.OK)
         }
@@ -188,6 +220,43 @@ fun Route.interactionRoute() {
             } ?: return@get call.respond(HttpStatusCode.InternalServerError)
             
             call.respond(interactions)
+        }
+    }
+    
+    route("/nudge") {
+        post("/send") {
+            val principal = call.principal<AuthResponse>()
+                ?: return@post call.respond(HttpStatusCode.Unauthorized)
+            
+            if (principal.user.isAnyAdmin != true)
+                call.respond(HttpStatusCode.Forbidden)
+            
+            val user = principal.user
+            val db = principal.db
+            
+            val interaction = tryIncoming("Unable to receive interaction") {
+                call.receive<InteractionInfoData>()
+                    .toInteractionInfo(user, db)
+            } ?: return@post
+            
+            val success = tryInternal("Unable to insert interaction") {
+                InteractionInfoRepository(db)
+                    .insertInteraction(interaction)
+            } ?: return@post
+            
+            sendNotification(
+                trepo = PushTokenRepository(db),
+                userId = UserRepository(db)
+                    .getUserByExternalId(
+                        interaction
+                            .recipient!!
+                            .externalId
+                    )!!.id!!,
+                title = interaction.user.displayName,
+                body = "wants you to check out message: ${interaction.message.title}",
+            )
+            
+            if (success) call.respond(HttpStatusCode.OK)
         }
     }
 }

@@ -1,19 +1,15 @@
 package com.smokinggunstudio.vezerfonal.routing.api
 
-import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
-import com.smokinggunstudio.vezerfonal.helpers.Identifier
-import com.smokinggunstudio.vezerfonal.helpers.log
-import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
-import com.smokinggunstudio.vezerfonal.helpers.tryInternal
+import com.smokinggunstudio.vezerfonal.data.PushToken
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.repositories.GroupRepository
+import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
 import com.smokinggunstudio.vezerfonal.repositories.UserRepository
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.auth.principal
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
+import io.ktor.http.*
+import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Route.userRoute() {
     get("/data") {
@@ -71,5 +67,28 @@ fun Route.userRoute() {
         } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(users)
+    }
+    
+    post("/register-push-token") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+        
+        val db = principal.db
+        val user = principal.user
+        
+        val pushToken = tryIncoming("Unable to receive push token.") {
+            call.receive<PushToken>()
+        } ?: return@post
+        
+        val success = tryInternal("Unable to insert push token.") {
+            PushTokenRepository(db)
+                .registerToken(
+                    userId = user.id!!,
+                    token = pushToken.token,
+                    platform = pushToken.platform
+                )
+        } ?: return@post
+        
+        if (success) call.respond(HttpStatusCode.OK)
     }
 }
