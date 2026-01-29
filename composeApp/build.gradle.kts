@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -58,6 +59,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.firebase.messaging)
             implementation(libs.androidx.animation.core)
             implementation(libs.ktor.client.okhttp)
             implementation(compose.animation)

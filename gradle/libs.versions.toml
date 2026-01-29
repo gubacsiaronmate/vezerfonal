@@ -35,6 +35,7 @@ jakartaMail = "2.0.2"
 googleServices = "4.4.4"
 firebaseMessaging = "25.0.1"
 firebaseAdmin = "9.7.0"
+firebaseMessagingKtx = "25.0.1"
 
 [libraries]
 androidx-animation-core = { module = "androidx.compose.animation:animation-core", version.ref = "composeMultiplatform" }
@@ -87,6 +88,7 @@ thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakartaMail" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebaseAdmin" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
 
 
 [plugins]

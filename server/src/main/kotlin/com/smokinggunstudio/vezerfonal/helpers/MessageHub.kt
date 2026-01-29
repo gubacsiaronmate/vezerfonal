@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.helpers
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
+import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -35,6 +36,8 @@ object MessageHub {
         val recipients: List<User> = message.user?.let { listOf(it) }
             ?: message.group!!.members.map { it.user }
         
+        val trepo = PushTokenRepository(db)
+        
         recipients.map { user ->
             async {
                 sendSemaphore.withPermit {
@@ -42,6 +45,15 @@ object MessageHub {
                     userChannels[user.id]?.forEach { channel ->
                         channel.trySend(msg)
                     }
+                    
+                    val tokens = trepo.getTokensForUser(user.id)
+                    
+                    NotificationService.sendPushNotification(
+                        tokens = tokens,
+                        title = message.author.displayName,
+                        body = message.title,
+                        data = mapOf("messageExtId" to message.externalId)
+                    )
                 }
             }
         }.awaitAll()
