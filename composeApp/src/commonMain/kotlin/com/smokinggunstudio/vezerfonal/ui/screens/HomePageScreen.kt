@@ -151,6 +151,8 @@ fun HomePageScreen(
                 messages = filtered,
                 onMessageClick = onMessageClick,
                 onArchive = { message ->
+                    filtered = filtered.filter { it != message }
+                    
                     scope.launch {
                         try {
                             sendInteraction(
@@ -165,9 +167,6 @@ fun HomePageScreen(
                         } catch (e: Exception) {
                             error = e
                         }
-                        
-                        filtered = filtered.filter { it != message }
-                        HomeCache.invalidate()
                     }
                 }
             ) {
