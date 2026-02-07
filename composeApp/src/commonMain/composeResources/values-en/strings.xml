@@ -148,4 +148,8 @@
     <string name="close">Close</string>
     <string name="alert">Alert</string>
     <string name="perm_not_granted">Please enable notifications for this application to work.</string>
+    <string name="sent_a_message">has sent a message.</string>
+    <string name="reacted_with">has sent|reaction.</string>
+    <string name="has_marked_as_read">has marked|message read.</string>
+    <string name="check_out_message">wants you to check out: </string>
 </resources>

@@ -148,4 +148,8 @@
     <string name="close">Bezár</string>
     <string name="alert">Riasztás</string>
     <string name="perm_not_granted">Kérem engedélyezze az értesíteseket az alkalmazás használatához.</string>
+    <string name="sent_a_message">üzenetet küldött.</string>
+    <string name="reacted_with">küldött|reakciót.</string>
+    <string name="has_marked_as_read">olvasottként jelölt|üzenetet.</string>
+    <string name="check_out_message">szeretné, hogy megnézd: </string>
 </resources>

@@ -2,19 +2,26 @@ package com.smokinggunstudio.vezerfonal.network
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.smokinggunstudio.vezerfonal.R
+import com.smokinggunstudio.vezerfonal.data.NotificationData
+import com.smokinggunstudio.vezerfonal.enums.NotificationType
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.registerPushToken
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.network.helpers.Platform
+import com.smokinggunstudio.vezerfonal.network.helpers.pushNotifTextRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class FirebasePushService : FirebaseMessagingService() {
@@ -34,15 +41,36 @@ class FirebasePushService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
         
-        val notification = NotificationCompat
-            .Builder(this, channelId)
-            .setContentTitle(title)
-            .setContentText(body)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // TODO: add app icon here
-            .setAutoCancel(true)
-            .build()
-        
-        notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        CoroutineScope(
+            SupervisorJob() + Dispatchers.IO
+        ).launch {
+            val text = async {
+                return@async with(body.toDTO<NotificationData>()) {
+                    val strRes = org.jetbrains.compose.resources.getString(pushNotifTextRes)
+                    return@with when(this.notifType) {
+                        NotificationType.Message -> "${this.data["sender"]} $strRes"
+                        NotificationType.Reaction -> {
+                            val (middleTxt, endTxt) = strRes.split("|")
+                            val extra = this.data["extra"]
+                            
+                            "$middleTxt $extra $endTxt"
+                        }
+                        NotificationType.Nudge -> "$strRes ${this.data["message"]}"
+                    }
+                }
+            }.await()
+            
+            
+            val notification = NotificationCompat
+                .Builder(this@FirebasePushService, channelId)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(R.drawable.small_logo)
+                .setAutoCancel(true)
+                .build()
+            
+            notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+        }
     }
     
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

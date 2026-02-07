@@ -19,3 +19,4 @@ captures
 node_modules/
 composeApp/composeApp.podspec
 .output.txt
+composeApp/release

@@ -34,9 +34,8 @@ fun LandingPageScreen(
     ) {
         Image(
             painter = painterResource(
-                if (isSystemInDarkTheme())
-                    Res.drawable.scene_1
-                else Res.drawable.scene_1
+                if (!isSystemInDarkTheme()) Res.drawable.scene_1
+                else Res.drawable.scene_2
             ),
             contentDescription = "Landing Page Image",
             modifier = Modifier

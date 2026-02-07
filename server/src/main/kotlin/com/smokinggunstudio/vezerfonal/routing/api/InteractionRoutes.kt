@@ -2,8 +2,10 @@ package com.smokinggunstudio.vezerfonal.routing.api
 
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageStatusData
+import com.smokinggunstudio.vezerfonal.data.NotificationData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
+import com.smokinggunstudio.vezerfonal.enums.NotificationType
 import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.InteractionInfo
 import com.smokinggunstudio.vezerfonal.repositories.InteractionInfoRepository
@@ -106,10 +108,12 @@ fun Route.interactionRoute() {
                 trepo = trepo,
                 userId = author.id!!,
                 title = user.displayName,
-                body = interaction.reaction!!.let {
-                    if (it.isEmpty()) "${user.displayName} marked message ${interaction.message.title} read"
-                    else "${user.displayName} reacted with: $it"
-                },
+                body = NotificationData(
+                    notifType = NotificationType.Reaction,
+                    data = with(interaction) {
+                        mapOf("extra" to reaction!!.ifEmpty { message.title })
+                    }
+                ).toSerialized(),
             )
             
             if (success) call.respond(HttpStatusCode.OK)
@@ -253,7 +257,10 @@ fun Route.interactionRoute() {
                             .externalId
                     )!!.id!!,
                 title = interaction.user.displayName,
-                body = "wants you to check out message: ${interaction.message.title}",
+                body = NotificationData(
+                    notifType = NotificationType.Nudge,
+                    data = mapOf("message" to interaction.message.title)
+                ).toSerialized(),
             )
             
             if (success) call.respond(HttpStatusCode.OK)

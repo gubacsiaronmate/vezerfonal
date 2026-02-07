@@ -1,6 +1,8 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.NotificationData
+import com.smokinggunstudio.vezerfonal.enums.NotificationType
 import com.smokinggunstudio.vezerfonal.models.Message
 import com.smokinggunstudio.vezerfonal.models.User
 import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
@@ -49,8 +51,11 @@ object MessageHub {
                     sendNotification(
                         trepo = trepo,
                         userId = user.id,
-                        title = message.author.displayName,
-                        body = message.title,
+                        title = message.title,
+                        body = NotificationData(
+                            notifType = NotificationType.Message,
+                            data = mapOf("sender" to message.author.displayName)
+                        ).toSerialized(),
                         data = mapOf("messageExtId" to message.externalId)
                     )
                 }
