@@ -1,10 +1,6 @@
 package com.smokinggunstudio.vezerfonal.database.triggers
 
-import com.smokinggunstudio.vezerfonal.helpers.getExtId
-import com.smokinggunstudio.vezerfonal.helpers.select
-import com.smokinggunstudio.vezerfonal.helpers.singleOrNull
-import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
-import com.smokinggunstudio.vezerfonal.helpers.toOffsetDateTime
+import com.smokinggunstudio.vezerfonal.helpers.*
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.objects.Groups
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
@@ -57,7 +53,7 @@ suspend fun trgAddToDefaultGroup(newUserId: Int, db: Database) = suspendTransact
     }
     
     suspend fun getSuperAdminId(): Int = suspendTransaction(db) {
-        Users.select { Users.isSuperAdmin eq true }.singleOrNull()!![Users.id]
+        Users.select { Users.isSuperAdmin eq true }.singleOrNull()?.get(Users.id) ?: 1
     }
     
     suspend fun createDefaultGroup(): Int = suspendTransaction(db) {

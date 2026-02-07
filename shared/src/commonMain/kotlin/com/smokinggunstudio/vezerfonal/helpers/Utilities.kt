@@ -47,11 +47,11 @@ inline fun log(padding: Int = 5, message: () -> String) {
     repeat(padding) { println("\u200E") }
 }
 
-fun log(message: Any?, padding: Int = 5) {
+/*fun log(message: Any?, padding: Int = 5) {
     repeat(padding) { println("\u200E") }
     println(message)
     repeat(padding) { println("\u200E") }
-}
+}*/
 
 fun List<Pair<UserData, InteractionInfoData>>.toListOfDTO(): List<UserInteractionData> =
     this.map { (user, interaction) -> UserInteractionData(user, interaction) }

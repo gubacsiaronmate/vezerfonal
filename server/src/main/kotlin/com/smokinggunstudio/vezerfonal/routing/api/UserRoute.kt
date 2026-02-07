@@ -22,13 +22,11 @@ fun Route.userRoute() {
         val user = tryInternal("Unable to query users table.") {
             with(UserRepository(db).getUserById(userId)!!) {
                 isAnyAdmin = GroupRepository(db).getGroupsByAdminId(id!!).isNotEmpty() || isSuperAdmin
-                log { "isAnyAdmin: $isAnyAdmin" }
                 return@with this.toDTO()
             }
         } ?: return@get
         
         call.respond(user)
-        log { "Responded with ${user.name}\nisAnyAdmin: ${user.isAnyAdmin}" }
     }
     
     get("/all") {

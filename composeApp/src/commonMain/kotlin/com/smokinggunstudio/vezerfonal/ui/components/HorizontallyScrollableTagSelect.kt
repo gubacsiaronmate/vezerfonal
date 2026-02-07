@@ -1,36 +1,22 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sell
-import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.outlined.Sell
-import androidx.compose.material.icons.outlined.Tag
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import com.smokinggunstudio.vezerfonal.ui.helpers.limit
-import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
-import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.browse_tags
-import vezerfonal.composeapp.generated.resources.tags
 
 @Composable
 fun HorizontallyScrollableTagSelect(
@@ -50,7 +36,6 @@ fun HorizontallyScrollableTagSelect(
                 ),
                 checked = checked,
                 onCheckedChange = {
-                    log("Adding tag: $tag")
                     onTagSelectionChange(Pair(checked, tag))
                     checked = !checked
                 },

@@ -152,4 +152,5 @@
     <string name="reacted_with">has sent|reaction.</string>
     <string name="has_marked_as_read">has marked|message read.</string>
     <string name="check_out_message">wants you to check out: </string>
+    <string name="group_id">Group Identifier</string>
 </resources>

@@ -5,7 +5,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
 import com.smokinggunstudio.vezerfonal.ui.helpers.toModel
 import com.smokinggunstudio.vezerfonal.ui.helpers.toSerialized
@@ -22,7 +21,6 @@ data class Register(
     @Composable
     override fun Content() {
         val scope = rememberCoroutineScope()
-        val client = LocalHttpClient.current
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
@@ -30,7 +28,7 @@ data class Register(
             1 -> InitialRegisterScreen(
                 onCreateOrgClick = {
                     navigator.replace(
-                        CreateOrg(RegisterStateModel().toSerialized())
+                        CreateOrg(RegisterStateModel(isAdmin = true).toSerialized())
                     )
                 },
                 onContinueClick = {

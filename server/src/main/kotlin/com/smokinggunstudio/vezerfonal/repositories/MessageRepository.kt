@@ -4,7 +4,6 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.SQLCondition
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
 import com.smokinggunstudio.vezerfonal.models.Message
@@ -12,7 +11,6 @@ import com.smokinggunstudio.vezerfonal.objects.MessageTagConnection
 import com.smokinggunstudio.vezerfonal.objects.MessageUserInteractions
 import com.smokinggunstudio.vezerfonal.objects.Messages
 import com.smokinggunstudio.vezerfonal.objects.UserGroupConnection
-import com.smokinggunstudio.vezerfonal.objects.Users
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -199,11 +197,7 @@ class MessageRepository(val db: Database) {
             it[availableReactions] = message.availableReactions
         }
         
-        message.tags.forEach(::log)
-        
         val tagIds = message.tags.map { trepo.getTagByName(it.name)!!.id!! }
-        
-        tagIds.forEach(::log)
         
         trepo.attachTagsToMessageId(
             newMessageId = statement[Messages.id],

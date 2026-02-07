@@ -22,14 +22,11 @@ import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.ExternalId
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
-import com.smokinggunstudio.vezerfonal.helpers.unaryPlus
 import com.smokinggunstudio.vezerfonal.network.api.getReactionsAndUsersByMessageExtId
 import com.smokinggunstudio.vezerfonal.network.api.getStatusChangesForMessageByUserExtId
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
 import com.smokinggunstudio.vezerfonal.ui.helpers.asStr
 import com.smokinggunstudio.vezerfonal.ui.helpers.changeStatus
 import kotlinx.coroutines.launch

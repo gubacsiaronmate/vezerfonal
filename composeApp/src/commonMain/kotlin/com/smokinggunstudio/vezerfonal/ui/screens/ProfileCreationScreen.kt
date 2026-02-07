@@ -22,7 +22,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.RegisterText
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
-import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -53,7 +52,7 @@ import vezerfonal.composeapp.generated.resources.*
             Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = state.identifier,
-                    onValueChange = { state.updateIdentifier(it) },
+                    onValueChange = state::updateIdentifier,
                     label = {
                         Text(
                             stringResource(Res.string.identifier),
@@ -119,7 +118,7 @@ import vezerfonal.composeapp.generated.resources.*
                         scope.launch {
                             try {
                                 val tokens = registerBasic(
-                                    userData = state.toUserData(),
+                                    user = state.toUserData(),
                                     rememberMe = rememberMe,
                                     fileData = data!!,
                                     client = client

@@ -43,7 +43,7 @@ fun JoinGroupDialog(
             OutlinedTextField(
                 value = groupExtId,
                 onValueChange = { groupExtId = it },
-                label = { Text(stringResource(Res.string.group_name)) },
+                label = { Text(stringResource(Res.string.group_id)) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()

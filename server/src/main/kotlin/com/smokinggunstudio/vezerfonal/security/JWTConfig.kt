@@ -47,7 +47,6 @@ object JWTConfig {
             false -> Date(currentTime + ACCESS_TOKEN_VALIDITY_IN_MS)
             true -> Date(currentTime + REFRESH_TOKEN_VALIDITY_IN_MS)
         }
-        log { "expires at: $expiresAt" }
         val orgName =
             transaction {
                 db.config.defaultSchema!!.identifier

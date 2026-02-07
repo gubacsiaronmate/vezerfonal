@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
@@ -23,18 +24,17 @@ import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
-import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
-import io.ktor.client.*
 import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.spiralgraphic
+import vezerfonal.composeapp.generated.resources.spiralgraphic_black
+import vezerfonal.composeapp.generated.resources.spiralgraphic_white
 import vezerfonal.composeapp.generated.resources.vezerfonal
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -45,6 +45,7 @@ fun HomePageScreen(
     accessToken: String,
     userIdentifier: String,
     tagList: List<TagData>,
+    darkModeState: MutableState<Boolean?>,
     onMessageClick: CallbackFunction<MessageData>,
     scrollLockedBySliderCallback: CallbackFunction<Boolean>
 ) {
@@ -119,7 +120,11 @@ fun HomePageScreen(
             )
             
             Image(
-                painter = painterResource(Res.drawable.spiralgraphic),
+                painter = painterResource(
+                    if (darkModeState.value ?: isSystemInDarkTheme())
+                        Res.drawable.spiralgraphic_white
+                    else Res.drawable.spiralgraphic_black
+                ),
                 contentDescription = "Home Page Image",
                 modifier = Modifier.fillMaxWidth()
                     .height(210.dp),

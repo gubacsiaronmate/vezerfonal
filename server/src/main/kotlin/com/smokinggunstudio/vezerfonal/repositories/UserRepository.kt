@@ -7,12 +7,8 @@ import com.smokinggunstudio.vezerfonal.objects.Users
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
-import org.jetbrains.exposed.v1.jdbc.update
 import java.time.ZoneOffset
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -83,16 +79,16 @@ class UserRepository(val db: Database) {
     ): Boolean = suspendTransaction(db) { getUserByExternalId(identifier) != null }
     
     suspend fun insertUser(
-        user: User,
+        newUser: User,
     ): Boolean = suspendTransaction(db) {
-        if (!doesUserExist(user.externalId)) {
+        if (!doesUserExist(newUser.externalId)) {
             val insert = Users.insert {
-                it[email] = user.email
-                it[password] = user.password
-                it[profilePicURI] = user.profilePic?.uri
-                it[displayName] = user.displayName
-                it[externalId] = user.externalId
-                it[isSuperAdmin] = user.isSuperAdmin
+                it[email] = newUser.email
+                it[password] = newUser.password
+                it[profilePicURI] = newUser.profilePic?.uri
+                it[displayName] = newUser.displayName
+                it[externalId] = newUser.externalId
+                it[isSuperAdmin] = newUser.isSuperAdmin
             }
             val user = getUserById(insert[Users.id])!!
             if (!user.isSuperAdmin) trgAddToDefaultGroup(user.id!!, db)

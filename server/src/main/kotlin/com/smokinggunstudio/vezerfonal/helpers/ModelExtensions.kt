@@ -3,7 +3,6 @@ package com.smokinggunstudio.vezerfonal.helpers
 import com.smokinggunstudio.vezerfonal.data.*
 import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
-import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.*
 import com.smokinggunstudio.vezerfonal.repositories.*
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -18,7 +17,6 @@ suspend fun UserData.toUser(
     val db: Database = suspend getDB@{
         val code = registrationCode?.let {
             RegistrationCodeRepository(mainDB).getCodeByCode(it)
-                ?: error("Registration code not found")
         } ?: return@getDB db!!
         ensureOrgDB(code.organisation.name)
             ?: error("Could not resolve database for organisation: ${code.organisation.name}")
@@ -46,25 +44,16 @@ suspend fun UserData.toUser(
 
 @OptIn(ExperimentalTime::class)
 suspend fun MessageData.toMessage(db: Database): Message {
-    log("`toMessage` function starts here", 10)
-    
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
     val author = urepo.getUserByExternalId(author.externalId)!!
     
-    log("Trying to log gotten tags")
-    tags.forEach(::log)
-    
     val tagList = tags.map { tagName ->
-        log("Trying to find tag with name: $tagName")
         TagRepository(db)
             .getTagByName(tagName)
-            ?.let { log("Found tag: $it"); it }
             ?: error("Tag is not available.")
     }
-    
-    tagList.forEach(::log)
     
     var group: Group? = null
     var user: User? = null

@@ -7,7 +7,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
@@ -17,12 +16,10 @@ data class Login(
     @Composable
     override fun Content() {
         val scope = rememberCoroutineScope()
-        val client = LocalHttpClient.current
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
         LoginScreen(orgsStr) { newTokens ->
-            log { newTokens.toString() }
             navigator.push(Home(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }
         }

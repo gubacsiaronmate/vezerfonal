@@ -152,4 +152,5 @@
     <string name="reacted_with">küldött|reakciót.</string>
     <string name="has_marked_as_read">olvasottként jelölt|üzenetet.</string>
     <string name="check_out_message">szeretné, hogy megnézd: </string>
+    <string name="group_id">Csoport azonosító</string>
 </resources>

@@ -20,10 +20,8 @@ import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
-import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.network.api.sendMessage
 import com.smokinggunstudio.vezerfonal.ui.components.*
-import com.smokinggunstudio.vezerfonal.ui.helpers.contains
 import com.smokinggunstudio.vezerfonal.ui.helpers.limit
 import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
@@ -33,7 +31,6 @@ import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.WriteMessageStateModel
-import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -167,12 +164,8 @@ fun WriteMessageScreen(
                             tabOpenedCallback = { isTagSelectTabOpened = true }
                         ) { (checked, tag) ->
                             with(tagSelectionState) {
-                                log("Checked: $checked\nTag: $tag")
-                                
                                 if (!checked) addItem(TagData(tag))
                                 else removeItem(TagData(tag))
-                                
-                                selectedItems.forEach(::log)
                             }
                         }
                         
@@ -186,8 +179,6 @@ fun WriteMessageScreen(
                                     scope.launch {
                                         state.updateTags(tagSelectionState.selectedItems.map { it.name })
                                         val message = state.toMessageData(user)
-                                        log("Trying to log tags:", 10)
-                                        message.tags.forEach(::log)
                                         sendMessage(
                                             client = client,
                                             message = message,

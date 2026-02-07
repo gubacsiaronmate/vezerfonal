@@ -163,6 +163,7 @@ data class Home(
                             accessToken = accessToken,
                             userIdentifier = user!!.externalId,
                             tagList = tagList,
+                            darkModeState = darkModeState,
                             onMessageClick = {
                                 navigator.push(
                                     ViewMessage(

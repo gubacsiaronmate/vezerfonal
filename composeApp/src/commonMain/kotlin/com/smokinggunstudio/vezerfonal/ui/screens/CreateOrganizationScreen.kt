@@ -19,7 +19,6 @@ import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.state.controller.RegisterStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
-import io.ktor.client.*
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
@@ -81,7 +80,11 @@ fun CreateOrganizationScreen(
                                     externalId = getExtId()
                                 ),
                                 client = client
-                            )) onClick(state.apply { setIsAdmin(true) }.snapshot())
+                            )) {
+                                state.setIsAdmin(true)
+                                val snapshot = state.snapshot()
+                                onClick(snapshot)
+                            }
                         }
                     } catch (e: NotCreatedException) { error = e }
                 }

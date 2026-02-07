@@ -63,5 +63,12 @@ class RegisterStateController(initial: RegisterStateModel) {
         isAdmin = newValue
     }
     
-    fun snapshot() = RegisterStateModel(extra, email, password, name, identifier)
+    fun snapshot() = RegisterStateModel(
+        extra = extra,
+        name = name,
+        email = email,
+        password = password,
+        identifier = identifier,
+        isAdmin = isAdmin
+    )
 }

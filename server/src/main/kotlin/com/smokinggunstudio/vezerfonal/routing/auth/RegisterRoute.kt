@@ -72,8 +72,7 @@ fun Route.registerRoute(
             if (insertSuccess) {
                 val user = urepo.getUserByExternalId(user.externalId)
                     ?: error("Cannot get user by identifier.")
-                val userId = user.id ?: error("Cannot get user id.")
-                call.respondText("$userId", status = HttpStatusCode.Created)
+                call.respondText(user.externalId, status = HttpStatusCode.Created)
             } else call.respondText(
                 "Failed to insert user into the database.",
                 status = HttpStatusCode.InternalServerError
