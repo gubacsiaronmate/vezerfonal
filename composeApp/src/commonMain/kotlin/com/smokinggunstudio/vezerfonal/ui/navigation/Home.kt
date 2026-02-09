@@ -33,9 +33,8 @@ import com.smokinggunstudio.vezerfonal.network.helpers.Platform
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
+import com.smokinggunstudio.vezerfonal.ui.helpers.getPushToken
 import com.smokinggunstudio.vezerfonal.ui.screens.*
-import dev.gitlive.firebase.Firebase
-import dev.gitlive.firebase.messaging.messaging
 import kotlinx.coroutines.launch
 
 data class Home(
@@ -79,14 +78,15 @@ data class Home(
             try {
                 loadAll(force = false)
                 
-                val token = Firebase.messaging.getToken()
+                val token = getPushToken()
                 
-                registerPushToken(
-                    accessToken = accessToken,
-                    client = client,
-                    fcmToken = token,
-                    platform = Platform.type.name.lowercase()
-                )
+                if (token != null)
+                    registerPushToken(
+                        accessToken = accessToken,
+                        client = client,
+                        fcmToken = token,
+                        platform = Platform.type.name.lowercase()
+                    )
             } catch (e: Exception) {
                 error = e
             }

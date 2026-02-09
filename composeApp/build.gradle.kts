@@ -59,6 +59,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.frontend.firebase.messaging)
             implementation(libs.server.firebase.messaging)
             implementation(libs.androidx.animation.core)
             implementation(libs.ktor.client.okhttp)
@@ -71,7 +72,6 @@ kotlin {
         }
         
         commonMain.dependencies {
-            implementation(libs.frontend.firebase.messaging)
             implementation(libs.voyager.navigator)
             implementation(libs.kotlinx.datetime)
             implementation(libs.multiplatformSettings)
