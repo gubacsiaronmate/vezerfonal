@@ -64,18 +64,13 @@ suspend fun MessageData.toMessage(db: Database): Message {
     val groupData = groups
         .orEmpty()
         .map { grepo.getGroupByExtId(it)!! }
-    val groups = groupData.map {
-        grepo.getExactGroupByNameAndAdminExternalId(
-            name = it.displayName,
-            externalId = it.admin.externalId
-        )!!
-    }
-    val allGroupUsers = groups.flatMap { group ->
+    val allGroupUsers = groupData.flatMap { group ->
         group.members.map { it.user }
     }
     val combinedUsers = users + allGroupUsers
     
-    when(combinedUsers.size) {
+    if (groupData.size == 1) group = groupData.single()
+    else when(combinedUsers.size) {
         0 -> error("Both user and group cannot be null.")
         1 -> user = combinedUsers.single()
         else -> group = grepo.createInternalGroup(combinedUsers)

@@ -30,7 +30,7 @@ fun Route.groupRoute() {
             GroupRepository(db).let {
                 if (user.isSuperAdmin) it.getAllGroups()
                 else it.getAllGroupsByMemberUserId(user.id!!)
-            }.map { it.toDTO() }
+            }.filterNot { it.isInternal || it.displayName == "default" }.map { it.toDTO() }
         } ?: return@get
         
         call.respond(groups)

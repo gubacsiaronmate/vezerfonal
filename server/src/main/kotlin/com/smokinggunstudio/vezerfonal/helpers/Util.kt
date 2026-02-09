@@ -1,6 +1,7 @@
 package com.smokinggunstudio.vezerfonal.helpers
 
 import com.smokinggunstudio.vezerfonal.data.MessageData
+import com.smokinggunstudio.vezerfonal.data.NotificationData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.models.Message
@@ -117,16 +118,8 @@ suspend inline fun List<Message>.fillMissingInfos(
 suspend fun sendNotification(
     trepo: PushTokenRepository,
     userId: Int,
-    title: String,
-    body: String,
-    data: Map<String, String> = emptyMap()
+    data: NotificationData
 ) {
     val tokens = trepo.getTokensForUser(userId)
-    
-    NotificationService.sendPushNotification(
-        tokens = tokens,
-        title = title,
-        body = body,
-        data = data
-    )
+    NotificationService.sendPushNotification(tokens, data)
 }

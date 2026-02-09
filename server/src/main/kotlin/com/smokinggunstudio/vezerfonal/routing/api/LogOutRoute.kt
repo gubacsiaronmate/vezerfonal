@@ -4,6 +4,7 @@ import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
 import com.smokinggunstudio.vezerfonal.helpers.tryInternal
 import com.smokinggunstudio.vezerfonal.objects.JWTs
 import com.smokinggunstudio.vezerfonal.repositories.JWTRepository
+import com.smokinggunstudio.vezerfonal.repositories.PushTokenRepository
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
@@ -22,6 +23,8 @@ suspend fun RoutingContext.logoutRoute() {
     val success = tryInternal("Cannot log out user.") {
         JWTRepository(db)
             .invalidateAllTokensByUserId(userId)
+                &&
+        PushTokenRepository(db).invalidateTokensForUser(userId)
     } ?: return
     
     if (success) call.respond(HttpStatusCode.OK)

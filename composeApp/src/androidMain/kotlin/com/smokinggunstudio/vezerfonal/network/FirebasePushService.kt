@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network
 
+import android.R.attr.text
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -22,14 +23,46 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 
 class FirebasePushService : FirebaseMessagingService() {
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+    
     override fun onMessageReceived(message: RemoteMessage) {
-        val title = message.notification?.title ?: "New message"
-        val body = message.notification?.body ?: ""
-        
-        showNotification(title, body)
+        serviceScope.launch {
+            val data = runCatching {
+                message.data["data"]?.toDTO<NotificationData>()
+            }.onFailure { e ->
+                log(10) { "Failed to parse notification: ${e.message}" }
+                e.printStackTrace()
+            }.getOrNull() ?: return@launch
+            
+            val title = data.title
+            val body = data.convertToReadableText()
+            
+            showNotification(title, body)
+        }
+    }
+    
+    private suspend fun NotificationData.convertToReadableText(): String = coroutineScope {
+        val strRes = org.jetbrains.compose.resources.getString(pushNotifTextRes)
+        when(notifType) {
+            NotificationType.Message -> "${data["sender"].orEmpty()} $strRes"
+            NotificationType.Nudge -> "$strRes ${data["message"].orEmpty()}"
+            NotificationType.Reaction -> {
+                val (middleTxt, endTxt) = strRes.split('|', limit = 2)
+                
+                "$middleTxt ${data["extra"].orEmpty()} $endTxt"
+            }
+        }
     }
     
     private fun showNotification(title: String, body: String) {
@@ -41,36 +74,17 @@ class FirebasePushService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
         
-        CoroutineScope(
-            SupervisorJob() + Dispatchers.IO
-        ).launch {
-            val text = async {
-                return@async with(body.toDTO<NotificationData>()) {
-                    val strRes = org.jetbrains.compose.resources.getString(pushNotifTextRes)
-                    return@with when(this.notifType) {
-                        NotificationType.Message -> "${this.data["sender"]} $strRes"
-                        NotificationType.Reaction -> {
-                            val (middleTxt, endTxt) = strRes.split("|")
-                            val extra = this.data["extra"]
-                            
-                            "$middleTxt $extra $endTxt"
-                        }
-                        NotificationType.Nudge -> "$strRes ${this.data["message"]}"
-                    }
-                }
-            }.await()
-            
-            
-            val notification = NotificationCompat
-                .Builder(this@FirebasePushService, channelId)
-                .setContentTitle(title)
-                .setContentText(text)
-                .setSmallIcon(R.drawable.small_logo)
-                .setAutoCancel(true)
-                .build()
-            
-            notificationManager.notify(System.currentTimeMillis().toInt(), notification)
-        }
+        val notification = NotificationCompat
+            .Builder(this@FirebasePushService, channelId)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setSmallIcon(R.drawable.small_logo)
+            .setAutoCancel(true)
+            .build()
+        
+        val notifId = (title + body + System.currentTimeMillis().toString()).hashCode()
+        
+        notificationManager.notify(notifId, notification)
     }
     
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

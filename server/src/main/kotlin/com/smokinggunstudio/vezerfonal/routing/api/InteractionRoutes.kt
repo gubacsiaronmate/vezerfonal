@@ -107,13 +107,11 @@ fun Route.interactionRoute() {
             sendNotification(
                 trepo = trepo,
                 userId = author.id!!,
-                title = user.displayName,
-                body = NotificationData(
+                data = NotificationData(
+                    title = user.displayName,
                     notifType = NotificationType.Reaction,
-                    data = with(interaction) {
-                        mapOf("extra" to reaction!!.ifEmpty { message.title })
-                    }
-                ).toSerialized(),
+                    data = with(interaction) { mapOf("extra" to reaction!!.ifEmpty { message.title }) }
+                )
             )
             
             if (success) call.respond(HttpStatusCode.OK)
@@ -248,19 +246,19 @@ fun Route.interactionRoute() {
                     .insertInteraction(interaction)
             } ?: return@post
             
+            val extId = interaction.recipient!!.externalId
+            
+            val userId = UserRepository(db)
+                .getUserByExternalId(extId)!!.id!!
+            
             sendNotification(
                 trepo = PushTokenRepository(db),
-                userId = UserRepository(db)
-                    .getUserByExternalId(
-                        interaction
-                            .recipient!!
-                            .externalId
-                    )!!.id!!,
-                title = interaction.user.displayName,
-                body = NotificationData(
+                userId = userId,
+                data = NotificationData(
+                    title = interaction.user.displayName,
                     notifType = NotificationType.Nudge,
                     data = mapOf("message" to interaction.message.title)
-                ).toSerialized(),
+                )
             )
             
             if (success) call.respond(HttpStatusCode.OK)

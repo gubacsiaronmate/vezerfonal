@@ -186,7 +186,7 @@ fun WriteMessageScreen(
                                         )
                                         state.clear()
                                     }
-                                } catch (e: UnauthorizedException) {
+                                } catch (e: Exception) {
                                     error = e
                                 }
                             },

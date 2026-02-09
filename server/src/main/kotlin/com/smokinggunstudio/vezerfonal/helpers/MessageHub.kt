@@ -51,12 +51,11 @@ object MessageHub {
                     sendNotification(
                         trepo = trepo,
                         userId = user.id,
-                        title = message.title,
-                        body = NotificationData(
+                        data = NotificationData(
+                            title = message.title,
                             notifType = NotificationType.Message,
                             data = mapOf("sender" to message.author.displayName)
-                        ).toSerialized(),
-                        data = mapOf("messageExtId" to message.externalId)
+                        )
                     )
                 }
             }

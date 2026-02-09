@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.MulticastMessage
 import com.google.firebase.messaging.Notification
+import com.smokinggunstudio.vezerfonal.data.NotificationData
 import java.io.FileInputStream
 
 object NotificationService {
@@ -19,21 +20,13 @@ object NotificationService {
     
     fun sendPushNotification(
         tokens: List<String>,
-        title: String,
-        body: String,
-        data: Map<String, String> = emptyMap()
+        data: NotificationData
     ) {
         if (tokens.isEmpty()) return
         
         val message = MulticastMessage.builder()
-            .setNotification(
-                Notification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build()
-            )
             .addAllTokens(tokens)
-            .putAllData(data)
+            .putAllData(mapOf("data" to data.toSerialized()))
             .build()
         
         FirebaseMessaging.getInstance().sendEachForMulticastAsync(message)

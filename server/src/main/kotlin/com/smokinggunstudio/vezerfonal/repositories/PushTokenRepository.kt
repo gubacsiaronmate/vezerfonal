@@ -32,4 +32,10 @@ class PushTokenRepository(val db: Database) {
             .select { PushTokens.userId eq userId }
             .map { it[PushTokens.token] }
     }
+    
+    suspend fun invalidateTokensForUser(
+        userId: Int
+    ): Boolean = suspendTransaction(db) {
+        PushTokens.deleteWhere { PushTokens.userId eq userId } > 0
+    }
 }
