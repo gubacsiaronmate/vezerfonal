@@ -32,8 +32,7 @@ actual object BackHandler {
             val onKeyDown: (Event) -> Unit = { e ->
                 val ke = e as? KeyboardEvent
                 if (ke != null) {
-                    val backKey = (ke.key == "Backspace" && !ke.ctrlKey && !ke.metaKey) ||
-                            (ke.altKey && ke.key == "ArrowLeft")
+                    val backKey = ke.altKey && ke.key == "ArrowLeft"
                     if (backKey) {
                         ke.preventDefault()
                         if (canGoBackState.value) navigator.pop() else window.close()
