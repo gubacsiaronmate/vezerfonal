@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.routing.api
 
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.helpers.AuthResponse
+import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.helpers.toRegCode
 import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
 import com.smokinggunstudio.vezerfonal.helpers.tryInternal
@@ -16,6 +17,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.name
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.coroutines.CoroutineContext
@@ -26,19 +28,25 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
+            call.respond(HttpStatusCode.Forbidden)
         
-        val orgName =
-            transaction(principal.db) { TransactionManager.current().connection.schema }
+        val orgName = principal.db
+            .connector()
+            .schema
             .trim()
             .removePrefix("vezerfonal_org_")
             .lowercase()
+        
+        log { orgName }
         
         val codes = tryInternal("Unable to get codes.") {
             RegistrationCodeRepository(mainDB)
                 .getAllCodes()
                 .filter {
-                    it.organisation.name.lowercase() != orgName
+                    log { it.organisation.name.lowercase() }
+                    val asd = it.organisation.name.lowercase() != orgName
+                    log { "$asd" }
+                    asd
                 }.map { it.toDTO() }
         } ?: return@get
         

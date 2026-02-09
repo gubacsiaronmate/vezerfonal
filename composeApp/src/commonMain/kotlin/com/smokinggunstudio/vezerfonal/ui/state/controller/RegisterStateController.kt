@@ -37,7 +37,7 @@ class RegisterStateController(initial: RegisterStateModel) {
     
     fun updateExtra(newValue: String) {
         val valid =
-            newValue.all { it.isLetter() }
+            newValue.all { it.isLetterOrDigit() }
                     && newValue.length <= 100
         if (!valid) return
         _extra.value = newValue
