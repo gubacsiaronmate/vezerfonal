@@ -16,6 +16,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.coroutines.CoroutineContext
 
@@ -27,11 +28,11 @@ fun Route.codeRoute(mainDB: Database) {
         if (!principal.user.isSuperAdmin)
             call.respond(HttpStatusCode.Unauthorized)
         
-        val db = principal.db
-        
-        val orgName = transaction {
-            db.config.defaultSchema!!.identifier
-        }.removePrefix("vezerfonal_org_").lowercase()
+        val orgName =
+            transaction(principal.db) { TransactionManager.current().connection.schema }
+            .trim()
+            .removePrefix("vezerfonal_org_")
+            .lowercase()
         
         val codes = tryInternal("Unable to get codes.") {
             RegistrationCodeRepository(mainDB)
