@@ -110,7 +110,12 @@ fun Route.interactionRoute() {
                 data = NotificationData(
                     title = user.displayName,
                     notifType = NotificationType.Reaction,
-                    data = with(interaction) { mapOf("extra" to reaction!!.ifEmpty { message.title }) }
+                    data = with(interaction) {
+                        mapOf(
+                            "reaction" to reaction!!,
+                            "extra" to message.title
+                        )
+                    }
                 )
             )
             
