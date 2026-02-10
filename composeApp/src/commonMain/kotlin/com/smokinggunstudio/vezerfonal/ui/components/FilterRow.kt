@@ -47,8 +47,8 @@ import kotlin.time.Instant
                     else true
                     
                     val urgentMatch =
-                        if (state.isImportant)
-                            message.isUrgent else true
+                        if (!state.isImportant) true
+                        else message.isUrgent
                     
                     val waitingForAnswerMatch = if (state.isWaitingForAnswer) {
                         message.reactedWith == null || message.status != MessageStatus.read
