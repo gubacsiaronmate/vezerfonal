@@ -60,7 +60,7 @@ class FirebasePushService : FirebaseMessagingService() {
             NotificationType.Reaction -> {
                 val (middleTxt, endTxt) = strRes.split('|', limit = 2)
                 
-                "$middleTxt ${data["extra"] ?: data["reaction"]} $endTxt"
+                "$middleTxt ${data["reaction"]?.ifEmpty { data["extra"] } ?: data["extra"]} $endTxt"
             }
         }
     }
