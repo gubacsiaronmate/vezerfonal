@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
+import com.smokinggunstudio.vezerfonal.ui.helpers.toUrlValidFormat
 
 @Composable
 fun SettingsNameCard(
@@ -31,10 +32,10 @@ fun SettingsNameCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             ProfilePicture(
+                name = username.toUrlValidFormat(),
+                size = 100.dp,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .size(100.dp)
             )
             Column(
                 modifier = Modifier

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.ui.helpers.toUrlValidFormat
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.reveal_email
@@ -35,9 +36,10 @@ fun AccountSettingsNameCard(user: UserData) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ProfilePicture(
+                name = user.name.toUrlValidFormat(),
+                size = 100.dp,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.size(100.dp)
             )
             Column(Modifier.padding(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

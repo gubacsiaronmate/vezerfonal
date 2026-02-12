@@ -10,6 +10,8 @@ import io.ktor.http.HttpStatusCode
 object NetworkConstants {
     const val BASE_URL = "https://api.vezerfonal.org"
     
+    const val PFP_URL = "https://api.dicebear.com/9.x/notionists/svg?radius=50&backgroundType=gradientLinear,solid&backgroundColor=b6e3f4,ffdfbf,d1d4f9,c0aede,ffd5dc&seed="
+    
     object Endpoints {
         /** POST: /register/basic -> success: [HttpStatusCode.Created] + id: [Int] */
         const val REGISTER_DATA_BASIC = "/register/basic"

@@ -3,10 +3,10 @@ package com.smokinggunstudio.vezerfonal.ui.helpers
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
-import com.smokinggunstudio.vezerfonal.data.DTO
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.FileMetaData
 import com.smokinggunstudio.vezerfonal.helpers.toLDTDefault
 import com.smokinggunstudio.vezerfonal.ui.state.model.RegisterStateModel
 import kotlinx.serialization.json.Json
@@ -20,7 +20,7 @@ import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@Composable expect fun FileData.toImageResource(): ImageBitmap
+expect fun FileData.toImageResource(): ImageBitmap
 
 fun String.isValidEmail(): Boolean {
     val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
@@ -93,3 +93,22 @@ inline val Long.asFormattedLDTStr: String
 
 fun <T> List<T>.limit(limit: Int): List<T> =
     if (size > limit) subList(0, limit) else this
+
+expect fun String.svgXMLToByteArray(
+    size: Int,
+    quality: Int = 90
+): ByteArray
+
+fun ByteArray.toFileData(
+    fileName: String
+): FileData = FileData(
+    bytes = this,
+    metaData = FileMetaData(
+        name = fileName,
+        mimeType = "application/octet-stream"
+    )
+)
+
+expect fun String.toAscii(): String
+
+fun String.toUrlValidFormat(): String = trim().replace(" ", "").lowercase().toAscii()

@@ -59,6 +59,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.caverock.androidsvg)
             implementation(libs.frontend.firebase.messaging)
             implementation(libs.server.firebase.messaging)
             implementation(libs.androidx.animation.core)

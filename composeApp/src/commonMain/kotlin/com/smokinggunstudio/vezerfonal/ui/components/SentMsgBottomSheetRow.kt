@@ -15,6 +15,7 @@ import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
 import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
+import com.smokinggunstudio.vezerfonal.ui.helpers.toUrlValidFormat
 
 @Composable
 fun SentMsgBottomSheetRow(
@@ -35,7 +36,7 @@ fun SentMsgBottomSheetRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfilePicture(size = 24.dp)
+            ProfilePicture(username.toUrlValidFormat(), 24.dp)
             Spacer(Modifier.width(24.dp))
             Text(username)
         }

@@ -9,11 +9,11 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-fun createHttpClient(): HttpClient = HttpClient(provideEngine()) { installPlugins() }
+fun createHttpClient(baseUrl: Boolean = true): HttpClient = HttpClient(provideEngine()) { installPlugins(baseUrl) }
 
 expect fun provideEngine(): HttpClientEngine
 
-private fun HttpClientConfig<*>.installPlugins() {
+private fun HttpClientConfig<*>.installPlugins(baseUrl: Boolean) {
     install(ContentNegotiation) {
         json(Json {
             prettyPrint = false
@@ -25,7 +25,7 @@ private fun HttpClientConfig<*>.installPlugins() {
         requestTimeoutMillis = 30_000
     }
     defaultRequest {
-        url(NetworkConstants.BASE_URL)
+        if (baseUrl) url(NetworkConstants.BASE_URL)
         contentType(ContentType.Application.Json)
     }
 }

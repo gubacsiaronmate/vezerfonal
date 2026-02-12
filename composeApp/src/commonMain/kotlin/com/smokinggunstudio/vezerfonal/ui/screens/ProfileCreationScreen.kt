@@ -33,7 +33,6 @@ import vezerfonal.composeapp.generated.resources.*
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     var rememberMe by remember { mutableStateOf(false) }
-    var data: FileData? by remember { mutableStateOf(null) }
     val state = remember { RegisterStateController(snapshot) }
     var areTermsAccepted by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
@@ -76,13 +75,6 @@ import vezerfonal.composeapp.generated.resources.*
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 
-                PfpSetter(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onFilePickCallBack = { data = it }
-                )
-                
                 Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.SpaceEvenly) {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
@@ -112,7 +104,6 @@ import vezerfonal.composeapp.generated.resources.*
                         state.identifier.isNotBlank()
                         && state.name.isNotBlank()
                         && areTermsAccepted
-                        && data != null
                     ),
                     onClick = {
                         scope.launch {
@@ -120,7 +111,6 @@ import vezerfonal.composeapp.generated.resources.*
                                 val tokens = registerBasic(
                                     user = state.toUserData(),
                                     rememberMe = rememberMe,
-                                    fileData = data!!,
                                     client = client
                                 )
                                 onClick(tokens)

@@ -33,13 +33,9 @@ fun Application.configureRouting(
     }
     
     routing {
-        get("/organisations") {
-            organisationRoute(mainDB)
-        }
+        get("/organisations") { organisationRoute(mainDB) }
         
-        route("/register") {
-            registerRoute(imageService, mainDB)
-        }
+        route("/register") { registerRoute(mainDB) }
         
         authenticate("jwt-refresh") {
             get("/refresh") {

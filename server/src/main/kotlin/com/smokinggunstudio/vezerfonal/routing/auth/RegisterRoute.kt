@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.database.ensureOrgDB
 import com.smokinggunstudio.vezerfonal.helpers.FileMetaData
 import com.smokinggunstudio.vezerfonal.helpers.ImageService
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.helpers.toOrganisation
 import com.smokinggunstudio.vezerfonal.helpers.toUser
 import com.smokinggunstudio.vezerfonal.helpers.tryIncoming
@@ -25,7 +26,6 @@ import io.ktor.server.routing.route
 import org.jetbrains.exposed.v1.jdbc.Database
 
 fun Route.registerRoute(
-    imageService: ImageService,
     mainDB: Database,
 ) {
     var db: Database? = null
@@ -54,10 +54,13 @@ fun Route.registerRoute(
     
     route("/basic") {
         post {
+            var rememberMe = false
+            
             val pair = tryIncoming("Unable to receive user.") {
-                call
-                    .receive<UserData>()
-                    .toUser(mainDB, db)
+                val data = call.receive<String>()
+                val userData = data.split('|', limit = 2).first()
+                rememberMe = data.split('|', limit = 2).last().toBoolean()
+                userData.toDTO<UserData>().toUser(mainDB, db)
             } ?: return@post
             
             if (db == null) db = pair.first
@@ -65,102 +68,30 @@ fun Route.registerRoute(
             
             val urepo = UserRepository(db)
             
-            val insertSuccess = tryInternal("Failed to insert user.") {
+            val success = tryInternal("Failed to insert user.") {
                 urepo.insertUser(user)
             } ?: return@post
             
-            if (insertSuccess) {
-                val user = urepo.getUserByExternalId(user.externalId)
-                    ?: error("Cannot get user by identifier.")
-                call.respondText(user.externalId, status = HttpStatusCode.Created)
-            } else call.respondText(
-                "Failed to insert user into the database.",
-                status = HttpStatusCode.InternalServerError
-            )
-        }
-        
-        route("/pfp/{userExtId}/{rememberMe}") {
-            var userExtId: String? = null
-            var rememberMe: Boolean? = null
-            var metadata: FileMetaData? = null
-            
-            post("/metadata") {
-                userExtId = call.parameters["userExtId"]
-                    ?: return@post call.respondText(
-                        "Invalid user ID",
-                        status = HttpStatusCode.BadRequest
-                    )
-                
-                rememberMe = call.parameters["rememberMe"]?.toBooleanStrictOrNull()
-                    ?: return@post call.respondText(
-                        "Invalid remember me parameter.",
-                        status = HttpStatusCode.BadRequest
-                    )
-                
-                metadata = tryIncoming("Unable to receive image metadata.") {
-                    call.receive<FileMetaData>()
-                } ?: return@post
-                
-                call.respondText("Accepted", status = HttpStatusCode.Accepted)
-            }
-            
-            post("/filedata") {
-                when {
-                    userExtId == null -> error("User Ext Id cannot be null.")
-                    metadata == null -> error("Metadata cannot be null.")
-                    rememberMe == null -> error("Remember Me cannot be null.")
-                }
-                
-                val urepo = UserRepository(db!!)
-                val user = urepo.getUserByExternalId(userExtId)
-                    ?: error("Cannot get user by identifier.")
-                
-                val data = tryIncoming("Unable to receive image bytes.") {
-                    call.receiveMultipart(formFieldLimit = 100 * 1024 * 1024L)
-                } ?: return@post
-                
-                val pfpURI = tryInternal("Failed to save image.") {
-                    imageService.saveImage(
-                        multipart = data,
-                        userId = user.id!!,
-                        extension = metadata.fileType
-                    )
-                } ?: return@post
-                
-                val updateSuccess = tryInternal("Failed to add picture to user.") {
-                    urepo.modifyUser(
-                        userId = user.id!!,
-                        property = Users.profilePicURI,
-                        newValue = pfpURI,
-                    )
-                } ?: return@post
-                
-                if (!updateSuccess) call.respondText(
-                    "Failed to save picture to database.",
-                    status = HttpStatusCode.InternalServerError
+            val accessToken = tryInternal("Cannot generate jwt.") {
+                JWTConfig.generateToken(
+                    userExtId = user.externalId,
+                    db = db,
+                    mainDB = mainDB
                 )
-                
-                val accessToken = tryInternal("Cannot generate jwt.") {
+            } ?: return@post
+            
+            val refreshToken = if (rememberMe)
+                tryInternal("Cannot generate jwt") {
                     JWTConfig.generateToken(
                         userExtId = user.externalId,
                         db = db,
-                        mainDB = mainDB
+                        mainDB = mainDB,
+                        isRefresh = true
                     )
-                } ?: return@post
-                
-                val refreshToken = if (rememberMe)
-                    tryInternal("Cannot generate jwt") {
-                        JWTConfig.generateToken(
-                            userExtId = user.externalId,
-                            db = db,
-                            mainDB = mainDB,
-                            isRefresh = true
-                        )
-                    }
-                else null // "No token for you :("
-                
-                call.respond(TokenResponse(accessToken, refreshToken))
-            }
+                }
+            else null // "No token for you :("
+            
+            if (success) call.respond(TokenResponse(accessToken, refreshToken))
         }
     }
 }
