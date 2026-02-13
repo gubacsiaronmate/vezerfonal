@@ -1,6 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.helpers
 
-actual fun String.svgXMLToByteArray(size: Int, quality: Int): ByteArray {
+import androidx.compose.ui.graphics.ImageBitmap
+import com.smokinggunstudio.vezerfonal.helpers.FileData
+
+actual fun FileData.svgXMLToByteArray(size: Int, quality: Int): ImageBitmap {
     TODO("Not yet implemented")
 }
 

@@ -15,29 +15,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-actual suspend fun getProfilePicture(name: String, size: Int): FileData? {
+actual suspend fun getProfilePicture(name: String): FileData {
     val client = createHttpClient(false)
     val url = NetworkConstants.PFP_URL + name
     val context = CurrentContextProvider.current
-    val fileName = "${name}_profile_picture.jpeg"
+    
+    val fileName = "${name}_profile_picture.svg"
     val file = context?.filesDir?.let { File(it, fileName) }
-    return if (context != null && file != null && file.exists()) {
+    
+    if (context != null && file != null && file.exists()) {
         val bytes = file.readBytes()
         val fileData = bytes.toFileData(fileName)
-        fileData
-    } else {
-        val response = client.get(url)
-        val svgXML = response.body<String>()
-        val bytes = svgXML.svgXMLToByteArray(size)
-        if (context != null) {
-            if (file != null) {
-                if (!file.exists())
-                    withContext(Dispatchers.IO) { file.createNewFile() }
-                
-                file.writeBytes(bytes)
-            }
-        }
-        val fileData = bytes.toFileData(fileName)
-        fileData
+        return fileData
     }
+    
+    val svgXML = client.get(url).body<String>()
+    val bytes = svgXML.toByteArray()
+    
+    if (context != null && file != null) {
+        if (!file.exists())
+            withContext(Dispatchers.IO) { file.createNewFile() }
+        
+        file.writeBytes(bytes)
+    }
+    val fileData = bytes.toFileData(fileName)
+    return fileData
 }

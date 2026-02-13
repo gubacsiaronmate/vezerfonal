@@ -94,10 +94,10 @@ inline val Long.asFormattedLDTStr: String
 fun <T> List<T>.limit(limit: Int): List<T> =
     if (size > limit) subList(0, limit) else this
 
-expect fun String.svgXMLToByteArray(
+expect fun FileData.svgXMLToByteArray(
     size: Int,
     quality: Int = 90
-): ByteArray
+): ImageBitmap
 
 fun ByteArray.toFileData(
     fileName: String
@@ -105,7 +105,7 @@ fun ByteArray.toFileData(
     bytes = this,
     metaData = FileMetaData(
         name = fileName,
-        mimeType = "application/octet-stream"
+        mimeType = "image/svg+xml"
     )
 )
 

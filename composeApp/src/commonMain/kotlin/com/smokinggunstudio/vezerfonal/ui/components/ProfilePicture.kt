@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.network.api.getProfilePicture
+import com.smokinggunstudio.vezerfonal.ui.helpers.svgXMLToByteArray
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
 import kotlin.math.roundToInt
 
@@ -37,7 +38,7 @@ fun ProfilePicture(
     LaunchedEffect(Unit) {
         loading = true
         val d = try {
-            getProfilePicture(name, pxSize)
+            getProfilePicture(name)
         } catch (e: Exception) {
             log { "${e.message}\n${e.printStackTrace()}" }
             null
@@ -69,7 +70,13 @@ fun ProfilePicture(
                 if (loading) CircularProgressIndicator()
                 else Row {
                     data?.let {
-                        Image(
+                        if (it.metaData.mimeType == "image/svg+xml")
+                            Image(
+                                bitmap = it.svgXMLToByteArray(pxSize),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        else Image(
                             bitmap = it.toImageResource(),
                             contentDescription = null,
                             contentScale = ContentScale.FillBounds,
