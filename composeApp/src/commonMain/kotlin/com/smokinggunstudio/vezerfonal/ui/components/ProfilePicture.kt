@@ -38,7 +38,7 @@ fun ProfilePicture(
     LaunchedEffect(Unit) {
         loading = true
         val d = try {
-            getProfilePicture(name)
+            getProfilePicture(name, pxSize)
         } catch (e: Exception) {
             log { "${e.message}\n${e.printStackTrace()}" }
             null
@@ -74,6 +74,7 @@ fun ProfilePicture(
                             Image(
                                 bitmap = it.svgXMLToByteArray(pxSize),
                                 contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
                                 modifier = Modifier.fillMaxSize()
                             )
                         else Image(

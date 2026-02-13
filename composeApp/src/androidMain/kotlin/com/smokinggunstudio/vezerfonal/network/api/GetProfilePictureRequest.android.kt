@@ -15,9 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-actual suspend fun getProfilePicture(name: String): FileData {
+actual suspend fun getProfilePicture(name: String, pxSize: Int): FileData {
     val client = createHttpClient(false)
-    val url = NetworkConstants.PFP_URL + name
+    val url = NetworkConstants.PFP_URL + name + "&size=$pxSize"
     val context = CurrentContextProvider.current
     
     val fileName = "${name}_profile_picture.svg"
