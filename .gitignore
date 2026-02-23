@@ -20,3 +20,4 @@ node_modules/
 composeApp/composeApp.podspec
 .output.txt
 composeApp/release
+composeApp/google-services.json
