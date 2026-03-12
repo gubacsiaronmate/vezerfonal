@@ -1,38 +1,29 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Filter
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.filter
 
 @Composable fun FilterButton(
-    onClickFunction: Function
+    onClickFunction: Function,
+    activeFilterCount: Int = 0,
 ) {
-    Row(
-        modifier = Modifier
-            .padding(8.dp)
-            .clickable(onClick = onClickFunction)
-    ) {
-        Text(stringResource(Res.string.filter),
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(modifier = Modifier.width(8.dp))
-        Image(
-            imageVector = Icons.Filled.Filter,
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant))
-    }
+    FilterChip(
+        selected = activeFilterCount > 0,
+        onClick = onClickFunction,
+        label = {
+            val label = stringResource(Res.string.filter)
+            Text(if (activeFilterCount > 0) "$label ($activeFilterCount)" else label)
+        },
+        leadingIcon = {
+            Icon(imageVector = Icons.Outlined.FilterList, contentDescription = null)
+        },
+    )
 }

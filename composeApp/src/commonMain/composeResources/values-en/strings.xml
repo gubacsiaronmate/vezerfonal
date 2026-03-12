@@ -153,4 +153,8 @@
     <string name="has_marked_as_read">has marked|message read.</string>
     <string name="check_out_message">wants you to check out: </string>
     <string name="group_id">Group Identifier</string>
+    <string name="no_messages">No messages</string>
+    <string name="settings_section_content">Content</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_legal">Legal</string>
 </resources>

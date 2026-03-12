@@ -26,7 +26,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ProfilePicture(
     name: String = "",
-    size: Dp = 120.dp,
+    size: Dp = 48.dp,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier

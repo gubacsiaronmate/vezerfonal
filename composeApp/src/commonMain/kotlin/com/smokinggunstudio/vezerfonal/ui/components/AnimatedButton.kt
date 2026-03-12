@@ -1,7 +1,9 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,8 +39,8 @@ import kotlinx.coroutines.flow.map
     elevationPressed: Dp = 4.dp,
     elevationNotPressed: Dp = 10.dp,
     contentPadding: PaddingValues = PaddingValues(
-        horizontal = 80.dp,
-        vertical = 12.dp
+        horizontal = 24.dp,
+        vertical = 14.dp
     ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: ComposableContent,
@@ -57,7 +59,11 @@ import kotlinx.coroutines.flow.map
         .collectAsState(false)
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.92f else 1f,
+        targetValue = if (isPressed) 0.94f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
         label = "scale"
     )
     

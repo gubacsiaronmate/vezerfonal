@@ -153,4 +153,8 @@
     <string name="has_marked_as_read">olvasottként jelölt|üzenetet.</string>
     <string name="check_out_message">szeretné, hogy megnézd: </string>
     <string name="group_id">Csoport azonosító</string>
+    <string name="no_messages">Nincsenek üzenetek</string>
+    <string name="settings_section_content">Tartalom</string>
+    <string name="settings_section_appearance">Megjelenés</string>
+    <string name="settings_section_legal">Jogi</string>
 </resources>

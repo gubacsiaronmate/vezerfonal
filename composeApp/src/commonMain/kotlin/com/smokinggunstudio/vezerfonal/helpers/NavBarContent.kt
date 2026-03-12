@@ -10,12 +10,15 @@ import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
 sealed class NavBarContent {
-    data object Home: NavBarContent()
-    data object Archive: NavBarContent()
-    data object Send: NavBarContent()
-    data object Group: NavBarContent()
-    data object Settings: NavBarContent()
-    
+    /** Non-composable fallback label — used for accessibility descriptions. */
+    abstract val label: String
+
+    data object Home: NavBarContent()     { override val label = "Home" }
+    data object Archive: NavBarContent()  { override val label = "Archive" }
+    data object Send: NavBarContent()     { override val label = "Write message" }
+    data object Group: NavBarContent()    { override val label = "Groups" }
+    data object Settings: NavBarContent() { override val label = "Settings" }
+
     fun icon(filled: Boolean): ImageVector =
         if (filled) when (this) {
             Home -> Icons.Filled.Home
@@ -31,3 +34,15 @@ sealed class NavBarContent {
             Settings -> Icons.Outlined.Settings
         }
 }
+
+/** Returns the localized label for this navigation tab. */
+@Composable
+fun NavBarContent.resolveLabel(): String = stringResource(
+    when (this) {
+        NavBarContent.Home     -> Res.string.home
+        NavBarContent.Archive  -> Res.string.archive
+        NavBarContent.Send     -> Res.string.write_message
+        NavBarContent.Group    -> Res.string.groups
+        NavBarContent.Settings -> Res.string.settings
+    }
+)

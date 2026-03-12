@@ -8,13 +8,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.OrgData
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
@@ -23,9 +21,11 @@ import com.smokinggunstudio.vezerfonal.ui.components.EmailField
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.PasswordField
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
 import com.smokinggunstudio.vezerfonal.ui.state.controller.LoginStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.LoginStateModel
-import io.ktor.client.*
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -43,109 +43,135 @@ fun LoginScreen(
     var counter by remember { mutableStateOf(0) }
     var error by remember { mutableStateOf<Throwable?>(null) }
     val ourTestOrgExtId = "f9b14a894c80421c"
-    
-    Box(Modifier.fillMaxSize()) {
-        Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 8.dp),
-            
+
+    val windowSizeInfo = LocalWindowSizeInfo.current
+    val isWide = windowSizeInfo.widthClass != WindowWidthClass.Compact
+
+    @Composable
+    fun FormContent() {
+        Text(
+            text = stringResource(Res.string.login),
+            style = if (isWide) MaterialTheme.typography.headlineLarge
+                    else MaterialTheme.typography.displayLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Start,
+            maxLines = 1,
+            modifier = Modifier.clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
             ) {
-            Row {
-                Text(
-                    text = stringResource(Res.string.login),
-                    style = MaterialTheme.typography.displayLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    modifier = Modifier.clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                    ) {
-                        if (counter <= 3) counter++
-                        else selectedOrgExtId = ourTestOrgExtId
-                    }
-                )
+                if (counter <= 3) counter++
+                else selectedOrgExtId = ourTestOrgExtId
             }
-            
-            Column(modifier = Modifier.fillMaxWidth()) {
-                EmailField(
-                    value = state.email,
-                    labelText = stringResource(Res.string.email_address),
-                    onValueChanged = state::updateEmail
-                )
-                
-                PasswordField(
-                    value = state.password,
-                    labelText = stringResource(Res.string.password),
-                    onValueChanged = state::updatePassword,
-                )
-                
-                Column(Modifier.fillMaxWidth()) {
-                    DropdownSearchBar(
-                        allItems = orgs,
-                        labelText = stringResource(Res.string.organization_name)
-                    ) { selectedOrgExtId = it.externalId }
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Checkbox(
-                            checked = state.rememberMe,
-                            onCheckedChange = state::updateRememberMe
+        )
+
+        Spacer(Modifier.height(Spacing.xl))
+
+        EmailField(
+            value = state.email,
+            labelText = stringResource(Res.string.email_address),
+            onValueChanged = state::updateEmail
+        )
+
+        PasswordField(
+            value = state.password,
+            labelText = stringResource(Res.string.password),
+            onValueChanged = state::updatePassword,
+        )
+
+        DropdownSearchBar(
+            allItems = orgs,
+            labelText = stringResource(Res.string.organization_name)
+        ) { selectedOrgExtId = it.externalId }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Checkbox(
+                checked = state.rememberMe,
+                onCheckedChange = state::updateRememberMe
+            )
+            Text(
+                text = stringResource(Res.string.remember_me),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Spacer(Modifier.height(Spacing.sm))
+
+        AnimatedButton(
+            enabled = (
+                state.email.isNotBlank() &&
+                state.password.isNotBlank() &&
+                selectedOrgExtId.isNotBlank()
+            ),
+            onClick = {
+                scope.launch {
+                    try {
+                        val tokens = loginBasic(
+                            loginState = state.snapshot(),
+                            orgExtId = selectedOrgExtId,
+                            client = client
                         )
-                        
-                        Text(
-                            text = stringResource(Res.string.remember_me),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
+                        onClick(tokens)
+                    } catch (e: Exception) {
+                        error = e
                     }
                 }
-                
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(Res.string.login),
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+        }
+
+        Text(
+            text = stringResource(Res.string.forgot_password),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(vertical = Spacing.xl)
+                .clickable(onClick = { })
+        )
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isWide) {
+            Card(
+                modifier = Modifier.widthIn(max = 480.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.padding(Spacing.xl),
+                    horizontalAlignment = Alignment.Start,
                 ) {
-                    AnimatedButton(
-                        enabled = (
-                            state.email.isNotBlank() &&
-                            state.password.isNotBlank() &&
-                            selectedOrgExtId.isNotBlank()
-                        ),
-                        onClick = {
-                            scope.launch {
-                                try {
-                                    val tokens = loginBasic(
-                                        loginState = state.snapshot(),
-                                        orgExtId = selectedOrgExtId,
-                                        client = client
-                                    )
-                                    onClick(tokens)
-                                } catch (e: Exception) {
-                                    error = e
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.login),
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                    
-                    Text(
-                        text = stringResource(Res.string.forgot_password),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .padding(vertical = 20.dp)
-                            .clickable(onClick = { })
-                    )
+                    FormContent()
                 }
+            }
+        } else {
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = Spacing.lg),
+            ) {
+                FormContent()
             }
         }
+
         if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }

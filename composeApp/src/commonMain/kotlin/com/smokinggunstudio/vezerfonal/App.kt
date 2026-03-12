@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -19,6 +20,9 @@ import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.client.createHttpClient
 import com.smokinggunstudio.vezerfonal.ui.helpers.BackHandler
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.windowWidthClassFor
 import com.smokinggunstudio.vezerfonal.ui.navigation.Landing
 import com.smokinggunstudio.vezerfonal.ui.theme.VezerfonalTheme
 import io.ktor.client.HttpClient
@@ -39,16 +43,24 @@ val LocalDarkModeState = staticCompositionLocalOf<MutableState<Boolean?>> { erro
             LocalTokenStorage provides tokenStorage,
             LocalDarkModeState provides darkModeState,
         ) {
-            Surface(
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.surface)
                     .statusBarsPadding()
                     .navigationBarsPadding()
             ) {
-                Navigator(Landing) {
-                    CurrentScreen()
-                    BackHandler.Bind(it)
+                val windowSizeInfo = WindowSizeInfo(
+                    widthClass = windowWidthClassFor(maxWidth),
+                    widthDp = maxWidth,
+                )
+                CompositionLocalProvider(LocalWindowSizeInfo provides windowSizeInfo) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        Navigator(Landing) {
+                            CurrentScreen()
+                            BackHandler.Bind(it)
+                        }
+                    }
                 }
             }
         }

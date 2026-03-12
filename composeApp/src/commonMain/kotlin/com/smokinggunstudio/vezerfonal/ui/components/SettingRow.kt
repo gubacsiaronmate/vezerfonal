@@ -1,21 +1,20 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 
 @Composable
 fun SettingRow(
@@ -25,33 +24,32 @@ fun SettingRow(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     modifier: Modifier = Modifier
         .fillMaxWidth()
-        .padding(12.dp),
+        .padding(horizontal = Spacing.lg, vertical = Spacing.md),
     trailing: ComposableContent = @Composable {
-        Image(
+        Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowRight,
             contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     },
     onClick: Function = { }
 ) {
-    HorizontalDivider(modifier = Modifier.height(1.dp).padding(horizontal = 8.dp))
     Row(
         modifier = modifier.clickable(onClick = onClick),
         horizontalArrangement = horizontalArrangement,
-        verticalAlignment = verticalAlignment
+        verticalAlignment = verticalAlignment,
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
+            Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
+                tint = MaterialTheme.colorScheme.onSurface,
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Spacing.lg))
             Text(
                 text = text,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = MaterialTheme.typography.titleMedium.fontSize
             )
         }
         trailing()

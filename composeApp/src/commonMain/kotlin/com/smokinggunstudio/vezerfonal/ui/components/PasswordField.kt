@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 
 @Composable
 fun PasswordField(
@@ -22,7 +22,7 @@ fun PasswordField(
     onValueChanged: (String) -> Unit,
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
-    
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChanged,
@@ -31,10 +31,7 @@ fun PasswordField(
         supportingText = { Text(supportingText, color = MaterialTheme.colorScheme.onSurface) },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = 8.dp,
-                vertical = 4.dp
-            ),
+            .padding(horizontal = Spacing.sm, vertical = Spacing.xs),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation =
             if (isPasswordVisible)

@@ -53,9 +53,19 @@ data class ShapeModifier(
         val RECTANGLE = ShapeModifier(0)
         
         /**
-         * Predefined shape with standard rounded corners
+         * Predefined shape with standard rounded corners (matches AppShapes.medium)
          */
         val ROUNDED = ShapeModifier(12)
+
+        /**
+         * Predefined shape with large rounded corners (matches AppShapes.extraLarge)
+         */
+        val EXTRA_LARGE = ShapeModifier(28)
+
+        /**
+         * Predefined pill/full-circle shape
+         */
+        val FULL = ShapeModifier(50)
         
         /**
          * Predefined shape with only top corners rounded

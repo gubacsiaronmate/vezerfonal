@@ -13,7 +13,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
@@ -39,10 +39,10 @@ fun SwipeToArchiveRow(
                     Icon(
                         imageVector = Icons.Default.Archive,
                         contentDescription = "Archive",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onTertiary,
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFF2E7D32))
+                            .background(MaterialTheme.colorScheme.tertiary)
                             .wrapContentSize(Alignment.CenterEnd)
                             .padding(end = 20.dp)
                     )

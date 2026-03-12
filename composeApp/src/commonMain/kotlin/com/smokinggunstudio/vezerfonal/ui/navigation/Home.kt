@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal.ui.navigation
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -30,10 +31,16 @@ import com.smokinggunstudio.vezerfonal.helpers.UserNotFoundException
 import com.smokinggunstudio.vezerfonal.helpers.toSerialized
 import com.smokinggunstudio.vezerfonal.network.api.registerPushToken
 import com.smokinggunstudio.vezerfonal.network.helpers.Platform
+import com.smokinggunstudio.vezerfonal.ui.components.AppNavigationDrawer
+import com.smokinggunstudio.vezerfonal.ui.components.AppNavigationRail
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.NavBar
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.NavType
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
 import com.smokinggunstudio.vezerfonal.ui.helpers.getPushToken
+import com.smokinggunstudio.vezerfonal.ui.helpers.navType
 import com.smokinggunstudio.vezerfonal.ui.screens.*
 import kotlinx.coroutines.launch
 
@@ -49,7 +56,7 @@ data class Home(
         var loaded by remember { mutableStateOf(false) }
         var isRefreshing by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<Throwable?>(null) }
-        
+
         var user by remember { mutableStateOf<UserData?>(null) }
         var groups by remember { mutableStateOf<List<GroupData>>(emptyList()) }
         var guiao by remember { mutableStateOf<List<GroupData>>(emptyList()) }
@@ -77,9 +84,9 @@ data class Home(
         LaunchedEffect(Unit) {
             try {
                 loadAll(force = false)
-                
+
                 val token = getPushToken()
-                
+
                 if (token != null)
                     registerPushToken(
                         accessToken = accessToken,
@@ -92,6 +99,10 @@ data class Home(
             }
         }
 
+        val windowSizeInfo = LocalWindowSizeInfo.current
+        val navType = windowSizeInfo.widthClass.navType()
+        val isPullRefreshEnabled = windowSizeInfo.widthClass == WindowWidthClass.Compact
+
         val pullRefreshState = rememberPullToRefreshState()
 
         PullToRefreshBox(
@@ -99,14 +110,16 @@ data class Home(
             isRefreshing = isRefreshing,
             modifier = Modifier.fillMaxSize(),
             onRefresh = {
-                scope.launch {
-                    isRefreshing = true
-                    try {
-                        loadAll(force = true)
-                    } catch (e: Exception) {
-                        error = e
+                if (isPullRefreshEnabled) {
+                    scope.launch {
+                        isRefreshing = true
+                        try {
+                            loadAll(force = true)
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                        isRefreshing = false
                     }
-                    isRefreshing = false
                 }
             },
         ) {
@@ -120,7 +133,7 @@ data class Home(
             val effectiveError = error
                 ?: if (user != null) null
                 else UserNotFoundException()
-            
+
             if (effectiveError != null) {
                 return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
                     ErrorDialog(error!!, Modifier.align(Alignment.Center))
@@ -140,107 +153,145 @@ data class Home(
             val pagerState = rememberPagerState { tabs.size }
             var isScrollEnabled by remember { mutableStateOf(true) }
 
-            Scaffold(
-                bottomBar = {
-                    NavBar(
-                        tabs = tabs,
-                        currentIndex = pagerState.currentPage,
-                        onTabSelected = { i ->
-                            scope.launch {
-                                pagerState.animateScrollToPage(i)
-                            }
+            @Composable
+            fun TabContent(tab: NavBarContent, modifier: Modifier = Modifier) {
+                when (tab) {
+                    Home -> HomePageScreen(
+                        accessToken = accessToken,
+                        userIdentifier = user!!.externalId,
+                        tagList = tagList,
+                        darkModeState = darkModeState,
+                        onMessageClick = {
+                            navigator.push(
+                                ViewMessage(
+                                    accessToken = accessToken,
+                                    isArchived = false,
+                                    messageStr = it.toSerialized(),
+                                    isSenderView = false,
+                                    userIdentifier = user!!.externalId
+                                )
+                            )
+                        },
+                        scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                    )
+                    Archive -> ArchiveScreen(
+                        accessToken = accessToken,
+                        tagList = tagList,
+                        onMessageClick = {
+                            navigator.push(
+                                ViewMessage(
+                                    accessToken = accessToken,
+                                    isArchived = true,
+                                    messageStr = it.toSerialized(),
+                                    isSenderView = false,
+                                    userIdentifier = user!!.externalId
+                                )
+                            )
+                        },
+                        scrollLockedBySliderCallback = { isScrollEnabled = !it }
+                    )
+                    Send -> WriteMessageScreen(
+                        user = user!!,
+                        accessToken = accessToken,
+                        guiao = guiao,
+                        userList = userList,
+                        tagList = tagList
+                    )
+                    Group -> GroupScreen(
+                        accessToken = accessToken,
+                        myIdentifier = user!!.externalId,
+                        groupData = groups,
+                        isSuperAdminLogIn = user!!.isSuperAdmin
+                    )
+                    Settings -> SettingsScreen(
+                        user = user!!,
+                        isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
+                        onAccountSettingsClick = {
+                            navigator.push(
+                                AccountSettings(
+                                    token = accessToken,
+                                    userStr = user!!.toSerialized()
+                                )
+                            )
+                        },
+                        onAdminToolsClick = {
+                            navigator.push(
+                                AdminTools(
+                                    token = accessToken,
+                                    tagListStr = tagList.map { it.toSerialized() },
+                                    regCodesStr = regCodes.map { it.toSerialized() }
+                                )
+                            )
+                        },
+                        onArchiveClick = { },
+                        onNotificationsClick = { },
+                        onTOSClick = { },
+                        onLanguageClick = { },
+                        onThemeSwitchClick = { darkModeState.value = it },
+                        onSentMessagesClick = {
+                            navigator.push(
+                                SentMessages(
+                                    accessToken = accessToken,
+                                    tagStrList = tagList.map { it.toSerialized() },
+                                    userIdentifier = user!!.externalId,
+                                )
+                            )
                         }
                     )
                 }
-            ) { paddingValues ->
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.padding(paddingValues),
-                    userScrollEnabled = isScrollEnabled
-                ) { i ->
-                    when (tabs[i]) {
-                        Home -> HomePageScreen(
-                            accessToken = accessToken,
-                            userIdentifier = user!!.externalId,
-                            tagList = tagList,
-                            darkModeState = darkModeState,
-                            onMessageClick = {
-                                navigator.push(
-                                    ViewMessage(
-                                        accessToken = accessToken,
-                                        isArchived = false,
-                                        messageStr = it.toSerialized(),
-                                        isSenderView = false,
-                                        userIdentifier = user!!.externalId
-                                    )
-                                )
-                            },
-                            scrollLockedBySliderCallback = { isScrollEnabled = !it }
-                        )
-                        Archive -> ArchiveScreen(
-                            accessToken = accessToken,
-                            tagList = tagList,
-                            onMessageClick = {
-                                navigator.push(
-                                    ViewMessage(
-                                        accessToken = accessToken,
-                                        isArchived = true,
-                                        messageStr = it.toSerialized(),
-                                        isSenderView = false,
-                                        userIdentifier = user!!.externalId
-                                    )
-                                )
-                            },
-                            scrollLockedBySliderCallback = { isScrollEnabled = !it }
-                        )
-                        Send -> WriteMessageScreen(
-                            user = user!!,
-                            accessToken = accessToken,
-                            guiao = guiao,
-                            userList = userList,
-                            tagList = tagList
-                        )
-                        Group -> GroupScreen(
-                            accessToken = accessToken,
-                            myIdentifier = user!!.externalId,
-                            groupData = groups,
-                            isSuperAdminLogIn = user!!.isSuperAdmin
-                        )
-                        Settings -> SettingsScreen(
-                            user = user!!,
-                            isInDarkTheme = darkModeState.value ?: isSystemInDarkTheme(),
-                            onAccountSettingsClick = {
-                                navigator.push(
-                                    AccountSettings(
-                                        token = accessToken,
-                                        userStr = user!!.toSerialized()
-                                    )
-                                )
-                            },
-                            onAdminToolsClick = {
-                                navigator.push(
-                                    AdminTools(
-                                        token = accessToken,
-                                        tagListStr = tagList.map { it.toSerialized() },
-                                        regCodesStr = regCodes.map { it.toSerialized() }
-                                    )
-                                )
-                            },
-                            onArchiveClick = { },
-                            onNotificationsClick = { },
-                            onTOSClick = { },
-                            onLanguageClick = { },
-                            onThemeSwitchClick = { darkModeState.value = it },
-                            onSentMessagesClick = {
-                                navigator.push(
-                                    SentMessages(
-                                        accessToken = accessToken,
-                                        tagStrList = tagList.map { it.toSerialized() },
-                                        userIdentifier = user!!.externalId,
-                                    )
-                                )
+            }
+
+            when (navType) {
+                NavType.BottomBar -> {
+                    Scaffold(
+                        bottomBar = {
+                            NavBar(
+                                tabs = tabs,
+                                currentIndex = pagerState.currentPage,
+                                onTabSelected = { i ->
+                                    scope.launch { pagerState.animateScrollToPage(i) }
+                                }
+                            )
+                        }
+                    ) { paddingValues ->
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.padding(paddingValues),
+                            userScrollEnabled = isScrollEnabled,
+                        ) { i ->
+                            TabContent(tabs[i])
+                        }
+                    }
+                }
+
+                NavType.Rail -> {
+                    Row(Modifier.fillMaxSize()) {
+                        AppNavigationRail(
+                            tabs = tabs,
+                            currentIndex = pagerState.currentPage,
+                            onTabSelected = { i ->
+                                scope.launch { pagerState.animateScrollToPage(i) }
                             }
                         )
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.weight(1f).fillMaxSize(),
+                            userScrollEnabled = false,
+                        ) { i ->
+                            TabContent(tabs[i])
+                        }
+                    }
+                }
+
+                NavType.Drawer -> {
+                    AppNavigationDrawer(
+                        tabs = tabs,
+                        currentIndex = pagerState.currentPage,
+                        onTabSelected = { i ->
+                            scope.launch { pagerState.animateScrollToPage(i) }
+                        }
+                    ) {
+                        TabContent(tabs[pagerState.currentPage])
                     }
                 }
             }

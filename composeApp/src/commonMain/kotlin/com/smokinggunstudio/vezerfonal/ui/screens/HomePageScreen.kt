@@ -4,14 +4,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
@@ -24,6 +29,8 @@ import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
@@ -39,7 +46,7 @@ import vezerfonal.composeapp.generated.resources.vezerfonal
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomePageScreen(
     accessToken: String,
@@ -95,42 +102,46 @@ fun HomePageScreen(
         error = e
     }
     
+    val widthClass = LocalWindowSizeInfo.current.widthClass
+    val spiralHeight: Dp = when (widthClass) {
+        WindowWidthClass.Compact  -> 180.dp
+        WindowWidthClass.Medium   -> 240.dp
+        WindowWidthClass.Expanded -> 280.dp
+    }
+
     Box(Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surface)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Text(
-                    stringResource(Res.string.vezerfonal),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
+            TopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(Res.string.vezerfonal),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                ),
             )
-            
+
             Image(
                 painter = painterResource(
                     if (darkModeState.value ?: isSystemInDarkTheme())
                         Res.drawable.spiralgraphic_white
                     else Res.drawable.spiralgraphic_black
                 ),
-                contentDescription = "Home Page Image",
-                modifier = Modifier.fillMaxWidth()
-                    .height(210.dp),
-                contentScale = ContentScale.FillWidth
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(spiralHeight)
+                    .clip(MaterialTheme.shapes.large),
+                contentScale = ContentScale.FillWidth,
             )
-            
+
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
