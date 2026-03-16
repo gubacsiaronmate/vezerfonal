@@ -24,7 +24,7 @@ fun SettingRow(
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     modifier: Modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+        .padding(horizontal = Spacing.lg, vertical = Spacing.lg),
     trailing: ComposableContent = @Composable {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowRight,

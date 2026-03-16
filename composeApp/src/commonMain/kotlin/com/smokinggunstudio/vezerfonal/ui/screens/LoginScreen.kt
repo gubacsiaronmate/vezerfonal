@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,8 +53,7 @@ fun LoginScreen(
     fun FormContent() {
         Text(
             text = stringResource(Res.string.login),
-            style = if (isWide) MaterialTheme.typography.headlineLarge
-                    else MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Start,
             maxLines = 1,
@@ -151,22 +152,25 @@ fun LoginScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(Spacing.xl),
                     horizontalAlignment = Alignment.Start,
                 ) {
+                    Spacer(Modifier.height(Spacing.sm))
                     FormContent()
                 }
             }
         } else {
             Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = Spacing.lg),
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.lg)
+                    .padding(top = Spacing.xxxl),
             ) {
                 FormContent()
             }

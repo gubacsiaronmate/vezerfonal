@@ -21,13 +21,14 @@ fun RecipientSelectButton(
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         border = BorderStroke(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            width = 2.dp,
+            color = MaterialTheme.colorScheme.outlineVariant,
+            width = 1.dp,
         ),
         modifier = Modifier
-            .padding(8.dp)
+            .height(48.dp)
+            .padding(horizontal = 8.dp)
     ) {
         Row(
             modifier = Modifier.height(IntrinsicSize.Min)

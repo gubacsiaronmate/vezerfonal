@@ -50,7 +50,7 @@ fun SettingsScreen(
 
         // Account section
         if (user.isSuperAdmin || user.isAnyAdmin) {
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(Spacing.lg))
             Text(
                 text = stringResource(Res.string.admin_tools),
                 style = MaterialTheme.typography.labelLarge,
@@ -73,7 +73,7 @@ fun SettingsScreen(
         }
 
         // Content section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_content),
             style = MaterialTheme.typography.labelLarge,
@@ -94,7 +94,7 @@ fun SettingsScreen(
         HorizontalDivider(modifier = Modifier.padding(horizontal = Spacing.lg))
 
         // Appearance section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_appearance),
             style = MaterialTheme.typography.labelLarge,
@@ -113,7 +113,6 @@ fun SettingsScreen(
                 Switch(
                     checked = checked,
                     onCheckedChange = { checked = it; onThemeSwitchClick(it) },
-                    modifier = Modifier.height(24.dp),
                 )
             }
         )
@@ -121,7 +120,7 @@ fun SettingsScreen(
         HorizontalDivider(modifier = Modifier.padding(horizontal = Spacing.lg))
 
         // Legal section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_legal),
             style = MaterialTheme.typography.labelLarge,

@@ -157,4 +157,6 @@
     <string name="settings_section_content">Content</string>
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_section_legal">Legal</string>
+    <string name="inbox_title">Inbox</string>
+    <string name="urgent">Urgent</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
@@ -70,10 +68,11 @@ fun WriteMessageScreen(
             modifier = Modifier.padding(horizontal = Spacing.sm, vertical = Spacing.xs),
             style = MaterialTheme.typography.titleLarge,
         )
+        Spacer(Modifier.height(Spacing.xl))
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(Spacing.xs),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
             RecipientSelectButton(
                 text = stringResource(Res.string.groups),
@@ -85,17 +84,18 @@ fun WriteMessageScreen(
                 selectedAmount = state.userIdentifiers.size,
                 onClick = { isIndividualTabOpened = true },
             )
-            IconToggleButton(
-                checked = state.isUrgent,
-                onCheckedChange = state::updateUrgency,
-            ) {
-                Image(
-                    imageVector = if (!state.isUrgent) Icons.Outlined.ErrorOutline else Icons.Filled.Error,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.size(32.dp),
-                )
-            }
+            FilterChip(
+                selected = state.isUrgent,
+                onClick = { state.updateUrgency(!state.isUrgent) },
+                label = { Text(stringResource(Res.string.urgent)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = if (state.isUrgent) Icons.Filled.Error else Icons.Outlined.ErrorOutline,
+                        contentDescription = null,
+                        tint = if (state.isUrgent) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
         }
     }
 
@@ -152,8 +152,7 @@ fun WriteMessageScreen(
                 }
             }
             Spacer(Modifier.height(Spacing.md))
-            Button(
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            AnimatedButton(
                 modifier = Modifier.fillMaxWidth().padding(Spacing.xs),
                 onClick = {
                     try {
@@ -168,16 +167,16 @@ fun WriteMessageScreen(
                     }
                 },
             ) {
-                Image(
+                Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                    modifier = Modifier.padding(horizontal = Spacing.sm),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(end = Spacing.sm),
                 )
                 Text(
                     text = stringResource(Res.string.send),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
         }

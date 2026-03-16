@@ -84,7 +84,7 @@ import kotlin.time.ExperimentalTime
                     state = messageFilterState,
                 )
                 if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-                else HorizontalDivider(Modifier.height(1.dp))
+                else HorizontalDivider()
                 ScrollableMessageList(
                     isSwipeable = false,
                     messages = filtered,

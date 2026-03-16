@@ -3,6 +3,7 @@ package com.smokinggunstudio.vezerfonal.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.asFormattedLDTStr
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 
 @Composable
 fun ListItem(
@@ -29,16 +31,16 @@ fun ListItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 5.dp)
+            .padding(horizontal = Spacing.md, vertical = Spacing.xs)
             .clickable { onClick() },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Avatar with urgency dot overlay
@@ -54,13 +56,13 @@ fun ListItem(
                             .align(Alignment.TopEnd)
                             .background(
                                 color = MaterialTheme.colorScheme.error,
-                                shape = MaterialTheme.shapes.extraSmall,
+                                shape = CircleShape,
                             )
                     )
                 }
             }
 
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.width(Spacing.md))
 
             // Title / author / preview
             Column(modifier = Modifier.weight(1f)) {
@@ -118,7 +120,7 @@ fun ListItem(
                         .size(8.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primary,
-                            shape = MaterialTheme.shapes.extraSmall,
+                            shape = CircleShape,
                         )
                 )
             }

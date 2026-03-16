@@ -62,7 +62,7 @@ fun ProfilePicture(
                 .aspectRatio(1F)
                 .align(Alignment.CenterHorizontally)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     shape = CircleShape
                 ),
         ) {

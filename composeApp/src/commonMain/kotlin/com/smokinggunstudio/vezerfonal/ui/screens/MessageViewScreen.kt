@@ -148,7 +148,6 @@ fun MessageViewScreen(
         scaffoldState = scaffoldState,
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)
             .background(color = MaterialTheme.colorScheme.surface),
         sheetContent = {
             if (isSenderView) Column(
@@ -174,66 +173,70 @@ fun MessageViewScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Box(Modifier.fillMaxWidth()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .padding(top = 16.dp, bottom = 8.dp),
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 16.dp, bottom = 12.dp),
                         verticalArrangement = Arrangement.Top,
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
-                                .padding(horizontal = 8.dp)
                         ) {
                             Text(
-                                maxLines = 1,
+                                maxLines = 2,
                                 text = message.title,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.headlineLarge,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f),
                             )
-                            
+
                             Icon(
                                 imageVector =
                                     if (message.isUrgent) Icons.Filled.Error
                                     else Icons.Outlined.ErrorOutline,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(32.dp).fillMaxWidth(.5F),
+                                tint = if (message.isUrgent) MaterialTheme.colorScheme.error
+                                       else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(28.dp),
                             )
                         }
-                        
+
+                        Spacer(Modifier.height(6.dp))
+
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                        
                         ) {
                             Text(
                                 maxLines = 1,
                                 text = message.author.name,
                                 fontWeight = FontWeight.Medium,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                             Text(
                                 text = statusString,
                                 maxLines = 1,
-                                fontWeight = FontWeight.Medium,
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Spacer(Modifier.height(8.dp))
                         HorizontallyScrollableTagList(message.tags)
                     }
                 }
-                
-                HorizontalDivider(Modifier.height(1.dp).fillMaxWidth().padding(bottom = 8.dp))
+
+                HorizontalDivider(modifier = Modifier.padding(bottom = 8.dp))
                 
                 Box(Modifier.fillMaxSize()) {
                     Column(Modifier.verticalScroll(rememberScrollState())) {

@@ -1,47 +1,34 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.enums.InteractionType
+import com.smokinggunstudio.vezerfonal.enums.MessageStatus
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getMessages
 import com.smokinggunstudio.vezerfonal.network.api.sendInteraction
 import com.smokinggunstudio.vezerfonal.network.api.subscribeToMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
-import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
-import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
-import vezerfonal.composeapp.generated.resources.spiralgraphic_black
-import vezerfonal.composeapp.generated.resources.spiralgraphic_white
+import vezerfonal.composeapp.generated.resources.inbox_title
 import vezerfonal.composeapp.generated.resources.vezerfonal
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -54,7 +41,7 @@ fun HomePageScreen(
     tagList: List<TagData>,
     darkModeState: MutableState<Boolean?>,
     onMessageClick: CallbackFunction<MessageData>,
-    scrollLockedBySliderCallback: CallbackFunction<Boolean>
+    scrollLockedBySliderCallback: CallbackFunction<Boolean>,
 ) {
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
@@ -102,12 +89,7 @@ fun HomePageScreen(
         error = e
     }
     
-    val widthClass = LocalWindowSizeInfo.current.widthClass
-    val spiralHeight: Dp = when (widthClass) {
-        WindowWidthClass.Compact  -> 180.dp
-        WindowWidthClass.Medium   -> 240.dp
-        WindowWidthClass.Expanded -> 280.dp
-    }
+    val unreadCount = messages.count { it.status != MessageStatus.read }
 
     Box(Modifier.fillMaxWidth()) {
         Column(
@@ -122,32 +104,14 @@ fun HomePageScreen(
                         style = MaterialTheme.typography.titleLarge,
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
+                colors = TopAppBarDefaults.topAppBarColors(),
             )
 
-            Image(
-                painter = painterResource(
-                    if (darkModeState.value ?: isSystemInDarkTheme())
-                        Res.drawable.spiralgraphic_white
-                    else Res.drawable.spiralgraphic_black
-                ),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(spiralHeight)
-                    .clip(MaterialTheme.shapes.large),
-                contentScale = ContentScale.FillWidth,
+            HomeGreetingHeader(
+                messageCount = messages.size,
+                unreadCount = unreadCount,
             )
 
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-            )
-            
             FilterRow(
                 onFilterOpened = { isFilterOpened = true },
                 onCompleted = {
@@ -160,7 +124,7 @@ fun HomePageScreen(
             )
             
             if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            else HorizontalDivider(Modifier.height(1.dp))
+            else HorizontalDivider()
             
             ScrollableMessageList(
                 isSwipeable = true,
@@ -210,5 +174,50 @@ fun HomePageScreen(
             }
         }
         if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
+    }
+}
+
+@Composable
+private fun HomeGreetingHeader(
+    messageCount: Int,
+    unreadCount: Int,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        tonalElevation = 1.dp,
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column {
+                Text(
+                    text = stringResource(Res.string.inbox_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (messageCount > 0) {
+                    Spacer(Modifier.height(Spacing.xs))
+                    Text(
+                        text = "$unreadCount / $messageCount",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (unreadCount > 0) {
+                Badge(containerColor = MaterialTheme.colorScheme.primary) {
+                    Text(
+                        text = unreadCount.toString(),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
+            }
+        }
     }
 }

@@ -157,4 +157,6 @@
     <string name="settings_section_content">Tartalom</string>
     <string name="settings_section_appearance">Megjelenés</string>
     <string name="settings_section_legal">Jogi</string>
+    <string name="inbox_title">Beérkező üzenetek</string>
+    <string name="urgent">Fontos</string>
 </resources>
