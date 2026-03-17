@@ -18,6 +18,6 @@ fun IndividualSelect(
         snapshot = snapshot,
         onCancelClick = onCancelClick,
         onApplyClick = onApplyClick,
-        prefixContent = { ProfilePicture(it.toUrlValidFormat(), 24.dp) }
+        prefixContent = { ProfilePicture(it.toUrlValidFormat(), 48.dp) }
     )
 }

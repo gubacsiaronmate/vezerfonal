@@ -66,7 +66,7 @@ import vezerfonal.composeapp.generated.resources.sent_messages
         containerColor = MaterialTheme.colorScheme.surface,
     ) { innerPadding ->
         Box(Modifier.fillMaxSize().padding(innerPadding)) {
-            Column {
+            Column(modifier = Modifier.fillMaxSize()) {
                 FilterRow(
                     onFilterOpened = { isFilterOpened = true },
                     onCompleted = {
@@ -79,7 +79,7 @@ import vezerfonal.composeapp.generated.resources.sent_messages
                 )
                 if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
                 else HorizontalDivider()
-                ScrollableMessageList(
+                Box(Modifier.weight(1f)) { ScrollableMessageList(
                     isSwipeable = false,
                     messages = filtered,
                     onMessageClick = onMessageClick,
@@ -105,7 +105,7 @@ import vezerfonal.composeapp.generated.resources.sent_messages
                                     )
                             }
                         )
-                }
+                } }
             }
 
             if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))

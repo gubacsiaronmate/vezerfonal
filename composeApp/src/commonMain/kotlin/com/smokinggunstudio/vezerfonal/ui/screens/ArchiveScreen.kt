@@ -1,19 +1,16 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.TagData
 import com.smokinggunstudio.vezerfonal.network.api.getArchivedMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
-import com.smokinggunstudio.vezerfonal.ui.helpers.ContentContainer
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
@@ -72,7 +69,7 @@ import kotlin.time.ExperimentalTime
                 .padding(innerPadding),
             contentAlignment = Alignment.TopCenter,
         ) {
-            ContentContainer {
+            Column(modifier = Modifier.fillMaxSize()) {
                 FilterRow(
                     onFilterOpened = { isFilterOpened = true },
                     onCompleted = {
@@ -85,7 +82,7 @@ import kotlin.time.ExperimentalTime
                 )
                 if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
                 else HorizontalDivider()
-                ScrollableMessageList(
+                Box(Modifier.weight(1f)) { ScrollableMessageList(
                     isSwipeable = false,
                     messages = filtered,
                     onMessageClick = onMessageClick,
@@ -108,7 +105,7 @@ import kotlin.time.ExperimentalTime
                                 )
                             }
                         )
-                }
+                } }
             }
 
             if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))

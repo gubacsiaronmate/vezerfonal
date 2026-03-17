@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -105,29 +106,13 @@ data class Home(
 
         val pullRefreshState = rememberPullToRefreshState()
 
-        PullToRefreshBox(
-            state = pullRefreshState,
-            isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize(),
-            onRefresh = {
-                if (isPullRefreshEnabled) {
-                    scope.launch {
-                        isRefreshing = true
-                        try {
-                            loadAll(force = true)
-                        } catch (e: Exception) {
-                            error = e
-                        }
-                        isRefreshing = false
-                    }
-                }
-            },
-        ) {
+        @Composable
+        fun HomeContent() {
             if (!loaded) {
                 Box(Modifier.fillMaxSize()) {
                     LinearProgressIndicator(Modifier.align(Alignment.Center))
                 }
-                return@PullToRefreshBox
+                return
             }
 
             val effectiveError = error
@@ -135,9 +120,10 @@ data class Home(
                 else UserNotFoundException()
 
             if (effectiveError != null) {
-                return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxSize()) {
                     ErrorDialog(error!!, Modifier.align(Alignment.Center))
                 }
+                return
             }
 
             val tabs: List<NavBarContent> = remember {
@@ -154,7 +140,7 @@ data class Home(
             var isScrollEnabled by remember { mutableStateOf(true) }
 
             @Composable
-            fun TabContent(tab: NavBarContent, modifier: Modifier = Modifier) {
+            fun TabContent(tab: NavBarContent) {
                 when (tab) {
                     Home -> HomePageScreen(
                         accessToken = accessToken,
@@ -244,6 +230,7 @@ data class Home(
             when (navType) {
                 NavType.BottomBar -> {
                     Scaffold(
+                        modifier = Modifier.navigationBarsPadding(),
                         bottomBar = {
                             NavBar(
                                 tabs = tabs,
@@ -256,7 +243,7 @@ data class Home(
                     ) { paddingValues ->
                         HorizontalPager(
                             state = pagerState,
-                            modifier = Modifier.padding(paddingValues),
+                            modifier = Modifier.fillMaxSize().padding(paddingValues),
                             userScrollEnabled = isScrollEnabled,
                         ) { i ->
                             TabContent(tabs[i])
@@ -295,6 +282,27 @@ data class Home(
                     }
                 }
             }
+        }
+
+        if (isPullRefreshEnabled) {
+            PullToRefreshBox(
+                state = pullRefreshState,
+                isRefreshing = isRefreshing,
+                modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        try {
+                            loadAll(force = true)
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                        isRefreshing = false
+                    }
+                },
+            ) { HomeContent() }
+        } else {
+            Box(Modifier.fillMaxSize()) { HomeContent() }
         }
     }
 }

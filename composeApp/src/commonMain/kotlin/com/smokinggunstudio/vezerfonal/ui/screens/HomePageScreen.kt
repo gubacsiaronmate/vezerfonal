@@ -6,7 +6,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
@@ -91,12 +90,8 @@ fun HomePageScreen(
     
     val unreadCount = messages.count { it.status != MessageStatus.read }
 
-    Box(Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.colorScheme.surface)
-        ) {
+    Scaffold(
+        topBar = {
             TopAppBar(
                 title = {
                     Text(
@@ -106,74 +101,86 @@ fun HomePageScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
             )
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HomeGreetingHeader(
+                    messageCount = messages.size,
+                    unreadCount = unreadCount,
+                )
 
-            HomeGreetingHeader(
-                messageCount = messages.size,
-                unreadCount = unreadCount,
-            )
+                FilterRow(
+                    onFilterOpened = { isFilterOpened = true },
+                    onCompleted = {
+                        filtered = it
+                        isFilterOpened = false
+                    },
+                    isFilterOpened = isFilterOpened,
+                    messages = messages,
+                    state = messageFilterState
+                )
 
-            FilterRow(
-                onFilterOpened = { isFilterOpened = true },
-                onCompleted = {
-                    filtered = it
-                    isFilterOpened = false
-                },
-                isFilterOpened = isFilterOpened,
-                messages = messages,
-                state = messageFilterState
-            )
-            
-            if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            else HorizontalDivider()
-            
-            ScrollableMessageList(
-                isSwipeable = true,
-                messages = filtered,
-                onMessageClick = onMessageClick,
-                onArchive = { message ->
-                    filtered = filtered.filter { it != message }
-                    
-                    scope.launch {
-                        try {
-                            sendInteraction(
-                                client,
-                                accessToken,
-                                InteractionInfoData(
-                                    userIdentifier = userIdentifier,
-                                    messageExtId = message.externalId,
-                                    type = InteractionType.archive,
-                                ),
-                            )
-                        } catch (e: Exception) {
-                            error = e
+                if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                else HorizontalDivider()
+
+                Box(Modifier.weight(1f)) {
+                    ScrollableMessageList(
+                        isSwipeable = true,
+                        messages = filtered,
+                        onMessageClick = onMessageClick,
+                        onArchive = { message ->
+                            filtered = filtered.filter { it != message }
+
+                            scope.launch {
+                                try {
+                                    sendInteraction(
+                                        client,
+                                        accessToken,
+                                        InteractionInfoData(
+                                            userIdentifier = userIdentifier,
+                                            messageExtId = message.externalId,
+                                            type = InteractionType.archive,
+                                        ),
+                                    )
+                                } catch (e: Exception) {
+                                    error = e
+                                }
+                            }
                         }
+                    ) {
+                        if (isFilterOpened)
+                            MessageFilter(
+                                state = messageFilterState,
+                                tabOpenedClick = { isTagSelectTabOpened = true },
+                                modifier = Modifier.align(Alignment.TopCenter),
+                            ) { scrollLockedBySliderCallback(it && isFilterOpened) }
+                        else scrollLockedBySliderCallback(false)
+
+                        if (isTagSelectTabOpened && isFilterOpened)
+                            TagSelect(
+                                snapshot = messageFilterState.tagSelectionState,
+                                onCancelClick = { isTagSelectTabOpened = false },
+                                onApplyClick = { tags ->
+                                    messageFilterState
+                                        .updateTagSelectionState(
+                                            TagSelectionStateModel(
+                                                selectedItems = tags.toSet()
+                                            )
+                                        )
+                                }
+                            )
                     }
                 }
-            ) {
-                if (isFilterOpened)
-                    MessageFilter(
-                        state = messageFilterState,
-                        tabOpenedClick = { isTagSelectTabOpened = true },
-                        modifier = Modifier.align(Alignment.TopCenter),
-                    ) { scrollLockedBySliderCallback(it && isFilterOpened) }
-                else scrollLockedBySliderCallback(false)
-                
-                if (isTagSelectTabOpened && isFilterOpened)
-                    TagSelect(
-                        snapshot = messageFilterState.tagSelectionState,
-                        onCancelClick = { isTagSelectTabOpened = false },
-                        onApplyClick = { tags ->
-                            messageFilterState
-                                .updateTagSelectionState(
-                                    TagSelectionStateModel(
-                                        selectedItems = tags.toSet()
-                                    )
-                                )
-                        }
-                    )
             }
+
+            if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
         }
-        if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }
 
