@@ -44,33 +44,17 @@ fun HorizontallyScrollableTagSelect(
         }
         
         item {
-            Button(
+            AssistChip(
                 onClick = tabOpenedCallback,
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surfaceContainer),
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
-                ) {
+                label = { Text(stringResource(Res.string.browse_tags), maxLines = 1) },
+                leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
-                    Spacer(Modifier.size(6.dp))
-                    
-                    Text(
-                        text = stringResource(Res.string.browse_tags),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                }
-            }
+                },
+                modifier = Modifier.padding(horizontal = 4.dp),
+            )
         }
     }
 }

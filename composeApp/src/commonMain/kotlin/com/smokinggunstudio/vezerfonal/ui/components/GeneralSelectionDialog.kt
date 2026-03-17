@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
@@ -61,7 +62,12 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
             onClick = SuspendCallbackClickEvent { state.search(it.query) }
         )
         Box(modifier = Modifier.weight(1F)){
-            Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+                    .padding(bottom = 56.dp)
+            ) {
                 state.visibleItems.forEach {
                     key(it.externalId) {
                         SelectionListItem(
@@ -77,14 +83,16 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
                     .fillMaxWidth()
                     .height(56.dp)
                     .align(Alignment.BottomCenter)
-                    .background(color = MaterialTheme.colorScheme.surface),
+                    .background(color = MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = Spacing.sm),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Button(
                     modifier = Modifier
-                        .width(160.dp),
+                        .weight(1f)
+                        .padding(end = Spacing.xs),
                     onClick = onCancelClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
                 ) {
                     Text(
                         text = stringResource(Res.string.cancel),
@@ -92,7 +100,9 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
                     )
                 }
                 Button(
-                    modifier = Modifier.width(160.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = Spacing.xs),
                     onClick = {
                         onApplyClick(state.selectedItems.toList())
                         onCancelClick()

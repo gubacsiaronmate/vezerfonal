@@ -7,9 +7,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -53,42 +53,37 @@ fun ProfilePicture(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier
     ) {
-        IconButton(
-            shape = CircleShape,
-            onClick = {},
+        Box(
             modifier = modifier
-                .height(size)
-                .width(size)
-                .aspectRatio(1F)
-                .align(Alignment.CenterHorizontally)
+                .size(size)
+                .clip(CircleShape)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     shape = CircleShape
-                ),
+                )
+                .align(Alignment.CenterHorizontally),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(Modifier.align(Alignment.CenterHorizontally)) {
-                if (loading) CircularProgressIndicator()
-                else Row {
-                    data?.let {
-                        if (it.metaData.mimeType == "image/svg+xml")
-                            Image(
-                                bitmap = it.svgXMLToByteArray(pxSize),
-                                contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        else Image(
-                            bitmap = it.toImageResource(),
-                            contentDescription = null,
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } ?: Image(
-                        imageVector = Icons.Filled.Person,
+            if (loading) CircularProgressIndicator(modifier = Modifier.fillMaxSize(0.6f))
+            else data?.let {
+                if (it.metaData.mimeType == "image/svg+xml")
+                    Image(
+                        bitmap = it.svgXMLToByteArray(pxSize),
                         contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize()
                     )
-                }
-            }
+                else Image(
+                    bitmap = it.toImageResource(),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } ?: Image(
+                imageVector = Icons.Filled.Person,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
     }
 }

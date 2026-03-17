@@ -74,16 +74,21 @@ fun WriteMessageScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
         ) {
-            RecipientSelectButton(
-                text = stringResource(Res.string.groups),
-                selectedAmount = state.groups.size,
-                onClick = { isGroupTabOpened = true },
-            )
-            RecipientSelectButton(
-                text = stringResource(Res.string.individuals),
-                selectedAmount = state.userIdentifiers.size,
-                onClick = { isIndividualTabOpened = true },
-            )
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            ) {
+                RecipientSelectButton(
+                    text = stringResource(Res.string.groups),
+                    selectedAmount = state.groups.size,
+                    onClick = { isGroupTabOpened = true },
+                )
+                RecipientSelectButton(
+                    text = stringResource(Res.string.individuals),
+                    selectedAmount = state.userIdentifiers.size,
+                    onClick = { isIndividualTabOpened = true },
+                )
+            }
             FilterChip(
                 selected = state.isUrgent,
                 onClick = { state.updateUrgency(!state.isUrgent) },

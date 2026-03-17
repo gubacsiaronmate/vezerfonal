@@ -91,7 +91,7 @@ fun HomePageScreen(
     
     val unreadCount = messages.count { it.status != MessageStatus.read }
 
-    Box(Modifier.fillMaxWidth()) {
+    Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -182,10 +182,10 @@ private fun HomeGreetingHeader(
     messageCount: Int,
     unreadCount: Int,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
-        tonalElevation = 1.dp,
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Row(
             modifier = Modifier

@@ -20,7 +20,7 @@ import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.sent_messages
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable fun SentMessagesScreen(
     accessToken: String,
     tagList: List<TagData>,
