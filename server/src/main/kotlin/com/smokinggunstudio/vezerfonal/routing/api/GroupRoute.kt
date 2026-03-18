@@ -12,6 +12,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import kotlin.coroutines.CoroutineContext
@@ -95,6 +96,27 @@ fun Route.groupRoute() {
         if (success) call.respond(group.toDTO())
     }
     
+    delete("/delete") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@delete call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+
+        val externalId = tryIncoming("Unable to receive group ext id.") {
+            call.receive<String>()
+        } ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+        val success = tryInternal("Unable to delete group: $externalId.") {
+            GroupRepository(db).deleteGroup(externalId)
+        } ?: return@delete
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
     get("/extId") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)

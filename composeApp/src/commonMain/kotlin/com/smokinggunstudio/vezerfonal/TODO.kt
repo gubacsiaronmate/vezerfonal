@@ -1,11 +1,10 @@
 package com.smokinggunstudio.vezerfonal
 
 //    Critical:
-//    TODO: group edit and delete buttons dont work
+//    TODO: group edit button doesnt work
 //    TODO: user management screen is completely blank
 
 //    Non-critical:
-//    TODO: archive screen sometimes wants re-login
 //    TODO: edit display name in account settings
 //    TODO: change pfp in account settings
 //    TODO: notification settings screen
@@ -31,3 +30,5 @@ package com.smokinggunstudio.vezerfonal
 //    Done: create group popup text fields
 //    Done: reveal id and email in account settings
 //    Done: change password screen crashes when inputting a backspace in the code field (only when there is a single digit in the field)
+//    Done: group delete button doesnt work
+//    Done: apple oauth config stub

@@ -271,14 +271,13 @@ data class Home(
                 }
 
                 NavType.Drawer -> {
+                    var selectedIndex by remember { mutableStateOf(0) }
                     AppNavigationDrawer(
                         tabs = tabs,
-                        currentIndex = pagerState.currentPage,
-                        onTabSelected = { i ->
-                            scope.launch { pagerState.animateScrollToPage(i) }
-                        }
+                        currentIndex = selectedIndex,
+                        onTabSelected = { i -> selectedIndex = i }
                     ) {
-                        TabContent(tabs[pagerState.currentPage])
+                        TabContent(tabs[selectedIndex])
                     }
                 }
             }

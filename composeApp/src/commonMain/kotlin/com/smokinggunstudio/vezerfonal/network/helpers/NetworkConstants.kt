@@ -75,5 +75,7 @@ object NetworkConstants {
         const val GET_STATUS_CHANGES_BY_MESSAGE_EXT_ID = "/api/messages/interactions/status/by-message-ext-id/"
         
         const val NEW_PUSH_TOKEN = "/api/users/register-push-token"
+
+        const val DELETE_GROUP = "/api/groups/delete"
     }
 }

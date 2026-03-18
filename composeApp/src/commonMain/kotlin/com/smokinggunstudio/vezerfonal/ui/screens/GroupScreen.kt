@@ -19,6 +19,7 @@ import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.network.api.deleteGroup
 import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
 import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
@@ -126,7 +127,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                                     onEdit = { },
                                     onDelete = {
                                         groups = groups.filter { it != group }
-                                        scope.launch { /* TODO: delete group */ }
+                                        scope.launch { deleteGroup(client, accessToken, group.externalId) }
                                     },
                                     group = group,
                                     myIdentifier = myIdentifier,
@@ -147,7 +148,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                                     onEdit = { },
                                     onDelete = {
                                         groups = groups.filter { it != group }
-                                        scope.launch { /* TODO: delete group */ }
+                                        scope.launch { deleteGroup(client, accessToken, group.externalId) }
                                     },
                                     group = group,
                                     myIdentifier = myIdentifier,
