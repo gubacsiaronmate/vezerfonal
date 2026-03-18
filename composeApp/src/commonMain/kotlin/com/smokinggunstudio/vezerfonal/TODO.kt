@@ -1,11 +1,8 @@
 package com.smokinggunstudio.vezerfonal
 
 //    Critical:
-//    TODO: push notification system!!!
-//    TODO: nudge feature is nowhere!!!
-//    TODO: message filter doesnt work
 //    TODO: group edit and delete buttons dont work
-//    TODO: user and tag management screens are completely blank
+//    TODO: user management screen is completely blank
 
 //    Non-critical:
 //    TODO: archive screen sometimes wants re-login
@@ -18,6 +15,9 @@ package com.smokinggunstudio.vezerfonal
 //    TODO: set up account deletion popup
 //    TODO: archive options screen
 
+//    Done: message filter doesnt work
+//    Done: nudge feature is nowhere!!!
+//    Done: push notification system!!!
 //    Done: tag system!!!
 //    Done: message statuses are broken!!! (fix: MessageRoute.kt)
 //    Done: sender emoji bug!!!

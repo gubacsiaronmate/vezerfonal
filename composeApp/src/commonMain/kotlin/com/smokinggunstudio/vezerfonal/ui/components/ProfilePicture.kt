@@ -39,7 +39,7 @@ fun ProfilePicture(
         loading = true
         val d = try {
             getProfilePicture(name, pxSize)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             log { "${e.message}\n${e.printStackTrace()}" }
             null
         }
@@ -54,7 +54,7 @@ fun ProfilePicture(
         modifier = modifier
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
                 .background(

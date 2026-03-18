@@ -119,7 +119,6 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.skiko)
             implementation(libs.multiplatformSettings)
             implementation(libs.kotlinx.datetime)
         }

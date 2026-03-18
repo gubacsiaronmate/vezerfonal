@@ -8,6 +8,6 @@ actual fun FileData.svgXMLToByteArray(size: Int, quality: Int): ImageBitmap {
 }
 
 actual fun String.toAscii(): String =
-    (js("this.normalize('NFD')") as String)
+    asDynamic().normalize("NFD").toString()
         .replace(Regex("\\p{M}+"), "")
         .replace(Regex("[^\\x00-\\x7F]"), "")
