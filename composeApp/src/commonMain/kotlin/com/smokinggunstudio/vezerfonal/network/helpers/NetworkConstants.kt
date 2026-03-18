@@ -77,5 +77,7 @@ object NetworkConstants {
         const val NEW_PUSH_TOKEN = "/api/users/register-push-token"
 
         const val DELETE_GROUP = "/api/groups/delete"
+
+        const val EDIT_GROUP = "/api/groups/update"
     }
 }

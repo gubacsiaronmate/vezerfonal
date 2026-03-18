@@ -159,4 +159,7 @@
     <string name="settings_section_legal">Jogi</string>
     <string name="inbox_title">Beérkező üzenetek</string>
     <string name="urgent">Fontos</string>
+    <string name="edit_group">Csoport szerkesztése</string>
+    <string name="admin">Adminisztrátor</string>
+    <string name="super_admin">Főadminisztrátor</string>
 </resources>

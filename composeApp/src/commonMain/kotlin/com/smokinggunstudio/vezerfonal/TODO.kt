@@ -1,8 +1,6 @@
 package com.smokinggunstudio.vezerfonal
 
-//    Critical:
-//    TODO: group edit button doesnt work
-//    TODO: user management screen is completely blank
+//    Critical: (none)
 
 //    Non-critical:
 //    TODO: edit display name in account settings

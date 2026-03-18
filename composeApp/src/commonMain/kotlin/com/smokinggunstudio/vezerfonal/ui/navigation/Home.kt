@@ -205,7 +205,8 @@ data class Home(
                                 AdminTools(
                                     token = accessToken,
                                     tagListStr = tagList.map { it.toSerialized() },
-                                    regCodesStr = regCodes.map { it.toSerialized() }
+                                    regCodesStr = regCodes.map { it.toSerialized() },
+                                    userListStr = userList.map { it.toSerialized() },
                                 )
                             )
                         },

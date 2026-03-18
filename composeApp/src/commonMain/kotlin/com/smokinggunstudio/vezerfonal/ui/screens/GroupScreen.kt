@@ -20,8 +20,10 @@ import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.deleteGroup
+import com.smokinggunstudio.vezerfonal.network.api.editGroup
 import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
 import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
+import com.smokinggunstudio.vezerfonal.ui.components.GroupEditDialog
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.GroupCard
 import com.smokinggunstudio.vezerfonal.ui.components.JoinGroupDialog
@@ -50,6 +52,8 @@ import vezerfonal.composeapp.generated.resources.join_group
     var groups by remember(groupData) { mutableStateOf(groupData) }
     var isCreatePopUpOn by remember { mutableStateOf(false) }
     var isJoinPopUpOn by remember { mutableStateOf(false) }
+    var isEditPopUpOn by remember { mutableStateOf(false) }
+    var selectedGroup by remember { mutableStateOf<GroupData?>(null) }
     var users by remember { mutableStateOf<List<UserData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
@@ -124,7 +128,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                         items(groups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
-                                    onEdit = { },
+                                    onEdit = { isEditPopUpOn = true; selectedGroup = group },
                                     onDelete = {
                                         groups = groups.filter { it != group }
                                         scope.launch { deleteGroup(client, accessToken, group.externalId) }
@@ -145,7 +149,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                         items(groups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
-                                    onEdit = { },
+                                    onEdit = { isEditPopUpOn = true; selectedGroup = group },
                                     onDelete = {
                                         groups = groups.filter { it != group }
                                         scope.launch { deleteGroup(client, accessToken, group.externalId) }
@@ -171,6 +175,23 @@ import vezerfonal.composeapp.generated.resources.join_group
                     modifier = Modifier.align(Alignment.Center),
                     onCancelClick = { isCreatePopUpOn = false },
                 ) { groups += it }
+
+            if (isSuperAdminLogIn && isEditPopUpOn && loaded && selectedGroup != null)
+                GroupEditDialog(
+                    group = selectedGroup!!,
+                    users = users!!,
+                    modifier = Modifier.align(Alignment.Center),
+                    onCancelClick = { isEditPopUpOn = false },
+                ) { updated ->
+                    groups = groups.map { if (it.externalId == updated.externalId) updated else it }
+                    scope.launch {
+                        try {
+                            editGroup(client, accessToken, updated)
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                    }
+                }
 
             if (isJoinPopUpOn) JoinGroupDialog(
                 accessToken = accessToken,

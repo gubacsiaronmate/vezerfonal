@@ -13,14 +13,15 @@ import io.ktor.client.HttpClient
 data class AdminTools(
     val token: String,
     val tagListStr: List<String>,
-    val regCodesStr: List<String>
+    val regCodesStr: List<String>,
+    val userListStr: List<String>,
 ) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        
+
         AdminToolsScreen(
-            onUserManagementClick = { navigator.push(UserManagement) },
+            onUserManagementClick = { navigator.push(UserManagement(userListStr)) },
             onTagManagementClick = {
                 navigator.push(TagManagement(token, tagListStr))
             },

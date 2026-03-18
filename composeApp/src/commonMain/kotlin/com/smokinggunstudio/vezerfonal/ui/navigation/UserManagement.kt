@@ -1,12 +1,16 @@
 package com.smokinggunstudio.vezerfonal.ui.navigation
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
+import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import com.smokinggunstudio.vezerfonal.ui.screens.UserManagementScreen
 
-data object UserManagement : Screen {
+data class UserManagement(
+    val userListStr: List<String>
+) : Screen {
     @Composable
-    override fun Content() = Column(Modifier.fillMaxSize()) {  }
+    override fun Content() {
+        UserManagementScreen(userListStr.map { it.toDTO<UserData>() })
+    }
 }
