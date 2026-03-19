@@ -28,6 +28,7 @@ class UserRepository(val db: Database) {
             externalId = this@toUser[Users.externalId],
             isAnyAdmin = null,
             isSuperAdmin = this@toUser[Users.isSuperAdmin],
+            twoFactorEnabled = this@toUser[Users.twoFactorEnabled],
             createdAt = this@toUser[Users.createdAt].toKotlinInstant(),
             updatedAt = this@toUser[Users.updatedAt].toKotlinInstant(),
             deletedAt = this@toUser[Users.deletedAt]?.toKotlinInstant()
@@ -111,6 +112,36 @@ class UserRepository(val db: Database) {
         else false
     }
     
+    suspend fun getPasswordChangeCodeHash(userId: Int): String? =
+        suspendTransaction(db) {
+            Users
+                .select(Users.passwordChangeCode)
+                .where { Users.id eq userId }
+                .singleOrNull()
+                ?.get(Users.passwordChangeCode)
+        }
+
+    suspend fun setPasswordChangeCode(userId: Int, codeHash: String?): Boolean =
+        modifyUser(userId, Users.passwordChangeCode, codeHash)
+
+    suspend fun updatePassword(userId: Int, hashedPassword: String): Boolean =
+        modifyUser(userId, Users.password, hashedPassword)
+
+    suspend fun getTwoFactorCodeHash(userId: Int): String? =
+        suspendTransaction(db) {
+            Users
+                .select(Users.twoFactorCode)
+                .where { Users.id eq userId }
+                .singleOrNull()
+                ?.get(Users.twoFactorCode)
+        }
+
+    suspend fun setTwoFactorCode(userId: Int, codeHash: String?): Boolean =
+        modifyUser(userId, Users.twoFactorCode, codeHash)
+
+    suspend fun setTwoFactorEnabled(userId: Int, enabled: Boolean): Boolean =
+        modifyUser(userId, Users.twoFactorEnabled, enabled)
+
     @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
     suspend fun createInternalUser(): User =
         suspendTransaction(db) {

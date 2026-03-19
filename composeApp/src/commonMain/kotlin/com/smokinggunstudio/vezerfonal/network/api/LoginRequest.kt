@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.network.api
 
+import com.smokinggunstudio.vezerfonal.helpers.TwoFactorRequiredException
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.UnableToLoadException
@@ -30,8 +31,12 @@ suspend fun loginBasic(loginState: LoginStateModel, orgExtId: String, client: Ht
     
     return when (val status = response.status) {
         HttpStatusCode.OK -> response.body()
-        HttpStatusCode.Unauthorized ->
-            throw UnauthorizedException()
+        HttpStatusCode.Accepted -> throw TwoFactorRequiredException(
+            email = loginState.email,
+            orgExternalId = orgExtId,
+            rememberMe = rememberMe,
+        )
+        HttpStatusCode.Unauthorized -> throw UnauthorizedException()
         else -> throw UnableToLoadException(status)
     }
 }

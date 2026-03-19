@@ -6,6 +6,7 @@ import com.smokinggunstudio.vezerfonal.routing.api.*
 import com.smokinggunstudio.vezerfonal.routing.auth.jwtRefresh
 import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
 import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
+import com.smokinggunstudio.vezerfonal.routing.auth.twoFactorLoginRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
 import io.ktor.http.HttpHeaders
@@ -47,6 +48,10 @@ fun Application.configureRouting(
             route("/login") {
                 loginRoute(mainDB)
             }
+        }
+
+        route("/login") {
+            twoFactorLoginRoute(mainDB)
         }
         
         authenticate("jwt-access") {

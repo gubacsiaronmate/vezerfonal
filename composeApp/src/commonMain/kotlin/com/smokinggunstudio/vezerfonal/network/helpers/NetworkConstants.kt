@@ -79,5 +79,19 @@ object NetworkConstants {
         const val DELETE_GROUP = "/api/groups/delete"
 
         const val EDIT_GROUP = "/api/groups/update"
+
+        const val PASSWORD_CHANGE_REQUEST = "/api/users/password-change/request"
+
+        const val PASSWORD_CHANGE = "/api/users/password-change"
+
+        const val DELETE_ACCOUNT = "/api/users/account"
+
+        const val TWO_FACTOR_LOGIN = "/login/2fa"
+
+        const val TWO_FACTOR_REQUEST = "/api/users/2fa/request"
+
+        const val TWO_FACTOR_ENABLE = "/api/users/2fa/enable"
+
+        const val TWO_FACTOR_DISABLE = "/api/users/2fa"
     }
 }

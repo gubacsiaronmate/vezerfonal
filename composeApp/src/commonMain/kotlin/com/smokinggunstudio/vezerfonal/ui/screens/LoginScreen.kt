@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.helpers.TwoFactorRequiredException
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
@@ -35,7 +36,8 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LoginScreen(
     orgsStr: List<String>,
-    onClick: CallbackFunction<TokenResponse>
+    onTwoFactorRequired: CallbackFunction<TwoFactorRequiredException>,
+    onClick: CallbackFunction<TokenResponse>,
 ) {
     val client = LocalHttpClient.current
     val orgs = orgsStr.map { it.toDTO<OrgData>() }
@@ -117,6 +119,8 @@ fun LoginScreen(
                             client = client
                         )
                         onClick(tokens)
+                    } catch (e: TwoFactorRequiredException) {
+                        onTwoFactorRequired(e)
                     } catch (e: Exception) {
                         error = e
                     }

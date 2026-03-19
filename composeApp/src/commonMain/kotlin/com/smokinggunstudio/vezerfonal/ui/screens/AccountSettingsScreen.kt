@@ -23,6 +23,7 @@ import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
@@ -38,6 +39,8 @@ fun AccountSettingsScreen(
     tokenStorage: TokenStorage,
     onLogOutClick: Function,
     onChangePasswordClick: Function,
+    onRequestAccountDeletionClick: Function,
+    onTwoFactorClick: Function,
 ) {
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
@@ -56,11 +59,13 @@ fun AccountSettingsScreen(
             )
             SettingRow(
                 imageVector = Icons.Outlined.Shield,
-                text = stringResource(Res.string.set_up_2fa)
+                text = stringResource(Res.string.set_up_2fa),
+                onClick = onTwoFactorClick,
             )
             SettingRow(
                 imageVector = Icons.Outlined.DeleteForever,
-                text = stringResource(Res.string.request_account_deletion)
+                text = stringResource(Res.string.request_account_deletion),
+                onClick = onRequestAccountDeletionClick,
             )
             SettingRow(
                 imageVector = Icons.AutoMirrored.Outlined.Logout,
@@ -70,6 +75,7 @@ fun AccountSettingsScreen(
                     scope.launch {
                         logOutRequest(accessToken, client)
                         tokenStorage.clearTokens()
+                        HomeCache.invalidate()
                         onLogOutClick()
                     }
                 } catch (e: UnauthorizedException) {

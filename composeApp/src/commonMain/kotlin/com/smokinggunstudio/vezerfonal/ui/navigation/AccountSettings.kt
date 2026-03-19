@@ -16,16 +16,18 @@ data class AccountSettings(
 ) : Screen {
     @Composable
     override fun Content() {
-        val client = LocalHttpClient.current
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
         
+        val user = userStr.toDTO<UserData>()
         AccountSettingsScreen(
-            user = userStr.toDTO<UserData>(),
+            user = user,
             accessToken = token,
             tokenStorage = tokenStorage,
             onLogOutClick = { navigator.replaceAll(Landing) },
-            onChangePasswordClick = { navigator.push(ChangePassword) }
+            onChangePasswordClick = { navigator.push(ChangePassword(token)) },
+            onRequestAccountDeletionClick = { navigator.push(RequestAccountDeletion(token)) },
+            onTwoFactorClick = { navigator.push(TwoFactorSetup(token, user.twoFactorEnabled)) },
         )
     }
 }

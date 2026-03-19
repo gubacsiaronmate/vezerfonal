@@ -5,18 +5,22 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
-import com.smokinggunstudio.vezerfonal.ui.screens.ChangePasswordScreen
+import com.smokinggunstudio.vezerfonal.ui.screens.TwoFactorSetupScreen
 
-data class ChangePassword(val token: String) : Screen {
+data class TwoFactorSetup(
+    val token: String,
+    val twoFactorEnabled: Boolean,
+) : Screen {
     @Composable
     override fun Content() {
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
 
-        ChangePasswordScreen(
+        TwoFactorSetupScreen(
+            twoFactorEnabled = twoFactorEnabled,
             accessToken = token,
             client = client,
-            onSuccess = { navigator.pop() },
+            onBack = { navigator.pop() },
         )
     }
 }

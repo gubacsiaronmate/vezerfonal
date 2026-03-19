@@ -12,4 +12,5 @@ data class UserData(
     override val externalId: String,
     val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
+    val twoFactorEnabled: Boolean = false,
 ) : NamedDTO, DTO

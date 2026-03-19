@@ -162,4 +162,6 @@
     <string name="edit_group">Csoport szerkesztése</string>
     <string name="admin">Adminisztrátor</string>
     <string name="super_admin">Főadminisztrátor</string>
+    <string name="request_code">Kód kérése</string>
+    <string name="password_changed">Jelszó sikeresen megváltoztatva</string>
 </resources>

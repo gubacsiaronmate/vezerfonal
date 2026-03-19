@@ -7,7 +7,6 @@ fun hashPassword(password: String): String =
     BCrypt
         .withDefaults()
         .hashToString(12, password.toCharArray())
-        .let { hash -> println(hash); hash }
 
 fun verifyPassword(
     password: String,
@@ -19,11 +18,7 @@ fun verifyPassword(
             password.toCharArray(),
             hashedPassword
         )
-        .let { result ->
-            println("Valid format: ${result.validFormat}")
-            println("Format error message: ${result.formatErrorMessage}")
-            result.verified
-        }
+        .verified
 
 fun hashLongString(string: String): String =
     MessageDigest
