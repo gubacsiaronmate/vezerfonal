@@ -28,8 +28,8 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Forbidden)
-        
+            return@get call.respond(HttpStatusCode.Forbidden)
+
         val orgName = principal.db
             .connector()
             .schema
@@ -43,12 +43,9 @@ fun Route.codeRoute(mainDB: Database) {
             RegistrationCodeRepository(mainDB)
                 .getAllCodes()
                 .filter {
-                    log { it.organisation.name.lowercase() }
-                    val asd = it.organisation.name.lowercase() != orgName
-                    log { "$asd" }
-                    asd
+                    it.organisation.name.lowercase() == orgName
                 }.map { it.toDTO() }
-        } ?: return@get
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(codes)
     }
@@ -58,15 +55,15 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
+            return@post call.respond(HttpStatusCode.Unauthorized)
+
         val regCode = tryIncoming("Unable to receive code.")
-        { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post
-        
+        { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
         val success = tryInternal("Unable to insert reg code") {
             RegistrationCodeRepository(mainDB)
                 .insertCode(regCode)
-        } ?: return@post
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
     }
@@ -76,8 +73,8 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@patch call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
+            return@patch call.respond(HttpStatusCode.Unauthorized)
+
         val db = principal.db
         val org = principal.org
         
@@ -98,17 +95,17 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
+            return@delete call.respond(HttpStatusCode.Unauthorized)
+
         val db = principal.db
-        
+
         val code = tryIncoming("Unable to receive code.") {
             call.receive<String>()
-        } ?: return@delete
-        
+        } ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
         val success = tryInternal("Unable to delete code.") {
             RegistrationCodeRepository(db).deleteCode(code)
-        } ?: return@delete
+        } ?: return@delete call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
     }
