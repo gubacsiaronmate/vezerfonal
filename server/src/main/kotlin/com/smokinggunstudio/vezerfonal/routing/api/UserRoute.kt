@@ -258,6 +258,28 @@ fun Route.userRoute() {
         call.respond(HttpStatusCode.OK)
     }
 
+    patch("/display-name") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@patch call.respond(HttpStatusCode.Unauthorized)
+
+        val userId = principal.user.id!!
+        val db = principal.db
+
+        val newName = tryIncoming("Unable to receive display name.") {
+            call.receive<String>()
+        } ?: return@patch call.respond(HttpStatusCode.BadRequest)
+
+        if (newName.isBlank())
+            return@patch call.respond(HttpStatusCode.BadRequest)
+
+        val success = tryInternal("Unable to update display name.") {
+            UserRepository(db).modifyUser(userId, Users.displayName, newName)
+        } ?: return@patch call.respond(HttpStatusCode.InternalServerError)
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
     post("/deny-deletion") {
         val principal = call.principal<AuthResponse>()
             ?: return@post call.respond(HttpStatusCode.Unauthorized)

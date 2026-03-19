@@ -20,6 +20,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalDarkModeState
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.LocalPreferenceStorage
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
@@ -54,6 +55,7 @@ data class Home(
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         val darkModeState = LocalDarkModeState.current
+        val prefStorage = LocalPreferenceStorage.current
         var loaded by remember { mutableStateOf(false) }
         var isRefreshing by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<Throwable?>(null) }
@@ -210,11 +212,13 @@ data class Home(
                                 )
                             )
                         },
-                        onArchiveClick = { },
-                        onNotificationsClick = { },
+                        onArchiveClick = { navigator.push(ArchiveOptions) },
                         onTOSClick = { },
-                        onLanguageClick = { },
-                        onThemeSwitchClick = { darkModeState.value = it },
+                        onLanguageClick = { navigator.push(Language) },
+                        onThemeSwitchClick = { isDark ->
+                            darkModeState.value = isDark
+                            scope.launch { prefStorage.saveTheme(isDark) }
+                        },
                         onSentMessagesClick = {
                             navigator.push(
                                 SentMessages(

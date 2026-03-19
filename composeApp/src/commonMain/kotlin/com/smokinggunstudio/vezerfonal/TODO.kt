@@ -3,12 +3,10 @@ package com.smokinggunstudio.vezerfonal
 //    Critical: (none)
 
 //    Non-critical:
-//    TODO: edit display name in account settings
+//    Done: edit display name in account settings
 //    TODO: change pfp in account settings
-//    TODO: notification settings screen
 //    TODO: TOS
-//    TODO: language selection screen
-//    TODO: archive options screen
+//    Done: archive options screen (auto-archive with status threshold + delay, client-side)
 
 //    Done: set up 2fa screen
 //    Done: set up account deletion popup
@@ -30,3 +28,6 @@ package com.smokinggunstudio.vezerfonal
 //    Done: change password screen crashes when inputting a backspace in the code field (only when there is a single digit in the field)
 //    Done: group delete button doesnt work
 //    Done: apple oauth config stub
+//    Done: notification settings screen (removed — OS-level concern per decision)
+//    Done: language selection screen (en/hu with persistence, platform locale applied)
+//    Done: theme switch persistence (survives app kills)

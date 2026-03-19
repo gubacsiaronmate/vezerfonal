@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.LocalPreferenceStorage
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.TagData
@@ -25,6 +26,7 @@ import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import io.ktor.client.network.sockets.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.inbox_title
@@ -43,6 +45,7 @@ fun HomePageScreen(
     scrollLockedBySliderCallback: CallbackFunction<Boolean>,
 ) {
     val client = LocalHttpClient.current
+    val prefStorage = LocalPreferenceStorage.current
     val scope = rememberCoroutineScope()
     var isFilterOpened by remember { mutableStateOf(false) }
     val messageFilterState = remember { MessageFilterState(tagList) }
@@ -67,6 +70,35 @@ fun HomePageScreen(
 
         messageFilterState
             .setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
+
+        if (prefStorage.getArchiveEnabled()) {
+            val minStatus = prefStorage.getArchiveMinStatus()
+            val delayMs = prefStorage.getArchiveDelayHours().toLong() * 3_600_000L
+            val now = Clock.System.now().toEpochMilliseconds()
+
+            val toArchive = messages.filter { msg ->
+                msg.status.ordinal >= minStatus.ordinal && (now - msg.sentAt) >= delayMs
+            }
+
+            val archived = toArchive.filter { msg ->
+                try {
+                    sendInteraction(
+                        client,
+                        accessToken,
+                        InteractionInfoData(
+                            userIdentifier = userIdentifier,
+                            messageExtId = msg.externalId,
+                            type = InteractionType.archive,
+                        ),
+                    )
+                } catch (_: Exception) { false }
+            }
+
+            if (archived.isNotEmpty()) {
+                messages = messages.filter { it !in archived }
+                filtered = filtered.filter { it !in archived }
+            }
+        }
     }
     
     try {

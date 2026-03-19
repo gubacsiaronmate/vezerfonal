@@ -97,5 +97,7 @@ object NetworkConstants {
         const val APPROVE_DELETION = "/api/users/approve-deletion"
 
         const val DENY_DELETION = "/api/users/deny-deletion"
+
+        const val UPDATE_DISPLAY_NAME = "/api/users/display-name"
     }
 }

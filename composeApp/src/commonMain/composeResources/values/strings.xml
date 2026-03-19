@@ -167,4 +167,14 @@
     <string name="deletion_requests">Törlési kérelmek</string>
     <string name="approve_deletion">Elfogadás</string>
     <string name="deny_deletion">Elutasítás</string>
+    <string name="archive_options">Archívum beállításai</string>
+    <string name="auto_archive">Automatikus archiválás</string>
+    <string name="minimum_read_state">Minimum olvasottsági szint</string>
+    <string name="archive_after">Archiválás ennyi idő után</string>
+    <string name="one_day">1 nap</string>
+    <string name="three_days">3 nap</string>
+    <string name="one_week">1 hét</string>
+    <string name="two_weeks">2 hét</string>
+    <string name="one_month">1 hónap</string>
+    <string name="edit_display_name">Megjelenített név szerkesztése</string>
 </resources>

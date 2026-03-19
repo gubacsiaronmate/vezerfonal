@@ -17,6 +17,7 @@ import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
+import com.smokinggunstudio.vezerfonal.network.api.updateDisplayName
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
@@ -41,9 +42,70 @@ fun AccountSettingsScreen(
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     val isExpanded = LocalWindowSizeInfo.current.widthClass == WindowWidthClass.Expanded
+    var displayName by remember { mutableStateOf(user.name) }
+    var showEditNameDialog by remember { mutableStateOf(false) }
+    var editNameInput by remember { mutableStateOf("") }
+    var editNameError by remember { mutableStateOf<Throwable?>(null) }
+
+    if (showEditNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditNameDialog = false },
+            title = { Text(stringResource(Res.string.edit_display_name)) },
+            text = {
+                OutlinedTextField(
+                    value = editNameInput,
+                    onValueChange = { editNameInput = it },
+                    label = { Text(stringResource(Res.string.display_name)) },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = editNameInput.isNotBlank(),
+                    onClick = {
+                        val name = editNameInput.trim()
+                        scope.launch {
+                            try {
+                                updateDisplayName(client, accessToken, name)
+                                displayName = name
+                                showEditNameDialog = false
+                            } catch (e: Exception) {
+                                editNameError = e
+                            }
+                        }
+                    },
+                ) { Text(stringResource(Res.string.applyStr)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditNameDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            },
+        )
+    }
+
+    if (editNameError != null) {
+        AlertDialog(
+            onDismissRequest = { editNameError = null },
+            title = { Text(stringResource(Res.string.error_happened)) },
+            text = { Text(editNameError!!.message ?: "") },
+            confirmButton = {
+                TextButton(onClick = { editNameError = null }) {
+                    Text(stringResource(Res.string.close))
+                }
+            },
+        )
+    }
 
     val screenContent: @Composable ColumnScope.() -> Unit = {
-        AccountSettingsNameCard(user)
+        AccountSettingsNameCard(
+            user = user,
+            displayName = displayName,
+            onEditClick = {
+                editNameInput = displayName
+                showEditNameDialog = true
+            },
+        )
         SettingRow(
             imageVector = Icons.Default.Password,
             text = stringResource(Res.string.change_password),

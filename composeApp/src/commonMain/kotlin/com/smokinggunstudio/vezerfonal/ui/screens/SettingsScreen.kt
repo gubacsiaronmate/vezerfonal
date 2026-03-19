@@ -9,7 +9,6 @@ import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Outbox
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -33,7 +32,6 @@ fun SettingsScreen(
     onAccountSettingsClick: Function,
     onAdminToolsClick: Function,
     onArchiveClick: Function,
-    onNotificationsClick: Function,
     onTOSClick: Function,
     onLanguageClick: Function,
     onSentMessagesClick: Function,
@@ -82,13 +80,8 @@ fun SettingsScreen(
         )
         SettingRow(
             imageVector = Icons.Outlined.Archive,
-            text = stringResource(Res.string.archive),
+            text = stringResource(Res.string.archive_options),
             onClick = onArchiveClick,
-        )
-        SettingRow(
-            imageVector = Icons.Outlined.Notifications,
-            text = stringResource(Res.string.notifications),
-            onClick = onNotificationsClick,
         )
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = Spacing.lg))

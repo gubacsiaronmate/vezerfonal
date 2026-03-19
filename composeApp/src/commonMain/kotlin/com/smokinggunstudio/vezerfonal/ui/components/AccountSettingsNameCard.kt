@@ -23,10 +23,14 @@ import vezerfonal.composeapp.generated.resources.reveal_email
 import vezerfonal.composeapp.generated.resources.reveal_id
 
 @Composable
-fun AccountSettingsNameCard(user: UserData) {
+fun AccountSettingsNameCard(
+    user: UserData,
+    displayName: String,
+    onEditClick: () -> Unit,
+) {
     var revealEmail by remember { mutableStateOf(false) }
     var revealId by remember { mutableStateOf(false) }
-    
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -36,7 +40,7 @@ fun AccountSettingsNameCard(user: UserData) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             ProfilePicture(
-                name = user.name.toUrlValidFormat(),
+                name = displayName.toUrlValidFormat(),
                 size = 100.dp,
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,14 +48,12 @@ fun AccountSettingsNameCard(user: UserData) {
             Column(Modifier.padding(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = user.name,
+                        text = displayName,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         modifier = Modifier.padding(4.dp)
                     )
-                    IconButton({
-                    
-                    }) {
+                    IconButton(onEditClick) {
                         Image(
                             imageVector = Icons.Outlined.Edit,
                             contentDescription = null,
