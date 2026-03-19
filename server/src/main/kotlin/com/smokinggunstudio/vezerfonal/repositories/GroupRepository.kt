@@ -195,12 +195,6 @@ class GroupRepository(val db: Database) {
                 name = groupName,
                 externalId = admin.externalId
             )!!
-            memberships.forEach {
-                MembershipRepository(db).insertMemberIntoGroup(
-                    newUserId = UserRepository(db).getUserByExternalId(it.user.externalId)!!.id!!,
-                    newGroupId = group.id!!,
-                )
-            }
             return@suspendTransaction group
         }
 }

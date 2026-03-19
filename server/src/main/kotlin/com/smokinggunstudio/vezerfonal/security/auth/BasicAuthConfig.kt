@@ -20,10 +20,10 @@ fun AuthenticationConfig.configureBasicAuth(mainDB: Database) {
                 data.let { Pair(it.substringBefore("|").toBoolean(), it.substringAfterLast("|")) }
             
             val org = OrganisationRepository(mainDB).getOrganisationByExternalId(externalId)
-                ?: error("Cannot resolve org by extId: $externalId")
-            
+                ?: return@validate null
+
             val db = ensureOrgDB(org.name)
-                ?: error("")
+                ?: return@validate null
             
             val user = UserRepository(db).getUserByEmail(credentials.name)
                 ?: return@validate null

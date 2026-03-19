@@ -112,7 +112,7 @@ fun Route.interactionRoute() {
                     notifType = NotificationType.Reaction,
                     data = with(interaction) {
                         mapOf(
-                            "reaction" to reaction!!,
+                            "reaction" to (reaction ?: ""),
                             "extra" to message.title
                         )
                     }
@@ -135,16 +135,16 @@ fun Route.interactionRoute() {
                 call
                     .receive<InteractionInfoData>()
                     .toInteractionInfo(user, db)
-            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-            
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
             val success = tryInternal("Unable to insert interaction.") {
                 InteractionInfoRepository(db).insertInteraction(interaction)
             } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-            
+
             if (success) call.respond(HttpStatusCode.OK)
         }
     }
-    
+
     route("/status") {
         post("/send") {
             val principal = call.principal<AuthResponse>()

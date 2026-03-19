@@ -17,10 +17,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.name
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.coroutines.CoroutineContext
 
 fun Route.codeRoute(mainDB: Database) {
     get("/all") {
@@ -55,7 +51,7 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            return@post call.respond(HttpStatusCode.Unauthorized)
+            return@post call.respond(HttpStatusCode.Forbidden)
 
         val regCode = tryIncoming("Unable to receive code.")
         { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post call.respond(HttpStatusCode.BadRequest)
@@ -73,17 +69,16 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@patch call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            return@patch call.respond(HttpStatusCode.Unauthorized)
+            return@patch call.respond(HttpStatusCode.Forbidden)
 
-        val db = principal.db
         val org = principal.org
-        
-        val newCode = tryInternal("Unable to receive code.") {
+
+        val newCode = tryIncoming("Unable to receive code.") {
             call.receive<RegCodeData>().toRegCode(org)
         } ?: return@patch call.respond(HttpStatusCode.BadRequest)
-        
+
         val success = tryInternal("Unable to update code.") {
-            RegistrationCodeRepository(db)
+            RegistrationCodeRepository(mainDB)
                 .updateCode(newCode)
         } ?: return@patch call.respond(HttpStatusCode.InternalServerError)
         
@@ -95,16 +90,14 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            return@delete call.respond(HttpStatusCode.Unauthorized)
-
-        val db = principal.db
+            return@delete call.respond(HttpStatusCode.Forbidden)
 
         val code = tryIncoming("Unable to receive code.") {
             call.receive<String>()
         } ?: return@delete call.respond(HttpStatusCode.BadRequest)
 
         val success = tryInternal("Unable to delete code.") {
-            RegistrationCodeRepository(db).deleteCode(code)
+            RegistrationCodeRepository(mainDB).deleteCode(code)
         } ?: return@delete call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
