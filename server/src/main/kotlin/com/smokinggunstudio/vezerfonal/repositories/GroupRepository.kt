@@ -148,6 +148,21 @@ class GroupRepository(val db: Database) {
         }
     
     @OptIn(ExperimentalTime::class)
+    suspend fun updateGroup(group: Group): Boolean =
+        suspendTransaction(db) {
+            val admin = UserRepository(db).getUserByExternalId(group.admin.externalId)
+                ?: return@suspendTransaction false
+
+            val updated = Groups.update({ Groups.externalId eq group.externalId }) {
+                it[displayName] = group.displayName
+                it[description] = group.description
+                it[groupAdminId] = admin.id!!
+                it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+            }
+            updated > 0
+        }
+
+    @OptIn(ExperimentalTime::class)
     suspend fun deleteGroup(externalId: String): Boolean =
         suspendTransaction(db) {
             val updated = Groups.update({ Groups.externalId eq externalId }) {

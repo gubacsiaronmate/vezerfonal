@@ -15,6 +15,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
 
@@ -96,6 +97,27 @@ fun Route.groupRoute() {
         if (success) call.respond(group.toDTO())
     }
     
+    put("/update") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@put call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+
+        val group = tryIncoming("Unable to receive group data.") {
+            call.receive<GroupData>().toGroup(db)
+        } ?: return@put call.respond(HttpStatusCode.BadRequest)
+
+        val success = tryInternal("Unable to update group.") {
+            GroupRepository(db).updateGroup(group)
+        } ?: return@put call.respond(HttpStatusCode.InternalServerError)
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
     delete("/delete") {
         val principal = call.principal<AuthResponse>()
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)

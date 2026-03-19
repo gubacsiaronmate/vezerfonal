@@ -22,3 +22,4 @@ composeApp/composeApp.podspec
 composeApp/release
 composeApp/google-services.json
 .claudeignore
+CLAUDE.md
