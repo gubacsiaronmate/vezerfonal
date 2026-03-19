@@ -42,7 +42,7 @@ fun Route.userRoute() {
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
+            return@get call.respond(HttpStatusCode.Unauthorized)
         
         val db = principal.db
         

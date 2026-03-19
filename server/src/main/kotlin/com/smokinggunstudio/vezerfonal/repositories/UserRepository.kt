@@ -38,7 +38,7 @@ class UserRepository(val db: Database) {
     
     suspend fun getAllUsers(): List<User> =
         suspendTransaction(db) {
-            Users.selectAll().map { it.toUser() }
+            Users.selectAll().where { Users.deletedAt eq null }.map { it.toUser() }
         }
     
     suspend fun getUserByCondition(

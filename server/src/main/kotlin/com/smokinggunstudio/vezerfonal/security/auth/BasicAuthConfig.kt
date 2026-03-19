@@ -28,6 +28,8 @@ fun AuthenticationConfig.configureBasicAuth(mainDB: Database) {
             val user = UserRepository(db).getUserByEmail(credentials.name)
                 ?: return@validate null
             
+            if (user.deletedAt != null) return@validate null
+            
             val isPasswordValid = verifyPassword(credentials.password, user.password)
             
             if (isPasswordValid)

@@ -8,10 +8,10 @@ package com.smokinggunstudio.vezerfonal
 //    TODO: notification settings screen
 //    TODO: TOS
 //    TODO: language selection screen
-//    TODO: set up 2fa screen
-//    TODO: set up account deletion popup
 //    TODO: archive options screen
 
+//    Done: set up 2fa screen
+//    Done: set up account deletion popup
 //    Done: message filter doesnt work
 //    Done: nudge feature is nowhere!!!
 //    Done: push notification system!!!
