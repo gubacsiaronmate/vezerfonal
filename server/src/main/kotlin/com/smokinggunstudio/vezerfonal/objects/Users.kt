@@ -22,6 +22,7 @@ object Users : Table("users"), Modifiable<Int> {
 
     val createdAt = timestampWithTimeZone("created_at").defaultExpression(CurrentTimestampWithTimeZone)
     val updatedAt = timestampWithTimeZone("updated_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val deletionRequestedAt = timestampWithTimeZone("deletion_requested_at").nullable()
     val deletedAt = timestampWithTimeZone("deleted_at").nullable()
     
     override val primaryKey = PrimaryKey(id)

@@ -221,10 +221,64 @@ fun Route.userRoute() {
         val success = tryInternal("Unable to request account deletion.") {
             UserRepository(db).modifyUser(
                 userId,
-                Users.deletedAt,
+                Users.deletionRequestedAt,
                 Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
             )
         } ?: return@delete call.respond(HttpStatusCode.InternalServerError)
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
+    @OptIn(ExperimentalTime::class)
+    post("/approve-deletion") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@post call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+        val repo = UserRepository(db)
+
+        val targetExtId = tryIncoming("Unable to receive target user id.") {
+            call.receive<String>()
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+        val target = tryInternal("Unable to find user.") {
+            repo.getUserByExternalId(targetExtId)
+        } ?: return@post call.respond(HttpStatusCode.NotFound)
+
+        val now = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+        tryInternal("Unable to approve deletion.") {
+            repo.modifyUser(target.id!!, Users.deletedAt, now)
+            repo.modifyUser(target.id, Users.deletionRequestedAt, null)
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+
+        call.respond(HttpStatusCode.OK)
+    }
+
+    post("/deny-deletion") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@post call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+        val repo = UserRepository(db)
+
+        val targetExtId = tryIncoming("Unable to receive target user id.") {
+            call.receive<String>()
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+        val target = tryInternal("Unable to find user.") {
+            repo.getUserByExternalId(targetExtId)
+        } ?: return@post call.respond(HttpStatusCode.NotFound)
+
+        val success = tryInternal("Unable to deny deletion.") {
+            repo.modifyUser(target.id!!, Users.deletionRequestedAt, null)
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
 
         if (success) call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.NotFound)

@@ -2,6 +2,8 @@ package com.smokinggunstudio.vezerfonal.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -14,6 +16,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.network.api.deleteAccount
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -30,87 +35,112 @@ fun RequestAccountDeletionScreen(
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val isWide = LocalWindowSizeInfo.current.widthClass != WindowWidthClass.Compact
+
+    @Composable
+    fun FormContent() {
+        Icon(
+            imageVector = Icons.Outlined.DeleteForever,
+            contentDescription = null,
+            modifier = Modifier.size(80.dp).fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally),
+            tint = MaterialTheme.colorScheme.error,
+        )
+        Spacer(Modifier.height(Spacing.md))
+        Text(
+            text = stringResource(Res.string.request_account_deletion),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(Spacing.sm))
+        Text(
+            text = stringResource(Res.string.account_deletion_warning),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        error?.let {
+            Spacer(Modifier.height(Spacing.sm))
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        Spacer(Modifier.height(Spacing.lg))
+        Button(
+            onClick = { showConfirmDialog = true },
+            enabled = !isLoading,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(Spacing.lg),
+                    strokeWidth = Spacing.xs,
+                    color = MaterialTheme.colorScheme.onError,
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(Spacing.sm))
+                Text(stringResource(Res.string.send_request))
+            }
+        }
+        Spacer(Modifier.height(Spacing.sm))
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(Res.string.cancel))
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.surface),
+        contentAlignment = Alignment.Center,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.DeleteForever,
-                contentDescription = null,
-                modifier = Modifier.size(80.dp),
-                tint = MaterialTheme.colorScheme.error,
-            )
-
-            Text(
-                text = stringResource(Res.string.request_account_deletion),
-                style = MaterialTheme.typography.headlineSmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
-            Text(
-                text = stringResource(Res.string.account_deletion_warning),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-
-            error?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center,
-                )
-            }
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+        if (isWide) {
+            Card(
+                modifier = Modifier.widthIn(max = 480.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             ) {
-                Button(
-                    onClick = { showConfirmDialog = true },
-                    enabled = !isLoading,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    ),
-                    modifier = Modifier.fillMaxWidth(),
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Spacing.xl)
+                        .verticalScroll(rememberScrollState()),
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onError,
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.send_request))
-                    }
+                    Spacer(Modifier.height(Spacing.sm))
+                    FormContent()
                 }
-
-                OutlinedButton(
-                    onClick = onCancel,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(Res.string.cancel))
-                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.lg)
+                    .padding(top = Spacing.xxxl)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                FormContent()
             }
         }
     }

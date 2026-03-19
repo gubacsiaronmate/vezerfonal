@@ -18,6 +18,7 @@ data class User @OptIn(ExperimentalTime::class) constructor(
     val twoFactorEnabled: Boolean = false,
     val createdAt: Instant?,
     val updatedAt: Instant?,
+    val deletionRequestedAt: Instant?,
     val deletedAt: Instant?
 ) {
     var password: String
@@ -33,5 +34,6 @@ data class User @OptIn(ExperimentalTime::class) constructor(
         isAnyAdmin = isAnyAdmin ?: isSuperAdmin,
         isSuperAdmin = isSuperAdmin,
         twoFactorEnabled = twoFactorEnabled,
+        deletionRequested = deletionRequestedAt != null,
     )
 }

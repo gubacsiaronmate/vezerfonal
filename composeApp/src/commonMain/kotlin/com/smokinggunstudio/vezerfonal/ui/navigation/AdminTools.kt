@@ -21,7 +21,7 @@ data class AdminTools(
         val navigator = LocalNavigator.currentOrThrow
 
         AdminToolsScreen(
-            onUserManagementClick = { navigator.push(UserManagement(userListStr)) },
+            onUserManagementClick = { navigator.push(UserManagement(token, userListStr)) },
             onTagManagementClick = {
                 navigator.push(TagManagement(token, tagListStr))
             },

@@ -93,5 +93,9 @@ object NetworkConstants {
         const val TWO_FACTOR_ENABLE = "/api/users/2fa/enable"
 
         const val TWO_FACTOR_DISABLE = "/api/users/2fa"
+
+        const val APPROVE_DELETION = "/api/users/approve-deletion"
+
+        const val DENY_DELETION = "/api/users/deny-deletion"
     }
 }

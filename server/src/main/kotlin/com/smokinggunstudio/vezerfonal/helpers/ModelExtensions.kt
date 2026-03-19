@@ -37,6 +37,7 @@ suspend fun UserData.toUser(
             profilePic = null,
             createdAt = null,
             updatedAt = null,
+            deletionRequestedAt = null,
             deletedAt = null
         ).apply { password = this@toUser.password!! }
     )

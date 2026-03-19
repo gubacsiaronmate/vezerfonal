@@ -13,4 +13,5 @@ data class UserData(
     val isAnyAdmin: Boolean,
     val isSuperAdmin: Boolean,
     val twoFactorEnabled: Boolean = false,
+    val deletionRequested: Boolean = false,
 ) : NamedDTO, DTO

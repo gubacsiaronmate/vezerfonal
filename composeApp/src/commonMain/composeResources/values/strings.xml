@@ -164,4 +164,7 @@
     <string name="super_admin">Főadminisztrátor</string>
     <string name="request_code">Kód kérése</string>
     <string name="password_changed">Jelszó sikeresen megváltoztatva</string>
+    <string name="deletion_requests">Törlési kérelmek</string>
+    <string name="approve_deletion">Elfogadás</string>
+    <string name="deny_deletion">Elutasítás</string>
 </resources>

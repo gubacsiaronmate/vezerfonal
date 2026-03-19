@@ -31,6 +31,7 @@ class UserRepository(val db: Database) {
             twoFactorEnabled = this@toUser[Users.twoFactorEnabled],
             createdAt = this@toUser[Users.createdAt].toKotlinInstant(),
             updatedAt = this@toUser[Users.updatedAt].toKotlinInstant(),
+            deletionRequestedAt = this@toUser[Users.deletionRequestedAt]?.toKotlinInstant(),
             deletedAt = this@toUser[Users.deletedAt]?.toKotlinInstant()
         )
     }
@@ -158,6 +159,7 @@ class UserRepository(val db: Database) {
                     isSuperAdmin = false,
                     createdAt = null,
                     updatedAt = null,
+                    deletionRequestedAt = null,
                     deletedAt = null
                 )
             )

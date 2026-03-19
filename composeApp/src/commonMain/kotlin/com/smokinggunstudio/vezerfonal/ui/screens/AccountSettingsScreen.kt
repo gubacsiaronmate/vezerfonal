@@ -1,33 +1,29 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Shield
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
-import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import io.ktor.client.HttpClient
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -44,46 +40,72 @@ fun AccountSettingsScreen(
 ) {
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
-    var error by remember { mutableStateOf<Throwable?>(null) }
+    val isExpanded = LocalWindowSizeInfo.current.widthClass == WindowWidthClass.Expanded
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Column {
-            AccountSettingsNameCard(user)
-            SettingRow(
-                imageVector = Icons.Default.Password,
-                text = stringResource(Res.string.change_password),
-                onClick = onChangePasswordClick
-            )
-            SettingRow(
-                imageVector = Icons.Outlined.Shield,
-                text = stringResource(Res.string.set_up_2fa),
-                onClick = onTwoFactorClick,
-            )
-            SettingRow(
-                imageVector = Icons.Outlined.DeleteForever,
-                text = stringResource(Res.string.request_account_deletion),
-                onClick = onRequestAccountDeletionClick,
-            )
-            SettingRow(
-                imageVector = Icons.AutoMirrored.Outlined.Logout,
-                text = stringResource(Res.string.log_out)
-            ) {
+    val screenContent: @Composable ColumnScope.() -> Unit = {
+        AccountSettingsNameCard(user)
+        SettingRow(
+            imageVector = Icons.Default.Password,
+            text = stringResource(Res.string.change_password),
+            onClick = onChangePasswordClick,
+        )
+        SettingRow(
+            imageVector = Icons.Outlined.Shield,
+            text = stringResource(Res.string.set_up_2fa),
+            onClick = onTwoFactorClick,
+        )
+        SettingRow(
+            imageVector = Icons.Outlined.DeleteForever,
+            text = stringResource(Res.string.request_account_deletion),
+            onClick = onRequestAccountDeletionClick,
+        )
+        SettingRow(
+            imageVector = Icons.AutoMirrored.Outlined.Logout,
+            text = stringResource(Res.string.log_out),
+        ) {
+            scope.launch {
                 try {
-                    scope.launch {
-                        logOutRequest(accessToken, client)
-                        tokenStorage.clearTokens()
-                        HomeCache.invalidate()
-                        onLogOutClick()
-                    }
-                } catch (e: UnauthorizedException) {
-                    error = e
+                    logOutRequest(accessToken, client)
+                } catch (_: Exception) {
+                    // Best-effort server-side logout. If the account was deleted
+                    // or any other error occurs, proceed with local logout anyway.
                 }
+                tokenStorage.clearTokens()
+                HomeCache.invalidate()
+                onLogOutClick()
             }
         }
 
-        if (error != null) ErrorDialog(error!!)
+        Spacer(Modifier.height(Spacing.xl))
+    }
+
+    if (isExpanded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Spacing.xl),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Card(
+                modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                ) { screenContent() }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) { screenContent() }
     }
 }
