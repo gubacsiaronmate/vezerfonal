@@ -69,8 +69,8 @@ class MessageFilterState(private val tagList: List<TagData>) {
     }
     
     fun clear() {
-        updateSelectedStartDate(earliestMessageUnixTime.toLong())
-        updateSelectedEndDate(latestMessageUnixTime.toLong())
+        updateSelectedStartDate(0L)
+        updateSelectedEndDate(0L)
         updateSenderName("")
         updateIsWaitingForAnswer(false)
         updateIsImportant(false)

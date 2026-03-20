@@ -19,6 +19,7 @@ fun SwipeableGroupCard(
         name = group.name,
         extId = group.externalId,
         description = group.description,
-        amITheAdmin = group.adminIdentifier == myIdentifier
+        amITheAdmin = group.adminIdentifier == myIdentifier,
+        memberCount = group.members.size,
     ) }
 }

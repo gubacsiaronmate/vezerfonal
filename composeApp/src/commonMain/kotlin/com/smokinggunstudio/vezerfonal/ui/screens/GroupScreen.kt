@@ -9,10 +9,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
@@ -38,6 +40,7 @@ import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create_group
 import vezerfonal.composeapp.generated.resources.groups
 import vezerfonal.composeapp.generated.resources.join_group
+import vezerfonal.composeapp.generated.resources.search_groups
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun GroupScreen(
@@ -57,6 +60,7 @@ import vezerfonal.composeapp.generated.resources.join_group
     var users by remember { mutableStateOf<List<UserData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     if (isSuperAdminLogIn) LaunchedEffect(Unit) {
         val d = try {
@@ -69,29 +73,67 @@ import vezerfonal.composeapp.generated.resources.join_group
         loaded = true
     } else loaded = true
 
+    val filteredGroups = remember(groups, searchQuery) {
+        if (searchQuery.isBlank()) groups
+        else groups.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.groups),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                actions = {
-                    TextButton(
-                        onClick = { isJoinPopUpOn = true },
-                        modifier = Modifier.padding(end = Spacing.sm),
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding(),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = null)
-                        Spacer(Modifier.width(Spacing.xs))
-                        Text(stringResource(Res.string.join_group))
+                        Text(
+                            text = stringResource(Res.string.groups),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                        TextButton(
+                            onClick = { isJoinPopUpOn = true },
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = null)
+                            Spacer(Modifier.width(Spacing.xs))
+                            Text(stringResource(Res.string.join_group))
+                        }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
-            )
+                    // Search bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = { Text(stringResource(Res.string.search_groups)) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Search,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.lg)
+                            .padding(bottom = Spacing.sm),
+                        shape = MaterialTheme.shapes.extraLarge,
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                        ),
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                }
+            }
         },
         floatingActionButton = {
             if (isSuperAdminLogIn) {
@@ -125,7 +167,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
                         verticalArrangement = Arrangement.spacedBy(Spacing.md),
                     ) {
-                        items(groups) { group ->
+                        items(filteredGroups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
                                     onEdit = { isEditPopUpOn = true; selectedGroup = group },
@@ -141,12 +183,13 @@ import vezerfonal.composeapp.generated.resources.join_group
                                 extId = group.externalId,
                                 description = group.description,
                                 amITheAdmin = group.adminIdentifier == myIdentifier,
+                                memberCount = group.members.size,
                             )
                         }
                     }
                 } else {
                     LazyColumn(Modifier.fillMaxSize()) {
-                        items(groups) { group ->
+                        items(filteredGroups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
                                     onEdit = { isEditPopUpOn = true; selectedGroup = group },
@@ -162,6 +205,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                                 extId = group.externalId,
                                 description = group.description,
                                 amITheAdmin = group.adminIdentifier == myIdentifier,
+                                memberCount = group.members.size,
                             )
                         }
                     }

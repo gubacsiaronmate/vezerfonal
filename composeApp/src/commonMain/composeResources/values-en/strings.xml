@@ -177,4 +177,13 @@
     <string name="two_weeks">2 weeks</string>
     <string name="one_month">1 month</string>
     <string name="edit_display_name">Edit display name</string>
+    <string name="account">Account</string>
+    <string name="unread">Unread</string>
+    <string name="filter_all">All</string>
+    <string name="search_groups">Search groups…</string>
+    <string name="members_label">members</string>
+    <string name="unread_of_connector">unread of</string>
+    <string name="admin_user_management_desc">Manage users and deletion requests</string>
+    <string name="admin_tag_management_desc">Create and manage message tags</string>
+    <string name="admin_reg_code_management_desc">Generate and manage invite codes</string>
 </resources>

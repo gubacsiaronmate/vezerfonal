@@ -53,7 +53,7 @@ fun LandingPageScreen(
         Spacer(Modifier.height(Spacing.xl))
         AnimatedButton(
             onClick = onRegisterClick,
-            shape = ShapeModifier.ROUNDED.toShape(),
+            shape = ShapeModifier.FULL.toShape(),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
@@ -66,7 +66,7 @@ fun LandingPageScreen(
         Spacer(Modifier.height(Spacing.md))
         AnimatedButton(
             onClick = onLoginClick,
-            shape = ShapeModifier.ROUNDED.toShape(),
+            shape = ShapeModifier.FULL.toShape(),
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,

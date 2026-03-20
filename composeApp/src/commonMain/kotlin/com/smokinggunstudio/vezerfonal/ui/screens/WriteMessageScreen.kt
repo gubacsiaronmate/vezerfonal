@@ -33,6 +33,7 @@ import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.WriteMessageStateModel
 import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
@@ -160,7 +161,7 @@ fun WriteMessageScreen(
             AnimatedButton(
                 modifier = Modifier.fillMaxWidth().padding(Spacing.xs),
                 onClick = {
-                    try {
+                    if (state.groups.isNotEmpty() && state.userIdentifiers.isNotEmpty()) try {
                         scope.launch {
                             state.updateTags(tagSelectionState.selectedItems.map { it.name })
                             val message = state.toMessageData(user)
@@ -187,7 +188,35 @@ fun WriteMessageScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding(),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.write_message),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { innerPadding ->
+    Box(Modifier.fillMaxSize().padding(innerPadding)) {
         if (isExpanded) {
             // Side-by-side layout for wide screens
             Row(
@@ -261,4 +290,5 @@ fun WriteMessageScreen(
 
         if (error != null) ErrorDialog(error!!)
     }
-}
+    } // end Scaffold content
+} // end WriteMessageScreen

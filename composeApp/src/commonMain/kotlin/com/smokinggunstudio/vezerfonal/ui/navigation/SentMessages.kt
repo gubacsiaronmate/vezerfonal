@@ -22,6 +22,7 @@ data class SentMessages(
         SentMessagesScreen(
             accessToken = accessToken,
             tagList = tagStrList.map { it.toDTO<TagData>() },
+            onBack = { navigator.pop() },
             onMessageClick = {
                 navigator.push(
                     ViewMessage(

@@ -1,11 +1,14 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalPreferenceStorage
 import com.smokinggunstudio.vezerfonal.data.InteractionInfoData
@@ -29,8 +32,11 @@ import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.filter_all
 import vezerfonal.composeapp.generated.resources.inbox_title
-import vezerfonal.composeapp.generated.resources.vezerfonal
+import vezerfonal.composeapp.generated.resources.unread
+import vezerfonal.composeapp.generated.resources.unread_of_connector
+import vezerfonal.composeapp.generated.resources.urgent
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -55,9 +61,8 @@ fun HomePageScreen(
     var filtered by remember(messages) { mutableStateOf(messages) }
     var timedOut by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
-    
-    
-    
+    var quickFilter by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         isLoading = true
         try {
@@ -68,8 +73,7 @@ fun HomePageScreen(
         filtered = messages
         isLoading = false
 
-        messageFilterState
-            .setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
+        messageFilterState.setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
 
         if (prefStorage.getArchiveEnabled()) {
             val minStatus = prefStorage.getArchiveMinStatus()
@@ -83,8 +87,7 @@ fun HomePageScreen(
             val archived = toArchive.filter { msg ->
                 try {
                     sendInteraction(
-                        client,
-                        accessToken,
+                        client, accessToken,
                         InteractionInfoData(
                             userIdentifier = userIdentifier,
                             messageExtId = msg.externalId,
@@ -100,7 +103,7 @@ fun HomePageScreen(
             }
         }
     }
-    
+
     try {
         scope.launch {
             while (timedOut) {
@@ -119,20 +122,130 @@ fun HomePageScreen(
     } catch (e: UnauthorizedException) {
         error = e
     }
-    
+
     val unreadCount = messages.count { it.status != MessageStatus.read }
+
+    // Quick-filter the base list, then pass to advanced filter
+    val quickFiltered = remember(messages, quickFilter) {
+        when (quickFilter) {
+            "unread" -> messages.filter { it.status != MessageStatus.read }
+            "urgent" -> messages.filter { it.isUrgent }
+            else -> messages
+        }
+    }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.vezerfonal),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-            )
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding(),
+                ) {
+                    // Title row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(Res.string.inbox_title),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            if (messages.isNotEmpty()) {
+                                Text(
+                                    text = "$unreadCount ${stringResource(Res.string.unread_of_connector)} ${messages.size}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        // Advanced filter icon
+                        val activeFilterCount = listOf(
+                            messageFilterState.senderName.isNotEmpty(),
+                            messageFilterState.isImportant,
+                            messageFilterState.isWaitingForAnswer,
+                            messageFilterState.searchQuery.isNotEmpty(),
+                            messageFilterState.tagSelectionState.selectedItems.isNotEmpty(),
+                            messageFilterState.selectedStartDate != 0L || messageFilterState.selectedEndDate != 0L,
+                        ).count { it }
+                        BadgedBox(badge = {
+                            if (activeFilterCount > 0)
+                                Badge { Text(activeFilterCount.toString()) }
+                        }) {
+                            IconButton(onClick = { isFilterOpened = !isFilterOpened }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.FilterList,
+                                    contentDescription = "Filter",
+                                    tint = if (activeFilterCount > 0)
+                                        MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+
+                    // Quick filter chips
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = Spacing.lg),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                        modifier = Modifier.padding(bottom = Spacing.sm),
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = quickFilter == null,
+                                onClick = { quickFilter = null; filtered = messages },
+                                label = { Text(stringResource(Res.string.filter_all)) },
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = quickFilter == "unread",
+                                onClick = {
+                                    quickFilter = if (quickFilter == "unread") null else "unread"
+                                    filtered = if (quickFilter == "unread")
+                                        messages.filter { it.status != MessageStatus.read }
+                                    else messages
+                                },
+                                label = { Text(stringResource(Res.string.unread)) },
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = quickFilter == "urgent",
+                                onClick = {
+                                    quickFilter = if (quickFilter == "urgent") null else "urgent"
+                                    filtered = if (quickFilter == "urgent")
+                                        messages.filter { it.isUrgent }
+                                    else messages
+                                },
+                                label = { Text(stringResource(Res.string.urgent)) },
+                            )
+                        }
+                    }
+
+                    // Advanced filter controls (when open)
+                    if (isFilterOpened) {
+                        FilterRow(
+                            onFilterOpened = { isFilterOpened = true },
+                            onCompleted = { result ->
+                                filtered = result
+                                isFilterOpened = false
+                            },
+                            isFilterOpened = isFilterOpened,
+                            messages = quickFiltered,
+                            state = messageFilterState,
+                        )
+                    }
+
+                    if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    else HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                }
+            }
         },
         containerColor = MaterialTheme.colorScheme.surface,
     ) { innerPadding ->
@@ -141,122 +254,49 @@ fun HomePageScreen(
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                HomeGreetingHeader(
-                    messageCount = messages.size,
-                    unreadCount = unreadCount,
-                )
-
-                FilterRow(
-                    onFilterOpened = { isFilterOpened = true },
-                    onCompleted = {
-                        filtered = it
-                        isFilterOpened = false
-                    },
-                    isFilterOpened = isFilterOpened,
-                    messages = messages,
-                    state = messageFilterState
-                )
-
-                if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-                else HorizontalDivider()
-
-                Box(Modifier.weight(1f)) {
-                    ScrollableMessageList(
-                        isSwipeable = true,
-                        messages = filtered,
-                        onMessageClick = onMessageClick,
-                        onArchive = { message ->
-                            filtered = filtered.filter { it != message }
-
-                            scope.launch {
-                                try {
-                                    sendInteraction(
-                                        client,
-                                        accessToken,
-                                        InteractionInfoData(
-                                            userIdentifier = userIdentifier,
-                                            messageExtId = message.externalId,
-                                            type = InteractionType.archive,
-                                        ),
-                                    )
-                                } catch (e: Exception) {
-                                    error = e
-                                }
-                            }
-                        }
-                    ) {
-                        if (isFilterOpened)
-                            MessageFilter(
-                                state = messageFilterState,
-                                tabOpenedClick = { isTagSelectTabOpened = true },
-                                modifier = Modifier.align(Alignment.TopCenter),
-                            ) { scrollLockedBySliderCallback(it && isFilterOpened) }
-                        else scrollLockedBySliderCallback(false)
-
-                        if (isTagSelectTabOpened && isFilterOpened)
-                            TagSelect(
-                                snapshot = messageFilterState.tagSelectionState,
-                                onCancelClick = { isTagSelectTabOpened = false },
-                                onApplyClick = { tags ->
-                                    messageFilterState
-                                        .updateTagSelectionState(
-                                            TagSelectionStateModel(
-                                                selectedItems = tags.toSet()
-                                            )
-                                        )
-                                }
+            ScrollableMessageList(
+                isSwipeable = true,
+                messages = filtered,
+                onMessageClick = onMessageClick,
+                onArchive = { message ->
+                    filtered = filtered.filter { it != message }
+                    scope.launch {
+                        try {
+                            sendInteraction(
+                                client, accessToken,
+                                InteractionInfoData(
+                                    userIdentifier = userIdentifier,
+                                    messageExtId = message.externalId,
+                                    type = InteractionType.archive,
+                                ),
                             )
+                        } catch (e: Exception) {
+                            error = e
+                        }
                     }
                 }
+            ) {
+                if (isFilterOpened)
+                    MessageFilter(
+                        state = messageFilterState,
+                        tabOpenedClick = { isTagSelectTabOpened = true },
+                        modifier = Modifier.align(Alignment.TopCenter),
+                    ) { scrollLockedBySliderCallback(it && isFilterOpened) }
+                else scrollLockedBySliderCallback(false)
+
+                if (isTagSelectTabOpened && isFilterOpened)
+                    TagSelect(
+                        snapshot = messageFilterState.tagSelectionState,
+                        onCancelClick = { isTagSelectTabOpened = false },
+                        onApplyClick = { tags ->
+                            messageFilterState.updateTagSelectionState(
+                                TagSelectionStateModel(selectedItems = tags.toSet())
+                            )
+                        }
+                    )
             }
 
             if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
-        }
-    }
-}
-
-@Composable
-private fun HomeGreetingHeader(
-    messageCount: Int,
-    unreadCount: Int,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow),
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column {
-                Text(
-                    text = stringResource(Res.string.inbox_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                if (messageCount > 0) {
-                    Spacer(Modifier.height(Spacing.xs))
-                    Text(
-                        text = "$unreadCount / $messageCount",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            if (unreadCount > 0) {
-                Badge(containerColor = MaterialTheme.colorScheme.primary) {
-                    Text(
-                        text = unreadCount.toString(),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.labelSmall,
-                    )
-                }
-            }
         }
     }
 }

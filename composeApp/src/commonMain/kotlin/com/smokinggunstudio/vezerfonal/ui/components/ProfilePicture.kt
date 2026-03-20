@@ -8,14 +8,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.smokinggunstudio.vezerfonal.helpers.FileData
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.network.api.getProfilePicture
@@ -53,12 +56,15 @@ fun ProfilePicture(
         horizontalAlignment = horizontalAlignment,
         modifier = modifier
     ) {
+        val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: ""
+        val fontSize = (size.value * 0.4f).sp
+
         Box(
             modifier = Modifier
                 .size(size)
                 .clip(CircleShape)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     shape = CircleShape
                 )
                 .align(Alignment.CenterHorizontally),
@@ -79,11 +85,20 @@ fun ProfilePicture(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.fillMaxSize()
                 )
-            } ?: Image(
-                imageVector = Icons.Filled.Person,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-            )
+            } ?: if (initial.isNotEmpty()) {
+                Text(
+                    text = initial,
+                    fontSize = fontSize,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            } else {
+                Image(
+                    imageVector = Icons.Filled.Person,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(0.6f),
+                )
+            }
         }
     }
 }
