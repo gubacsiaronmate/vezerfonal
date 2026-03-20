@@ -213,7 +213,7 @@ data class Home(
                             )
                         },
                         onArchiveClick = { navigator.push(ArchiveOptions) },
-                        onTOSClick = { },
+                        onTOSClick = { navigator.push(TermsOfService) },
                         onLanguageClick = { navigator.push(Language) },
                         onThemeSwitchClick = { isDark ->
                             darkModeState.value = isDark

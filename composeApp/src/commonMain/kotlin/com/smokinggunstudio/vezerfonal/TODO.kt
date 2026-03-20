@@ -5,7 +5,7 @@ package com.smokinggunstudio.vezerfonal
 //    Non-critical:
 //    Done: edit display name in account settings
 //    TODO: change pfp in account settings
-//    TODO: TOS
+//    Done: TOS
 //    Done: archive options screen (auto-archive with status threshold + delay, client-side)
 
 //    Done: set up 2fa screen
