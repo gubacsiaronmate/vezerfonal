@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
@@ -34,6 +35,7 @@ fun CreateTagDialog(
     
     Box(Modifier.fillMaxSize()) {
         CreateDialog(
+            modifier = Modifier.align(Alignment.Center),
             titleText = stringResource(Res.string.create_tag),
             onCancelClick = onCancelClick,
             onCreateClick = {

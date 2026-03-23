@@ -1,10 +1,13 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,82 +24,150 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserManagementScreen(
     users: List<UserData>,
     accessToken: String,
     client: HttpClient,
+    onBack: () -> Unit,
 ) {
     val isExpanded = LocalWindowSizeInfo.current.widthClass == WindowWidthClass.Expanded
-
     var userList by remember { mutableStateOf(users) }
-    val pendingDeletion = userList.filter { it.deletionRequested }
-    val activeUsers = userList.filter { !it.deletionRequested }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val screenContent: @Composable ColumnScope.() -> Unit = {
-        Text(
-            text = stringResource(Res.string.user_management),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = Spacing.sm),
-        )
-
-        if (pendingDeletion.isNotEmpty()) {
-            Spacer(Modifier.height(Spacing.sm))
-            Text(
-                text = stringResource(Res.string.deletion_requests),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = Spacing.xs),
-            )
-            pendingDeletion.forEach { user ->
-                DeletionRequestRow(
-                    user = user,
-                    accessToken = accessToken,
-                    client = client,
-                    onActionCompleted = { userList = userList.map { u ->
-                        if (u.externalId == user.externalId) u.copy(deletionRequested = false) else u
-                    }},
-                )
-            }
-            HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.md))
+    val filteredUsers = remember(userList, searchQuery) {
+        if (searchQuery.isBlank()) userList
+        else userList.filter {
+            it.name.contains(searchQuery, ignoreCase = true) ||
+            it.email.contains(searchQuery, ignoreCase = true)
         }
-
-        activeUsers.forEach { user -> UserRow(user) }
-
-        Spacer(Modifier.height(Spacing.xl))
     }
+    val pendingDeletion = filteredUsers.filter { it.deletionRequested }
+    val activeUsers = filteredUsers.filter { !it.deletionRequested }
 
-    if (isExpanded) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.user_management)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        isSearchVisible = !isSearchVisible
+                        if (!isSearchVisible) searchQuery = ""
+                    }) {
+                        Icon(
+                            imageVector = if (isSearchVisible) Icons.Filled.Close else Icons.Outlined.Search,
+                            contentDescription = null,
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(Spacing.xl),
-            contentAlignment = Alignment.TopCenter,
+                .padding(innerPadding),
         ) {
-            Card(
-                modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Spacing.lg)
-                        .verticalScroll(rememberScrollState()),
-                ) { screenContent() }
+            Column(Modifier.fillMaxSize()) {
+                AnimatedVisibility(isSearchVisible) {
+                    Column {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text(stringResource(Res.string.search)) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Outlined.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            ),
+                        )
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                    }
+                }
+
+                val screenContent: @Composable ColumnScope.() -> Unit = {
+                    if (pendingDeletion.isNotEmpty()) {
+                        Spacer(Modifier.height(Spacing.sm))
+                        Text(
+                            text = stringResource(Res.string.deletion_requests),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(bottom = Spacing.xs),
+                        )
+                        pendingDeletion.forEach { user ->
+                            DeletionRequestRow(
+                                user = user,
+                                accessToken = accessToken,
+                                client = client,
+                                onActionCompleted = {
+                                    userList = userList.map { u ->
+                                        if (u.externalId == user.externalId) u.copy(deletionRequested = false) else u
+                                    }
+                                },
+                            )
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = Spacing.md))
+                    }
+                    activeUsers.forEach { user -> UserRow(user) }
+                    Spacer(Modifier.height(Spacing.xl))
+                }
+
+                if (isExpanded) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(Spacing.xl),
+                        contentAlignment = Alignment.TopCenter,
+                    ) {
+                        Card(
+                            modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Spacing.lg)
+                                    .verticalScroll(rememberScrollState()),
+                            ) { screenContent() }
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(Spacing.lg)
+                            .verticalScroll(rememberScrollState()),
+                    ) { screenContent() }
+                }
             }
         }
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Spacing.lg)
-                .verticalScroll(rememberScrollState()),
-        ) { screenContent() }
     }
 }
 

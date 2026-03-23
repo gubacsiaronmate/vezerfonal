@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -7,7 +8,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
@@ -61,6 +63,8 @@ import vezerfonal.composeapp.generated.resources.search_groups
     var loaded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
     var searchQuery by remember { mutableStateOf("") }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     if (isSuperAdminLogIn) LaunchedEffect(Unit) {
         val d = try {
@@ -99,38 +103,61 @@ import vezerfonal.composeapp.generated.resources.search_groups
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f),
                         )
-                        TextButton(
-                            onClick = { isJoinPopUpOn = true },
-                        ) {
-                            Icon(Icons.Filled.Add, contentDescription = null)
-                            Spacer(Modifier.width(Spacing.xs))
-                            Text(stringResource(Res.string.join_group))
-                        }
-                    }
-                    // Search bar
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        placeholder = { Text(stringResource(Res.string.search_groups)) },
-                        leadingIcon = {
+                        IconButton(onClick = {
+                            isSearchVisible = !isSearchVisible
+                            if (!isSearchVisible) searchQuery = ""
+                        }) {
                             Icon(
-                                Icons.Outlined.Search,
+                                imageVector = if (isSearchVisible) Icons.Filled.Close else Icons.Outlined.Search,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Spacing.lg)
-                            .padding(bottom = Spacing.sm),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
-                        ),
-                    )
+                        }
+                        Box {
+                            IconButton(onClick = { isMenuExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded,
+                                onDismissRequest = { isMenuExpanded = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(Res.string.join_group)) },
+                                    leadingIcon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                                    onClick = { isMenuExpanded = false; isJoinPopUpOn = true },
+                                )
+                            }
+                        }
+                    }
+                    AnimatedVisibility(isSearchVisible) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text(stringResource(Res.string.search_groups)) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Outlined.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Spacing.lg)
+                                .padding(bottom = Spacing.sm),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            ),
+                        )
+                    }
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
                 }
             }
