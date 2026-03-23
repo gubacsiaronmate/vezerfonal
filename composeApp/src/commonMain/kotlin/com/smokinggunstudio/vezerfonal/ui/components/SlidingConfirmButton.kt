@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import com.smokinggunstudio.vezerfonal.ui.theme.Black
 import kotlin.math.roundToInt
 
 @Composable
@@ -44,7 +43,7 @@ fun SlidingConfirmButton(
                     .offset { IntOffset(offset.roundToInt(), 0) }
                     .size(height)
                     .background(
-                        color = Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         shape = RoundedCornerShape(roundness)
                     )
                     .pointerInput(Unit) {

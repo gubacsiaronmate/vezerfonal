@@ -2,8 +2,10 @@ package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +22,7 @@ import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
 import vezerfonal.composeapp.generated.resources.cancel
+import vezerfonal.composeapp.generated.resources.edit_total_uses
 
 @Composable
 fun RegCodeEditDialog(
@@ -32,18 +35,27 @@ fun RegCodeEditDialog(
     Dialog(
         modifier = modifier
     ) {
-        Text("Edit total uses", Modifier.align(Alignment.CenterHorizontally))
-        
+        Text(
+            text = stringResource(Res.string.edit_total_uses),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.align(Alignment.Start),
+        )
+
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth(),
         )
-        
-        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-            Button(onCancelClick) { Text(stringResource(Res.string.cancel)) }
-            
-            Button({ onApplyClick(text.toIntOrNull()); onCancelClick() }) { Text(stringResource(Res.string.applyStr)) }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            OutlinedButton(onCancelClick, shape = MaterialTheme.shapes.extraLarge) { Text(stringResource(Res.string.cancel)) }
+
+            AnimatedButton(onClick = { onApplyClick(text.toIntOrNull()); onCancelClick() }) { Text(stringResource(Res.string.applyStr)) }
         }
     }
 }

@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,8 +43,8 @@ fun CreateDialog(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(onCancelClick) { Text(stringResource(Res.string.cancel)) }
-            Button(onCreateClick) { Text(stringResource(Res.string.create)) }
+            OutlinedButton(onCancelClick, shape = MaterialTheme.shapes.extraLarge) { Text(stringResource(Res.string.cancel)) }
+            AnimatedButton(onClick = onCreateClick) { Text(stringResource(Res.string.create)) }
         }
     }
 }
