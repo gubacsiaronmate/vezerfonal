@@ -35,7 +35,7 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
     title: String,
     noinline onCancelClick: Function,
     onApplyClick: CallbackFunction<List<T>>,
-    noinline prefixContent: (@Composable (String) -> Unit)? = null,
+    noinline prefixContent: (@Composable (T) -> Unit)? = null,
 ) {
     @Suppress("UNCHECKED_CAST")
     val state: SelectionStateController<T> = remember {
@@ -97,7 +97,7 @@ internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
                     SelectionListItem(
                         item = item,
                         isChecked = item in state.selectedItems,
-                        prefixContent = if (prefixContent != null) { { prefixContent(item.name) } } else null,
+                        prefixContent = if (prefixContent != null) { { prefixContent(item) } } else null,
                     ) { checked -> if (checked) state.addItem(item) else state.removeItem(item) }
                 }
             }

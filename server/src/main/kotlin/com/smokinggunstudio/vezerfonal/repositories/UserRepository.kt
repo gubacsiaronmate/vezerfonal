@@ -104,13 +104,10 @@ class UserRepository(val db: Database) {
         property: Column<T>,
         newValue: T,
     ): Boolean = suspendTransaction(db) {
-        val user = getUserById(userId)
-        if (user != null)
-            Users.update({ Users.id eq user.id!! }) {
-                it[property] = newValue
-                it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
-            } == 1
-        else false
+        Users.update({ Users.id eq userId }) {
+            it[property] = newValue
+            it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+        } == 1
     }
     
     suspend fun getPasswordChangeCodeHash(userId: Int): String? =

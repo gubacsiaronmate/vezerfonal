@@ -19,38 +19,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.helpers.FileData
+import com.smokinggunstudio.vezerfonal.helpers.FileMetaData
 import com.smokinggunstudio.vezerfonal.helpers.log
 import com.smokinggunstudio.vezerfonal.network.api.getProfilePicture
+import com.smokinggunstudio.vezerfonal.network.helpers.NetworkConstants
 import com.smokinggunstudio.vezerfonal.ui.helpers.svgXMLToByteArray
 import com.smokinggunstudio.vezerfonal.ui.helpers.toImageResource
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.http.HttpHeaders
 import kotlin.math.roundToInt
 
 @Composable
 fun ProfilePicture(
     name: String = "",
     size: Dp = 48.dp,
+    profilePicFilename: String? = null,
     verticalArrangement: Arrangement.Vertical = Arrangement.Center,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     modifier: Modifier = Modifier
 ) {
+    val client = LocalHttpClient.current
     var data: FileData? by remember { mutableStateOf(null) }
     var loading by remember { mutableStateOf(false) }
     val pxSize = with(LocalDensity.current) { size.toPx() }.roundToInt()
-    
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(profilePicFilename ?: name) {
         loading = true
-        val d = try {
-            getProfilePicture(name, pxSize)
+        data = try {
+            if (profilePicFilename != null) {
+                val url = "${NetworkConstants.BASE_URL}${NetworkConstants.Endpoints.GET_PFP}$profilePicFilename"
+                val response = client.get(url)
+                val bytes = response.body<ByteArray>()
+                val mime = response.headers[HttpHeaders.ContentType] ?: "image/jpeg"
+                FileData(bytes, FileMetaData(profilePicFilename, mime))
+            } else {
+                getProfilePicture(name, pxSize)
+            }
         } catch (e: Throwable) {
-            log { "${e.message}\n${e.printStackTrace()}" }
+            log { e.message.orEmpty() }
             null
         }
-        data = d
         loading = false
     }
-    
-    
+
     Column(
         verticalArrangement = verticalArrangement,
         horizontalAlignment = horizontalAlignment,

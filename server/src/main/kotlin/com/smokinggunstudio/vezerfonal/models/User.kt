@@ -35,5 +35,6 @@ data class User @OptIn(ExperimentalTime::class) constructor(
         isSuperAdmin = isSuperAdmin,
         twoFactorEnabled = twoFactorEnabled,
         deletionRequested = deletionRequestedAt != null,
+        profilePicFilename = profilePic?.uri?.substringAfterLast("/"),
     )
 }

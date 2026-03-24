@@ -1,17 +1,21 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.toUrlValidFormat
 import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import org.jetbrains.compose.resources.stringResource
@@ -24,7 +28,9 @@ import vezerfonal.composeapp.generated.resources.reveal_id
 fun AccountSettingsNameCard(
     user: UserData,
     displayName: String,
-    onEditClick: () -> Unit,
+    profilePicFilename: String?,
+    onEditClick: Function,
+    onChangePfpClick: Function,
 ) {
     var revealEmail by remember { mutableStateOf(false) }
     var revealId by remember { mutableStateOf(false) }
@@ -48,12 +54,32 @@ fun AccountSettingsNameCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(Spacing.md),
             ) {
-                ProfilePicture(
-                    name = displayName.toUrlValidFormat(),
-                    size = 72.dp,
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                )
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clickable(onClick = onChangePfpClick),
+                ) {
+                    ProfilePicture(
+                        name = displayName.toUrlValidFormat(),
+                        size = 72.dp,
+                        profilePicFilename = profilePicFilename,
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.PhotoCamera,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(22.dp)
+                            .align(Alignment.BottomEnd)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = CircleShape,
+                            )
+                            .padding(3.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(Res.string.account),

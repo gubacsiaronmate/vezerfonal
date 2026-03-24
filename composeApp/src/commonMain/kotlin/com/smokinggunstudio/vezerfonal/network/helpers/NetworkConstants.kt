@@ -99,5 +99,9 @@ object NetworkConstants {
         const val DENY_DELETION = "/api/users/deny-deletion"
 
         const val UPDATE_DISPLAY_NAME = "/api/users/display-name"
+
+        const val UPLOAD_PFP = "/api/users/pfp"
+
+        const val GET_PFP = "/pfp/"
     }
 }

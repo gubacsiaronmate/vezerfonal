@@ -30,11 +30,7 @@ class ImageService(
         multipart.forEachPart { part ->
             if (part !is PartData.FileItem) error("Part is not FileItem type.")
             val fileBytes = part.provider().readBuffer().readByteArray()
-            savedFileName = buildString {
-                + "user_${userId}_"
-                + UUID.randomUUID().toString()
-                + ".$extension"
-            }
+            savedFileName = "user_${userId}_${UUID.randomUUID()}.$extension"
             val file = File("$pfpDir/$savedFileName")
             file.writeBytes(fileBytes)
             part.dispose()
@@ -54,19 +50,17 @@ class ImageService(
         userId: Int,
         extension: String = "jpg"
     ): String = withContext(Dispatchers.IO) {
-        val savedFileName = buildString {
-            + "user_${userId}_"
-            + UUID.randomUUID().toString()
-            + ".$extension"
-        }
+        val savedFileName = "user_${userId}_${UUID.randomUUID()}.$extension"
         
         val file = File("$pfpDir/$savedFileName")
         file.writeBytes(bytes)
         "$pfpDir/$savedFileName"
     }
     
-    fun getImage(filename: String): File? =
-        File(pfpDir, filename).takeIf { it.exists() && it.isFile }
+    fun getImage(filename: String): File? {
+        if (!filename.matches(Regex("[a-zA-Z0-9_.\\-]+"))) return null
+        return File(pfpDir, filename).takeIf { it.exists() && it.isFile }
+    }
     
     fun getImageResponse(filename: String): ImageResponse? {
         val file = getImage(filename)

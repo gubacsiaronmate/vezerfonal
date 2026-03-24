@@ -15,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.FilePicker
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.network.api.getUserData
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
 import com.smokinggunstudio.vezerfonal.network.api.updateDisplayName
+import com.smokinggunstudio.vezerfonal.network.api.uploadProfilePicture
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
 import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
@@ -42,10 +45,22 @@ fun AccountSettingsScreen(
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
     val isExpanded = LocalWindowSizeInfo.current.widthClass == WindowWidthClass.Expanded
+    val filePicker = remember { FilePicker() }
     var displayName by remember { mutableStateOf(user.name) }
+    var pfpFilename by remember { mutableStateOf(user.profilePicFilename) }
+
+    LaunchedEffect(Unit) {
+        try {
+            val fresh = getUserData(accessToken, client)
+            pfpFilename = fresh.profilePicFilename
+        } catch (_: Exception) {
+            // non-critical — stale nav arg pfpFilename used as fallback
+        }
+    }
     var showEditNameDialog by remember { mutableStateOf(false) }
     var editNameInput by remember { mutableStateOf("") }
     var editNameError by remember { mutableStateOf<Throwable?>(null) }
+    var pfpError by remember { mutableStateOf<Throwable?>(null) }
 
     if (showEditNameDialog) {
         AlertDialog(
@@ -97,13 +112,37 @@ fun AccountSettingsScreen(
         )
     }
 
+    if (pfpError != null) {
+        AlertDialog(
+            onDismissRequest = { pfpError = null },
+            title = { Text(stringResource(Res.string.error_happened)) },
+            text = { Text(pfpError!!.message ?: "") },
+            confirmButton = {
+                TextButton(onClick = { pfpError = null }) {
+                    Text(stringResource(Res.string.close))
+                }
+            },
+        )
+    }
+
     val screenContent: @Composable ColumnScope.() -> Unit = {
         AccountSettingsNameCard(
             user = user,
             displayName = displayName,
+            profilePicFilename = pfpFilename,
             onEditClick = {
                 editNameInput = displayName
                 showEditNameDialog = true
+            },
+            onChangePfpClick = {
+                scope.launch {
+                    val file = filePicker.pickFile() ?: return@launch
+                    try {
+                        pfpFilename = uploadProfilePicture(client, accessToken, file)
+                    } catch (e: Exception) {
+                        pfpError = e
+                    }
+                }
             },
         )
         SettingRow(

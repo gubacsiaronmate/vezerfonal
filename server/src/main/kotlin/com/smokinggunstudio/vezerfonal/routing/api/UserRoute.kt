@@ -19,7 +19,7 @@ import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-fun Route.userRoute() {
+fun Route.userRoute(imageService: ImageService) {
     get("/data") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
@@ -304,5 +304,28 @@ fun Route.userRoute() {
 
         if (success) call.respond(HttpStatusCode.OK)
         else call.respond(HttpStatusCode.NotFound)
+    }
+
+    post("/pfp") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@post call.respond(HttpStatusCode.Unauthorized)
+
+        val userId = principal.user.id!!
+        val db = principal.db
+        val extension = call.request.contentType().contentSubtype
+
+        val bytes = tryIncoming("Unable to receive image bytes.") {
+            call.receive<ByteArray>()
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+        val fullPath = tryInternal("Unable to save profile picture.") {
+            imageService.saveImageBytes(bytes, userId, extension)
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+
+        tryInternal("Unable to update profile picture URI.") {
+            UserRepository(db).modifyUser(userId, Users.profilePicURI, fullPath)
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+
+        call.respond(HttpStatusCode.OK, fullPath.substringAfterLast("/"))
     }
 }

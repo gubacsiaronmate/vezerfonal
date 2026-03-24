@@ -22,6 +22,12 @@ fun IndividualSelect(
         title = stringResource(Res.string.individuals),
         onCancelClick = onCancelClick,
         onApplyClick = onApplyClick,
-        prefixContent = { ProfilePicture(it.toUrlValidFormat(), 48.dp) },
+        prefixContent = { user ->
+            ProfilePicture(
+                name = user.name.toUrlValidFormat(),
+                size = 48.dp,
+                profilePicFilename = user.profilePicFilename,
+            )
+        },
     )
 }

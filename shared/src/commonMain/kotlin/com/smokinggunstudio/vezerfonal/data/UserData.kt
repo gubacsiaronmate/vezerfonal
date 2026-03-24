@@ -14,4 +14,5 @@ data class UserData(
     val isSuperAdmin: Boolean,
     val twoFactorEnabled: Boolean = false,
     val deletionRequested: Boolean = false,
+    val profilePicFilename: String? = null,
 ) : NamedDTO, DTO
