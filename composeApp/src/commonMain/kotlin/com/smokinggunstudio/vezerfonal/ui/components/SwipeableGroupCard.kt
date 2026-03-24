@@ -21,5 +21,6 @@ fun SwipeableGroupCard(
         description = group.description,
         amITheAdmin = group.adminIdentifier == myIdentifier,
         memberCount = group.members.size,
+        alwaysShowId = true,
     ) }
 }

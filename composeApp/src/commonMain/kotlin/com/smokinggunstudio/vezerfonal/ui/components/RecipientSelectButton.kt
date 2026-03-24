@@ -15,7 +15,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 fun RecipientSelectButton(
     text: String,
     selectedAmount: Int,
-    onClick: Function
+    onClick: Function,
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
@@ -25,24 +26,17 @@ fun RecipientSelectButton(
             color = MaterialTheme.colorScheme.outlineVariant,
             width = 1.dp,
         ),
-        modifier = Modifier
-            .height(48.dp)
-            .padding(horizontal = 8.dp)
+        modifier = modifier.height(48.dp),
     ) {
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Min)
-        ) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
             Text(
                 text = text,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            VerticalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-            )
+            VerticalDivider(modifier = Modifier.padding(horizontal = 8.dp))
             Text(
                 text = selectedAmount.toString(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

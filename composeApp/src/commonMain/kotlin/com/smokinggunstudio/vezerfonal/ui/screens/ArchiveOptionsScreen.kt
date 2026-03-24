@@ -32,7 +32,6 @@ fun ArchiveOptionsScreen(
     onDelayChange: CallbackFunction<Int>,
 ) {
     val statusOptions = listOf(
-        MessageStatus.sent to stringResource(Res.string.sent),
         MessageStatus.received to stringResource(Res.string.received),
         MessageStatus.read to stringResource(Res.string.read),
     )

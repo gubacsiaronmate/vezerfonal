@@ -7,6 +7,9 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.toUrlValidFormat
 import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.individuals
 
 @Composable
 fun IndividualSelect(
@@ -16,8 +19,9 @@ fun IndividualSelect(
 ) {
     GeneralSelectionDialog(
         snapshot = snapshot,
+        title = stringResource(Res.string.individuals),
         onCancelClick = onCancelClick,
         onApplyClick = onApplyClick,
-        prefixContent = { ProfilePicture(it.toUrlValidFormat(), 48.dp) }
+        prefixContent = { ProfilePicture(it.toUrlValidFormat(), 48.dp) },
     )
 }

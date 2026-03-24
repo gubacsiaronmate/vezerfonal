@@ -186,4 +186,5 @@
     <string name="admin_user_management_desc">Felhasználók és törlési kérelmek kezelése</string>
     <string name="admin_tag_management_desc">Üzenetcímkék létrehozása és kezelése</string>
     <string name="admin_reg_code_management_desc">Meghívó kódok generálása és kezelése</string>
+    <string name="duplicate_reaction_error">Ez az emoji már szerepel</string>
 </resources>

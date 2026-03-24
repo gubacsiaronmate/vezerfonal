@@ -81,7 +81,12 @@ fun HomePageScreen(
             val now = Clock.System.now().toEpochMilliseconds()
 
             val toArchive = messages.filter { msg ->
-                msg.status.ordinal >= minStatus.ordinal && (now - msg.sentAt) >= delayMs
+                val statusQualifies = when (minStatus) {
+                    MessageStatus.received -> msg.status == MessageStatus.received || msg.status == MessageStatus.read
+                    MessageStatus.read -> msg.status == MessageStatus.read
+                    else -> false
+                }
+                statusQualifies && (now - msg.sentAt) >= delayMs
             }
 
             val archived = toArchive.filter { msg ->

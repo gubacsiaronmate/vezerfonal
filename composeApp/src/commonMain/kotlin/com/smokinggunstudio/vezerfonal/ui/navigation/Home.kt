@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
@@ -140,6 +141,7 @@ data class Home(
 
             val pagerState = rememberPagerState { tabs.size }
             var isScrollEnabled by remember { mutableStateOf(true) }
+            var selectedDrawerIndex by rememberSaveable { mutableStateOf(0) }
 
             @Composable
             fun TabContent(tab: NavBarContent) {
@@ -183,7 +185,8 @@ data class Home(
                         accessToken = accessToken,
                         guiao = guiao,
                         userList = userList,
-                        tagList = tagList
+                        tagList = tagList,
+                        scrollLockedBySliderCallback = { isScrollEnabled = !it },
                     )
                     Group -> GroupScreen(
                         accessToken = accessToken,
@@ -276,13 +279,12 @@ data class Home(
                 }
 
                 NavType.Drawer -> {
-                    var selectedIndex by remember { mutableStateOf(0) }
                     AppNavigationDrawer(
                         tabs = tabs,
-                        currentIndex = selectedIndex,
-                        onTabSelected = { i -> selectedIndex = i }
+                        currentIndex = selectedDrawerIndex,
+                        onTabSelected = { i -> selectedDrawerIndex = i }
                     ) {
-                        TabContent(tabs[selectedIndex])
+                        TabContent(tabs[selectedDrawerIndex])
                     }
                 }
             }

@@ -15,10 +15,12 @@ class PreferenceStorage {
     fun getArchiveEnabled(): Boolean = settings.getBooleanOrNull("archive_auto_enabled") ?: false
 
     fun saveArchiveMinStatus(status: MessageStatus) = settings.putString("archive_min_status", status.name)
-    fun getArchiveMinStatus(): MessageStatus =
-        settings.getStringOrNull("archive_min_status")
+    fun getArchiveMinStatus(): MessageStatus {
+        val stored = settings.getStringOrNull("archive_min_status")
             ?.let { name -> MessageStatus.entries.find { it.name == name } }
             ?: MessageStatus.read
+        return if (stored == MessageStatus.sent) MessageStatus.read else stored
+    }
 
     fun saveArchiveDelayHours(hours: Int) = settings.putInt("archive_delay_hours", hours)
     fun getArchiveDelayHours(): Int = settings.getIntOrNull("archive_delay_hours") ?: 168

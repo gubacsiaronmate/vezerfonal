@@ -1,117 +1,104 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onVisibilityChanged
-import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.NamedDTO
-import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
-import com.smokinggunstudio.vezerfonal.ui.helpers.SuspendCallbackClickEvent
 import com.smokinggunstudio.vezerfonal.ui.state.controller.GroupSelectionStateController
-import com.smokinggunstudio.vezerfonal.ui.state.controller.SearchBarStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.SelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.TagSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.controller.UserSelectionStateController
 import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
-import com.smokinggunstudio.vezerfonal.ui.state.model.SearchBarStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.SelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
 import com.smokinggunstudio.vezerfonal.ui.state.model.UserSelectionStateModel
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.applyStr
-import vezerfonal.composeapp.generated.resources.cancel
+import vezerfonal.composeapp.generated.resources.search
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal inline fun <reified T : NamedDTO> GeneralSelectionDialog(
     snapshot: SelectionStateModel<T>,
+    title: String,
     noinline onCancelClick: Function,
     onApplyClick: CallbackFunction<List<T>>,
-    noinline prefixContent: @Composable (String) -> Unit = { },
+    noinline prefixContent: (@Composable (String) -> Unit)? = null,
 ) {
     @Suppress("UNCHECKED_CAST")
     val state: SelectionStateController<T> = remember {
-        when(snapshot) {
+        when (snapshot) {
             is UserSelectionStateModel -> UserSelectionStateController(snapshot)
             is GroupSelectionStateModel -> GroupSelectionStateController(snapshot)
             is TagSelectionStateModel -> TagSelectionStateController(snapshot)
             else -> error("Invalid snapshot")
         } as SelectionStateController<T>
     }
-    val searchBarState = remember { SearchBarStateController(SearchBarStateModel()) }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .padding(8.dp)
-            .onVisibilityChanged { visible -> if (!visible) onCancelClick() }
-    ) {
-        SearchBar(
-            snapshot = searchBarState.snapshot(),
-            onClick = SuspendCallbackClickEvent { state.search(it.query) }
-        )
-        Box(modifier = Modifier.weight(1F)){
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxSize()
-                    .padding(bottom = 56.dp)
-            ) {
-                state.visibleItems.forEach {
-                    key(it.externalId) {
-                        SelectionListItem(
-                            item = it,
-                            isChecked = it in state.selectedItems,
-                            prefixContent = { prefixContent(it.name) }
-                        ) { checked -> if (checked) state.addItem(it) else state.removeItem(it) }
+    var query by remember { mutableStateOf("") }
+
+    Scaffold(
+        modifier = Modifier.onVisibilityChanged { visible -> if (!visible) onCancelClick() },
+        topBar = {
+            CenterAlignedTopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onCancelClick) {
+                        Icon(Icons.Default.Close, contentDescription = null)
                     }
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(color = MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = Spacing.sm),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Button(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = Spacing.xs),
-                    onClick = onCancelClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.cancel),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Button(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = Spacing.xs),
-                    onClick = {
+                },
+                title = { Text(title) },
+                actions = {
+                    TextButton(onClick = {
                         onApplyClick(state.selectedItems.toList())
                         onCancelClick()
-                    },
-                ) {
-                    Text(
-                        text = stringResource(Res.string.applyStr),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+                    }) {
+                        Text(stringResource(Res.string.applyStr))
+                    }
+                },
+            )
+        },
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it; state.search(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
+                placeholder = { Text(stringResource(Res.string.search)) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color.Transparent,
+                ),
+            )
+            state.visibleItems.forEach { item ->
+                key(item.externalId) {
+                    SelectionListItem(
+                        item = item,
+                        isChecked = item in state.selectedItems,
+                        prefixContent = if (prefixContent != null) { { prefixContent(item.name) } } else null,
+                    ) { checked -> if (checked) state.addItem(item) else state.removeItem(item) }
                 }
             }
         }
