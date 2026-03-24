@@ -3,11 +3,11 @@ package com.smokinggunstudio.vezerfonal
 //    Critical: (none)
 
 //    Non-critical:
-//    Done: edit display name in account settings
 //    TODO: change pfp in account settings
-//    Done: TOS
-//    Done: archive options screen (auto-archive with status threshold + delay, client-side)
 
+//    Done: edit display name in account settings
+//    Done: TOS
+//    Done: archive options screen (auto-archive with a status threshold + delay, client-side)
 //    Done: set up 2fa screen
 //    Done: set up account deletion popup
 //    Done: message filter doesnt work
