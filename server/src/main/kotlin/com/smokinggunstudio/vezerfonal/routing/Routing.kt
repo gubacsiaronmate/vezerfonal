@@ -21,14 +21,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.CORSConfig
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
-import java.io.File
 
 fun Application.configureRouting(
     imageService: ImageService,
-    webDir: String,
     mainDB: Database
 ) {
     install(ContentNegotiation, Configuration::json)
@@ -69,8 +66,6 @@ fun Application.configureRouting(
             twoFactorLoginRoute(mainDB)
         }
         
-        staticFiles("/", File(webDir), "index.html")
-
         authenticate("jwt-access") {
             route("/api") {
                 get(RoutingContext::apiGetRoute)

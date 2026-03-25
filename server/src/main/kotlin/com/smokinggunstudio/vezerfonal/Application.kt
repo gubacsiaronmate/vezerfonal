@@ -37,11 +37,6 @@ fun Application.module() = runBlocking {
             .propertyOrNull("ktor.application.paths.pfps")?.getString()
         ?: throw NoSuchFieldException("Unable to get path to pictures directory: No such environment variable.")
 
-    val webDir =
-        environment.config
-            .propertyOrNull("ktor.application.paths.web")?.getString()
-        ?: throw NoSuchFieldException("Unable to get path to web directory: No such environment variable.")
-    
     val firebaseCredentialsPath =
         environment.config
             .propertyOrNull("ktor.application.paths.firebase")?.getString()
@@ -60,5 +55,5 @@ fun Application.module() = runBlocking {
     EmailService.initialize(resendToken, emailFrom)
 
     configureDatabase(url, username, password)
-    configureRouting(imageService, webDir, MainDB!!)
+    configureRouting(imageService, MainDB!!)
 }
