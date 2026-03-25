@@ -57,10 +57,8 @@ class ImageService(
         "$pfpDir/$savedFileName"
     }
     
-    fun getImage(filename: String): File? {
-        if (!filename.matches(Regex("[a-zA-Z0-9_.\\-]+"))) return null
-        return File(pfpDir, filename).takeIf { it.exists() && it.isFile }
-    }
+    fun getImage(filename: String): File? =
+        File(pfpDir).listFiles { f -> f.isFile && f.name == filename }?.firstOrNull()
     
     fun getImageResponse(filename: String): ImageResponse? {
         val file = getImage(filename)

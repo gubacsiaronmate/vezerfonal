@@ -21,11 +21,14 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.CORSConfig
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.jdbc.Database
+import java.io.File
 
 fun Application.configureRouting(
     imageService: ImageService,
+    webDir: String,
     mainDB: Database
 ) {
     install(ContentNegotiation, Configuration::json)
@@ -41,6 +44,7 @@ fun Application.configureRouting(
 
         get("/pfp/{filename}") {
             val filename = call.parameters["filename"]
+                ?.takeIf { it.matches(Regex("[a-zA-Z0-9_.\\-]+")) }
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
             val img = imageService.getImageResponse(filename)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
@@ -65,6 +69,8 @@ fun Application.configureRouting(
             twoFactorLoginRoute(mainDB)
         }
         
+        staticFiles("/", File(webDir), "index.html")
+
         authenticate("jwt-access") {
             route("/api") {
                 get(RoutingContext::apiGetRoute)
