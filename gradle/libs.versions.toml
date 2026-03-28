@@ -13,7 +13,7 @@ androidx-testExt = "1.3.0"
 bcrypt = "0.10.2"
 composeHotReload = "1.0.0"
 #noinspection GradleDependency
-composeMultiplatform = "1.9.3"
+composeMultiplatform = "1.10.3"
 exposedJson = "1.0.0-rc-4"
 exposedMigrationCore = "1.0.0-rc-4"
 javaJwt = "4.5.0"
