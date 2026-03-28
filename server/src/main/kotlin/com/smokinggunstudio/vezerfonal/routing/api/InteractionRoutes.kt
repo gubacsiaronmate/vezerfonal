@@ -27,8 +27,8 @@ fun Route.interactionRoute() {
             val user = principal.user
             
             if (user.isAnyAdmin != true)
-                call.respond(HttpStatusCode.Unauthorized)
-            
+                return@get call.respond(HttpStatusCode.Unauthorized)
+
             val messageExtId = tryIncoming("Unable to receive message extId.") {
                 call.parameters["messageExtId"]
             } ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -78,8 +78,8 @@ fun Route.interactionRoute() {
                 call
                     .receive<InteractionInfoData>()
                     .toInteractionInfo(user, db)
-            } ?: return@post
-            
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
             val success = tryInternal("Unable to save interaction.") {
                 with(InteractionInfoRepository(db)) {
                     insertInteraction(interaction) &&
@@ -90,10 +90,10 @@ fun Route.interactionRoute() {
                         status = MessageStatus.read
                     ))
                 }
-            } ?: return@post
-            
+            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
+
             val trepo = PushTokenRepository(db)
-            
+
             val author = tryInternal("Unable to fetch author of message.") {
                 UserRepository(db)
                     .getUserByExternalId(
@@ -102,7 +102,7 @@ fun Route.interactionRoute() {
                             .author
                             .externalId
                     )
-            } ?: return@post
+            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
             
             sendNotification(
                 trepo = trepo,
@@ -112,7 +112,7 @@ fun Route.interactionRoute() {
                     notifType = NotificationType.Reaction,
                     data = with(interaction) {
                         mapOf(
-                            "reaction" to reaction!!,
+                            "reaction" to (reaction ?: ""),
                             "extra" to message.title
                         )
                     }
@@ -135,16 +135,16 @@ fun Route.interactionRoute() {
                 call
                     .receive<InteractionInfoData>()
                     .toInteractionInfo(user, db)
-            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-            
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
             val success = tryInternal("Unable to insert interaction.") {
                 InteractionInfoRepository(db).insertInteraction(interaction)
             } ?: return@post call.respond(HttpStatusCode.InternalServerError)
-            
+
             if (success) call.respond(HttpStatusCode.OK)
         }
     }
-    
+
     route("/status") {
         post("/send") {
             val principal = call.principal<AuthResponse>()
@@ -171,10 +171,10 @@ fun Route.interactionRoute() {
                 ?: return@get call.respond(HttpStatusCode.Unauthorized)
             
             if (principal.user.isAnyAdmin != true)
-                call.respond(HttpStatusCode.Forbidden)
-            
+                return@get call.respond(HttpStatusCode.Forbidden)
+
             val db = principal.db
-            
+
             val messageExtId = tryIncoming("Invalid message extId") {
                 call.parameters["messageExtId"]
             } ?: return@get call.respond(HttpStatusCode.BadRequest)
@@ -236,25 +236,29 @@ fun Route.interactionRoute() {
                 ?: return@post call.respond(HttpStatusCode.Unauthorized)
             
             if (principal.user.isAnyAdmin != true)
-                call.respond(HttpStatusCode.Forbidden)
-            
+                return@post call.respond(HttpStatusCode.Forbidden)
+
             val user = principal.user
             val db = principal.db
             
             val interaction = tryIncoming("Unable to receive interaction") {
                 call.receive<InteractionInfoData>()
                     .toInteractionInfo(user, db)
-            } ?: return@post
-            
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
             val success = tryInternal("Unable to insert interaction") {
                 InteractionInfoRepository(db)
                     .insertInteraction(interaction)
-            } ?: return@post
+            } ?: return@post call.respond(HttpStatusCode.InternalServerError)
             
-            val extId = interaction.recipient!!.externalId
-            
-            val userId = UserRepository(db)
-                .getUserByExternalId(extId)!!.id!!
+            val extId = tryIncoming("No recipient external Id") {
+                interaction.recipient?.externalId
+            } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
+            val userId = tryInternal("User not found") {
+                UserRepository(db)
+                    .getUserByExternalId(extId)?.id
+            } ?: return@post call.respond(HttpStatusCode.NotFound)
             
             sendNotification(
                 trepo = PushTokenRepository(db),

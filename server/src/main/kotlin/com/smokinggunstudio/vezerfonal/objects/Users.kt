@@ -16,9 +16,13 @@ object Users : Table("users"), Modifiable<Int> {
     val displayName = varchar("display_name", 255)
     val externalId = varchar("identifier", 255).uniqueIndex()
     val isSuperAdmin = bool("is_super_admin").default(false)
-    
+    val passwordChangeCode = varchar("password_change_code", 255).nullable()
+    val twoFactorEnabled = bool("two_factor_enabled").default(false)
+    val twoFactorCode = varchar("two_factor_code", 255).nullable()
+
     val createdAt = timestampWithTimeZone("created_at").defaultExpression(CurrentTimestampWithTimeZone)
     val updatedAt = timestampWithTimeZone("updated_at").defaultExpression(CurrentTimestampWithTimeZone)
+    val deletionRequestedAt = timestampWithTimeZone("deletion_requested_at").nullable()
     val deletedAt = timestampWithTimeZone("deleted_at").nullable()
     
     override val primaryKey = PrimaryKey(id)

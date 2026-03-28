@@ -69,6 +69,8 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
                             sentAt = message.sentAt,
                             isUrgent = message.isUrgent,
                             isRead = message.status == MessageStatus.read,
+                            status = message.status,
+                            tags = message.tags,
                             onClick = { onMessageClick(message) },
                         )
                     }

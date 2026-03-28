@@ -5,6 +5,9 @@ import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.state.model.GroupSelectionStateModel
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.groups
 
 @Composable
 fun GroupSelect(
@@ -12,5 +15,10 @@ fun GroupSelect(
     onCancelClick: Function,
     onApplyClick: CallbackFunction<List<GroupData>>
 ) {
-    GeneralSelectionDialog(snapshot, onCancelClick, onApplyClick)
+    GeneralSelectionDialog(
+        snapshot = snapshot,
+        title = stringResource(Res.string.groups),
+        onCancelClick = onCancelClick,
+        onApplyClick = onApplyClick,
+    )
 }

@@ -17,10 +17,6 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.name
-import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.coroutines.CoroutineContext
 
 fun Route.codeRoute(mainDB: Database) {
     get("/all") {
@@ -28,8 +24,8 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Forbidden)
-        
+            return@get call.respond(HttpStatusCode.Forbidden)
+
         val orgName = principal.db
             .connector()
             .schema
@@ -43,12 +39,9 @@ fun Route.codeRoute(mainDB: Database) {
             RegistrationCodeRepository(mainDB)
                 .getAllCodes()
                 .filter {
-                    log { it.organisation.name.lowercase() }
-                    val asd = it.organisation.name.lowercase() != orgName
-                    log { "$asd" }
-                    asd
+                    it.organisation.name.lowercase() == orgName
                 }.map { it.toDTO() }
-        } ?: return@get
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(codes)
     }
@@ -58,15 +51,15 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
+            return@post call.respond(HttpStatusCode.Forbidden)
+
         val regCode = tryIncoming("Unable to receive code.")
-        { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post
-        
+        { call.receive<RegCodeData>().toRegCode(principal.org) } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
         val success = tryInternal("Unable to insert reg code") {
             RegistrationCodeRepository(mainDB)
                 .insertCode(regCode)
-        } ?: return@post
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
     }
@@ -76,17 +69,16 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@patch call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
-        val db = principal.db
+            return@patch call.respond(HttpStatusCode.Forbidden)
+
         val org = principal.org
-        
-        val newCode = tryInternal("Unable to receive code.") {
+
+        val newCode = tryIncoming("Unable to receive code.") {
             call.receive<RegCodeData>().toRegCode(org)
         } ?: return@patch call.respond(HttpStatusCode.BadRequest)
-        
+
         val success = tryInternal("Unable to update code.") {
-            RegistrationCodeRepository(db)
+            RegistrationCodeRepository(mainDB)
                 .updateCode(newCode)
         } ?: return@patch call.respond(HttpStatusCode.InternalServerError)
         
@@ -98,17 +90,15 @@ fun Route.codeRoute(mainDB: Database) {
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
-        val db = principal.db
-        
+            return@delete call.respond(HttpStatusCode.Forbidden)
+
         val code = tryIncoming("Unable to receive code.") {
             call.receive<String>()
-        } ?: return@delete
-        
+        } ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
         val success = tryInternal("Unable to delete code.") {
-            RegistrationCodeRepository(db).deleteCode(code)
-        } ?: return@delete
+            RegistrationCodeRepository(mainDB).deleteCode(code)
+        } ?: return@delete call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
     }

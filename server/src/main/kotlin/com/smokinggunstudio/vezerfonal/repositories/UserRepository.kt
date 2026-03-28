@@ -28,15 +28,17 @@ class UserRepository(val db: Database) {
             externalId = this@toUser[Users.externalId],
             isAnyAdmin = null,
             isSuperAdmin = this@toUser[Users.isSuperAdmin],
+            twoFactorEnabled = this@toUser[Users.twoFactorEnabled],
             createdAt = this@toUser[Users.createdAt].toKotlinInstant(),
             updatedAt = this@toUser[Users.updatedAt].toKotlinInstant(),
+            deletionRequestedAt = this@toUser[Users.deletionRequestedAt]?.toKotlinInstant(),
             deletedAt = this@toUser[Users.deletedAt]?.toKotlinInstant()
         )
     }
     
     suspend fun getAllUsers(): List<User> =
         suspendTransaction(db) {
-            Users.selectAll().map { it.toUser() }
+            Users.selectAll().where { Users.deletedAt eq null }.map { it.toUser() }
         }
     
     suspend fun getUserByCondition(
@@ -102,15 +104,42 @@ class UserRepository(val db: Database) {
         property: Column<T>,
         newValue: T,
     ): Boolean = suspendTransaction(db) {
-        val user = getUserById(userId)
-        if (user != null)
-            Users.update({ Users.id eq user.id!! }) {
-                it[property] = newValue
-                it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
-            } == 1
-        else false
+        Users.update({ Users.id eq userId }) {
+            it[property] = newValue
+            it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+        } == 1
     }
     
+    suspend fun getPasswordChangeCodeHash(userId: Int): String? =
+        suspendTransaction(db) {
+            Users
+                .select(Users.passwordChangeCode)
+                .where { Users.id eq userId }
+                .singleOrNull()
+                ?.get(Users.passwordChangeCode)
+        }
+
+    suspend fun setPasswordChangeCode(userId: Int, codeHash: String?): Boolean =
+        modifyUser(userId, Users.passwordChangeCode, codeHash)
+
+    suspend fun updatePassword(userId: Int, hashedPassword: String): Boolean =
+        modifyUser(userId, Users.password, hashedPassword)
+
+    suspend fun getTwoFactorCodeHash(userId: Int): String? =
+        suspendTransaction(db) {
+            Users
+                .select(Users.twoFactorCode)
+                .where { Users.id eq userId }
+                .singleOrNull()
+                ?.get(Users.twoFactorCode)
+        }
+
+    suspend fun setTwoFactorCode(userId: Int, codeHash: String?): Boolean =
+        modifyUser(userId, Users.twoFactorCode, codeHash)
+
+    suspend fun setTwoFactorEnabled(userId: Int, enabled: Boolean): Boolean =
+        modifyUser(userId, Users.twoFactorEnabled, enabled)
+
     @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
     suspend fun createInternalUser(): User =
         suspendTransaction(db) {
@@ -127,6 +156,7 @@ class UserRepository(val db: Database) {
                     isSuperAdmin = false,
                     createdAt = null,
                     updatedAt = null,
+                    deletionRequestedAt = null,
                     deletedAt = null
                 )
             )

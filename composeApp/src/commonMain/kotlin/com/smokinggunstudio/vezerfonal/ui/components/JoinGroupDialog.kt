@@ -1,8 +1,8 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -32,7 +32,7 @@ fun JoinGroupDialog(
     var error by remember { mutableStateOf<Throwable?>(null)}
     
     Box(modifier.fillMaxSize()) {
-        Dialog {
+        Dialog(modifier = Modifier.align(Alignment.Center)) {
             Text(
                 text = stringResource(Res.string.join_group),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -55,8 +55,8 @@ fun JoinGroupDialog(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onCancelClick) { Text(stringResource(Res.string.cancel)) }
-                Button({
+                OutlinedButton(onCancelClick, shape = MaterialTheme.shapes.extraLarge) { Text(stringResource(Res.string.cancel)) }
+                AnimatedButton(onClick = {
                     try {
                         scope.launch {
                             val group = joinGroup(

@@ -16,8 +16,7 @@ actual class TokenStorage {
             ?: return null
         
         val refresh = kVault.string("refresh_token")
-            ?: return null
-        
+
         return TokenResponse(access, refresh)
     }
     

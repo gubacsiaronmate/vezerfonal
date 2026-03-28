@@ -6,10 +6,14 @@ import com.smokinggunstudio.vezerfonal.routing.api.*
 import com.smokinggunstudio.vezerfonal.routing.auth.jwtRefresh
 import com.smokinggunstudio.vezerfonal.routing.auth.loginRoute
 import com.smokinggunstudio.vezerfonal.routing.auth.registerRoute
+import com.smokinggunstudio.vezerfonal.routing.auth.twoFactorLoginRoute
 import com.smokinggunstudio.vezerfonal.security.auth.configureBasicAuth
 import com.smokinggunstudio.vezerfonal.security.auth.configureJWTAuth
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.serialization.Configuration
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -34,7 +38,16 @@ fun Application.configureRouting(
     
     routing {
         get("/organisations") { organisationRoute(mainDB) }
-        
+
+        get("/pfp/{filename}") {
+            val filename = call.parameters["filename"]
+                ?.takeIf { it.matches(Regex("[a-zA-Z0-9_.\\-]+")) }
+                ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val img = imageService.getImageResponse(filename)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.respondBytes(img.file.readBytes(), img.fileType)
+        }
+
         route("/register") { registerRoute(mainDB) }
         
         authenticate("jwt-refresh") {
@@ -48,6 +61,10 @@ fun Application.configureRouting(
                 loginRoute(mainDB)
             }
         }
+
+        route("/login") {
+            twoFactorLoginRoute(mainDB)
+        }
         
         authenticate("jwt-access") {
             route("/api") {
@@ -57,7 +74,7 @@ fun Application.configureRouting(
                 
                 route("/messages", Route::messageRoute)
                 
-                route("/users", Route::userRoute)
+                route("/users") { userRoute(imageService) }
                 
                 route("/groups", Route::groupRoute)
                 

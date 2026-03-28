@@ -37,6 +37,7 @@ suspend fun UserData.toUser(
             profilePic = null,
             createdAt = null,
             updatedAt = null,
+            deletionRequestedAt = null,
             deletedAt = null
         ).apply { password = this@toUser.password!! }
     )
@@ -47,12 +48,13 @@ suspend fun MessageData.toMessage(db: Database): Message {
     val urepo = UserRepository(db)
     val grepo = GroupRepository(db)
     
-    val author = urepo.getUserByExternalId(author.externalId)!!
+    val author = urepo.getUserByExternalId(author.externalId)
+        ?: throw IllegalArgumentException("Author not found: ${author.externalId}")
     
     val tagList = tags.map { tagName ->
         TagRepository(db)
             .getTagByName(tagName)
-            ?: error("Tag is not available.")
+            ?: throw IllegalArgumentException("Tag is not available.")
     }
     
     var group: Group? = null
@@ -60,10 +62,10 @@ suspend fun MessageData.toMessage(db: Database): Message {
     
     val users = userIdentifiers
         .orEmpty()
-        .map { urepo.getUserByExternalId(it)!! }
+        .map { urepo.getUserByExternalId(it) ?: throw IllegalArgumentException("User not found: $it") }
     val groupData = groups
         .orEmpty()
-        .map { grepo.getGroupByExtId(it)!! }
+        .map { grepo.getGroupByExtId(it) ?: throw IllegalArgumentException("Group not found: $it") }
     val allGroupUsers = groupData.flatMap { group ->
         group.members.map { it.user }
     }
@@ -108,10 +110,12 @@ suspend fun GroupData.toGroup(
     db: Database
 ): Group {
     val urepo = UserRepository(db)
-    val admin = urepo.getUserByExternalId(adminIdentifier)!!
+    val admin = urepo.getUserByExternalId(adminIdentifier)
+        ?: throw IllegalArgumentException("Admin user not found: $adminIdentifier")
     val memberships = members.map { identifier ->
         Membership(
-            user = urepo.getUserByExternalId(identifier)!!,
+            user = urepo.getUserByExternalId(identifier)
+                ?: throw IllegalArgumentException("Member not found: $identifier"),
             groupId = null,
             joinedAt = Clock.System.now()
         )
@@ -144,7 +148,8 @@ suspend fun InteractionInfoData.toInteractionInfo(user: User, db: Database): Int
     val urepo = UserRepository(db)
     val mrepo = MessageRepository(db)
     
-    val message = mrepo.getMessageByExtId(messageExtId)!!
+    val message = mrepo.getMessageByExtId(messageExtId)
+        ?: throw IllegalArgumentException("Message not found: $messageExtId")
     val recipient = recipientIdentifier
         ?.let { urepo.getUserByExternalId(it) }
     
@@ -159,13 +164,13 @@ suspend fun InteractionInfoData.toInteractionInfo(user: User, db: Database): Int
             message = message,
             user = user,
             type = type,
-            reaction = reaction!!
+            reaction = reaction ?: throw IllegalArgumentException("Reaction is required for reaction type")
         )
         InteractionType.nudge -> InteractionInfo(
             message = message,
             user = user,
             type = type,
-            recipient = recipient!!
+            recipient = recipient ?: throw IllegalArgumentException("Recipient is required for nudge type")
         )
         InteractionType.archive -> InteractionInfo(
             message = message,

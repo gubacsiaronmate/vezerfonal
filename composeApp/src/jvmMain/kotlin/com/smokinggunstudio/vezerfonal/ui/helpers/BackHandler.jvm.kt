@@ -18,8 +18,6 @@ actual object BackHandler {
                 if (e.id == KeyEvent.KEY_PRESSED) {
                     val isBackKey = when (e.keyCode) {
                         KeyEvent.VK_ESCAPE -> true
-                        KeyEvent.VK_BACK_SPACE -> !(e.isControlDown || e.isMetaDown)
-                        // Alt + Left Arrow is a common back gesture on desktop
                         KeyEvent.VK_LEFT -> e.isAltDown
                         else -> false
                     }

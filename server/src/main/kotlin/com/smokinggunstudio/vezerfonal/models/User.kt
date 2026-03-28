@@ -15,8 +15,10 @@ data class User @OptIn(ExperimentalTime::class) constructor(
     val externalId: String,
     var isAnyAdmin: Boolean?,
     val isSuperAdmin: Boolean = false,
+    val twoFactorEnabled: Boolean = false,
     val createdAt: Instant?,
     val updatedAt: Instant?,
+    val deletionRequestedAt: Instant?,
     val deletedAt: Instant?
 ) {
     var password: String
@@ -31,5 +33,8 @@ data class User @OptIn(ExperimentalTime::class) constructor(
         registrationCode = null,
         isAnyAdmin = isAnyAdmin ?: isSuperAdmin,
         isSuperAdmin = isSuperAdmin,
+        twoFactorEnabled = twoFactorEnabled,
+        deletionRequested = deletionRequestedAt != null,
+        profilePicFilename = profilePic?.uri?.substringAfterLast("/"),
     )
 }

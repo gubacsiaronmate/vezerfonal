@@ -35,7 +35,7 @@ object HomeCache {
             client
         )
 
-        tagList = getAllTags(accessToken, client)
+        tagList = getAllTags(accessToken, client).sortedBy { it.name }
         
         groups = (g + guiao).distinct().sortedWith(
             compareBy(

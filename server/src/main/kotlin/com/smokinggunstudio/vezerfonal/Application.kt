@@ -2,6 +2,7 @@ package com.smokinggunstudio.vezerfonal
 
 import com.smokinggunstudio.vezerfonal.database.MainDB
 import com.smokinggunstudio.vezerfonal.database.configureDatabase
+import com.smokinggunstudio.vezerfonal.helpers.EmailService
 import com.smokinggunstudio.vezerfonal.helpers.ImageService
 import com.smokinggunstudio.vezerfonal.helpers.NotificationService
 import com.smokinggunstudio.vezerfonal.routing.configureRouting
@@ -35,16 +36,24 @@ fun Application.module() = runBlocking {
         environment.config
             .propertyOrNull("ktor.application.paths.pfps")?.getString()
         ?: throw NoSuchFieldException("Unable to get path to pictures directory: No such environment variable.")
-    
+
     val firebaseCredentialsPath =
         environment.config
             .propertyOrNull("ktor.application.paths.firebase")?.getString()
         ?: error("Unable to get firebase credentials")
-    
+
+    val resendToken = environment.config
+        .propertyOrNull("ktor.application.email.token")?.getString()
+        ?: error("Resend API token not configured")
+    val emailFrom = environment.config
+        .propertyOrNull("ktor.application.email.from")?.getString()
+        ?: error("Email from address not configured")
+
     val imageService = ImageService(pfpDirectories)
-    
+
     NotificationService.initialize(firebaseCredentialsPath)
-    
+    EmailService.initialize(resendToken, emailFrom)
+
     configureDatabase(url, username, password)
     configureRouting(imageService, MainDB!!)
 }

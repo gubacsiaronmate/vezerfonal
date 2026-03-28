@@ -36,7 +36,7 @@ fun SentMsgBottomSheetRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ProfilePicture(username.toUrlValidFormat(), 24.dp)
+            ProfilePicture(username.toUrlValidFormat(), 48.dp)
             Spacer(Modifier.width(24.dp))
             Text(username)
         }

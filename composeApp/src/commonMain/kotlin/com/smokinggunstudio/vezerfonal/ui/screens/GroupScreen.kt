@@ -1,5 +1,6 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -7,20 +8,26 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.helpers.Identifier
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.network.api.deleteGroup
+import com.smokinggunstudio.vezerfonal.network.api.editGroup
 import com.smokinggunstudio.vezerfonal.network.api.getAllUsers
 import com.smokinggunstudio.vezerfonal.ui.components.CreateGroupDialog
+import com.smokinggunstudio.vezerfonal.ui.components.GroupEditDialog
 import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
 import com.smokinggunstudio.vezerfonal.ui.components.GroupCard
 import com.smokinggunstudio.vezerfonal.ui.components.JoinGroupDialog
@@ -35,6 +42,7 @@ import vezerfonal.composeapp.generated.resources.Res
 import vezerfonal.composeapp.generated.resources.create_group
 import vezerfonal.composeapp.generated.resources.groups
 import vezerfonal.composeapp.generated.resources.join_group
+import vezerfonal.composeapp.generated.resources.search_groups
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun GroupScreen(
@@ -49,9 +57,14 @@ import vezerfonal.composeapp.generated.resources.join_group
     var groups by remember(groupData) { mutableStateOf(groupData) }
     var isCreatePopUpOn by remember { mutableStateOf(false) }
     var isJoinPopUpOn by remember { mutableStateOf(false) }
+    var isEditPopUpOn by remember { mutableStateOf(false) }
+    var selectedGroup by remember { mutableStateOf<GroupData?>(null) }
     var users by remember { mutableStateOf<List<UserData>?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<Throwable?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     if (isSuperAdminLogIn) LaunchedEffect(Unit) {
         val d = try {
@@ -64,29 +77,90 @@ import vezerfonal.composeapp.generated.resources.join_group
         loaded = true
     } else loaded = true
 
+    val filteredGroups = remember(groups, searchQuery) {
+        if (searchQuery.isBlank()) groups
+        else groups.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.groups),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-                actions = {
-                    TextButton(
-                        onClick = { isJoinPopUpOn = true },
-                        modifier = Modifier.padding(end = Spacing.sm),
+            Surface(color = MaterialTheme.colorScheme.surface) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding(),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = null)
-                        Spacer(Modifier.width(Spacing.xs))
-                        Text(stringResource(Res.string.join_group))
+                        Text(
+                            text = stringResource(Res.string.groups),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                        IconButton(onClick = {
+                            isSearchVisible = !isSearchVisible
+                            if (!isSearchVisible) searchQuery = ""
+                        }) {
+                            Icon(
+                                imageVector = if (isSearchVisible) Icons.Filled.Close else Icons.Outlined.Search,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Box {
+                            IconButton(onClick = { isMenuExpanded = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = isMenuExpanded,
+                                onDismissRequest = { isMenuExpanded = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(Res.string.join_group)) },
+                                    leadingIcon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                                    onClick = { isMenuExpanded = false; isJoinPopUpOn = true },
+                                )
+                            }
+                        }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
-            )
+                    AnimatedVisibility(isSearchVisible) {
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text(stringResource(Res.string.search_groups)) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Outlined.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Spacing.lg)
+                                .padding(bottom = Spacing.sm),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                            ),
+                        )
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                }
+            }
         },
         floatingActionButton = {
             if (isSuperAdminLogIn) {
@@ -120,13 +194,13 @@ import vezerfonal.composeapp.generated.resources.join_group
                         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
                         verticalArrangement = Arrangement.spacedBy(Spacing.md),
                     ) {
-                        items(groups) { group ->
+                        items(filteredGroups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
-                                    onEdit = { },
+                                    onEdit = { isEditPopUpOn = true; selectedGroup = group },
                                     onDelete = {
                                         groups = groups.filter { it != group }
-                                        scope.launch { /* TODO: delete group */ }
+                                        scope.launch { deleteGroup(client, accessToken, group.externalId) }
                                     },
                                     group = group,
                                     myIdentifier = myIdentifier,
@@ -136,18 +210,19 @@ import vezerfonal.composeapp.generated.resources.join_group
                                 extId = group.externalId,
                                 description = group.description,
                                 amITheAdmin = group.adminIdentifier == myIdentifier,
+                                memberCount = group.members.size,
                             )
                         }
                     }
                 } else {
                     LazyColumn(Modifier.fillMaxSize()) {
-                        items(groups) { group ->
+                        items(filteredGroups) { group ->
                             if (isSuperAdminLogIn)
                                 SwipeableGroupCard(
-                                    onEdit = { },
+                                    onEdit = { isEditPopUpOn = true; selectedGroup = group },
                                     onDelete = {
                                         groups = groups.filter { it != group }
-                                        scope.launch { /* TODO: delete group */ }
+                                        scope.launch { deleteGroup(client, accessToken, group.externalId) }
                                     },
                                     group = group,
                                     myIdentifier = myIdentifier,
@@ -157,6 +232,7 @@ import vezerfonal.composeapp.generated.resources.join_group
                                 extId = group.externalId,
                                 description = group.description,
                                 amITheAdmin = group.adminIdentifier == myIdentifier,
+                                memberCount = group.members.size,
                             )
                         }
                     }
@@ -170,6 +246,23 @@ import vezerfonal.composeapp.generated.resources.join_group
                     modifier = Modifier.align(Alignment.Center),
                     onCancelClick = { isCreatePopUpOn = false },
                 ) { groups += it }
+
+            if (isSuperAdminLogIn && isEditPopUpOn && loaded && selectedGroup != null)
+                GroupEditDialog(
+                    group = selectedGroup!!,
+                    users = users!!,
+                    modifier = Modifier.align(Alignment.Center),
+                    onCancelClick = { isEditPopUpOn = false },
+                ) { updated ->
+                    groups = groups.map { if (it.externalId == updated.externalId) updated else it }
+                    scope.launch {
+                        try {
+                            editGroup(client, accessToken, updated)
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                    }
+                }
 
             if (isJoinPopUpOn) JoinGroupDialog(
                 accessToken = accessToken,

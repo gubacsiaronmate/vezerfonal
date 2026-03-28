@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.material3.ButtonDefaults
 import com.smokinggunstudio.vezerfonal.ui.components.AnimatedButton
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
@@ -51,7 +53,7 @@ fun LandingPageScreen(
         Spacer(Modifier.height(Spacing.xl))
         AnimatedButton(
             onClick = onRegisterClick,
-            shape = ShapeModifier.ROUNDED.toShape(),
+            shape = ShapeModifier.FULL.toShape(),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
@@ -64,13 +66,16 @@ fun LandingPageScreen(
         Spacer(Modifier.height(Spacing.md))
         AnimatedButton(
             onClick = onLoginClick,
-            shape = ShapeModifier.ROUNDED.toShape(),
+            shape = ShapeModifier.FULL.toShape(),
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ),
         ) {
             Text(
                 text = stringResource(Res.string.login),
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -96,7 +101,11 @@ fun LandingPageScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                textAndButtons()
+                Box(modifier = Modifier.widthIn(max = 400.dp)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        textAndButtons()
+                    }
+                }
             }
         }
     } else {
@@ -104,8 +113,8 @@ fun LandingPageScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = Spacing.lg),
-            verticalArrangement = Arrangement.SpaceEvenly,
+                .padding(horizontal = Spacing.xl, vertical = Spacing.xxl),
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             heroImage(

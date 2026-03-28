@@ -4,6 +4,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -12,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
@@ -19,6 +21,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalDarkModeState
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
+import com.smokinggunstudio.vezerfonal.LocalPreferenceStorage
 import com.smokinggunstudio.vezerfonal.data.GroupData
 import com.smokinggunstudio.vezerfonal.data.RegCodeData
 import com.smokinggunstudio.vezerfonal.data.TagData
@@ -53,6 +56,7 @@ data class Home(
         val client = LocalHttpClient.current
         val navigator = LocalNavigator.currentOrThrow
         val darkModeState = LocalDarkModeState.current
+        val prefStorage = LocalPreferenceStorage.current
         var loaded by remember { mutableStateOf(false) }
         var isRefreshing by remember { mutableStateOf(false) }
         var error by remember { mutableStateOf<Throwable?>(null) }
@@ -105,29 +109,13 @@ data class Home(
 
         val pullRefreshState = rememberPullToRefreshState()
 
-        PullToRefreshBox(
-            state = pullRefreshState,
-            isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize(),
-            onRefresh = {
-                if (isPullRefreshEnabled) {
-                    scope.launch {
-                        isRefreshing = true
-                        try {
-                            loadAll(force = true)
-                        } catch (e: Exception) {
-                            error = e
-                        }
-                        isRefreshing = false
-                    }
-                }
-            },
-        ) {
+        @Composable
+        fun HomeContent() {
             if (!loaded) {
                 Box(Modifier.fillMaxSize()) {
                     LinearProgressIndicator(Modifier.align(Alignment.Center))
                 }
-                return@PullToRefreshBox
+                return
             }
 
             val effectiveError = error
@@ -135,9 +123,10 @@ data class Home(
                 else UserNotFoundException()
 
             if (effectiveError != null) {
-                return@PullToRefreshBox Box(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxSize()) {
                     ErrorDialog(error!!, Modifier.align(Alignment.Center))
                 }
+                return
             }
 
             val tabs: List<NavBarContent> = remember {
@@ -152,9 +141,10 @@ data class Home(
 
             val pagerState = rememberPagerState { tabs.size }
             var isScrollEnabled by remember { mutableStateOf(true) }
+            var selectedDrawerIndex by rememberSaveable { mutableStateOf(0) }
 
             @Composable
-            fun TabContent(tab: NavBarContent, modifier: Modifier = Modifier) {
+            fun TabContent(tab: NavBarContent) {
                 when (tab) {
                     Home -> HomePageScreen(
                         accessToken = accessToken,
@@ -195,7 +185,8 @@ data class Home(
                         accessToken = accessToken,
                         guiao = guiao,
                         userList = userList,
-                        tagList = tagList
+                        tagList = tagList,
+                        scrollLockedBySliderCallback = { isScrollEnabled = !it },
                     )
                     Group -> GroupScreen(
                         accessToken = accessToken,
@@ -219,15 +210,18 @@ data class Home(
                                 AdminTools(
                                     token = accessToken,
                                     tagListStr = tagList.map { it.toSerialized() },
-                                    regCodesStr = regCodes.map { it.toSerialized() }
+                                    regCodesStr = regCodes.map { it.toSerialized() },
+                                    userListStr = userList.map { it.toSerialized() },
                                 )
                             )
                         },
-                        onArchiveClick = { },
-                        onNotificationsClick = { },
-                        onTOSClick = { },
-                        onLanguageClick = { },
-                        onThemeSwitchClick = { darkModeState.value = it },
+                        onArchiveClick = { navigator.push(ArchiveOptions) },
+                        onTOSClick = { navigator.push(TermsOfService) },
+                        onLanguageClick = { navigator.push(Language) },
+                        onThemeSwitchClick = { isDark ->
+                            darkModeState.value = isDark
+                            scope.launch { prefStorage.saveTheme(isDark) }
+                        },
                         onSentMessagesClick = {
                             navigator.push(
                                 SentMessages(
@@ -244,6 +238,7 @@ data class Home(
             when (navType) {
                 NavType.BottomBar -> {
                     Scaffold(
+                        modifier = Modifier.navigationBarsPadding(),
                         bottomBar = {
                             NavBar(
                                 tabs = tabs,
@@ -256,7 +251,7 @@ data class Home(
                     ) { paddingValues ->
                         HorizontalPager(
                             state = pagerState,
-                            modifier = Modifier.padding(paddingValues),
+                            modifier = Modifier.fillMaxSize().padding(paddingValues),
                             userScrollEnabled = isScrollEnabled,
                         ) { i ->
                             TabContent(tabs[i])
@@ -286,15 +281,34 @@ data class Home(
                 NavType.Drawer -> {
                     AppNavigationDrawer(
                         tabs = tabs,
-                        currentIndex = pagerState.currentPage,
-                        onTabSelected = { i ->
-                            scope.launch { pagerState.animateScrollToPage(i) }
-                        }
+                        currentIndex = selectedDrawerIndex,
+                        onTabSelected = { i -> selectedDrawerIndex = i }
                     ) {
-                        TabContent(tabs[pagerState.currentPage])
+                        TabContent(tabs[selectedDrawerIndex])
                     }
                 }
             }
+        }
+
+        if (isPullRefreshEnabled) {
+            PullToRefreshBox(
+                state = pullRefreshState,
+                isRefreshing = isRefreshing,
+                modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+                onRefresh = {
+                    scope.launch {
+                        isRefreshing = true
+                        try {
+                            loadAll(force = true)
+                        } catch (e: Exception) {
+                            error = e
+                        }
+                        isRefreshing = false
+                    }
+                },
+            ) { HomeContent() }
+        } else {
+            Box(Modifier.fillMaxSize()) { HomeContent() }
         }
     }
 }

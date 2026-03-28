@@ -37,9 +37,9 @@ fun Route.tagRoute() {
     post("/create") {
         val principal = call.principal<AuthResponse>()
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
-        
+
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Forbidden)
+            return@post call.respond(HttpStatusCode.Forbidden)
         
         val db = principal.db
         
@@ -57,9 +57,9 @@ fun Route.tagRoute() {
     put("/update") {
         val principal = call.principal<AuthResponse>()
             ?: return@put call.respond(HttpStatusCode.Unauthorized)
-        
+
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Forbidden)
+            return@put call.respond(HttpStatusCode.Forbidden)
         
         val db = principal.db
         
@@ -77,9 +77,9 @@ fun Route.tagRoute() {
     delete("/delete") {
         val principal = call.principal<AuthResponse>()
             ?: return@delete call.respond(HttpStatusCode.Unauthorized)
-        
+
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Forbidden)
+            return@delete call.respond(HttpStatusCode.Forbidden)
         
         val db = principal.db
         

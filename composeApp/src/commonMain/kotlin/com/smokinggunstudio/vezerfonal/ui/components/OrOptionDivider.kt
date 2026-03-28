@@ -24,7 +24,7 @@ import vezerfonal.composeapp.generated.resources.or
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -34,13 +34,13 @@ import vezerfonal.composeapp.generated.resources.or
         Text(
             text = stringResource(Res.string.or),
             style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.outlineVariant,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             maxLines = 1,
         )
         HorizontalDivider(
-            color = MaterialTheme.colorScheme.onBackground,
+            color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp,
             modifier = Modifier
                 .fillMaxWidth()

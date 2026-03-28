@@ -4,5 +4,6 @@ enum class PlatformType {
     Android,
     iOS,
     JS,
+    WASM,
     Desktop
 }

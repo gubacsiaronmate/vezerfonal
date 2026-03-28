@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.OrgData
+import com.smokinggunstudio.vezerfonal.helpers.TwoFactorRequiredException
 import com.smokinggunstudio.vezerfonal.helpers.TokenResponse
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
 import com.smokinggunstudio.vezerfonal.network.api.loginBasic
@@ -33,7 +36,8 @@ import vezerfonal.composeapp.generated.resources.*
 @Composable
 fun LoginScreen(
     orgsStr: List<String>,
-    onClick: CallbackFunction<TokenResponse>
+    onTwoFactorRequired: CallbackFunction<TwoFactorRequiredException>,
+    onClick: CallbackFunction<TokenResponse>,
 ) {
     val client = LocalHttpClient.current
     val orgs = orgsStr.map { it.toDTO<OrgData>() }
@@ -51,8 +55,7 @@ fun LoginScreen(
     fun FormContent() {
         Text(
             text = stringResource(Res.string.login),
-            style = if (isWide) MaterialTheme.typography.headlineLarge
-                    else MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Start,
             maxLines = 1,
@@ -116,6 +119,8 @@ fun LoginScreen(
                             client = client
                         )
                         onClick(tokens)
+                    } catch (e: TwoFactorRequiredException) {
+                        onTwoFactorRequired(e)
                     } catch (e: Exception) {
                         error = e
                     }
@@ -151,22 +156,25 @@ fun LoginScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(Spacing.xl),
                     horizontalAlignment = Alignment.Start,
                 ) {
+                    Spacer(Modifier.height(Spacing.sm))
                     FormContent()
                 }
             }
         } else {
             Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = Spacing.lg),
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.lg)
+                    .padding(top = Spacing.xxxl),
             ) {
                 FormContent()
             }

@@ -1,23 +1,18 @@
 package com.smokinggunstudio.vezerfonal
 
-//    Critical:
-//    TODO: push notification system!!!
-//    TODO: nudge feature is nowhere!!!
-//    TODO: message filter doesnt work
-//    TODO: group edit and delete buttons dont work
-//    TODO: user and tag management screens are completely blank
+//    Critical: (none)
 
-//    Non-critical:
-//    TODO: archive screen sometimes wants re-login
-//    TODO: edit display name in account settings
-//    TODO: change pfp in account settings
-//    TODO: notification settings screen
-//    TODO: TOS
-//    TODO: language selection screen
-//    TODO: set up 2fa screen
-//    TODO: set up account deletion popup
-//    TODO: archive options screen
+//    Non-critical: (none)
 
+//    Done: change pfp in account settings
+//    Done: edit display name in account settings
+//    Done: TOS
+//    Done: archive options screen (auto-archive with a status threshold + delay, client-side)
+//    Done: set up 2fa screen
+//    Done: set up account deletion popup
+//    Done: message filter doesnt work
+//    Done: nudge feature is nowhere!!!
+//    Done: push notification system!!!
 //    Done: tag system!!!
 //    Done: message statuses are broken!!! (fix: MessageRoute.kt)
 //    Done: sender emoji bug!!!
@@ -31,3 +26,8 @@ package com.smokinggunstudio.vezerfonal
 //    Done: create group popup text fields
 //    Done: reveal id and email in account settings
 //    Done: change password screen crashes when inputting a backspace in the code field (only when there is a single digit in the field)
+//    Done: group delete button doesnt work
+//    Done: apple oauth config stub
+//    Done: notification settings screen (removed — OS-level concern per decision)
+//    Done: language selection screen (en/hu with persistence, platform locale applied)
+//    Done: theme switch persistence (survives app kills)

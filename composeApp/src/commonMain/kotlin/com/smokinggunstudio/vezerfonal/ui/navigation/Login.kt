@@ -7,6 +7,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.LocalTokenStorage
+import com.smokinggunstudio.vezerfonal.helpers.TwoFactorRequiredException
 import com.smokinggunstudio.vezerfonal.ui.screens.LoginScreen
 import kotlinx.coroutines.launch
 
@@ -18,8 +19,19 @@ data class Login(
         val scope = rememberCoroutineScope()
         val tokenStorage = LocalTokenStorage.current
         val navigator = LocalNavigator.currentOrThrow
-        
-        LoginScreen(orgsStr) { newTokens ->
+
+        LoginScreen(
+            orgsStr = orgsStr,
+            onTwoFactorRequired = { e ->
+                navigator.push(
+                    TwoFactorLogin(
+                        email = e.email,
+                        orgExternalId = e.orgExternalId,
+                        rememberMe = e.rememberMe,
+                    )
+                )
+            },
+        ) { newTokens ->
             navigator.push(Home(newTokens.accessToken))
             scope.launch { tokenStorage.saveTokens(newTokens) }
         }

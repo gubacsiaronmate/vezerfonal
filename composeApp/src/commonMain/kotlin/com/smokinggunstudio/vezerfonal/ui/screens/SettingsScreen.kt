@@ -9,12 +9,12 @@ import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Language
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Outbox
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.data.UserData
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
@@ -33,7 +33,6 @@ fun SettingsScreen(
     onAccountSettingsClick: Function,
     onAdminToolsClick: Function,
     onArchiveClick: Function,
-    onNotificationsClick: Function,
     onTOSClick: Function,
     onLanguageClick: Function,
     onSentMessagesClick: Function,
@@ -50,7 +49,7 @@ fun SettingsScreen(
 
         // Account section
         if (user.isSuperAdmin || user.isAnyAdmin) {
-            Spacer(Modifier.height(Spacing.sm))
+            Spacer(Modifier.height(Spacing.lg))
             Text(
                 text = stringResource(Res.string.admin_tools),
                 style = MaterialTheme.typography.labelLarge,
@@ -73,7 +72,7 @@ fun SettingsScreen(
         }
 
         // Content section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_content),
             style = MaterialTheme.typography.labelLarge,
@@ -82,19 +81,14 @@ fun SettingsScreen(
         )
         SettingRow(
             imageVector = Icons.Outlined.Archive,
-            text = stringResource(Res.string.archive),
+            text = stringResource(Res.string.archive_options),
             onClick = onArchiveClick,
-        )
-        SettingRow(
-            imageVector = Icons.Outlined.Notifications,
-            text = stringResource(Res.string.notifications),
-            onClick = onNotificationsClick,
         )
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = Spacing.lg))
 
         // Appearance section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_appearance),
             style = MaterialTheme.typography.labelLarge,
@@ -113,7 +107,6 @@ fun SettingsScreen(
                 Switch(
                     checked = checked,
                     onCheckedChange = { checked = it; onThemeSwitchClick(it) },
-                    modifier = Modifier.height(24.dp),
                 )
             }
         )
@@ -121,7 +114,7 @@ fun SettingsScreen(
         HorizontalDivider(modifier = Modifier.padding(horizontal = Spacing.lg))
 
         // Legal section
-        Spacer(Modifier.height(Spacing.sm))
+        Spacer(Modifier.height(Spacing.lg))
         Text(
             text = stringResource(Res.string.settings_section_legal),
             style = MaterialTheme.typography.labelLarge,
@@ -137,33 +130,64 @@ fun SettingsScreen(
         Spacer(Modifier.height(Spacing.xl))
     }
 
-    if (isExpanded) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Spacing.xl),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            Card(
-                modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
+    Scaffold(
+        topBar = {
+            Surface(color = MaterialTheme.colorScheme.surface) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                ) { settingsContent() }
+                        .statusBarsPadding(),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.settings),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                }
             }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { innerPadding ->
+        if (isExpanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(Spacing.xl),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                Card(
+                    modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                    ) { settingsContent() }
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState()),
+            ) { settingsContent() }
         }
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
-        ) { settingsContent() }
     }
 }

@@ -75,5 +75,33 @@ object NetworkConstants {
         const val GET_STATUS_CHANGES_BY_MESSAGE_EXT_ID = "/api/messages/interactions/status/by-message-ext-id/"
         
         const val NEW_PUSH_TOKEN = "/api/users/register-push-token"
+
+        const val DELETE_GROUP = "/api/groups/delete"
+
+        const val EDIT_GROUP = "/api/groups/update"
+
+        const val PASSWORD_CHANGE_REQUEST = "/api/users/password-change/request"
+
+        const val PASSWORD_CHANGE = "/api/users/password-change"
+
+        const val DELETE_ACCOUNT = "/api/users/account"
+
+        const val TWO_FACTOR_LOGIN = "/login/2fa"
+
+        const val TWO_FACTOR_REQUEST = "/api/users/2fa/request"
+
+        const val TWO_FACTOR_ENABLE = "/api/users/2fa/enable"
+
+        const val TWO_FACTOR_DISABLE = "/api/users/2fa"
+
+        const val APPROVE_DELETION = "/api/users/approve-deletion"
+
+        const val DENY_DELETION = "/api/users/deny-deletion"
+
+        const val UPDATE_DISPLAY_NAME = "/api/users/display-name"
+
+        const val UPLOAD_PFP = "/api/users/pfp"
+
+        const val GET_PFP = "/pfp/"
     }
 }

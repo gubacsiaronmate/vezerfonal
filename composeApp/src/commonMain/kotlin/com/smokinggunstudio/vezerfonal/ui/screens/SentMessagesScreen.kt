@@ -1,32 +1,33 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.MessageData
 import com.smokinggunstudio.vezerfonal.data.TagData
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.network.api.getSentMessages
 import com.smokinggunstudio.vezerfonal.ui.components.*
 import com.smokinggunstudio.vezerfonal.ui.helpers.CallbackFunction
 import com.smokinggunstudio.vezerfonal.ui.helpers.earliestMessageTimestamp
 import com.smokinggunstudio.vezerfonal.ui.state.MessageFilterState
 import com.smokinggunstudio.vezerfonal.ui.state.model.TagSelectionStateModel
-import io.ktor.client.*
 import kotlin.time.ExperimentalTime
+import org.jetbrains.compose.resources.stringResource
+import vezerfonal.composeapp.generated.resources.Res
+import vezerfonal.composeapp.generated.resources.sent_messages
 
-@OptIn(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class, ExperimentalMaterial3Api::class)
 @Composable fun SentMessagesScreen(
     accessToken: String,
     tagList: List<TagData>,
     onMessageClick: CallbackFunction<MessageData>,
+    onBack: () -> Unit = {},
 ) {
     val client = LocalHttpClient.current
     var isLoading by remember { mutableStateOf(false) }
@@ -35,8 +36,8 @@ import kotlin.time.ExperimentalTime
     val messageFilterState = remember { MessageFilterState(tagList) }
     var isTagSelectTabOpened by remember { mutableStateOf(false) }
     var messages by remember { mutableStateOf<List<MessageData>>(emptyList()) }
-    var filtered by remember(messages) { mutableStateOf(messages)}
-    
+    var filtered by remember(messages) { mutableStateOf(messages) }
+
     LaunchedEffect(Unit) {
         isLoading = true
         try {
@@ -46,30 +47,71 @@ import kotlin.time.ExperimentalTime
         }
         filtered = messages
         isLoading = false
-        
-        messageFilterState
-            .setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
+        messageFilterState.setEarliestMessageUnixTime(messages.earliestMessageTimestamp)
     }
-    
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
-        Column {
-            FilterRow(
-                onFilterOpened = { isFilterOpened = true },
-                onCompleted = {
-                    filtered = it
-                    isFilterOpened = false
-                },
-                isFilterOpened = isFilterOpened,
-                messages = messages,
-                state = messageFilterState
-            )
-            if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            else HorizontalDivider(Modifier.height(1.dp))
+
+    val activeFilterCount = listOf(
+        messageFilterState.senderName.isNotEmpty(),
+        messageFilterState.isImportant,
+        messageFilterState.isWaitingForAnswer,
+        messageFilterState.searchQuery.isNotEmpty(),
+        messageFilterState.tagSelectionState.selectedItems.isNotEmpty(),
+        messageFilterState.selectedStartDate != 0L || messageFilterState.selectedEndDate != 0L,
+    ).count { it }
+
+    Scaffold(
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = { Text(stringResource(Res.string.sent_messages)) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    actions = {
+                        BadgedBox(badge = {
+                            if (activeFilterCount > 0) Badge { Text(activeFilterCount.toString()) }
+                        }) {
+                            IconButton(onClick = { isFilterOpened = !isFilterOpened }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.FilterList,
+                                    contentDescription = null,
+                                    tint = if (activeFilterCount > 0)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                )
+                if (isFilterOpened) {
+                    FilterRow(
+                        onFilterOpened = { isFilterOpened = true },
+                        onCompleted = { filtered = it; isFilterOpened = false },
+                        isFilterOpened = isFilterOpened,
+                        messages = messages,
+                        state = messageFilterState,
+                    )
+                }
+                if (isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                else HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
+        ) {
             ScrollableMessageList(
                 isSwipeable = false,
                 messages = filtered,
                 onMessageClick = onMessageClick,
-                onArchive = {}
             ) {
                 if (isFilterOpened)
                     MessageFilter(
@@ -77,23 +119,20 @@ import kotlin.time.ExperimentalTime
                         tabOpenedClick = { isTagSelectTabOpened = true },
                         modifier = Modifier.align(Alignment.TopCenter),
                     ) { _ -> }
-                
+
                 if (isTagSelectTabOpened && isFilterOpened)
                     TagSelect(
                         snapshot = messageFilterState.tagSelectionState,
                         onCancelClick = { isTagSelectTabOpened = false },
                         onApplyClick = { tags ->
-                            messageFilterState
-                                .updateTagSelectionState(
-                                    TagSelectionStateModel(
-                                        selectedItems = tags.toSet()
-                                    )
-                                )
+                            messageFilterState.updateTagSelectionState(
+                                TagSelectionStateModel(selectedItems = tags.toSet())
+                            )
                         }
                     )
             }
+
+            if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
         }
-        
-        if (error != null) ErrorDialog(error!!, Modifier.align(Alignment.Center))
     }
 }

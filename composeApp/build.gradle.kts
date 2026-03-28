@@ -1,5 +1,6 @@
 import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -48,6 +49,16 @@ kotlin {
     
     js {
         browser()
+        binaries.executable()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            webpackTask {
+                sourceMaps = false
+            }
+        }
         binaries.executable()
     }
     
@@ -113,13 +124,21 @@ kotlin {
             implementation(libs.multiplatformSettings)
             implementation(libs.kotlinx.datetime)
         }
+
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.js)
+                implementation(libs.skiko)
+                implementation(libs.multiplatformSettings)
+                implementation(libs.kotlinx.datetime)
+            }
+        }
         
         jvmMain.dependencies {
             implementation(libs.bcrypt)
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.skiko)
             implementation(libs.multiplatformSettings)
             implementation(libs.kotlinx.datetime)
         }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,33 +15,28 @@ import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 fun RecipientSelectButton(
     text: String,
     selectedAmount: Int,
-    onClick: Function
+    onClick: Function,
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         border = BorderStroke(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            width = 2.dp,
+            color = MaterialTheme.colorScheme.outlineVariant,
+            width = 1.dp,
         ),
-        modifier = Modifier
-            .padding(8.dp)
+        modifier = modifier.height(48.dp),
     ) {
-        Row(
-            modifier = Modifier.height(IntrinsicSize.Min)
-        ) {
+        Row(modifier = Modifier.height(IntrinsicSize.Min)) {
             Text(
                 text = text,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            VerticalDivider(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-            )
+            VerticalDivider(modifier = Modifier.padding(horizontal = 8.dp))
             Text(
                 text = selectedAmount.toString(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

@@ -1,32 +1,33 @@
 package com.smokinggunstudio.vezerfonal.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Shield
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.LocalHttpClient
 import com.smokinggunstudio.vezerfonal.data.UserData
-import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
+import com.smokinggunstudio.vezerfonal.helpers.FilePicker
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
+import com.smokinggunstudio.vezerfonal.network.api.getUserData
 import com.smokinggunstudio.vezerfonal.network.api.logOutRequest
+import com.smokinggunstudio.vezerfonal.network.api.updateDisplayName
+import com.smokinggunstudio.vezerfonal.network.api.uploadProfilePicture
 import com.smokinggunstudio.vezerfonal.ui.components.AccountSettingsNameCard
-import com.smokinggunstudio.vezerfonal.ui.components.ErrorDialog
+import com.smokinggunstudio.vezerfonal.ui.helpers.HomeCache
 import com.smokinggunstudio.vezerfonal.ui.components.SettingRow
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
-import io.ktor.client.HttpClient
+import com.smokinggunstudio.vezerfonal.ui.helpers.LocalWindowSizeInfo
+import com.smokinggunstudio.vezerfonal.ui.helpers.WindowWidthClass
+import com.smokinggunstudio.vezerfonal.ui.theme.Spacing
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import vezerfonal.composeapp.generated.resources.*
@@ -38,46 +39,174 @@ fun AccountSettingsScreen(
     tokenStorage: TokenStorage,
     onLogOutClick: Function,
     onChangePasswordClick: Function,
+    onRequestAccountDeletionClick: Function,
+    onTwoFactorClick: Function,
 ) {
     val client = LocalHttpClient.current
     val scope = rememberCoroutineScope()
-    var error by remember { mutableStateOf<Throwable?>(null) }
+    val isExpanded = LocalWindowSizeInfo.current.widthClass == WindowWidthClass.Expanded
+    val filePicker = remember { FilePicker() }
+    var displayName by remember { mutableStateOf(user.name) }
+    var pfpFilename by remember { mutableStateOf(user.profilePicFilename) }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        Column {
-            AccountSettingsNameCard(user)
-            SettingRow(
-                imageVector = Icons.Default.Password,
-                text = stringResource(Res.string.change_password),
-                onClick = onChangePasswordClick
-            )
-            SettingRow(
-                imageVector = Icons.Outlined.Shield,
-                text = stringResource(Res.string.set_up_2fa)
-            )
-            SettingRow(
-                imageVector = Icons.Outlined.DeleteForever,
-                text = stringResource(Res.string.request_account_deletion)
-            )
-            SettingRow(
-                imageVector = Icons.AutoMirrored.Outlined.Logout,
-                text = stringResource(Res.string.log_out)
-            ) {
-                try {
-                    scope.launch {
-                        logOutRequest(accessToken, client)
-                        tokenStorage.clearTokens()
-                        onLogOutClick()
-                    }
-                } catch (e: UnauthorizedException) {
-                    error = e
+    LaunchedEffect(Unit) {
+        try {
+            val fresh = getUserData(accessToken, client)
+            pfpFilename = fresh.profilePicFilename
+        } catch (_: Exception) {
+            // non-critical — stale nav arg pfpFilename used as fallback
+        }
+    }
+    var showEditNameDialog by remember { mutableStateOf(false) }
+    var editNameInput by remember { mutableStateOf("") }
+    var editNameError by remember { mutableStateOf<Throwable?>(null) }
+    var pfpError by remember { mutableStateOf<Throwable?>(null) }
+
+    if (showEditNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showEditNameDialog = false },
+            title = { Text(stringResource(Res.string.edit_display_name)) },
+            text = {
+                OutlinedTextField(
+                    value = editNameInput,
+                    onValueChange = { editNameInput = it },
+                    label = { Text(stringResource(Res.string.display_name)) },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = editNameInput.isNotBlank(),
+                    onClick = {
+                        val name = editNameInput.trim()
+                        scope.launch {
+                            try {
+                                updateDisplayName(client, accessToken, name)
+                                displayName = name
+                                showEditNameDialog = false
+                            } catch (e: Exception) {
+                                editNameError = e
+                            }
+                        }
+                    },
+                ) { Text(stringResource(Res.string.applyStr)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditNameDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
                 }
+            },
+        )
+    }
+
+    if (editNameError != null) {
+        AlertDialog(
+            onDismissRequest = { editNameError = null },
+            title = { Text(stringResource(Res.string.error_happened)) },
+            text = { Text(editNameError!!.message ?: "") },
+            confirmButton = {
+                TextButton(onClick = { editNameError = null }) {
+                    Text(stringResource(Res.string.close))
+                }
+            },
+        )
+    }
+
+    if (pfpError != null) {
+        AlertDialog(
+            onDismissRequest = { pfpError = null },
+            title = { Text(stringResource(Res.string.error_happened)) },
+            text = { Text(pfpError!!.message ?: "") },
+            confirmButton = {
+                TextButton(onClick = { pfpError = null }) {
+                    Text(stringResource(Res.string.close))
+                }
+            },
+        )
+    }
+
+    val screenContent: @Composable ColumnScope.() -> Unit = {
+        AccountSettingsNameCard(
+            user = user,
+            displayName = displayName,
+            profilePicFilename = pfpFilename,
+            onEditClick = {
+                editNameInput = displayName
+                showEditNameDialog = true
+            },
+            onChangePfpClick = {
+                scope.launch {
+                    val file = filePicker.pickFile() ?: return@launch
+                    try {
+                        pfpFilename = uploadProfilePicture(client, accessToken, file)
+                    } catch (e: Exception) {
+                        pfpError = e
+                    }
+                }
+            },
+        )
+        SettingRow(
+            imageVector = Icons.Default.Password,
+            text = stringResource(Res.string.change_password),
+            onClick = onChangePasswordClick,
+        )
+        SettingRow(
+            imageVector = Icons.Outlined.Shield,
+            text = stringResource(Res.string.set_up_2fa),
+            onClick = onTwoFactorClick,
+        )
+        SettingRow(
+            imageVector = Icons.Outlined.DeleteForever,
+            text = stringResource(Res.string.request_account_deletion),
+            onClick = onRequestAccountDeletionClick,
+        )
+        SettingRow(
+            imageVector = Icons.AutoMirrored.Outlined.Logout,
+            text = stringResource(Res.string.log_out),
+        ) {
+            scope.launch {
+                try {
+                    logOutRequest(accessToken, client)
+                } catch (_: Exception) {
+                    // Best-effort server-side logout. If the account was deleted
+                    // or any other error occurs, proceed with local logout anyway.
+                }
+                tokenStorage.clearTokens()
+                HomeCache.invalidate()
+                onLogOutClick()
             }
         }
 
-        if (error != null) ErrorDialog(error!!)
+        Spacer(Modifier.height(Spacing.xl))
+    }
+
+    if (isExpanded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Spacing.xl),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Card(
+                modifier = Modifier.widthIn(max = 600.dp).fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                ) { screenContent() }
+            }
+        }
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        ) { screenContent() }
     }
 }

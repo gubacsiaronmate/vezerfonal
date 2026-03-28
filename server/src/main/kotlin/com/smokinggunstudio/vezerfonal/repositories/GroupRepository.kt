@@ -5,6 +5,7 @@ import com.smokinggunstudio.vezerfonal.helpers.getExtId
 import com.smokinggunstudio.vezerfonal.helpers.ifNotEmpty
 import com.smokinggunstudio.vezerfonal.helpers.select
 import com.smokinggunstudio.vezerfonal.helpers.toKotlinInstant
+import com.smokinggunstudio.vezerfonal.helpers.toOffsetDateTime
 import com.smokinggunstudio.vezerfonal.models.Group
 import com.smokinggunstudio.vezerfonal.models.Membership
 import com.smokinggunstudio.vezerfonal.models.User
@@ -18,7 +19,9 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import java.time.ZoneOffset
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -144,6 +147,30 @@ class GroupRepository(val db: Database) {
             else false
         }
     
+    @OptIn(ExperimentalTime::class)
+    suspend fun updateGroup(group: Group): Boolean =
+        suspendTransaction(db) {
+            val admin = UserRepository(db).getUserByExternalId(group.admin.externalId)
+                ?: return@suspendTransaction false
+
+            val updated = Groups.update({ Groups.externalId eq group.externalId }) {
+                it[displayName] = group.displayName
+                it[description] = group.description
+                it[groupAdminId] = admin.id!!
+                it[updatedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+            }
+            updated > 0
+        }
+
+    @OptIn(ExperimentalTime::class)
+    suspend fun deleteGroup(externalId: String): Boolean =
+        suspendTransaction(db) {
+            val updated = Groups.update({ Groups.externalId eq externalId }) {
+                it[deletedAt] = Clock.System.now().toOffsetDateTime(ZoneOffset.UTC)
+            }
+            updated > 0
+        }
+
     @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
     suspend fun createInternalGroup(members: List<User>): Group =
         suspendTransaction(db) {
@@ -168,12 +195,6 @@ class GroupRepository(val db: Database) {
                 name = groupName,
                 externalId = admin.externalId
             )!!
-            memberships.forEach {
-                MembershipRepository(db).insertMemberIntoGroup(
-                    newUserId = UserRepository(db).getUserByExternalId(it.user.externalId)!!.id!!,
-                    newGroupId = group.id!!,
-                )
-            }
             return@suspendTransaction group
         }
 }

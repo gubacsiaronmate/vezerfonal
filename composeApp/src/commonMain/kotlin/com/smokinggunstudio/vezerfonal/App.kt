@@ -15,6 +15,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.data.UserData
+import com.smokinggunstudio.vezerfonal.helpers.PreferenceStorage
 import com.smokinggunstudio.vezerfonal.helpers.UnauthorizedException
 import com.smokinggunstudio.vezerfonal.helpers.security.TokenStorage
 import com.smokinggunstudio.vezerfonal.helpers.toDTO
@@ -29,18 +30,21 @@ import io.ktor.client.HttpClient
 
 val LocalHttpClient = staticCompositionLocalOf<HttpClient> { error("No HttpClient provided") }
 val LocalTokenStorage = staticCompositionLocalOf<TokenStorage> { error("No TokenStorage provided") }
+val LocalPreferenceStorage = staticCompositionLocalOf<PreferenceStorage> { error("No PreferenceStorage provided") }
 val LocalDarkModeState = staticCompositionLocalOf<MutableState<Boolean?>> { error("No dark mode state provided.") }
 
 @Composable fun App() {
-    val darkModeState = remember { mutableStateOf<Boolean?>(null) }
+    val prefStorage = remember { PreferenceStorage() }
+    val darkModeState = remember { mutableStateOf<Boolean?>(prefStorage.getTheme()) }
     val tokenStorage = remember { TokenStorage() }
     val client = remember { createHttpClient() }
-    
+
     VezerfonalTheme(darkModeState.value ?: isSystemInDarkTheme()) {
-        
+
         CompositionLocalProvider(
             LocalHttpClient provides client,
             LocalTokenStorage provides tokenStorage,
+            LocalPreferenceStorage provides prefStorage,
             LocalDarkModeState provides darkModeState,
         ) {
             BoxWithConstraints(

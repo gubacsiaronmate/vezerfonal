@@ -12,8 +12,10 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
 
@@ -31,7 +33,7 @@ fun Route.groupRoute() {
                 if (user.isSuperAdmin) it.getAllGroups()
                 else it.getAllGroupsByMemberUserId(user.id!!)
             }.filterNot { it.isInternal || it.displayName == "default" }.map { it.toDTO() }
-        } ?: return@get
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(groups)
     }
@@ -47,7 +49,7 @@ fun Route.groupRoute() {
             GroupRepository(db)
                 .getGroupsByAdminId(adminId)
                 .map { it.toDTO() }
-        } ?: return@get
+        } ?: return@get call.respond(HttpStatusCode.InternalServerError)
         
         call.respond(groups)
     }
@@ -57,15 +59,15 @@ fun Route.groupRoute() {
             ?: return@post call.respond(HttpStatusCode.Unauthorized)
         
         if (!principal.user.isSuperAdmin)
-            call.respond(HttpStatusCode.Unauthorized)
-        
+            return@post call.respond(HttpStatusCode.Unauthorized)
+
         val db = principal.db
-        
+
         val group = tryIncoming("Unable to receive group data.")
-        { call.receive<GroupData>().toGroup(db) } ?: return@post
-        
+        { call.receive<GroupData>().toGroup(db) } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
         val success = tryInternal("Unable to insert group.")
-        { GroupRepository(db).insertGroup(group) } ?: return@post
+        { GroupRepository(db).insertGroup(group) } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(HttpStatusCode.OK)
     }
@@ -79,30 +81,72 @@ fun Route.groupRoute() {
         
         val groupExtId = tryIncoming("Unable to receive extId.") {
             call.receive<String>()
-        } ?: return@post
-        
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
         val group = tryInternal("Unable to find group with ext id: $groupExtId")
-        { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post
-        
+        { GroupRepository(db).getGroupByExtId(groupExtId) } ?: return@post call.respond(HttpStatusCode.NotFound)
+
         val success = tryInternal("Unable to join group: ${group.displayName}.") {
             MembershipRepository(db)
                 .insertMemberIntoGroup(
                     newUserId = userId,
                     newGroupId = group.id!!
                 )
-        } ?: return@post println("Unable to join group: ${group.displayName}.")
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         if (success) call.respond(group.toDTO())
     }
     
+    put("/update") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@put call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+
+        val group = tryIncoming("Unable to receive group data.") {
+            call.receive<GroupData>().toGroup(db)
+        } ?: return@put call.respond(HttpStatusCode.BadRequest)
+
+        val success = tryInternal("Unable to update group.") {
+            GroupRepository(db).updateGroup(group)
+        } ?: return@put call.respond(HttpStatusCode.InternalServerError)
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
+    delete("/delete") {
+        val principal = call.principal<AuthResponse>()
+            ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+
+        if (!principal.user.isSuperAdmin)
+            return@delete call.respond(HttpStatusCode.Forbidden)
+
+        val db = principal.db
+
+        val externalId = tryIncoming("Unable to receive group ext id.") {
+            call.receive<String>()
+        } ?: return@delete call.respond(HttpStatusCode.BadRequest)
+
+        val success = tryInternal("Unable to delete group: $externalId.") {
+            GroupRepository(db).deleteGroup(externalId)
+        } ?: return@delete call.respond(HttpStatusCode.InternalServerError)
+
+        if (success) call.respond(HttpStatusCode.OK)
+        else call.respond(HttpStatusCode.NotFound)
+    }
+
     get("/extId") {
         val principal = call.principal<AuthResponse>()
             ?: return@get call.respond(HttpStatusCode.Unauthorized)
         
         val extId = tryIncoming("Unable to receive extId.") {
             call.receive<String>()
-        } ?: return@get
-        
+        } ?: return@get call.respond(HttpStatusCode.BadRequest)
+
         val db = principal.db
         val userId = principal.user.id!!
         
@@ -114,7 +158,7 @@ fun Route.groupRoute() {
                 .getAllGroupsByMemberUserId(userId)
             if (g != null && g in ugs) g
             else null
-        } ?: return@get
+        } ?: return@get call.respond(HttpStatusCode.NotFound)
         
         call.respond(group)
     }

@@ -2,9 +2,8 @@ package com.smokinggunstudio.vezerfonal.ui.navigation
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.screen.Screen
-import com.smokinggunstudio.vezerfonal.LocalHttpClient
-import com.smokinggunstudio.vezerfonal.data.MessageData
-import com.smokinggunstudio.vezerfonal.helpers.toDTO
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.smokinggunstudio.vezerfonal.ui.screens.MessageViewScreen
 
 data class ViewMessage(
@@ -16,12 +15,14 @@ data class ViewMessage(
 ) : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
         MessageViewScreen(
             accessToken = accessToken,
             isArchived = isArchived,
             messageStr = messageStr,
             isSenderView = isSenderView,
-            userIdentifier = userIdentifier
+            userIdentifier = userIdentifier,
+            onBack = { navigator.pop() },
         )
     }
 }

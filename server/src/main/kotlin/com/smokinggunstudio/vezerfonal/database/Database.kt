@@ -82,7 +82,7 @@ suspend fun ensureOrgDB(name: String): Database? {
     val escapedName = name.filter { it.isLetter() }
     val schemaName = "vezerfonal_org_$escapedName"
     
-    if (OrgDBs.containsKey(escapedName)) OrgDBs[escapedName]
+    if (OrgDBs.containsKey(escapedName)) return OrgDBs[escapedName]
     
     try {
         val db = connect(schemaName)

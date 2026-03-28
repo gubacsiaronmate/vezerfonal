@@ -1,19 +1,13 @@
 package com.smokinggunstudio.vezerfonal.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
-import androidx.compose.material3.Icon
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
 import com.smokinggunstudio.vezerfonal.ui.helpers.Function
 import com.smokinggunstudio.vezerfonal.ui.helpers.ComposableContent
@@ -27,7 +21,7 @@ fun SwipeToArchiveRow(
     val state = rememberSwipeToDismissBoxState(
         SwipeToDismissBoxValue.Settled
     ) { distance -> distance * 0.35f }
-    
+
     SwipeToDismissBox(
         state = state,
         modifier = modifier,
@@ -36,16 +30,26 @@ fun SwipeToArchiveRow(
         backgroundContent = {
             when (state.dismissDirection) {
                 SwipeToDismissBoxValue.EndToStart -> {
-                    Icon(
-                        imageVector = Icons.Default.Archive,
-                        contentDescription = "Archive",
-                        tint = MaterialTheme.colorScheme.onTertiary,
+                    Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.tertiary)
-                            .wrapContentSize(Alignment.CenterEnd)
-                            .padding(end = 20.dp)
-                    )
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(end = 20.dp),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Archive",
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Archive,
+                            contentDescription = "Archive",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    }
                 }
                 else -> Unit
             }

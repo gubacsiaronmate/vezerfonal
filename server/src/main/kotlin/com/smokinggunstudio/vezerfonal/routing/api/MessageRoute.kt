@@ -85,23 +85,24 @@ fun Route.messageRoute() {
             call
                 .receive<MessageData>()
                 .toMessage(db)
-        } ?: return@post
-        
+        } ?: return@post call.respond(HttpStatusCode.BadRequest)
+
         val (id, success) = tryInternal("Unable to insert message.") {
              MessageRepository(db).insertMessage(message)
-        } ?: return@post
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
-        if (!success) call.respondText(
+        if (!success) return@post call.respondText(
             text = "Message already sent.",
             status = HttpStatusCode.TooManyRequests
         )
-        
+
         val recipients: List<User> = message.user?.let { listOf(it) }
-            ?: message.group!!.members.map { it.user }
+            ?: message.group?.members?.map { it.user }
+            ?: return@post call.respond(HttpStatusCode.BadRequest)
         
         val insertedMessage = tryInternal("Unable to get message.") {
             MessageRepository(db).getMessageById(id)
-        } ?: return@post
+        } ?: return@post call.respond(HttpStatusCode.InternalServerError)
         
         val interactionSuccess = tryInternal("Unable to insert all interactions.") {
             recipients.map { user ->

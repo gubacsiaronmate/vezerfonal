@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.map
     onClick: Function,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(12.dp),
+    shape: Shape = RoundedCornerShape(50),
     colors: ButtonColors = ButtonDefaults.buttonColors(
         contentColor = MaterialTheme.colorScheme.onPrimary,
         containerColor = MaterialTheme.colorScheme.primary
