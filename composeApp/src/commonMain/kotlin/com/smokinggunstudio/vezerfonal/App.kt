@@ -35,7 +35,7 @@ val LocalDarkModeState = staticCompositionLocalOf<MutableState<Boolean?>> { erro
 
 @Composable fun App() {
     val prefStorage = remember { PreferenceStorage() }
-    val darkModeState = remember { mutableStateOf<Boolean?>(prefStorage.getTheme()) }
+    val darkModeState = remember { mutableStateOf(prefStorage.getTheme()) }
     val tokenStorage = remember { TokenStorage() }
     val client = remember { createHttpClient() }
 
