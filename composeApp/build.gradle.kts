@@ -62,6 +62,8 @@ kotlin {
         binaries.executable()
     }
     
+    jvmToolchain(21)
+
     configurations.all {
         resolutionStrategy {
             force(libs.kotlinx.datetime)
