@@ -5,12 +5,13 @@ import io.ktor.http.HttpMethod
 import io.ktor.server.plugins.cors.CORSConfig
 
 fun CORSConfig.initialize() {
-    allowHost("vezerfonal.org")
-    allowHost("localhost:8080")
+    allowHost("vezerfonal.org", schemes = listOf("https", "http"))
+    allowHost("localhost:8080", schemes = listOf("http", "https"))
     allowMethod(HttpMethod.Options)
     allowMethod(HttpMethod.Put)
     allowMethod(HttpMethod.Delete)
     allowMethod(HttpMethod.Patch)
     allowHeader(HttpHeaders.Authorization)
     allowHeader(HttpHeaders.ContentType)
+    allowNonSimpleContentTypes = true
 }
